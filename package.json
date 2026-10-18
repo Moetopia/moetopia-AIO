@@ -1,0 +1,42 @@
+{
+  "name": "moetopia-aio",
+  "private": true,
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:plain": "node scripts/dev.mjs --plain",
+    "test:dev": "node --test scripts/dev.test.mjs",
+    "dev:doctor": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/doctor.ps1",
+    "dev:doctor:remote": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/doctor.ps1 -RemoteDependencies",
+    "dev:up": "docker compose -f compose.dev.yml up -d --wait",
+    "dev:down": "docker compose -f compose.dev.yml down",
+    "build": "pnpm --filter @moetopia/account --filter @moetopia/admin --filter @moetopia/developer run build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm api:test",
+    "storybook": "pnpm --filter @moetopia/ui storybook",
+    "storybook:build": "pnpm --filter @moetopia/ui build-storybook",
+    "api:dev": "node --env-file=.env scripts/api.mjs dev",
+    "api:test": "go -C apps/api test ./...",
+    "api:generate": "go -C apps/api generate ./internal/persistence/ent",
+    "api:generate:client": "node scripts/generate-api.mjs",
+    "api:check:client": "node scripts/generate-api.mjs --check",
+    "api:migrate": "node --env-file=.env scripts/api.mjs migrate",
+    "api:keys:init": "node --env-file=.env scripts/api.mjs keys-init",
+    "dev:invite": "node --env-file=.env scripts/api.mjs dev-invite",
+    "test:integration": "node --env-file=.env scripts/integration.mjs",
+    "test:browser": "playwright test",
+    "test:ui": "playwright test --config playwright.ui.config.ts",
+    "test:account": "node --env-file=.env scripts/test-account.mjs",
+    "test:oidc": "node --env-file=.env scripts/test-oidc.mjs",
+    "docs:check": "node scripts/check-docs.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "mprocs": "0.9.6",
+    "openapi-typescript": "7.13.0",
+    "openid-client": "6.8.8"
+  }
+}

@@ -1,0 +1,123 @@
+import { expect, test } from '@playwright/test'
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/iframe.html?id=overview-components--default&viewMode=story')
+  await expect(page.getByRole('heading', { name: 'Moetopia 组件工作台' })).toBeVisible()
+})
+
+test('choice controls support labels, keyboard and disabled states', async ({ page }) => {
+  const checkbox = page.getByRole('checkbox', { name: '接收社区动态', exact: true })
+  await expect(checkbox).toBeChecked()
+  await page.getByText('接收社区动态', { exact: true }).click()
+  await expect(checkbox).not.toBeChecked()
+  await checkbox.focus()
+  await page.keyboard.press('Space')
+  await expect(checkbox).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: '暂时不可选' })).toBeDisabled()
+  const toggle = page.getByRole('switch', { name: '邮件通知', exact: true })
+  await toggle.focus()
+  await page.keyboard.press('Space')
+  await expect(toggle).not.toBeChecked()
+  await page.getByRole('radio', { name: '仅自己', exact: true }).focus()
+  await page.keyboard.down('ArrowDown')
+  await expect(page.getByRole('radio', { name: '公开', exact: true })).toBeChecked()
+  await page.keyboard.up('ArrowDown')
+  await page.keyboard.down('ArrowDown')
+  await expect(page.getByRole('radio', { name: '仅自己', exact: true })).toBeChecked()
+  await page.keyboard.up('ArrowDown')
+})
+
+test('select and tabs support keyboard navigation', async ({ page }) => {
+  const select = page.getByRole('combobox', { name: '语言' })
+  await select.focus()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('option', { name: '日本語（准备中）' })).toBeDisabled()
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('Enter')
+  await expect(select).toContainText('English')
+  await expect(select).toBeFocused()
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('Escape')
+  await expect(select).toBeFocused()
+  await page.getByRole('tab', { name: '账号', exact: true }).focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByRole('tab', { name: '安全', exact: true })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('tabpanel', { name: '安全', exact: true })).toContainText('方向键切换标签')
+  await expect(page.getByRole('tab', { name: '应用', exact: true })).toBeDisabled()
+})
+
+test('dialog returns focus and tooltip is available on focus', async ({ page }) => {
+  const trigger = page.getByRole('button', { name: '打开对话框', exact: true })
+  await trigger.click()
+  await expect(page.getByRole('dialog', { name: '确认操作' })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(trigger).toBeFocused()
+  await page.getByRole('button', { name: '查看提示', exact: true }).focus()
+  await expect(page.getByRole('tooltip')).toContainText('鼠标悬停或键盘聚焦均可显示')
+})
+
+test('loading preserves width and form errors are associated', async ({ page }) => {
+  const button = page.getByRole('button', { name: '查看加载状态', exact: true })
+  const before = await button.boundingBox()
+  await button.click()
+  await expect(button).toBeDisabled()
+  const after = await button.boundingBox()
+  expect(after?.width).toBe(before?.width)
+  await expect(button).toBeEnabled()
+  const input = page.getByRole('textbox', { name: '错误状态', exact: true })
+  await expect(input).toHaveAttribute('aria-invalid', 'true')
+  await expect(input).toHaveAccessibleDescription('请输入有效邮箱。')
+  await page.getByRole('textbox', { name: '个人简介', exact: true }).fill('Hello, Moetopia')
+  await expect(page.getByRole('textbox', { name: '个人简介', exact: true })).toHaveValue('Hello, Moetopia')
+})
+
+for (const theme of ['light', 'dark']) {
+  test(`${theme} gallery fits a narrow viewport`, async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto(`/iframe.html?id=overview-components--default&viewMode=story&globals=theme:${theme}`)
+    await expect(page.getByRole('heading', { name: 'Moetopia 组件工作台' })).toBeVisible()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  })
+}
+
+test('tab indicator follows selection and responds to viewport changes', async ({ page }) => {
+  const tabs = page.locator('.moe-tabs').first()
+  const indicator = tabs.locator('.moe-tabs-indicator')
+  const account = tabs.getByRole('tab', { name: '账号', exact: true })
+  const security = tabs.getByRole('tab', { name: '安全', exact: true })
+  await expect(indicator).toBeVisible()
+  const start = await indicator.boundingBox()
+  await security.click()
+  await expect.poll(async () => {
+    const [marker, target] = await Promise.all([indicator.boundingBox(), security.boundingBox()])
+    return !!marker && !!target && Math.abs(marker.x - target.x) < 1 && Math.abs(marker.width - target.width) < 1
+  }).toBe(true)
+  expect((await indicator.boundingBox())!.x).toBeGreaterThan(start!.x)
+  await expect(tabs.getByRole('tabpanel')).toHaveCount(1)
+  await page.setViewportSize({ width: 375, height: 812 })
+  await account.focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(security).toBeFocused()
+  await page.keyboard.press('ArrowRight')
+  await expect(account).toBeFocused()
+  await expect.poll(async () => {
+    const [marker, target] = await Promise.all([indicator.boundingBox(), account.boundingBox()])
+    return !!marker && !!target && Math.abs(marker.x - target.x) < 1
+  }).toBe(true)
+})
+
+test('reduced motion keeps controls and overlays usable without movement', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const security = page.getByRole('tab', { name: '安全', exact: true })
+  await security.click()
+  await expect(page.getByRole('tabpanel', { name: '安全', exact: true })).toBeVisible()
+  expect(await page.locator('.moe-tabs-indicator').first().evaluate(element => getComputedStyle(element).transitionDuration)).toBe('0s')
+  await page.getByRole('button', { name: '打开对话框', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toBeVisible()
+  expect(await dialog.evaluate(element => getComputedStyle(element).animationName)).toBe('none')
+  await page.keyboard.press('Escape')
+  await expect(dialog).toHaveCount(0)
+})

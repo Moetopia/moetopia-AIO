@@ -1,0 +1,45 @@
+name: Foundation checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.14.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/api/go.mod
+          cache-dependency-path: apps/api/go.sum
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm docs:check
+      - run: go -C apps/api test ./...
+      - run: go -C apps/api vet ./...
+      - run: go -C apps/api run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
+      - run: pnpm api:generate
+      - run: git diff --exit-code -- apps/api/internal/persistence/ent
+      - run: pnpm api:check:client
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm storybook:build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:browser
+      - run: node scripts/setup-dev.mjs
+      - run: docker compose -f compose.dev.yml up -d --wait
+      - run: pnpm test:integration
+      - run: pnpm test:account
+      - if: always()
+        run: docker compose -f compose.dev.yml down

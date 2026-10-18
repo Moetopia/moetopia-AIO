@@ -1,0 +1,16 @@
+node_modules/
+.nuxt/
+.output/
+.data/
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+test-results/
+playwright-report/
+storybook-static/
+apps/api/bin/
+*.exe
+*.test
+.DS_Store

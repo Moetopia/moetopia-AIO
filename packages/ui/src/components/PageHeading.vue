@@ -1,0 +1,4 @@
+<script setup lang="ts">
+defineProps<{ title: string; description?: string; eyebrow?: string }>()
+</script>
+<template><div class="moe-page-heading"><div class="min-w-0"><p v-if="eyebrow" class="moe-auth-eyebrow mb-2">{{ eyebrow }}</p><h1 class="break-words text-2xl font-semibold tracking-tight">{{ title }}</h1><p v-if="description" class="mt-3 text-sm leading-7 text-muted">{{ description }}</p></div><div v-if="$slots.actions" class="flex shrink-0 flex-wrap gap-2"><slot name="actions" /></div></div></template>

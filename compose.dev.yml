@@ -1,0 +1,43 @@
+name: moetopia-dev
+services:
+  postgres:
+    image: postgres:18.1-alpine
+    environment:
+      POSTGRES_USER: moetopia
+      POSTGRES_DB: moetopia_dev
+      POSTGRES_PASSWORD: ${MOETOPIA_DEV_DB_PASSWORD:?Set MOETOPIA_DEV_DB_PASSWORD in .env}
+    ports:
+      - '${MOETOPIA_DEV_BIND_ADDRESS:-127.0.0.1}:55432:5432'
+    networks: [dependencies]
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U moetopia -d moetopia_dev']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  valkey:
+    image: valkey/valkey:8.1.4-alpine
+    environment:
+      VALKEY_PASSWORD: ${MOETOPIA_DEV_VALKEY_PASSWORD:?Set MOETOPIA_DEV_VALKEY_PASSWORD in the Compose env file}
+      VALKEYCLI_AUTH: ${MOETOPIA_DEV_VALKEY_PASSWORD:?Set MOETOPIA_DEV_VALKEY_PASSWORD in the Compose env file}
+    command: ['sh', '-ec', 'exec valkey-server --save "" --appendonly no --maxmemory 64mb --maxmemory-policy noeviction --requirepass "$$VALKEY_PASSWORD"']
+    ports:
+      - '${MOETOPIA_DEV_BIND_ADDRESS:-127.0.0.1}:56379:6379'
+    networks: [dependencies]
+    healthcheck:
+      test: ['CMD', 'valkey-cli', 'ping']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  mailpit:
+    image: axllent/mailpit:v1.28.0
+    ports:
+      - '${MOETOPIA_DEV_BIND_ADDRESS:-127.0.0.1}:51025:1025'
+      - '${MOETOPIA_DEV_BIND_ADDRESS:-127.0.0.1}:58025:8025'
+    networks: [dependencies]
+networks:
+  dependencies:
+    driver: bridge
+volumes:
+  postgres_data:

@@ -1,0 +1,11 @@
+export type MoeColor = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'default'
+export type MoeSize = 'sm' | 'md' | 'lg'
+export type MoeVariant = 'solid' | 'bordered' | 'flat' | 'light'
+export interface MoeOption { value: string; label: string; description?: string; disabled?: boolean }
+export type MoeIconName = 'sun' | 'moon' | 'eye' | 'eye-off' | 'arrow-right' | 'chevron-left' | 'chevron-right' | 'chevron-down' | 'menu' | 'close' | 'home' | 'user' | 'shield' | 'grid' | 'code' | 'settings' | 'logout' | 'search' | 'bell' | 'check' | 'plus' | 'inbox' | 'external'
+export interface MoeNavItem { id: string; label: string; href: string; icon?: MoeIconName; badge?: string; disabled?: boolean }
+export interface MoeNavGroup { label: string; items: MoeNavItem[] }
+export interface MoeBreadcrumbItem { label: string; href?: string }
+export interface MoeMenuItem { id: string; label: string; icon?: MoeIconName; description?: string; shortcut?: string; disabled?: boolean; danger?: boolean; separatorBefore?: boolean }
+export interface MoeTableColumn { key: string; label: string; align?: 'start' | 'end'; sortable?: boolean }
+export interface MoeAccordionItem { value: string; title: string; description?: string; disabled?: boolean }

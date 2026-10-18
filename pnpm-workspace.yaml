@@ -1,0 +1,16 @@
+packages:
+  - apps/account
+  - apps/admin
+  - apps/developer
+  - packages/*
+
+allowBuilds:
+  esbuild@0.28.2: true
+
+packageExtensions:
+  unctx@3.0.1:
+    dependencies:
+      oxc-parser: 0.140.0
+
+overrides:
+  'glob@>=10.2.0 <10.5.0': 10.5.0

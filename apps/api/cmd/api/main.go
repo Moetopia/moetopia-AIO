@@ -1,0 +1,100 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"log/slog"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/valkey-io/valkey-go"
+	"moetopia.local/aio/api/internal/authorization"
+	"moetopia.local/aio/api/internal/config"
+	"moetopia.local/aio/api/internal/cryptobox"
+	"moetopia.local/aio/api/internal/httpserver"
+	"moetopia.local/aio/api/internal/identity"
+	"moetopia.local/aio/api/internal/notifications"
+	"moetopia.local/aio/api/internal/persistence"
+	"moetopia.local/aio/api/internal/sessions"
+)
+
+func main() {
+	if err := run(); err != nil {
+		slog.Error("API stopped", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	box, err := cryptobox.New(cfg.EncryptionKey)
+	if err != nil {
+		return err
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	startup, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	db, err := persistence.Open(startup, cfg.DatabaseURL)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	if err := db.Ready(startup); err != nil {
+		return err
+	}
+	cache, err := valkey.NewClient(valkey.ClientOption{InitAddress: []string{cfg.ValkeyAddress}, Password: cfg.ValkeyPassword, DisableCache: true, Dialer: net.Dialer{Timeout: 5 * time.Second}})
+	if err != nil {
+		return errors.New("Valkey connection failed; check MOETOPIA_VALKEY_ADDRESS")
+	}
+	defer cache.Close()
+	key, err := authorization.LoadActiveKey(startup, db, box)
+	if err != nil {
+		return err
+	}
+	if cfg.Environment == "production" {
+		return errors.New("production account email transport is not implemented")
+	}
+	if cfg.SMTPAddress == "" || cfg.SMTPFrom == "" {
+		return errors.New("MOETOPIA_SMTP_ADDRESS and MOETOPIA_SMTP_FROM are required")
+	}
+	outbox := notifications.New(db.Ent, box, notifications.DevelopmentSMTP{Address: cfg.SMTPAddress, From: cfg.SMTPFrom})
+	accounts, err := identity.New(identity.NewStore(db.Ent, outbox), cfg.EncryptionKey)
+	if err != nil {
+		return err
+	}
+	provider, err := authorization.NewProvider(authorization.NewStore(db.Ent, box), key, cfg.Issuer, cfg.EncryptionKey, accounts)
+	if err != nil {
+		return err
+	}
+	webSessions, err := sessions.New(db.Ent, cfg.EncryptionKey, cfg.AccountOrigin, cfg.Environment == "production")
+	if err != nil {
+		return err
+	}
+	workerDone := make(chan struct{})
+	go func() { defer close(workerDone); runWorkers(ctx, outbox, accounts, webSessions, provider) }()
+	defer func() { stop(); <-workerDone }()
+	handler := httpserver.New(httpserver.Dependencies{DatabaseReady: db.Ready, CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() }, Tokens: provider, Valkey: cache, Accounts: httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider}})
+	server := &http.Server{Addr: cfg.Listen, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second}
+	errorsCh := make(chan error, 1)
+	go func() { errorsCh <- server.ListenAndServe() }()
+	slog.Info("API listening", "address", cfg.Listen)
+	select {
+	case err := <-errorsCh:
+		if !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+	case <-ctx.Done():
+		shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		return server.Shutdown(shutdown)
+	}
+	return nil
+}
