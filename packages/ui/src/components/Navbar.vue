@@ -11,7 +11,7 @@ const emit = defineEmits<{ navigate: [event: MouseEvent, item: MoeNavItem] }>()
 const navigate = (event: MouseEvent, item: MoeNavItem) => { emit('navigate', event, item); open.value = false }
 let media: MediaQueryList | undefined
 const closeOnDesktop = () => { if (media?.matches) open.value = false }
-onMounted(() => { media = window.matchMedia('(min-width: 768px)'); media.addEventListener('change', closeOnDesktop) })
+onMounted(() => { media = window.matchMedia('(min-width: 1024px)'); media.addEventListener('change', closeOnDesktop) })
 onBeforeUnmount(() => media?.removeEventListener('change', closeOnDesktop))
 </script>
 

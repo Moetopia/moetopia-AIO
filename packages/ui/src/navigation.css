@@ -63,6 +63,6 @@
   .moe-steps [data-complete='true'] .moe-step-marker { background: var(--moe-accent); color: var(--moe-primary-ink); border-color: transparent; }
   @keyframes moe-drawer-in { from { transform: translateX(var(--moe-drawer-offset)); opacity: .6; } to { transform: translateX(0); opacity: 1; } }
   @keyframes moe-drawer-out { from { transform: translateX(0); opacity: 1; } to { transform: translateX(var(--moe-drawer-offset)); opacity: .6; } }
-  @media (max-width: 767px) { .moe-navbar { gap: 10px; padding-inline: 12px; } .moe-navbar-toggle { display: inline-flex; } .moe-navbar-links { display: none; } .moe-navbar-brand { font-size: 17px; } }
+  @media (max-width: 1023px) { .moe-navbar { gap: 10px; padding-inline: 12px; } .moe-navbar-toggle { display: inline-flex; } .moe-navbar-links { display: none; } .moe-navbar-brand { font-size: 17px; } }
   @media (prefers-reduced-motion: reduce) { .moe-nav-item, .moe-sidebar, .moe-breadcrumbs a, .moe-menu-item, .moe-page-button, .moe-page-indicator, .moe-step-marker { transition: none; } .moe-page-button:not(:disabled):active { transform: none; } .moe-drawer[data-state] { animation: none; } }
 }

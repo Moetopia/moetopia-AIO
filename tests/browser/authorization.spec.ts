@@ -1,3 +1,4 @@
+import { selectLanguage } from './helpers/language'
 import { expect, test, type Page } from '@playwright/test'
 
 const id = 'a'.repeat(43)
@@ -172,7 +173,7 @@ test('English dark authorization fits a narrow screen without loading mascot art
   await page.route(`**/api/v1/account/authorizations/${id}`, route => route.fulfill({ json: details }))
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto(url)
-  await page.getByRole('button', { name: 'Switch to English' }).click()
+  await selectLanguage(page, 'English')
   await page.getByRole('button', { name: 'Change theme' }).click()
   await expect(page.getByRole('button', { name: 'Allow access', exact: true })).toBeEnabled()
   await expect(page.locator('main img')).toHaveCount(0)

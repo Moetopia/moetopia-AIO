@@ -1,6 +1,7 @@
 import { inject, type InjectionKey, type Ref } from 'vue'
 import type { AccountContext, AccountSessions, LoginRequest, RegistrationRequest, VerificationRequest, VerificationResponse } from '@moetopia/api-client'
 import type { accountMessages, Locale } from '@moetopia/locales'
+import { emailLocale } from '@moetopia/locales'
 
 export const useAccountExperience = (locale: Ref<Locale>) => {
   const route = useRoute()
@@ -56,7 +57,7 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
     await loadSessions()
   })
   const sendCode = () => perform(async () => {
-    const body: VerificationRequest = { email: email.value, locale: locale.value }
+    const body: VerificationRequest = { email: email.value, locale: emailLocale(locale.value) }
     const response = await $fetch<VerificationResponse>('/api/v1/account/verification', { method: 'POST', headers: headers.value, body })
     challenge.value = response.challenge_id; code.value = ''; verificationEmail.value = email.value; feedback.value = 'sent'; success.value = true
   }, true)

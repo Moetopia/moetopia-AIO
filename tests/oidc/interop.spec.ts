@@ -32,7 +32,7 @@ test('real account proxy and independent RP validate the browser authorization l
     const browserCookie = initial.find(cookie => cookie.name === 'moetopia_authorization')
     const anonymousCookie = initial.find(cookie => cookie.name === 'moetopia_account')
     expect(browserCookie?.httpOnly).toBe(true)
-    await page.getByRole('tab', { name: '创建账号', exact: true }).click()
+    await page.getByRole('button', { name: '立即注册', exact: true }).click()
     await page.getByLabel('邮箱', { exact: true }).fill(email)
     await page.getByLabel('昵称', { exact: true }).fill('OIDC reader')
     await page.getByLabel('邀请码', { exact: true }).fill(invitation)

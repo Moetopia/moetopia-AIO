@@ -1,3 +1,4 @@
+import { selectLanguage } from './helpers/language'
 import { expect, test } from '@playwright/test'
 
 for (const [port, path, title, heading] of [[53000, '/', '账号中心', 'Welcome back'], [53001, '/', '管理控制台', 'Administration'], [53000, '/developer', '开发者门户', 'Connect your application to Moetopia.']] as const) {
@@ -10,7 +11,7 @@ for (const [port, path, title, heading] of [[53000, '/', '账号中心', 'Welcom
     await expect(page.getByRole('status')).toHaveText('连接暂不可用')
     await page.getByRole('button', { name: '切换主题' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-    await page.getByRole('button', { name: 'Switch to English' }).click()
+    await selectLanguage(page, 'English')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading)
     await page.reload()
@@ -33,8 +34,8 @@ test('registration fits mobile English and dark mode', async ({ page }) => {
   await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
   await page.goto('http://127.0.0.1:53000')
   await expect(page.getByRole('status')).toHaveText('连接暂不可用')
-  await page.getByRole('tab', { name: '创建账号', exact: true }).click()
-  await page.getByRole('button', { name: 'Switch to English' }).click()
+  await page.getByRole('link', { name: '立即注册', exact: true }).click()
+  await selectLanguage(page, 'English')
   await page.getByRole('button', { name: 'Change theme' }).click()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Create account')
@@ -51,7 +52,7 @@ test('password trailing control works and policy is described', async ({ page })
   await expect(password).toHaveAttribute('type', 'text')
   await page.getByRole('button', { name: '隐藏密码', exact: true }).click()
   await expect(password).toHaveAttribute('type', 'password')
-  await page.getByRole('tab', { name: '创建账号', exact: true }).click()
+  await page.getByRole('link', { name: '立即注册', exact: true }).click()
   await expect(password).toHaveAccessibleDescription('至少 15 个字符，可以使用空格。')
 })
 

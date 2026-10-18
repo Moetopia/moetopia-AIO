@@ -9,7 +9,7 @@ const config = useRuntimeConfig()
 const route = useRoute()
 const { locale, theme, text } = usePortalPreferences()
 const pageText = computed(() => portalMessages[locale.value])
-const workspace = computed(() => props.kind === 'admin' || props.kind === 'developer' && props.workspace)
+const workspace = computed(() => props.kind === 'developer' && props.workspace)
 const activeSection = computed(() => props.kind === 'account' ? route.path === '/sessions' ? 'sessions' : route.path === '/security' ? 'security' : 'profile' : props.kind === 'developer' ? route.path.endsWith('/applications') ? 'applications' : route.path.endsWith('/docs') ? 'preparation' : 'overview' : route.hash.slice(1) || 'overview')
 const appItems = computed<MoeNavEntry[]>(() => (['account', 'developer', 'admin'] as const).map(kind => {
   const accountUrl = typeof config.public.accountUrl === 'string' ? config.public.accountUrl : ''
@@ -35,6 +35,7 @@ const navigate = (event: MouseEvent, item: MoeNavEntry) => {
   if (item.href.startsWith('/')) { event.preventDefault(); return navigateTo(item.href) }
 }
 const navigation = computed<MoeNavEntry[]>(() => props.kind === 'admin' ? appItems.value : props.kind === 'account' ? [...sectionItems.value, { id: 'developer', label: text.value.developer, href: '/developer', icon: 'code' }] : [{ id: 'account', label: text.value.account, href: '/profile', icon: 'user' }, ...sectionItems.value])
+const sidebar = computed(() => ({ label: pageText.value.workspace, groups: [{ label: text.value[props.kind], items: sectionItems.value }], active: activeSection.value, collapsible: true, title: props.kind === 'admin' ? 'Moetopia' : pageText.value.workspace, footerText: `Moetopia · ${pageText.value.identity}`, collapseLabel: pageText.value.collapseNavigation, expandLabel: pageText.value.expandNavigation }))
 const status = ref<'checking' | 'connected' | 'disconnected'>('checking')
 
 useHead(() => ({ title: `${text.value[props.kind]} · Moetopia`, htmlAttrs: { lang: locale.value, 'data-theme': theme.value } }))
@@ -52,16 +53,17 @@ onMounted(async () => {
     <template #header><NuxtLink to="/" class="moe-navbar-brand moe-focus"><span>Moetopia<span class="moe-navbar-subtitle">{{ text.account }}</span></span></NuxtLink><PortalPreferences /></template>
     <slot :locale="locale" />
     <template #footer><span>© 2026 Moetopia</span><MoeStatusIndicator :label="text[status]" :state="status === 'connected' ? 'positive' : status === 'disconnected' ? 'negative' : 'pending'" announce /></template>
-    <template #brand><div><span class="moe-auth-wordmark">Moetopia</span><p class="moe-auth-brand-detail">{{ pageText.brandDetail }}</p></div></template>
+    <template #brand><div><span class="moe-auth-wordmark">Moetopia</span><h2 class="moe-auth-headline">{{ pageText.artTitle }}</h2><p class="moe-auth-brand-detail">{{ pageText.artDescription }}</p></div></template>
   </MoeAuthShell>
-  <MoePageFrame v-else :skip-label="pageText.skip" :density="kind === 'account' ? 'compact' : 'default'">
+  <MoePageFrame v-else :skip-label="pageText.skip" :density="kind === 'account' ? 'compact' : kind === 'developer' && route.path === '/developer' ? 'landing' : 'default'">
+    <template v-if="kind === 'admin'" #sidebar><MoeSidebar v-bind="sidebar" @navigate="navigate" /></template>
     <template #header>
-      <MoeNavbar brand="Moetopia" :subtitle="text[kind]" :brand-href="kind === 'developer' ? '/developer' : kind === 'account' ? '/profile' : '/'" :label="pageText.navigation" :items="navigation" :mobile-items="navigation" :active="kind === 'admin' ? 'app-admin' : activeSection" :menu-label="pageText.openNavigation" :close-label="pageText.closeNavigation" @navigate="navigate">
+      <MoeNavbar brand="Moetopia" :subtitle="text[kind]" :brand-href="kind === 'developer' ? '/developer' : kind === 'account' ? '/profile' : '/'" :label="pageText.navigation" :items="navigation" :mobile-items="kind === 'admin' ? [...sectionItems, ...navigation] : navigation" :active="kind === 'admin' ? 'app-admin' : activeSection" :menu-label="pageText.openNavigation" :close-label="pageText.closeNavigation" @navigate="navigate">
         <template #actions><PortalPreferences /></template>
       </MoeNavbar>
     </template>
     <MoeWorkspaceLayout v-if="workspace">
-      <template #sidebar><MoeSidebar :label="pageText.workspace" :groups="[{ label: text[kind], items: sectionItems }]" :active="activeSection" collapsible @navigate="navigate"><template #header><span class="pl-2 text-sm font-medium">{{ pageText.workspace }}</span></template><template #footer="{ collapsed }"><p v-if="!collapsed" class="px-2 text-xs text-muted">Moetopia · {{ pageText.identity }}</p></template></MoeSidebar></template>
+      <template #sidebar><MoeSidebar v-bind="sidebar" @navigate="navigate" /></template>
       <slot :locale="locale"><PortalPreparation :kind="kind" :locale="locale" /></slot>
     </MoeWorkspaceLayout>
     <slot v-else :locale="locale"><PortalPreparation :kind="kind" :locale="locale" /></slot>

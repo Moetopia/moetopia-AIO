@@ -1,3 +1,4 @@
+import { selectLanguage } from './helpers/language'
 import { expect, test, type Page } from '@playwright/test'
 
 const anonymous = { csrf_token: 'example-csrf-token', registration_mode: 'invite' }
@@ -19,7 +20,7 @@ test('sign-in changes layout without remounting account state, sign-out returns 
   await page.getByLabel('邮箱', { exact: true }).fill(user.email)
   await page.getByLabel('密码', { exact: true }).fill('example-password-only')
   await page.getByRole('button', { name: '登录', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(`欢迎回来，${user.display_name}`)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('个人资料')
   await expect(page.getByRole('heading', { name: '基本资料' })).toBeVisible()
   await expect(page.getByText(user.email, { exact: true }).first()).toBeVisible()
   await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '登录会话', exact: true }).click()
@@ -47,8 +48,8 @@ test('registration retains verification flow and uses the selected locale', asyn
     await route.fulfill({ status: 204 })
   })
   await page.goto('http://127.0.0.1:53000')
-  await page.getByRole('button', { name: 'Switch to English' }).click()
-  await page.getByRole('tab', { name: 'Create account', exact: true }).click()
+  await selectLanguage(page, 'English')
+  await page.getByRole('link', { name: 'Create an account', exact: true }).click()
   await page.getByLabel('Email', { exact: true }).fill(user.email)
   await page.getByLabel('Display name', { exact: true }).fill('Preview user')
   await page.getByLabel('Invitation code', { exact: true }).fill('example-invitation')

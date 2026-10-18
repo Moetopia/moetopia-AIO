@@ -13,7 +13,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 - 一个共享账号体系服务多个应用，首期不做独立身份租户。
 - Nuxt + Vue + TypeScript；Headless UI + Storybook。
 - 邮箱密码、GitHub、Google 登录；第三方开发者受控自助接入。
-- 中英双语、明暗主题、轻二次元视觉。
+- 多语言、明暗主题、轻二次元视觉；当前前端提供简中、繁中、英文与日文。
 - Windows 原生开发，Compose 提供依赖，生产运行于 Linux 容器。
 - 后端使用 Go，考虑未来多模块扩展；当前实现选型与验证边界见 [ADR-0013](docs/decisions/0013-implementation-baseline.md)。
 - Go 模块化单体；account 用户站整合账号与 `/developer` 分区，admin 为独立 Nuxt 应用，共享 UI/API 类型；最新决定见 [ADR-0017](docs/decisions/0017-user-site-layouts.md)。

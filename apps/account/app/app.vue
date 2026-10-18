@@ -6,4 +6,4 @@ provide(accountExperienceKey, experience)
 const route = useRoute()
 const layout = computed(() => route.query.authorization_request !== undefined || route.path.startsWith('/auth/') ? 'auth' : route.path.startsWith('/developer') ? 'developer' : experience.account.value?.user ? 'account' : 'auth')
 </script>
-<template><NuxtLayout :name="layout"><NuxtPage /></NuxtLayout></template>
+<template><PortalRouteFeedback /><NuxtLayout :name="layout"><NuxtPage /></NuxtLayout></template>

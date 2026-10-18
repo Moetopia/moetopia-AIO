@@ -1,34 +1,24 @@
-export type Locale = 'zh-CN' | 'en'
-export type Portal = 'account' | 'admin' | 'developer'
-export { accountMessages } from './account'
-export { portalMessages } from './portal'
-export { authorizationMessages } from './authorization'
+import zhCN from './lang/zh-CN'
+import zhTW from './lang/zh-TW'
+import en from './lang/en'
+import ja from './lang/ja'
+import type { Locale, LocaleMessages } from './types'
 
-export const messages = {
-  'zh-CN': {
-    tagline: '让每一次相遇，从同一个身份开始。',
-    introduction: 'Moetopia 统一身份中心',
-    account: '账号中心', admin: '管理控制台', developer: '开发者门户',
-    accountDescription: '统一管理你的身份、安全设置与应用授权。',
-    adminDescription: '管理生态账号、应用审核与平台安全。',
-    developerDescription: '连接你的应用，构建属于 Moetopia 的生态。',
-    phase: '暂未开放',
-    notice: '此处功能还在准备中，请稍后再来。',
-    connected: '服务正常', disconnected: '连接暂不可用', checking: '正在连接',
-    serviceLabel: '服务状态', themeLabel: '切换主题', languageLabel: 'Switch to English',
-    light: '浅色', dark: '深色', ecosystem: '一个身份，连接整个生态',
-  },
-  en: {
-    tagline: 'Every connection begins with one identity.',
-    introduction: 'Moetopia identity platform',
-    account: 'Account center', admin: 'Administration', developer: 'Developer portal',
-    accountDescription: 'Manage your identity, security settings and application access.',
-    adminDescription: 'Manage ecosystem accounts, application reviews and platform security.',
-    developerDescription: 'Connect your applications and build the Moetopia ecosystem.',
-    phase: 'Not available yet',
-    notice: 'This area is still being prepared. Please check back later.',
-    connected: 'Service available', disconnected: 'Connection unavailable', checking: 'Connecting',
-    serviceLabel: 'Service status', themeLabel: 'Change theme', languageLabel: '切换到中文',
-    light: 'Light', dark: 'Dark', ecosystem: 'One identity, an entire ecosystem',
-  },
-} as const
+export type { Locale, LocaleMessages, Portal } from './types'
+export const supportedLocales = [
+  { code: 'zh-CN', label: '简体中文', shortLabel: '简中' },
+  { code: 'zh-TW', label: '繁體中文', shortLabel: '繁中' },
+  { code: 'en', label: 'English', shortLabel: 'EN' },
+  { code: 'ja', label: '日本語', shortLabel: '日本語' },
+] as const
+export const isLocale = (value: unknown): value is Locale => supportedLocales.some(locale => locale.code === value)
+export const resolveLocale = (value: unknown): Locale => isLocale(value) ? value : 'zh-CN'
+export const emailLocale = (locale: Locale): 'zh-CN' | 'en' => locale.startsWith('zh') ? 'zh-CN' : 'en'
+export const translations = { 'zh-CN': zhCN, 'zh-TW': zhTW, en, ja } as const satisfies Record<Locale, LocaleMessages>
+const pick = <K extends keyof LocaleMessages>(group: K): Record<Locale, LocaleMessages[K]> => ({
+  'zh-CN': zhCN[group], 'zh-TW': zhTW[group], en: en[group], ja: ja[group],
+})
+export const messages = pick('common')
+export const accountMessages = pick('account')
+export const portalMessages = pick('portal')
+export const authorizationMessages = pick('authorization')

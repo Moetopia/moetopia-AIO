@@ -3,6 +3,10 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-18',
   devtools: { enabled: false },
+  app: {
+    pageTransition: { name: 'moe-page', mode: 'out-in' },
+    layoutTransition: { name: 'moe-layout', mode: 'out-in' },
+  },
   css: ['@moetopia/ui/styles.css'],
   typescript: { strict: true },
   build: { transpile: ['@moetopia/ui', '@moetopia/locales'] },

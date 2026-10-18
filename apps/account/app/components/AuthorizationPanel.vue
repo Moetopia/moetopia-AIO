@@ -6,7 +6,7 @@ const { locale } = usePortalPreferences()
 const text = computed(() => authorizationMessages[locale.value])
 const { formatTime, busy: accountBusy } = useAccountContext()
 const { details, loading, submitting, redirecting, feedback, expired, needsLogin, ready, forceLogin, reload, decide, switchAccount, acknowledge } = useAuthorization()
-const scopeDescription = (scope: string) => scope === 'openid' ? text.value.openid : scope === 'profile' ? text.value.profile : scope === 'email' ? text.value.email : text.value.otherScope
+const scopeDescription = (scope: string) => scope === 'openid' ? text.value.openid : scope === 'profile' ? text.value.profile : scope === 'email' ? text.value.email : scope === 'offline_access' ? text.value.offlineAccess : text.value.otherScope
 const alertTitle = computed(() => expired.value ? text.value.expired : feedback.value ? text.value[feedback.value] : '')
 </script>
 

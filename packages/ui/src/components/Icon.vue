@@ -2,6 +2,7 @@
 import type { MoeIconName } from '../types'
 defineProps<{ name: MoeIconName }>()
 const paths: Record<MoeIconName, string[]> = {
+  languages: ['M3 5h12M9 3v2M5 5c1 5 4 8 9 10M13 5c-1 5-4 8-9 10', 'm13 21 4-10 4 10m-6-4h4'],
   sun: ['M12 3V1m0 22v-2M3 12H1m22 0h-2M4.2 4.2l1.4 1.4m12.8 12.8 1.4 1.4m0-15.6-1.4 1.4M5.6 18.4l-1.4 1.4', 'M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z'],
   moon: ['M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z'],
   eye: ['M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z', 'M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'],

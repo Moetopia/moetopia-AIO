@@ -1,1 +1,1 @@
-<template><NuxtPage /></template>
+<template><PortalRouteFeedback /><NuxtPage /></template>

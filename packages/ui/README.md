@@ -43,6 +43,8 @@ pnpm test:ui
 
 ## 当前组件
 
+2026-10-19 继续复核 nextmoe 布局，新增 LanguagePicker、NavigationProgress、ProfileSummary、LandingLayout，共 61 个公开组件。布局差异及保留范围见 [复核表](../../docs/ui-layout-audit.md)。
+
 2026-10-18 本轮将账号与开发者合并为用户站，布局参照 nextmoe 的场景划分；新增 AuthShell 和 ProfileLayout 后共有 57 个公开组件。新增组件具有 Storybook，复用边界见 [ADR-0017](../../docs/decisions/0017-user-site-layouts.md)。
 
 | 组件 | 行为及组合 |
@@ -99,6 +101,10 @@ pnpm test:ui
 | MoeAuthLayout | 认证布局；illustration/title/caption/description；内容插槽；窄屏隐藏插画，表单自然滚动 |
 | MoeAuthShell | 独立认证页壳；header/default/footer/brand 插槽、跳过链接；桌面表单列独立滚动，手机隐藏品牌区；不自动加载图片 |
 | MoeProfileLayout | 摘要/内容布局；summary/default 插槽；桌面双栏且摘要吸顶，手机上下排列；不绑定账号或业务 API |
+| MoeLanguagePicker | 原生语言名菜单；字符串 v-model、options/label/disabled；当前项勾选、键盘选择、关闭后返回焦点；不读写 Cookie |
+| MoeNavigationProgress | active/value/label/error；固定顶部加载条，受外部生命周期控制；value 只作视觉估算，不播报真实百分比 |
+| MoeProfileSummary | name/email/src/description；居中头像与身份摘要；无头像时复用名字缩写，不伪造账号角色 |
+| MoeLandingLayout | title/description、actions/default 插槽；全宽介绍区域与独立限宽内容分区；不绑定页面路由 |
 | MoeWorkspaceLayout | 工作区；sidebar/breadcrumbs/default 插槽；宽屏侧栏、窄屏单列；菜单入口由 Navbar 提供 |
 | MoePageHeading | 页面主标题、说明、eyebrow 与 actions；单页主内容只放一个 h1 |
 | MoeSettingRow | title/description/icon；内容及 actions 插槽；在多个页面复用设置项或会话操作布局 |
@@ -115,13 +121,16 @@ pnpm test:ui
 
 `MoeNavEntry` 为公共导航条目类型，来自内部 `MoeNavItem` 类型，与同名组件区分。导航使用稳定 id 匹配 active，href 由应用提供；不根据部分 URL 自动推断权限或当前路由。Navbar/Sidebar 的 navigate 事件不自动阻止默认跳转，Storybook 为演示而调用 preventDefault。应用接入时可处理事件并调用实际路由，也可让真实链接正常导航；需保留 Ctrl/Cmd/Shift 点击等浏览器行为。
 
-Navbar 在 768px 以下切换抽屉，选择条目、Escape、遮罩点击均可关闭；回到桌面宽度时自动关闭旧抽屉。actions 插槽应保持紧凑，复杂搜索表单应在宽屏或独立弹层中组织。Sidebar 收起状态建议每项提供图标；没有图标时文字缩略保留。
+Navbar 在 1024px 以下切换抽屉，选择条目、Escape、遮罩点击均可关闭；回到桌面宽度时自动关闭旧抽屉。actions 插槽应保持紧凑，复杂搜索表单应在宽屏或独立弹层中组织。Sidebar 收起状态建议每项提供图标；没有图标时文字缩略保留。
 
 Pagination 的 page 为从 1 开始的页码。调用方必须提供非负 total、正整数 pageSize，并在查询条件变化导致页码失效时同步重置 page。本轮仅提供按钮分页，不伪称已经支持可爬的分页链接。Table 不内置服务器请求、虚拟滚动、行选择和列拖拽；sort 事件与排序方向必须由调用方一起维护，故事提供真实的本地排序示例。
 
 Toast 不能承载必须及时确认的安全操作或成为表单错误的唯一提示。头像 name 供读屏器识别，不传真实用户数据到 Storybook。PinInput 不校验验证码正确性，也不连接发送验证码接口。
 
 ## 交互动效
+
+页面/布局转场与导航加载条样式在 `src/experience.css`，由共享 Nuxt 适配绑定页面生命周期。page 使用 160ms 淡入/位移，layout 使用 140ms 淡入淡出；减少动态效果时移除位移。PageFrame 支持全高 sidebar 槽；Sidebar 新增 title/footerText 默认展示，折叠标签由应用传入当前语言。
+
 
 动效定义在 `src/motion.css`，统一使用 `styles.css` 的时长和缓动变量：快速反馈 140ms、状态切换 220ms、指示条及对话框进入 300ms。不新增动画依赖。
 
@@ -135,7 +144,7 @@ Toast 不能承载必须及时确认的安全操作或成为表单错误的唯�
 
 ## 检查范围与剩余事项
 
-当前公开 57 个组件。本轮共享库及两应用类型检查、应用和 Storybook 构建通过；26 项独立组件检查与 36 项模拟接口页面检查通过（4 个 worker）。真实 OIDC 回归另通过 1 项独立客户端浏览器场景，详见前端协调记录。组件阶段的 123 个故事状态此前已通过运行时渲染检查；新增品牌和布局故事另行查看及验证。已查看桌面明暗主题、移动导航和 375px 窄屏截图。这些检查不代表 WCAG 全面达标，也不代表用户已经接受页面视觉。
+当前公开 61 个组件。本轮共享库及两应用类型检查、应用和 Storybook 构建通过；29 项独立组件检查与 43 项模拟接口页面检查通过（4 个 worker）。真实 OIDC 回归另通过 1 项独立客户端浏览器场景，详见前端协调记录。组件阶段的 123 个故事状态此前已通过运行时渲染检查；新增品牌和布局故事另行查看及验证。已查看桌面明暗主题、移动导航和 375px 窄屏截图。这些检查不代表 WCAG 全面达标，也不代表用户已经接受页面视觉。
 
 Reka 2.11.0 的 RadioGroup 使用延迟焦点选中逻辑；测试瞬时按下并释放方向键时曾只移动焦点。当前测试覆盖按下、等待选中、抬起的完整过程；快速按键和真实辅助技术表现仍需后续核验，不宣称该上游时序问题已修复。
 
