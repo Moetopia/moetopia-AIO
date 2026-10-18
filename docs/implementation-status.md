@@ -91,3 +91,11 @@ Go module 使用本地命名空间 `moetopia.local/aio/api`，不假定尚未提
 - Go 单元测试、vet 和真实专属 PG/Valkey 集成通过；新增 JWT issuer/audience/sub/nonce/at_hash、scope 隔离、事务失败与并发、单连接池、停用身份/应用、Cookie/CSRF/Origin、过期/拒绝/重复确认、强制认证及账号切换验证。测试库由运行器清理。
 - OpenAPI 与 TypeScript 已生成；后端运行和前端 DTO/错误交接见 [run-authorization](run-authorization.md)，实施参数见 [ADR-0015](decisions/0015-authorization-code-oidc.md)。开发公开客户端 CLI 已编译，未自动创建默认客户端。
 - 没有修改前端页面、组件、翻译或前端测试，未停止其他会话进程。Nuxt Discovery 代理、真实授权页和独立 RP 的完整浏览器互操作仍待前端接入后验收；刷新、公开撤销/内省、RP 退出、应用审核、管理员 MFA 和生产邮件尚未交付。
+
+## 用户站合并与 nextmoe 布局修订
+
+2026-10-18 用户授权实施 [ADR-0017](decisions/0017-user-site-layouts.md)：账号与开发者整合为 account 用户站，管理台独立。移除独立 developer 源码、workspace、构建与默认启动入口；开发者现在通过用户站 /developer、/developer/applications、/developer/docs 访问，不再启动 3002。
+
+认证页使用独立 AuthShell，桌面表单列独立滚动，手机单列，无候选立绘；账号中心使用轻量顶栏和个人摘要/操作双栏，开发者首页与控制台分别组织。可复用 AuthShell、ProfileLayout 均进入共享 UI 并提供故事。原始 / 授权入口、Go 会话与 CSRF 契约保留，独立 /auth/login、/auth/register 支持历史导航；开发者登录只接受固定的应用管理续接标识，不接受任意 URL。
+
+本轮改动与最终验证详见 [前端协调记录](coordination/frontend.md)。不把页面壳视为应用创建、审核或管理员能力完成。生产构建产物 dist 已从版本跟踪移除并忽略，源码与构建命令继续维护，未删除本地构建输出。

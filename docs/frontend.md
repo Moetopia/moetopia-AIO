@@ -1,12 +1,12 @@
 # 前端工程规范
 
-状态：Nuxt + Vue + TypeScript、三应用及共享 UI/API 类型已确认。account 已有注册、密码登录、资料展示与会话工作区，admin/developer 已有共享工作区布局但业务尚未开放；完成边界见 [实施进度](implementation-status.md)。以下规则是目标约束，不表示全部已经实现。关联 [ADR-0014](decisions/0014-account-preview.md)。
+状态：Nuxt + Vue + TypeScript；用户最新授权采用 account 用户站（含 developer）＋独立 admin，见 [ADR-0017](decisions/0017-user-site-layouts.md)。已有账号与授权流程不等于全部业务已完成；实际完成边界见 [实施进度](implementation-status.md)。
 
 通用命名、类型、格式和“默认不添加注释”规则见 [代码规范](coding-standards.md)。本文件仅补充前端职责，不另设注释例外。
 
 ## 应用与共享边界
 
-account 管理用户身份体验，admin 管理平台，developer 管理应用接入。各应用有自己的路由、布局和业务状态，不互相导入源码。三个应用共享 `@moetopia/ui`、公共翻译和生成的业务 API 类型；账号业务组件不因为多处“长得相似”就进入基础 UI 包。
+account 用户站包含认证、账号中心和 `/developer` 分区；admin 独立管理平台。用户站按路由与 Nuxt layout 区分认证、账号页和开发者控制台，不因同源就混合领域状态。两应用共享 `@moetopia/ui`、公共翻译和生成的业务 API 类型，不互相导入源码；账号业务组件不因为多处“长得相似”就进入基础 UI 包。
 
 Nuxt 服务端负责渲染和必要转发，身份校验、签发、授权及业务写入归 Go。Go 统一管理会话已确认，具体代理与 Cookie 设计见 ADR-0006；不得让 middleware 中一个布尔值变成第二套权威登录状态。
 
@@ -72,4 +72,4 @@ Cookie 来源和处理责任以 ADR-0006 为准；不能因为浏览器“拿不
 
 检查 SSR 用户隔离、直接进入私人页面、登录过期、移动布局、中英文、明暗切换、键盘、刷新/返回导航和慢网络。组件故事与端到端用例职责见 [测试发布](testing-release.md)。
 
-当前 account 页面壳使用 SSR，账号状态挂载后由 Go 接口读取，私人身份不进入 SSR payload；admin/developer 为静态 CSR，均已通过构建与基础浏览器检查。公开接入文档预渲染尚未实现。三应用保持独立边界，Go 仍拥有会话，私人响应不进入共享缓存。首屏和资源预算仍需按 [性能规范](performance.md) 实测，不能用构建通过代替。
+当前用户站页面壳使用 SSR，账号状态挂载后由 Go 接口读取，私人身份不进入 SSR payload；admin 为静态 CSR。用户站账号与开发者导航共享应用级账号上下文，切换 layout 不重复建立状态或伪造管理员身份。公开接入文档预渲染尚未实现。Go 仍拥有会话，私人响应不进入共享缓存。首屏和资源预算仍需按 [性能规范](performance.md) 实测，不能用构建通过代替。

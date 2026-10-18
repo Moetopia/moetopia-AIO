@@ -10,7 +10,7 @@
   .moe-page-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; width: min(100%, 1240px); margin-inline: auto; padding: 20px 28px 28px; color: var(--moe-muted); font-size: 12px; }
   .moe-navbar-subtitle { display: block; margin-top: 3px; font-size: 11px; font-weight: 400; letter-spacing: 0; color: var(--moe-muted); }
   .moe-auth-layout { display: grid; align-items: center; gap: 48px; width: min(100%, 1080px); min-height: calc(100svh - 230px); margin-inline: auto; }
-  .moe-auth-form { width: min(100%, 460px); margin-inline: auto; padding: 32px; border: 1px solid var(--moe-line); border-radius: calc(var(--moe-radius-panel) + 8px); background: var(--moe-surface); box-shadow: var(--moe-shadow-popup); }
+  .moe-auth-form { width: min(100%, 460px); margin-inline: auto; }
   .moe-auth-art { display: none; min-width: 0; }
   .moe-auth-illustration { overflow: hidden; border: 1px solid var(--moe-line); border-radius: calc(var(--moe-radius-panel) + 8px); background: var(--moe-art-surface); }
   .moe-auth-illustration img { display: block; width: 100%; max-height: 540px; object-fit: contain; }
@@ -37,6 +37,24 @@
   .moe-status-indicator[data-state='negative'] > span { background: var(--moe-danger); }
   @media (min-width: 900px) { .moe-auth-layout[data-illustrated='true'] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .moe-auth-art { display: block; } }
   @media (min-width: 768px) { .moe-workspace-layout:has(.moe-workspace-sidebar) { grid-template-columns: auto minmax(0, 1fr); } .moe-workspace-sidebar { display: block; } }
-  @media (max-width: 767px) { .moe-page-header-inner .moe-navbar { min-height: 68px; padding-inline: 16px; } .moe-page-main { padding: 28px 20px 36px; } .moe-page-footer { padding: 16px 20px 24px; } .moe-auth-form { padding: 24px; border-radius: var(--moe-radius-panel); } .moe-auth-layout { min-height: calc(100svh - 210px); } }
+  .moe-auth-shell { display: grid; min-height: 100svh; background: var(--moe-surface); }
+  .moe-auth-column { display: flex; flex-direction: column; min-width: 0; padding: 28px clamp(24px, 4vw, 64px); }
+  .moe-auth-header, .moe-auth-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .moe-auth-header { flex-shrink: 0; }
+  .moe-auth-header .moe-navbar-brand { font-size: 18px; }
+  .moe-auth-main { display: flex; flex: 1; align-items: center; width: min(100%, 440px); margin-inline: auto; padding-block: 56px; outline: none; }
+  .moe-auth-main > * { width: 100%; }
+  .moe-auth-footer { color: var(--moe-muted); font-size: 12px; padding-block: 12px; }
+  .moe-auth-brand { display: none; background: var(--moe-brand-panel); color: var(--moe-brand-mint); padding: clamp(40px, 6vw, 96px); }
+  .moe-auth-wordmark { display: block; font-size: clamp(48px, 6vw, 100px); font-weight: 650; letter-spacing: -.055em; line-height: 1.15; }
+  .moe-auth-brand-detail { display: flex; align-items: center; gap: 14px; font-size: 14px; margin-top: 28px; color: var(--moe-brand-fog); }
+  .moe-auth-brand-detail::before { content: ''; width: 40px; height: 2px; background: var(--moe-brand-mint); }
+  .moe-profile-layout { display: grid; align-items: start; gap: 28px; }
+  .moe-profile-summary { min-width: 0; }
+  .moe-profile-content { display: grid; min-width: 0; gap: 24px; }
+  .moe-page-frame[data-density='compact'] .moe-page-header-inner, .moe-page-frame[data-density='compact'] .moe-page-main, .moe-page-frame[data-density='compact'] .moe-page-footer { max-width: 1080px; }
+  .moe-page-frame[data-density='compact'] .moe-page-header-inner .moe-navbar { min-height: 64px; }
+  @media (min-width: 1024px) { .moe-auth-shell { height: 100svh; overflow: hidden; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .moe-auth-column { overflow-y: auto; } .moe-auth-brand { display: flex; flex-direction: column; justify-content: center; } .moe-profile-layout[data-summary='true'] { grid-template-columns: 280px minmax(0, 1fr); } .moe-profile-summary { position: sticky; top: 96px; } }
+  @media (max-width: 767px) { .moe-page-header-inner .moe-navbar { min-height: 68px; padding-inline: 16px; } .moe-page-main { padding: 28px 20px 36px; } .moe-page-footer { padding: 16px 20px 24px; } .moe-auth-layout { min-height: calc(100svh - 210px); } .moe-auth-main { padding-block: 40px; } }
   @media (prefers-reduced-motion: reduce) { .moe-skip-link { transition: none; } }
 }

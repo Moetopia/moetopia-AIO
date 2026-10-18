@@ -10,7 +10,6 @@ export default defineNuxtConfig({
     public: {
       accountUrl: process.env.NODE_ENV === 'development' ? 'http://account.localhost:3000' : '',
       adminUrl: process.env.NODE_ENV === 'development' ? 'http://admin.localhost:3001' : '',
-      developerUrl: process.env.NODE_ENV === 'development' ? 'http://developer.localhost:3002' : '',
     },
   },
   vite: { plugins: [tailwindcss()] },

@@ -1,6 +1,6 @@
 # 架构与模块边界
 
-状态：模块化单体与三个 Nuxt 应用已确认。协议基础、identity、account sessions 和开发通知已有实现，完整目标拓扑尚未交付，实际边界见 [实施进度](implementation-status.md)、[ADR-0014](decisions/0014-account-preview.md)。已确认产品约束见 [product.md](product.md)。
+状态：Go 模块化单体；用户最新授权采用两个 Nuxt 应用：account 用户站整合 developer 分区，admin 独立。前端边界更新见 [ADR-0017](decisions/0017-user-site-layouts.md)，实际边界见 [实施进度](implementation-status.md)。已确认产品约束见 [product.md](product.md)。
 
 ## 架构目标
 
@@ -9,7 +9,7 @@
 ## 建议拓扑
 
 ```text
-浏览器 ── TLS 入口 ── account / admin / developer（Nuxt）
+浏览器 ── TLS 入口 ── account 用户站（含 /developer） / admin（Nuxt）
            │                │ 同源转发
            └────────────── Go API
                             ├── PostgreSQL
@@ -21,7 +21,7 @@
 
 图是目标拓扑，不是已存在的服务。浏览器会话所有权及代理可信边界见 [ADR-0006](decisions/0006-web-sessions.md)。
 
-Nuxt 应用各自可选择 SSR、CSR 或预渲染，不要求三个常驻 SSR 进程。缓存发行物和具体用途未选定；完整资源及性能取舍见 [全栈复核](stack-review.md)。
+用户站采用 SSR 页壳，私人账号状态挂载后读取；admin 使用静态 CSR，不要求两个常驻 SSR 进程。公开文档预渲染尚未实现；完整资源及性能取舍见 [全栈复核](stack-review.md)。
 
 ## 模块与数据所有权
 
@@ -58,19 +58,18 @@ outbox 与业务状态同事务落库。worker 以至少一次语义处理，通
 
 ## 目标目录与当前实现
 
-已建立三个应用、Go API 与共享包；`cmd/worker` 等未来职责尚未创建，实际状态见 [实施进度](implementation-status.md)。
+已建立用户站、独立管理台、Go API 与共享包；未来职责按实际需求实现，实际状态见 [实施进度](implementation-status.md)。
 
 ```text
 apps/
   api/                 单 Go module；cmd/api、cmd/worker、internal/<domain>
-  account/             用户账号与登录体验
+  account/             用户账号、认证与 /developer 开发者分区
   admin/               平台控制台
-  developer/           开发者门户
 packages/
   ui/                  Vue 基础组件与 Storybook
   api-client/          业务 API 生成类型及调用适配
   locales/             共享翻译
-  portal/              三应用共享 Nuxt 层与页面壳
+  portal/              两应用共享 Nuxt 适配与页面壳
 docs/                  规范、ADR 和契约说明
 ```
 

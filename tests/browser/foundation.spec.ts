@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test'
 
-for (const [port, title, heading] of [[53000, '账号中心', 'Welcome back'], [53001, '管理控制台', 'Administration'], [53002, '开发者门户', 'Developer portal']] as const) {
+for (const [port, path, title, heading] of [[53000, '/', '账号中心', 'Welcome back'], [53001, '/', '管理控制台', 'Administration'], [53000, '/developer', '开发者门户', 'Connect your application to Moetopia.']] as const) {
   test(`${title} renders safely without a backend`, async ({ page }) => {
     const exceptions: string[] = []
     page.on('pageerror', (error) => exceptions.push(error.message))
     await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
-    await page.goto(`http://127.0.0.1:${port}`)
+    await page.goto(`http://127.0.0.1:${port}${path}`)
     await expect(page).toHaveTitle(`${title} · Moetopia`)
     await expect(page.getByRole('status')).toHaveText('连接暂不可用')
     await page.getByRole('button', { name: '切换主题' }).click()

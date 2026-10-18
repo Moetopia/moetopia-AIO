@@ -21,8 +21,8 @@ test('sign-in changes layout without remounting account state, sign-out returns 
   await page.getByRole('button', { name: '登录', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(`欢迎回来，${user.display_name}`)
   await expect(page.getByRole('heading', { name: '基本资料' })).toBeVisible()
-  await expect(page.getByText(user.email, { exact: true })).toBeVisible()
-  await page.getByRole('navigation', { name: '工作区' }).getByRole('link', { name: '登录会话', exact: true }).click()
+  await expect(page.getByText(user.email, { exact: true }).first()).toBeVisible()
+  await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '登录会话', exact: true }).click()
   await expect(page).toHaveURL('http://127.0.0.1:53000/sessions')
   await expect(page.getByRole('button', { name: '结束会话' })).toHaveCount(1)
   expect(contextRequests).toBe(1)
@@ -94,13 +94,13 @@ test('security route uses shared account state and links to usable session manag
   await expect(page).toHaveURL('http://127.0.0.1:53000/sessions')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('登录会话')
   await expect(page.getByRole('button', { name: '结束会话' })).toHaveCount(1)
-  await page.getByRole('navigation', { name: '工作区' }).getByRole('link', { name: '个人资料' }).click()
-  await expect(page).toHaveURL('http://127.0.0.1:53000/')
+  await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '个人资料' }).click()
+  await expect(page).toHaveURL('http://127.0.0.1:53000/profile')
   await expect(page.getByRole('heading', { name: '基本资料' })).toBeVisible()
   expect(contextRequests).toBe(1)
 })
 
-for (const port of [53001, 53002]) {
+for (const port of [53001]) {
   test(`workspace on ${port} fits mobile and exposes honest navigation`, async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 })
     await mockStatus(page)

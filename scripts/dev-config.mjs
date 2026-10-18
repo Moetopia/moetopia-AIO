@@ -4,16 +4,15 @@ export const services = {
   api: { port: 8080, description: 'Go API / automatic rebuild' },
   account: { port: 3000, description: 'account.localhost' },
   admin: { port: 3001, description: 'admin.localhost' },
-  developer: { port: 3002, description: 'developer.localhost' },
   storybook: { port: 6006, description: 'UI components' },
 }
 
 export const selectedServices = (args) => {
   const names = args.filter(value => value !== '--' && value !== '--plain')
   for (const name of names) {
-    if (!Object.hasOwn(services, name)) throw new Error(`Unknown service: ${name}. Choose api, account, admin, developer or storybook.`)
+    if (!Object.hasOwn(services, name)) throw new Error(`Unknown service: ${name}. Choose api, account, admin or storybook. Developer pages are served by account at /developer.`)
   }
-  return names.length ? [...new Set(names)] : ['api', 'account', 'admin', 'developer']
+  return names.length ? [...new Set(names)] : ['api', 'account', 'admin']
 }
 
 export const servicePort = (name, env = process.env) => {

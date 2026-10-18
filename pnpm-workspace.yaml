@@ -1,7 +1,6 @@
 packages:
   - apps/account
   - apps/admin
-  - apps/developer
   - packages/*
 
 allowBuilds:

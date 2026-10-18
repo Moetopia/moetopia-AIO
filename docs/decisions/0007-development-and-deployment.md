@@ -1,5 +1,7 @@
 # ADR-0007：Windows 开发与 Linux 容器发布
 
+2026-10-18 更新：前端数量、目录和默认启动列表已由 [ADR-0017](0017-user-site-layouts.md) 替代，当前为 account 用户站（含 developer）＋独立 admin；以下保留当时的工程或验证记录。
+
 - 状态：建议；Windows 原生开发、Compose 依赖、Linux 容器方向已确认。
 - 记录日期：2026-10-17。
 

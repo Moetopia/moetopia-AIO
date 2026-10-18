@@ -3,10 +3,13 @@ import type { AccountContext, AccountSessions, LoginRequest, RegistrationRequest
 import type { accountMessages, Locale } from '@moetopia/locales'
 
 export const useAccountExperience = (locale: Ref<Locale>) => {
+  const route = useRoute()
+  const loginDestination = computed(() => route.query.continue === 'developer-applications' ? '/developer/applications' : '/profile')
+  const loginQuery = computed(() => route.query.continue === 'developer-applications' ? { continue: 'developer-applications' } : {})
   const account = ref<AccountContext>()
   const sessionList = ref<AccountSessions>()
   const sessions = computed(() => sessionList.value?.items ?? [])
-  const view = ref<'login' | 'register'>('login')
+  const view = ref<'login' | 'register'>(route.path === '/auth/register' ? 'register' : 'login')
   const email = ref('')
   const password = ref('')
   const displayName = ref('')
@@ -45,8 +48,10 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
   }
   const login = () => perform(async () => {
     const body: LoginRequest = { email: email.value, password: password.value }
-    account.value = await $fetch<AccountContext>('/api/v1/account/login', { method: 'POST', headers: headers.value, body })
+    const response = await $fetch<AccountContext>('/api/v1/account/login', { method: 'POST', headers: headers.value, body })
     password.value = ''
+    if (route.query.authorization_request === undefined && (route.path === '/' || route.path.startsWith('/auth/'))) await navigateTo(loginDestination.value)
+    account.value = response
     authenticationVersion.value++
     await loadSessions()
   })
@@ -59,14 +64,20 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
     const body: RegistrationRequest = { challenge_id: challenge.value, code: code.value, invitation: invitation.value, display_name: displayName.value, password: password.value }
     await $fetch('/api/v1/account/register', { method: 'POST', headers: headers.value, body })
     password.value = ''; invitation.value = ''; code.value = ''; challenge.value = ''; view.value = 'login'; feedback.value = 'registered'; success.value = true
+    if (route.query.authorization_request === undefined && route.path.startsWith('/auth/')) await navigateTo({ path: '/auth/login', query: loginQuery.value })
   }, true)
-  const logout = () => perform(async () => { account.value = await $fetch<AccountContext>('/api/v1/account/logout', { method: 'POST', headers: headers.value }); sessionList.value = undefined })
+  const logout = () => perform(async () => { account.value = await $fetch<AccountContext>('/api/v1/account/logout', { method: 'POST', headers: headers.value }); sessionList.value = undefined; if (route.query.authorization_request === undefined) await navigateTo('/auth/login') })
   const revoke = (id: string) => perform(async () => {
     await $fetch(`/api/v1/account/sessions/${encodeURIComponent(id)}`, { method: 'DELETE', headers: headers.value })
     if (id === sessionList.value?.current_id) await connect()
     else await loadSessions()
   })
-  const changeView = (value: string | undefined) => { if (value === 'login' || value === 'register') { view.value = value; feedback.value = undefined; password.value = '' } }
+  const changeView = (value: string | undefined) => {
+    if (value !== 'login' && value !== 'register') return
+    view.value = value; feedback.value = undefined; password.value = ''
+    if (route.query.authorization_request === undefined) void navigateTo({ path: `/auth/${value}`, query: loginQuery.value })
+  }
+  watch(() => route.path, path => { if (path.startsWith('/auth/')) { view.value = path === '/auth/register' ? 'register' : 'login'; password.value = '' } })
   watch(email, () => { if (email.value !== verificationEmail.value) { challenge.value = ''; code.value = '' } })
   onMounted(connect)
   return { account, sessionList, sessions, view, email, password, displayName, invitation, code, challenge, busy, loading, authenticationVersion, feedback, success, feedbackElement, formatTime, connect, perform, login, sendCode, register, logout, revoke, changeView, loadSessions }

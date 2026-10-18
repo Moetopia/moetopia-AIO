@@ -8,7 +8,7 @@ import { checkPort, selectedServices, servicePort, tuiConfig } from './dev-confi
 const root = resolve(import.meta.dirname, '..')
 const args = process.argv.slice(2)
 if (args.includes('--help')) {
-  console.log('Usage: pnpm dev [api account admin developer storybook] [--plain]\nDefault: API + three apps, with separate mprocs log panes in an interactive terminal.\nUse --plain for prefixed logs without a TUI. Storybook starts only when selected.')
+  console.log('Usage: pnpm dev [api account admin storybook] [--plain]\nDefault: API + user site + admin, with separate mprocs log panes in an interactive terminal. Developer pages live at account.localhost:3000/developer.\nUse --plain for prefixed logs without a TUI. Storybook starts only when selected.')
   process.exit(0)
 }
 const names = selectedServices(args)

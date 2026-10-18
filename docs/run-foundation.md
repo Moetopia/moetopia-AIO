@@ -80,7 +80,7 @@ pnpm dev
 | --- | --- |
 | account | `http://account.localhost:3000` |
 | admin | `http://admin.localhost:3001` |
-| developer | `http://developer.localhost:3002` |
+| developer | `http://account.localhost:3000/developer` |
 | API 存活/就绪 | `http://127.0.0.1:8080/healthz`、`/readyz` |
 | OpenAPI | `http://127.0.0.1:8080/openapi.json` |
 | Mailpit | `http://192.168.101.41:58025`，SMTP `192.168.101.41:51025` |
@@ -89,7 +89,7 @@ pnpm dev
 
 `.localhost` 用于隔离应用 origin；若本机环境不能解析，应检查本地回环域名解析，不将生产域名指向开发服务。端口均为开发默认值，未修改参考仓库服务。
 
-`pnpm dev` 启动 Go 构建监视器和三个 Nuxt 开发进程；Go 文件保存后自动重建，Nuxt 热更新。启动器已实测兼容本机独立 pnpm.exe，端口占用时拒绝重复启动。Ctrl-C 清理本轮启动的进程，保留依赖容器。上表为当前远程模式；本机容器模式的依赖主机改为 `127.0.0.1`，端口不变。迁移文件变化不会自动修改数据库。
+`pnpm dev` 启动 Go 构建监视器、用户站和独立管理台两个 Nuxt 开发进程；Go 文件保存后自动重建，Nuxt 热更新。启动器已实测兼容本机独立 pnpm.exe，端口占用时拒绝重复启动。Ctrl-C 清理本轮启动的进程，保留依赖容器。上表为当前远程模式；本机容器模式的依赖主机改为 `127.0.0.1`，端口不变。迁移文件变化不会自动修改数据库。
 
 前端开发代理固定转发到 `127.0.0.1:8080`。admin/developer 的静态构建不包含该开发代理；真实生产入口与部署包将在后续阶段交付，不能将静态目录单独上线后假定 API 已接通。
 

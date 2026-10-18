@@ -4,6 +4,6 @@ const { locale } = usePortalPreferences()
 const experience = useAccountExperience(locale)
 provide(accountExperienceKey, experience)
 const route = useRoute()
-const authenticated = computed(() => !!experience.account.value?.user && route.query.authorization_request === undefined)
+const layout = computed(() => route.query.authorization_request !== undefined || route.path.startsWith('/auth/') ? 'auth' : route.path.startsWith('/developer') ? 'developer' : experience.account.value?.user ? 'account' : 'auth')
 </script>
-<template><PortalHome kind="account" :workspace="authenticated"><NuxtPage /></PortalHome></template>
+<template><NuxtLayout :name="layout"><NuxtPage /></NuxtLayout></template>

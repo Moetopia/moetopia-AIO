@@ -4,7 +4,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 
 ## 当前状态
 
-**工程实施中，尚未完成身份产品。** 已有邀请注册、Mailpit 邮箱验证、密码登录和 account 会话管理，以及三个 Nuxt 应用、共享 UI/Storybook、Go API、Ent/Goose、Valkey 和 Fosite。授权码/PKCE/OIDC 后端已通过数据库集成；授权页、独立 RP 浏览器互操作、刷新/撤销、联邦登录、应用审核与管理员 MFA 尚待完成。
+**工程实施中，尚未完成身份产品。** 已有邀请注册、Mailpit 邮箱验证、密码登录和 account 会话管理，以及用户站与独立管理台两个 Nuxt 应用、共享 UI/Storybook、Go API、Ent/Goose、Valkey 和 Fosite。授权码/PKCE/OIDC 后端已通过数据库集成；授权页、独立 RP 浏览器互操作、刷新/撤销、联邦登录、应用审核与管理员 MFA 尚待完成。
 
 2026-10-18 用户已要求开始执行实施计划。运行方法与前置条件见 [工程基座指南](docs/run-foundation.md)，已验证和未验证的范围见 [实施进度](docs/implementation-status.md)。依赖已运行于局域网 Ubuntu 的独立 Compose 网络，数据库/缓存基础集成测试通过；身份业务尚未完成，不可作为生产身份服务使用。
 
@@ -16,7 +16,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 - 中英双语、明暗主题、轻二次元视觉。
 - Windows 原生开发，Compose 提供依赖，生产运行于 Linux 容器。
 - 后端使用 Go，考虑未来多模块扩展；当前实现选型与验证边界见 [ADR-0013](docs/decisions/0013-implementation-baseline.md)。
-- Go 模块化单体；account、admin、developer 三个 Nuxt 应用共享 UI 和 API 类型，可分别部署。
+- Go 模块化单体；account 用户站整合账号与 `/developer` 分区，admin 为独立 Nuxt 应用，共享 UI/API 类型；最新决定见 [ADR-0017](docs/decisions/0017-user-site-layouts.md)。
 - 已发布应用的敏感配置采用版本化审核：旧批准版本继续服务，新版本获批后生效。
 - 首期包含管理员 TOTP MFA、单次恢复码和一次性初始化；普通用户 MFA 后置。
 - 数据层采用 Ent + 独立版本化 SQL 迁移；工程已采用 Goose、chi/Fosite/Huma，账号与授权码适配通过集成验证，刷新/撤销及完整互操作仍待完成。

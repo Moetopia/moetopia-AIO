@@ -12,5 +12,9 @@ export default defineNuxtConfig({
     '/': { headers: privatePageHeaders },
     '/sessions': { headers: privatePageHeaders },
     '/security': { headers: privatePageHeaders },
+    '/profile': { headers: privatePageHeaders },
+    '/auth/**': { headers: privatePageHeaders },
+    '/developer/**': { headers: privatePageHeaders },
+    '/developer': { headers: privatePageHeaders },
   },
 })

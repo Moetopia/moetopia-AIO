@@ -43,6 +43,8 @@ pnpm test:ui
 
 ## 当前组件
 
+2026-10-18 本轮将账号与开发者合并为用户站，布局参照 nextmoe 的场景划分；新增 AuthShell 和 ProfileLayout 后共有 57 个公开组件。新增组件具有 Storybook，复用边界见 [ADR-0017](../../docs/decisions/0017-user-site-layouts.md)。
+
 | 组件 | 行为及组合 |
 | --- | --- |
 | MoeButton | 原生按钮；默认 type=button；加载时禁用并保留文字占位，防止宽度跳动。iconOnly 必须由调用方提供 aria-label |
@@ -95,6 +97,8 @@ pnpm test:ui
 | MoeCheckboxGroup | 字符串数组 v-model；options；fieldset/legend；独立勾选、单项与整组禁用 |
 | MoePageFrame | 公共页框；skipLabel；header/default/footer 插槽；主内容与键盘跳过链接 |
 | MoeAuthLayout | 认证布局；illustration/title/caption/description；内容插槽；窄屏隐藏插画，表单自然滚动 |
+| MoeAuthShell | 独立认证页壳；header/default/footer/brand 插槽、跳过链接；桌面表单列独立滚动，手机隐藏品牌区；不自动加载图片 |
+| MoeProfileLayout | 摘要/内容布局；summary/default 插槽；桌面双栏且摘要吸顶，手机上下排列；不绑定账号或业务 API |
 | MoeWorkspaceLayout | 工作区；sidebar/breadcrumbs/default 插槽；宽屏侧栏、窄屏单列；菜单入口由 Navbar 提供 |
 | MoePageHeading | 页面主标题、说明、eyebrow 与 actions；单页主内容只放一个 h1 |
 | MoeSettingRow | title/description/icon；内容及 actions 插槽；在多个页面复用设置项或会话操作布局 |
@@ -131,7 +135,7 @@ Toast 不能承载必须及时确认的安全操作或成为表单错误的唯�
 
 ## 检查范围与剩余事项
 
-当前公开 55 个组件。本轮共享库及三应用类型检查、应用和 Storybook 构建通过；24 项独立组件检查与 14 项模拟接口页面检查通过。组件阶段的 123 个故事状态此前已通过运行时渲染检查；新增品牌和布局故事另行查看及验证。已查看桌面明暗主题、移动导航和 375px 窄屏截图。这些检查不代表 WCAG 全面达标，也不代表用户已经接受页面视觉。
+当前公开 57 个组件。本轮共享库及两应用类型检查、应用和 Storybook 构建通过；26 项独立组件检查与 36 项模拟接口页面检查通过（4 个 worker）。真实 OIDC 回归另通过 1 项独立客户端浏览器场景，详见前端协调记录。组件阶段的 123 个故事状态此前已通过运行时渲染检查；新增品牌和布局故事另行查看及验证。已查看桌面明暗主题、移动导航和 375px 窄屏截图。这些检查不代表 WCAG 全面达标，也不代表用户已经接受页面视觉。
 
 Reka 2.11.0 的 RadioGroup 使用延迟焦点选中逻辑；测试瞬时按下并释放方向键时曾只移动焦点。当前测试覆盖按下、等待选中、抬起的完整过程；快速按键和真实辅助技术表现仍需后续核验，不宣称该上游时序问题已修复。
 

@@ -13,7 +13,7 @@
     "dev:doctor:remote": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/doctor.ps1 -RemoteDependencies",
     "dev:up": "docker compose -f compose.dev.yml up -d --wait",
     "dev:down": "docker compose -f compose.dev.yml down",
-    "build": "pnpm --filter @moetopia/account --filter @moetopia/admin --filter @moetopia/developer run build",
+    "build": "pnpm --filter @moetopia/account --filter @moetopia/admin run build",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm api:test",
     "storybook": "pnpm --filter @moetopia/ui storybook",

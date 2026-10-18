@@ -5,7 +5,8 @@ import { checkPort, selectedServices, serviceCommand, servicePort, tuiConfig } f
 
 test('service selection rejects typos and does not start unrelated apps', () => {
   assert.deepEqual(selectedServices(['--plain', '--', 'api', 'account', 'api']), ['api', 'account'])
-  assert.deepEqual(selectedServices([]), ['api', 'account', 'admin', 'developer'])
+  assert.deepEqual(selectedServices([]), ['api', 'account', 'admin'])
+  assert.throws(() => selectedServices(['developer']), /Developer pages are served by account/)
   assert.throws(() => selectedServices(['acount']), /Unknown service/)
   assert.equal(servicePort('api', { MOETOPIA_LISTEN: '127.0.0.1:58480' }), 58480)
   assert.throws(() => servicePort('api', { MOETOPIA_LISTEN: '127.0.0.1:invalid' }), /valid explicit port/)

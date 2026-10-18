@@ -1,26 +1,32 @@
 # 前端进度与后端接入反馈
 
-更新时间：2026-10-18。所有者：前端/UI 对话。已读取 [同步规则](README.md)、[后端状态](backend.md) 和 [授权接口说明](../run-authorization.md)。本文件由前端维护，不代表另一对话已收到通知。
+更新时间：2026-10-18。所有者：前端/UI 对话。开始工作已读 [同步规则](README.md) 与 [后端状态](backend.md)。本文件记录共享工作区事实，不代表另一对话已收到自动通知。
 
-## 本轮接入
+## 本轮已完成
 
-- account 首页识别 `authorization_request`，在原 URL 中跨登录保留；重复、空值或非 43 位 base64url 句柄显示无效请求，不调用授权接口。
-- 按生成 `components` 类型调用授权 GET/POST，不修改生成包。展示真实 client_name/client_id、完整 redirect_uri、scope、audience、到期时间和账号；未知 scope 原文展示，不编造权限含义。
-- `login_required`（包括已有账号的强制认证）显示原有密码登录表单；成功后重读详情，POST 使用登录返回的新 CSRF 和详情 user.id。不自动批准；拒绝显式发送 deny。
-- 401 进入重新登录；409 重读 context 和详情，提示账号变化并要求再次核对；403/404/422/429/503 各有恢复或重新发起说明。过期隐藏确认；写入不自动重试。成功完整导航至后端返回的 redirect_to，不拼接 code/state、不 fetch 回调。
-- 固定 Go 上游 Discovery 代理已加入共享 Nuxt 层，保留 `/oauth/**`。account 页面设置 no-store、no-referrer、CSP frame-ancestors 'none' 和 X-Frame-Options DENY。
-- 页面仅组合既有共享 UI，不新增应用内重复控件或角色图片；支持中英文、明暗主题和手机布局。
+用户已授权合并 account/developer，并要求尽量完成整轮功能、验证后提交 Git。新边界见 [ADR-0017](../decisions/0017-user-site-layouts.md)：
 
-## 验证状态
+- account 用户站提供 `/auth/login`、`/auth/register`、`/profile`、`/sessions`、`/security` 与 `/developer`、`/developer/applications`、`/developer/docs`；`/` 兼容原入口和 authorization_request。admin 独立。
+- 删除独立 developer 应用源码/workspace/build/dev 入口，默认为 api＋account＋admin，不再启动 3002。跨应用配置只需 ACCOUNT_URL 与 ADMIN_URL。旧本地开发者地址变量不再读取，无需修改秘密或数据库。
+- 认证采用独立左右页壳、桌面表单列滚动及手机单列；账号采用轻量顶栏、个人摘要与操作内容双栏。开发者首页和控制台分开布局；不再让所有页面套同一种后台壳。保留角色配色、不加载候选立绘。
+- AuthShell、ProfileLayout 在共享 UI 定义，含 Storybook 与键盘/响应式检查；公共组件共 57 个。基础控件继续参考 KunUI，页面组织参考 nextmoe。
+- 登录先完成目标路由切换再展示已登录页面，避免紧随其后的导航被覆盖；SSR 标签与偏好按钮初始化后启用。开发者续接只接受固定 `continue=developer-applications` 标识，忽略任意 URL。
+- 构建与启动配置、锁文件、规范和运行文档同步。dist 产物退出 Git 跟踪并加入忽略，本地文件保留；不提交机器生成的发布文件。
 
-全项目类型检查、三应用构建已通过；32 项页面浏览器检查通过（含 18 项新增授权检查），覆盖真实字段展示、允许/拒绝完整导航、强制认证、新 CSRF、账号变化与切换、过期、GET/POST 错误、英文深色窄屏及响应头。桌面与手机截图复核无横向溢出或页面脚本错误。模拟页面检查不等于独立 RP/真实协议互操作。
+## 协议与后端兼容
 
-Discovery 的固定代理配置已通过构建，但实际请求 Go `127.0.0.1:8080` 时连接失败；未启动或停止后端，真实 Discovery 内容一致性尚未验收。admin/developer 当前为静态产物，静态托管不会执行 Nitro 代理；协议入口以 account 服务为准。
+沿用 [生成契约](../../packages/api-client/src/schema.ts)，未改 DTO、Go、迁移、Cookie、issuer 或 account origin。授权页继续显示真实应用、回调、scope/audience、账号与到期时间；强制登录后重读详情/CSRF，显式 approve/deny，完整导航至后端 redirect_to。不拼接 code/state、不自动批准或重试写入，处理 401/403/404/409/422/429/503。
 
-共享翻译入口 `packages/locales/src/index.ts` 的新增授权导出在本轮被再次移除，导致后续构建失败；原因未确认。前端已恢复该导出，请保持本轮文件所有权，避免同时改写此入口。恢复后最终 account 构建、全项目类型检查和 32 项页面检查均重新通过；文档检查通过（42 个 Markdown、208 个本地链接）。私人页面响应头仅作用于 `/`、`/sessions`、`/security`，不将身份页禁缓存策略铺到所有静态资源。
+保留后端对话对 OAuth 代理的 manual redirect 修复，让浏览器收到原始跳转与事务 Cookie；固定 Discovery 上游继续有效。私人页面保持 no-store、no-referrer 和禁止嵌入，不把身份页禁缓存策略应用到所有静态资源。管理员访问不能因同源用户站或隐藏菜单而放行。
 
-## 协作边界与后续
+开始时 HEAD 为 9cb17a6。后端已有独立 RP 互操作、代理选项和文档等未提交改动；保留且不纳入前端提交。公共文件出现双方改动时，只暂存本轮所属部分，不覆盖其他差异，不操作共享开发进程。
 
-本轮只改 account 应用、共享 portal 配置、locales、页面测试与本状态文件；未改 Go、迁移、生成契约、根依赖或另一侧状态。当前 Git 已存在，main 尚无提交且有大量原有暂存/未暂存文件；保留现状，不自行初始化、提交、清理或重置。早期文档“没有 Git”的描述已过时，后续维护公共文档时请更新。
+## 验证
 
-前端接入完成后，需要后端侧继续安排真实 RP 浏览器互操作，包括 Discovery 经 Nuxt 的 issuer/端点一致性、授权 Cookie/登录轮换、真实 PKCE/nonce/ID Token 与回调、拒绝和重放。本轮不创建默认 OAuth 客户端，不更改共享开发库或结束任何已有开发进程。
+- 两应用构建、全项目类型检查、Storybook 构建通过。
+- 36 项页面检查、26 项组件检查通过；分别以 4 个 worker 顺序执行。先前多浏览器与构建并行运行出现加载超时，降低并发后完整通过，没有放宽断言或自动重试失败。
+- 3 项开发启动器检查通过，默认服务数量与旧 developer 命令拒绝行为已覆盖。
+- 使用后端现有 `pnpm test:oidc`，1 项真实 Chromium 互操作通过：独立 RP、Go、随机测试库、Mailpit、邀请注册、Cookie 旋转、同意/拒绝、prompt=login、JWKS/UserInfo 与异常拒绝；运行器清理自己的测试资源。未改开发库或重启已有服务。
+- 已查看桌面登录/注册、账号与开发者页面，以及手机明暗页面；9 张截图无页面脚本错误或横向溢出。截图仅为合成账号，不提交预览产物。
+
+本轮复用后端测试设施，未修改或接管其脚本。类型与构建不代表完整身份产品验收；仍没有应用创建/审核、账号资料修改、密码恢复/联邦绑定、管理员 MFA、生产发布或全面性能验收。后续接口准备好后，继续通过本目录同步前端接入。

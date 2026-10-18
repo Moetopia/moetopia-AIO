@@ -5,7 +5,7 @@
 | 所有者 | 写入范围 | 进度入口 |
 | --- | --- | --- |
 | 后端对话 | apps/api、迁移、后端测试与专用脚本、生成的 OpenAPI/TypeScript 契约 | [backend.md](backend.md) |
-| 前端对话 | 三个 Nuxt 应用、UI/portal/locales、Storybook、页面测试 | 前端可创建 frontend.md，仅由前端维护 |
+| 前端对话 | 用户站与管理台、UI/portal/locales、Storybook、页面测试 | 前端可创建 frontend.md，仅由前端维护 |
 
 两侧开始工作先读本索引和另一侧状态；各自只更新自己的状态文件。状态至少写明日期、正在做的内容、已经完成且验证的接口、兼容影响、需要另一侧接入的事项和验证限制。状态和接口以共享文件事实为准，不假装自动通知已送达。
 
