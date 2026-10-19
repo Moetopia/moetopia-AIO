@@ -1,5 +1,6 @@
 export default {
   "common": {
+    "system": "跟随系统",
     "tagline": "让每一次相遇，从同一个身份开始。",
     "introduction": "Moetopia 统一身份中心",
     "account": "账号中心",
@@ -22,6 +23,7 @@ export default {
     "pageLoading": "正在加载页面"
   },
   "account": {
+    "forgotPassword": "忘记密码？", "recoveryTitle": "找回密码", "recoveryDescription": "输入账号邮箱，通过邮件找回你的账号。", "resetTitle": "设置新密码", "resetDescription": "为你的 Moetopia 账号设置新的登录密码。", "recoveryUnavailable": "账号恢复服务尚未开放，暂时无法提交。请勿在此填写恢复码。", "backToLogin": "返回登录",
     "welcome": "欢迎回来",
     "subtitle": "登录你的 Moetopia 账号。",
     "namePlaceholder": "怎么称呼你？",
@@ -72,6 +74,8 @@ export default {
     "loginLink": "前往登录"
   },
   "portal": {
+    "dashboard": "仪表盘", "quickActions": "快捷操作", "recentActivity": "最近活动", "registrationTrend": "注册趋势", "adminUnavailable": "管理员身份与数据服务尚未接入",
+    "developerLogin": "登录开发者平台", "developerLoginDescription": "使用你的 Moetopia 账号登录。", "ssoLogin": "使用 Moetopia 账号登录", "cancel": "取消", "signedOut": "已退出用户站", "localLogoutDescription": "本次退出已结束用户站会话，中央身份会话仍保留。再次登录时仍需确认授权。", "revokeConfirmation": "结束后，该浏览器需要重新通过 Moetopia 登录。确定结束这个会话？", "changeAvatar": "更换头像", "biography": "个人简介", "biographyPlaceholder": "一句话介绍自己", "newEmail": "新邮箱", "changePassword": "修改密码", "currentPassword": "当前密码", "newPassword": "新密码", "confirmPassword": "确认新密码", "deleteAccount": "注销账号", "deleteAccountDescription": "注销与数据清理尚未开放，当前不会提交注销申请。", "copy": "复制", "copied": "已复制", "copyFailed": "复制失败，请手动选择内容", "docsNavigation": "文档导航", "docsOverview": "快速开始", "docsAuthentication": "身份认证", "docsEndpoints": "协议端点", "docsErrors": "错误处理", "docsCredentials": "凭据与回调", "docsCurrentCapabilities": "当前可用能力", "docsAuthenticationBody": "使用授权码与 PKCE S256 发起登录。用户在授权页核对应用和权限后，由你的服务端处理回调、兑换授权码并校验 ID Token。", "docsCredentialsBody": "应用信息、回调地址和权限需要预先注册。正式自助创建与审核尚未开放，不要把客户端秘密放进浏览器代码。", "docsErrorsBody": "用户拒绝、事务过期和校验失败应回到应用重新开始。不要自动批准授权，也不要重放已消费的回调。", "endpointTitle": "端点参考", "endpointDescription": "以下路径对应当前实现；实际地址以 Discovery 返回的 issuer 与端点为准。", "docsExample": "接入示例", "protocolBadge": "OAuth 2.0 · OpenID Connect", "codeExampleTitle": "先读取 Discovery", "createAppTitle": "创建应用", "appDescription": "应用描述（可选）",
     "console": "控制台", "createApplication": "创建应用", "createUnavailable": "应用创建接口尚未开放。", "emailSettings": "邮箱地址", "emailSettingsDescription": "查看账号邮箱，邮箱变更功能暂未开放。", "saveChanges": "保存修改", "profileReadOnly": "资料编辑暂未开放，当前仅可查看。",
     "collapseNavigation": "收起侧栏",
     "expandNavigation": "展开侧栏",

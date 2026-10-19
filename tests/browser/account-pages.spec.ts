@@ -1,57 +1,40 @@
+import { expect, test } from '@playwright/test'
 import { selectLanguage } from './helpers/language'
-import { expect, test, type Page } from '@playwright/test'
+import { mockPortal, previewUser } from './helpers/portal'
 
-const anonymous = { csrf_token: 'example-csrf-token', registration_mode: 'invite' }
-const user = { id: 'example-user', display_name: '预览用户', email: 'preview@example.com' }
-const session = { id: 'current', created_at: '2026-10-18T02:00:00Z', expires_at: '2026-11-18T02:00:00Z' }
-const mockStatus = async (page: Page) => page.route('**/api/v1/status', route => route.fulfill({ json: { service: 'moetopia' } }))
+const origin = 'http://127.0.0.1:53000'
+const anonymous = { csrf_token: 'identity-csrf', registration_mode: 'invite' }
 
-test('sign-in changes layout without remounting account state, sign-out returns to auth', async ({ page }) => {
-  await mockStatus(page)
-  let contextRequests = 0
-  await page.route('**/api/v1/account/context', route => { contextRequests++; return route.fulfill({ json: anonymous }) })
-  await page.route('**/api/v1/account/sessions', route => route.fulfill({ json: { current_id: 'current', items: [session] } }))
-  await page.route('**/api/v1/account/login', async route => {
+test('identity sign-in starts OAuth instead of granting a user-site session', async ({ page }) => {
+  await page.route('**/api/v1/status', route => route.fulfill({ json: { service: 'moetopia' } }))
+  await page.route('**/api/v1/account/context', route => route.fulfill({ json: anonymous }))
+  await page.route('**/api/v1/account/login', route => {
     expect(route.request().headers()['x-moetopia-csrf']).toBe(anonymous.csrf_token)
-    await route.fulfill({ json: { ...anonymous, user } })
+    return route.fulfill({ json: { ...anonymous, user: previewUser } })
   })
-  await page.route('**/api/v1/account/logout', route => route.fulfill({ json: anonymous }))
-  await page.goto('http://127.0.0.1:53000')
-  await page.getByLabel('邮箱', { exact: true }).fill(user.email)
-  await page.getByLabel('密码', { exact: true }).fill('example-password-only')
+  await page.route('**/api/v1/portal/login?**', route => route.fulfill({ body: '<h1>OAuth started</h1>', contentType: 'text/html' }))
+  await page.goto(`${origin}/auth/login?continue=developer-applications`)
+  await page.getByLabel('邮箱', { exact: true }).fill(previewUser.email)
+  await page.getByLabel('密码', { exact: true }).fill('example passphrase only')
   await page.getByRole('button', { name: '登录', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('个人资料')
-  await expect(page.getByRole('heading', { name: '基本资料' })).toBeVisible()
-  await expect(page.getByText(user.email, { exact: true }).first()).toBeVisible()
-  await page.getByRole('link', { name: '管理登录会话', exact: true }).click()
-  await expect(page).toHaveURL('http://127.0.0.1:53000/sessions')
-  await expect(page.getByRole('button', { name: '结束会话' })).toHaveCount(1)
-  expect(contextRequests).toBe(1)
-  await page.getByRole('button', { name: '你的账号', exact: true }).click()
-  await page.getByRole('menuitem', { name: '退出登录', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('欢迎回来')
-  await expect(page.getByLabel('密码', { exact: true })).toHaveValue('')
-  await expect(page.getByRole('complementary').filter({ has: page.getByRole('navigation', { name: '工作区' }) })).toHaveCount(0)
+  await expect(page).toHaveURL(`${origin}/api/v1/portal/login?return_to=%2Fdeveloper%2Fapplications`)
+  await expect(page.getByRole('heading')).toHaveText('OAuth started')
 })
 
-test('registration retains verification flow and uses the selected locale', async ({ page }) => {
-  await mockStatus(page)
+test('registration retains verification flow and supported email locale', async ({ page }) => {
+  await page.route('**/api/v1/status', route => route.fulfill({ json: { service: 'moetopia' } }))
   await page.route('**/api/v1/account/context', route => route.fulfill({ json: anonymous }))
-  await page.route('**/api/v1/account/verification', async route => {
-    expect(route.request().postDataJSON()).toEqual({ email: user.email, locale: 'en' })
-    await route.fulfill({ json: { challenge_id: 'example-challenge' } })
+  await page.route('**/api/v1/account/verification', route => {
+    expect(route.request().postDataJSON()).toEqual({ email: previewUser.email, locale: 'en' })
+    return route.fulfill({ json: { challenge_id: 'example-challenge' } })
   })
-  await page.route('**/api/v1/account/register', async route => {
-    const body = route.request().postDataJSON()
-    expect(body.challenge_id).toBe('example-challenge')
-    expect(body.invitation).toBe('example-invitation')
-    expect(body.code).toBe('12345678')
-    await route.fulfill({ status: 204 })
+  await page.route('**/api/v1/account/register', route => {
+    expect(route.request().postDataJSON()).toMatchObject({ challenge_id: 'example-challenge', invitation: 'example-invitation', code: '12345678' })
+    return route.fulfill({ status: 204 })
   })
-  await page.goto('http://127.0.0.1:53000')
+  await page.goto(`${origin}/auth/register`)
   await selectLanguage(page, 'English')
-  await page.getByRole('link', { name: 'Create an account', exact: true }).click()
-  await page.getByLabel('Email', { exact: true }).fill(user.email)
+  await page.getByLabel('Email', { exact: true }).fill(previewUser.email)
   await page.getByLabel('Display name', { exact: true }).fill('Preview user')
   await page.getByLabel('Invitation code', { exact: true }).fill('example-invitation')
   await page.getByLabel('Password', { exact: true }).fill('example passphrase only')
@@ -63,56 +46,59 @@ test('registration retains verification flow and uses the selected locale', asyn
   await expect(page.getByLabel('Password', { exact: true })).toHaveValue('')
 })
 
-test('session actions refresh real response data and ending current session returns to auth', async ({ page }) => {
-  await mockStatus(page)
-  let signedIn = true
-  let items = [session, { ...session, id: 'other' }]
-  await page.route('**/api/v1/account/context', route => route.fulfill({ json: signedIn ? { ...anonymous, user } : anonymous }))
-  await page.route('**/api/v1/account/sessions', route => route.fulfill({ json: { current_id: 'current', items } }))
-  await page.route('**/api/v1/account/sessions/*', async route => {
-    const id = route.request().url().split('/').at(-1)
-    items = items.filter(item => item.id !== id)
-    if (id === 'current') signedIn = false
-    await route.fulfill({ status: 204 })
-  })
-  await page.goto('http://127.0.0.1:53000/sessions')
-  await expect(page.getByRole('button', { name: '结束会话' })).toHaveCount(2)
-  await page.getByRole('button', { name: '结束会话' }).last().click()
-  await expect(page.getByRole('button', { name: '结束会话' })).toHaveCount(1)
-  await page.getByRole('button', { name: '结束会话' }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('欢迎回来')
+test('session revocation confirms once and uses portal CSRF, including current-session expiry', async ({ page }) => {
+  const state = await mockPortal(page)
+  await page.route('**/api/v1/portal/login?**', route => route.fulfill({ body: 'OAuth restart' }))
+  await page.goto(`${origin}/sessions`)
+  await expect(page.getByRole('button', { name: '结束会话', exact: true })).toHaveCount(2)
+  await page.getByRole('button', { name: '结束会话', exact: true }).last().click()
+  expect(state.writes).toEqual([])
+  await page.getByRole('dialog').getByRole('button', { name: '结束会话', exact: true }).click()
+  await expect(page.getByRole('button', { name: '结束会话', exact: true })).toHaveCount(1)
+  expect(state.writes).toEqual(['portal-csrf'])
+  await page.getByRole('button', { name: '结束会话', exact: true }).click()
+  await page.getByRole('dialog').getByRole('button', { name: '结束会话', exact: true }).click()
+  await expect(page).toHaveURL(`${origin}/api/v1/portal/login?return_to=%2Fsessions`)
+  expect(state.writes).toEqual(['portal-csrf', 'portal-csrf'])
 })
 
-test('security route uses shared account state and links to usable session management', async ({ page }) => {
-  await mockStatus(page)
-  let contextRequests = 0
-  await page.route('**/api/v1/account/context', route => { contextRequests++; return route.fulfill({ json: { ...anonymous, user } }) })
-  await page.route('**/api/v1/account/sessions', route => route.fulfill({ json: { current_id: 'current', items: [session] } }))
-  await page.goto('http://127.0.0.1:53000/security')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('安全设置')
-  await expect(page.getByText('修改密码待开放', { exact: true })).toBeVisible()
-  await expect(page.locator('main img')).toHaveCount(0)
+test('profile navigation reuses portal context and unavailable changes cannot submit', async ({ page }) => {
+  const state = await mockPortal(page)
+  await page.goto(`${origin}/profile`)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('个人资料')
+  await expect(page.getByRole('button', { name: '保存修改' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: '修改密码', exact: true })).toBeDisabled()
   await page.getByRole('link', { name: '管理登录会话', exact: true }).click()
-  await expect(page).toHaveURL('http://127.0.0.1:53000/sessions')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('登录会话')
-  await expect(page.getByRole('button', { name: '结束会话' })).toHaveCount(1)
-  await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '个人资料' }).click()
-  await expect(page).toHaveURL('http://127.0.0.1:53000/profile')
-  await expect(page.getByRole('heading', { name: '基本资料' })).toBeVisible()
-  expect(contextRequests).toBe(1)
+  await expect(page).toHaveURL(`${origin}/sessions`)
+  await page.getByRole('button', { name: '你的账号', exact: true }).click()
+  await page.getByRole('menuitem', { name: '安全设置', exact: true }).click()
+  await expect(page).toHaveURL(`${origin}/security`)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('安全设置')
+  expect(state.reads).toBe(1)
 })
 
-for (const port of [53001]) {
-  test(`workspace on ${port} fits mobile and exposes honest navigation`, async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 })
-    await mockStatus(page)
-    await page.goto(`http://127.0.0.1:${port}`)
-    await page.getByRole('button', { name: '打开导航' }).click()
-    const menu = page.getByRole('dialog', { name: '主导航' })
-    await expect(menu).toBeVisible()
-    await page.keyboard.press('Escape')
-    await expect(menu).toHaveCount(0)
-    await expect(page.getByText('功能准备中', { exact: true }).first()).toBeVisible()
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
-  })
-}
+test('local logout uses the RP endpoint and explains the remaining identity session', async ({ page }) => {
+  const state = await mockPortal(page)
+  let identityWrites = 0
+  await page.route('**/api/v1/account/logout', route => { identityWrites++; return route.fulfill({ status: 500 }) })
+  await page.goto(`${origin}/profile`)
+  await page.getByRole('button', { name: '你的账号', exact: true }).click()
+  await page.getByRole('menuitem', { name: '退出登录', exact: true }).click()
+  await expect(page).toHaveURL(`${origin}/auth/logout`)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('已退出用户站')
+  await expect(page.getByText(/中央身份会话仍保留/)).toBeVisible()
+  expect(state.writes).toEqual(['portal-csrf'])
+  expect(identityWrites).toBe(0)
+})
+
+test('administration drawer remains usable without claiming a user RP is an administrator', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 })
+  await page.route('**/api/**', route => route.fulfill({ status: 503, json: {} }))
+  await page.goto('http://127.0.0.1:53001')
+  await page.getByRole('button', { name: '打开导航' }).click()
+  const drawer = page.getByRole('dialog', { name: '主导航' })
+  await expect(drawer).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(drawer).toHaveCount(0)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})

@@ -33,7 +33,7 @@ const claims = computed(() => {
       <template #actions><MoeButton v-if="feedback === 'changed' && !expired" variant="bordered" @click="acknowledge">{{ text.title }}</MoeButton><MoeButton v-else-if="!expired && feedback !== 'expired' && feedback !== 'invalid'" variant="bordered" :disabled="submitting" @click="reload()">{{ text.retry }}</MoeButton></template>
     </MoeAlert>
     <template v-if="details && !loading && !expired && feedback !== 'expired'">
-      <template v-if="needsLogin"><p class="text-sm leading-6 text-muted">{{ text.loginDescription }}</p><AccountPanel force-login embedded /></template>
+      <template v-if="needsLogin"><p class="text-sm leading-6 text-muted">{{ text.loginDescription }}</p><IdentityForm embedded /></template>
       <template v-else-if="details.user">
         <MoeConsentDetails v-if="claims.length" :title="text.sharedInformation" :items="claims" />
         <section v-if="actionScopes.length" class="moe-consent-permissions"><h2>{{ text.permissions }}</h2><MoeSettingRow v-for="scope in actionScopes" :key="scope" :title="scope" :description="scopeDescription(scope)" icon="check" /></section>

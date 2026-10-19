@@ -1,1 +1,1 @@
-<template><PortalHome kind="admin" /></template>
+<template><PortalHome kind="admin"><AdminOverview /></PortalHome></template>

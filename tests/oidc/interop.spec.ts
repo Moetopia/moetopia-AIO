@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { verifyPortalUI } from './portal-ui'
 
 test('real account proxy and independent RP validate the browser authorization lifecycle', async ({ page, request }) => {
   const email = process.env.MOETOPIA_TEST_OIDC_EMAIL
@@ -72,6 +73,7 @@ test('real account proxy and independent RP validate the browser authorization l
       await page.goto(`http://localhost:54310/login?mode=${mode}`)
       expect(await complete()).toMatchObject({ status: 'rejected' })
     }
+    await verifyPortalUI(page)
     expect(pageErrors).toEqual([])
   } finally {
     if (messageID && /^[A-Za-z0-9-]+$/.test(messageID)) {

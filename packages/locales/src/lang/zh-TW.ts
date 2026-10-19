@@ -2,6 +2,7 @@ import type { LocaleMessages } from '../types'
 
 export default {
   common: {
+    "system": "跟隨系統",
     tagline: '讓每一次相遇，從同一個身分開始。', introduction: 'Moetopia 統一身分中心',
     account: '帳號中心', admin: '管理控制台', developer: '開發者入口',
     accountDescription: '統一管理你的身分、安全設定與應用程式授權。', adminDescription: '管理生態帳號、應用程式審核與平台安全。', developerDescription: '連接你的應用程式，打造屬於 Moetopia 的生態。',
@@ -9,6 +10,7 @@ export default {
     serviceLabel: '服務狀態', themeLabel: '切換主題', languageLabel: '語言', pageLoading: '正在載入頁面', light: '淺色', dark: '深色', ecosystem: '一個身分，連接整個生態',
   },
   account: {
+    "forgotPassword": "忘記密碼？", "recoveryTitle": "找回密碼", "recoveryDescription": "輸入帳號電子郵件，透過郵件找回帳號。", "resetTitle": "設定新密碼", "resetDescription": "為你的 Moetopia 帳號設定新的登入密碼。", "recoveryUnavailable": "帳號復原尚未開放，目前無法送出。請勿在此填寫復原碼。", "backToLogin": "返回登入",
     welcome: '歡迎回來', subtitle: '登入你的 Moetopia 帳號。', namePlaceholder: '該怎麼稱呼你？', invitationPlaceholder: '輸入邀請碼', passwordPlaceholder: '請輸入密碼', codePlaceholder: '8 位驗證碼',
     registerSubtitle: '驗證電子郵件，建立你的 Moetopia 帳號。', login: '登入', register: '建立帳號', email: '電子郵件', password: '密碼', name: '暱稱', invitation: '邀請碼',
     invitationHint: '目前需要邀請碼才能註冊，每個邀請碼可使用一次。', openHint: '註冊前需要驗證你的電子郵件。', passwordHint: '至少 15 個字元，可以包含空格。',
@@ -21,6 +23,8 @@ export default {
     noAccount: '還沒有帳號？', haveAccount: '已經有帳號？', registerLink: '立即註冊', loginLink: '前往登入',
   },
   portal: {
+    "dashboard": "儀表板", "quickActions": "快捷操作", "recentActivity": "最近活動", "registrationTrend": "註冊趨勢", "adminUnavailable": "管理員身分與資料服務尚未接入",
+    "developerLogin": "登入開發者平台", "developerLoginDescription": "使用你的 Moetopia 帳號登入。", "ssoLogin": "使用 Moetopia 帳號登入", "cancel": "取消", "signedOut": "已登出使用者網站", "localLogoutDescription": "已結束網站工作階段，中央身分工作階段仍保留。再次登入仍須確認授權。", "revokeConfirmation": "結束後，此瀏覽器須重新透過 Moetopia 登入。確定結束此工作階段？", "changeAvatar": "更換頭像", "biography": "個人簡介", "biographyPlaceholder": "簡單介紹自己", "newEmail": "新電子郵件", "changePassword": "變更密碼", "currentPassword": "目前密碼", "newPassword": "新密碼", "confirmPassword": "確認新密碼", "deleteAccount": "刪除帳號", "deleteAccountDescription": "帳號刪除與資料清理尚未開放，目前不會送出申請。", "copy": "複製", "copied": "已複製", "copyFailed": "複製失敗，請手動選取內容", "docsNavigation": "文件導覽", "docsOverview": "快速開始", "docsAuthentication": "身分驗證", "docsEndpoints": "協定端點", "docsErrors": "錯誤處理", "docsCredentials": "憑證與回呼", "docsCurrentCapabilities": "目前可用功能", "docsAuthenticationBody": "透過授權碼與 PKCE S256 發起登入。使用者確認應用程式與權限後，由你的伺服器處理回呼、交換授權碼並驗證 ID Token。", "docsCredentialsBody": "應用程式資訊、回呼網址和權限須事先註冊。自助建立與審核尚未開放，請勿將用戶端祕密放入瀏覽器程式碼。", "docsErrorsBody": "遇到拒絕、過期或驗證失敗，應回到應用程式重新開始。勿自動核准授權，也勿重送已使用的回呼。", "endpointTitle": "端點參考", "endpointDescription": "以下路徑對應目前實作，實際位址以 Discovery 回傳的 issuer 與端點為準。", "docsExample": "接入範例", "protocolBadge": "OAuth 2.0 · OpenID Connect", "codeExampleTitle": "先讀取 Discovery", "createAppTitle": "建立應用程式", "appDescription": "應用程式描述（選填）",
     "console": "控制台", "createApplication": "建立應用程式", "createUnavailable": "應用程式建立功能尚未開放。", "emailSettings": "電子郵件地址", "emailSettingsDescription": "查看帳號電子郵件，變更功能尚未開放。", "saveChanges": "儲存變更", "profileReadOnly": "資料編輯尚未開放，目前僅可查看。",
     collapseNavigation: "收合側欄", expandNavigation: "展開側欄",
     brandDetail: '帳號、社群與創作', yourAccount: '你的帳號', identityDescription: '使用此帳號登入 Moetopia 與已接入的應用程式。',

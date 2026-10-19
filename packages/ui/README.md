@@ -43,6 +43,10 @@ pnpm test:ui
 
 ## 当前组件
 
+2026-10-19 全面对照轮次新增 DocsLayout、CodeBlock、CopyButton、FeatureGrid、DangerZone、ThemePicker、StatGrid，公开组件共 72 个，每项有故事。补足文档侧栏、代码复制反馈、首页结构、危险区、三选主题与未知统计展示；AuthShell 增加 mobile-brand 插槽，Link 的 appearance 提供主次链接按钮，PageHeading 可选择 h1/h2/h3，Dialog 可关闭默认底部关闭操作以组合真实表单操作栏。
+
+本轮应用/Storybook 构建、类型、55 项页面和 31 项组件检查通过；21 张响应式截图及两个真实集成场景的范围见 [前端交接](../../docs/coordination/frontend.md)。界面、未完成后端能力和参考差异统一见 [完整对照](../../docs/nextmoe-parity.md)，不把未连接的表单/统计说成产品交付。
+
 本轮按用户重新提出的 1:1 要求新增 ConsoleLayout、AccountMenu、AuthorizationHandshake、ConsentDetails，公开组件共 65 个。四个组件各有 Storybook，并提供 [完整授权页预览](http://localhost:6006/?path=/story/pages-authorization--consent)；预览不执行真实授权。Navbar 可选择 tablet（768px）/desktop（1024px）抽屉断点，Sidebar 的 rail 变体把折叠控制放到底部。尺寸、未完成业务及验收边界见 [布局核对](../../docs/ui-layout-audit.md)。
 
 Card 的 layout=form 使用内嵌标题和 24px 内边距；默认布局不变。默认内容可通过 padding=none/sm/md/lg 选择 0/12/20/24px，避免页面覆盖内部工具类。本轮构建、49 项页面、29 项组件检查和 12 张截图复核通过；真实 RP 检查受已有 54310 端口占用限制，未执行。自有站点 OAuth 接入仍需 Go RP 契约，不能将静态授权故事称为已接通。

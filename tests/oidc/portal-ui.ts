@@ -1,0 +1,25 @@
+import { expect, type Page } from '@playwright/test'
+
+export const verifyPortalUI = async (page: Page) => {
+  await page.goto('http://127.0.0.1:54305/developer')
+  await page.getByRole('button', { name: '登录', exact: true }).click()
+  await page.getByRole('dialog').getByRole('button', { name: '使用 Moetopia 账号登录', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Moetopia user site', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '允许访问', exact: true }).click()
+  await expect(page).toHaveURL('http://127.0.0.1:54305/developer/applications')
+  await expect(page.getByRole('heading', { name: '我的应用', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '你的账号', exact: true }).click()
+  await page.getByRole('menuitem', { name: '登录会话', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('登录会话')
+  await expect(page.getByRole('button', { name: '结束会话', exact: true })).toHaveCount(1)
+  await page.reload()
+  await expect(page.getByRole('button', { name: '结束会话', exact: true })).toHaveCount(1)
+  await page.getByRole('button', { name: '你的账号', exact: true }).click()
+  await page.getByRole('menuitem', { name: '退出登录', exact: true }).click()
+  await expect(page).toHaveURL('http://127.0.0.1:54305/auth/logout')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('已退出用户站')
+  const portal = await page.context().request.get('http://127.0.0.1:54305/api/v1/portal/context')
+  expect((await portal.json() as { authenticated: boolean }).authenticated).toBe(false)
+  const identity = await page.context().request.get('http://127.0.0.1:54305/api/v1/account/context')
+  expect((await identity.json() as { user?: unknown }).user).toBeTruthy()
+}

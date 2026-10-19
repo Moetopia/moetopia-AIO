@@ -1,15 +1,16 @@
 import { selectLanguage } from './helpers/language'
+import { chooseTheme } from './helpers/theme'
 import { expect, test } from '@playwright/test'
 
-for (const [port, path, title, heading] of [[53000, '/', '账号中心', 'Welcome back'], [53001, '/', '管理控制台', 'Administration'], [53000, '/developer', '开发者门户', 'Connect your application to Moetopia.']] as const) {
+for (const [port, path, title, heading] of [[53000, '/auth/login', '账号中心', 'Welcome back'], [53001, '/', '管理控制台', 'Dashboard'], [53000, '/developer', '开发者门户', 'Connect your application to Moetopia.']] as const) {
   test(`${title} renders safely without a backend`, async ({ page }) => {
     const exceptions: string[] = []
     page.on('pageerror', (error) => exceptions.push(error.message))
     await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
     await page.goto(`http://127.0.0.1:${port}${path}`)
     await expect(page).toHaveTitle(`${title} · Moetopia`)
-    if (port !== 53001) await expect(page.getByRole('status')).toHaveText('连接暂不可用')
-    await page.getByRole('button', { name: '切换主题' }).click()
+    if (port !== 53001) await expect(page.locator('.moe-status-indicator[role="status"]')).toHaveText('连接暂不可用')
+    await chooseTheme(page, '切换主题', '深色')
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await selectLanguage(page, 'English')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
@@ -24,7 +25,7 @@ for (const [port, path, title, heading] of [[53000, '/', '账号中心', 'Welcom
 test('account layout fits a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
-  await page.goto('http://127.0.0.1:53000')
+  await page.goto('http://127.0.0.1:53000/auth/login')
   await expect(page.locator('main img')).toHaveCount(0)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })
@@ -32,11 +33,11 @@ test('account layout fits a narrow viewport', async ({ page }) => {
 test('registration fits mobile English and dark mode', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 })
   await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
-  await page.goto('http://127.0.0.1:53000')
+  await page.goto('http://127.0.0.1:53000/auth/login')
   await expect(page.getByRole('status')).toHaveText('连接暂不可用')
   await page.getByRole('link', { name: '立即注册', exact: true }).click()
   await selectLanguage(page, 'English')
-  await page.getByRole('button', { name: 'Change theme' }).click()
+  await chooseTheme(page, 'Change theme', 'Dark')
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Create account')
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
@@ -44,7 +45,7 @@ test('registration fits mobile English and dark mode', async ({ page }) => {
 
 test('password trailing control works and policy is described', async ({ page }) => {
   await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
-  await page.goto('http://127.0.0.1:53000')
+  await page.goto('http://127.0.0.1:53000/auth/login')
   await expect(page.getByRole('status')).toHaveText('连接暂不可用')
   const password = page.getByLabel('密码', { exact: true })
   await password.fill('example passphrase only')

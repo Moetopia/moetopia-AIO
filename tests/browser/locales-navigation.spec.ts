@@ -6,7 +6,8 @@ const anonymous = { csrf_token: 'example-csrf', registration_mode: 'invite' }
 const prepare = async (page: Page, signedIn = false) => {
   await page.route('**/api/v1/status', route => route.fulfill({ json: { service: 'moetopia' } }))
   await page.route('**/api/v1/account/context', route => route.fulfill({ json: { ...anonymous, ...(signedIn ? { user: { id: 'example', display_name: '预览用户', email: 'preview@example.com' } } : {}) } }))
-  await page.route('**/api/v1/account/sessions', route => route.fulfill({ json: { current_id: 'example', items: [] } }))
+  await page.route('**/api/v1/portal/context', route => route.fulfill({ json: { authenticated: signedIn, csrf_token: 'portal-csrf', login_url: '/api/v1/portal/login', ...(signedIn ? { user: { id: 'example', display_name: '预览用户', email: 'preview@example.com' } } : {}) } }))
+  await page.route('**/api/v1/portal/sessions', route => route.fulfill({ json: { current_id: 'example', items: [] } }))
 }
 
 test('language menu offers four native names, preserves input and persists Japanese on reload', async ({ page }) => {

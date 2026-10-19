@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
 
-test('invitation registration, Mailpit verification, login and logout', async ({ page, request }) => {
+test('identity registration, Mailpit verification and identity session remain separate from RP sign-in', async ({ page, request }) => {
   const invitation = process.env.MOETOPIA_TEST_INVITATION
   const smtp = process.env.MOETOPIA_SMTP_ADDRESS
   if (!invitation || !smtp) throw new Error('Dedicated account test environment is required')
@@ -15,8 +15,9 @@ test('invitation registration, Mailpit verification, login and logout', async ({
     const response = await route.fetch({ url: `http://127.0.0.1:58080${url.pathname}${url.search}` })
     await route.fulfill({ response })
   })
+  await page.route('**/api/v1/portal/login?**', route => route.fulfill({ contentType: 'text/html', body: '<h1>Identity flow completed</h1>' }))
   try {
-    await page.goto('/')
+    await page.goto('/auth/login')
     await expect(page.getByRole('button', { name: '登录', exact: true }).last()).toBeEnabled()
     await page.getByRole('link', { name: '立即注册', exact: true }).click()
     await page.getByLabel('邮箱', { exact: true }).fill(email)
@@ -41,16 +42,16 @@ test('invitation registration, Mailpit verification, login and logout', async ({
     await expect(page.getByRole('alert')).toContainText('账号已创建')
     await page.getByLabel('密码', { exact: true }).fill('a long browser test passphrase')
     await page.getByRole('button', { name: '登录', exact: true }).last().click()
-    await expect(page.getByRole('heading', { name: '个人资料', exact: true })).toBeVisible()
-    await expect(page.getByRole('link', { name: '管理登录会话', exact: true })).toBeVisible()
-    await page.reload()
-    await expect(page.getByRole('heading', { name: '个人资料', exact: true })).toBeVisible()
+    await expect(page).toHaveURL('http://127.0.0.1:4305/api/v1/portal/login?return_to=%2Fprofile')
+    await expect(page.getByRole('heading', { name: 'Identity flow completed', exact: true })).toBeVisible()
     expect((await page.context().cookies()).find(cookie => cookie.name === 'moetopia_account')?.httpOnly).toBe(true)
-    await page.getByRole('button', { name: '你的账号', exact: true }).click()
-    await page.getByRole('menuitem', { name: '退出登录', exact: true }).click()
-    await expect(page.getByRole('heading', { name: '欢迎回来', exact: true })).toBeVisible()
-    await page.reload()
-    await expect(page.getByRole('heading', { name: '欢迎回来', exact: true })).toBeVisible()
+    const result = await page.evaluate(async () => {
+      const before = await (await fetch('/api/v1/account/context')).json() as { user?: unknown; csrf_token: string }
+      const response = await fetch('/api/v1/account/logout', { method: 'POST', headers: { 'X-Moetopia-CSRF': before.csrf_token } })
+      const after = await response.json() as { user?: unknown }
+      return { authenticated: !!before.user, status: response.status, signedOut: !after.user }
+    })
+    expect(result).toEqual({ authenticated: true, status: 200, signedOut: true })
     expect(exceptions).toEqual([])
   } finally {
     if (messageID && /^[A-Za-z0-9-]+$/.test(messageID)) {

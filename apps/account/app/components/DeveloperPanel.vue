@@ -1,25 +1,28 @@
 <script setup lang="ts">
-import { MoeAlert, MoeBadge, MoeButton, MoeIcon, MoeCard, MoeEmptyState, MoeLink, MoePageHeading, MoeProfileLayout, MoeLandingLayout } from '@moetopia/ui'
-import { portalMessages } from '@moetopia/locales'
-defineProps<{ section: 'overview' | 'applications' | 'docs' }>()
+import { MoeAlert, MoeBadge, MoeButton, MoeIcon, MoeCard, MoeEmptyState, MoeLink, MoePageHeading, MoeLandingLayout, MoeCodeBlock, MoeFeatureGrid } from '@moetopia/ui'
+import { accountMessages, portalMessages } from '@moetopia/locales'
+defineProps<{ section: 'overview' | 'applications' }>()
 const { locale } = usePortalPreferences()
 const text = computed(() => portalMessages[locale.value])
-const { account, loading } = useAccountContext()
+const accountText = computed(() => accountMessages[locale.value])
+const { feedback } = usePortalContext()
+const createOpen = ref(false)
+const code = 'GET /.well-known/openid-configuration\n\nresponse_type=code\nscope=openid profile email\ncode_challenge_method=S256'
 </script>
 <template>
   <div class="grid gap-8">
     <MoeLandingLayout v-if="section === 'overview'" :title="text.developerIntro" :description="text.developerIntroDescription">
-      <template #actions><MoeLink as-child><NuxtLink to="/developer/applications">{{ text.developerStart }}</NuxtLink></MoeLink><MoeLink as-child><NuxtLink to="/developer/docs">{{ text.developerDocs }}</NuxtLink></MoeLink></template>
-      <MoeProfileLayout><template #summary><MoeCard :title="text.oauthSupport"><p class="text-sm leading-7 text-muted">{{ text.oauthSupportDescription }}</p><MoeBadge class="mt-4" color="secondary">{{ text.development }}</MoeBadge></MoeCard></template><DeveloperGuide /></MoeProfileLayout>
-      <MoeAlert :title="text.development" color="info">{{ text.developmentDescription }}</MoeAlert>
+      <template #badge><MoeBadge>{{ text.protocolBadge }}</MoeBadge></template>
+      <template #actions><MoeLink as-child appearance="solid"><NuxtLink to="/developer/applications">{{ text.developerStart }}</NuxtLink></MoeLink><MoeLink as-child appearance="bordered"><NuxtLink to="/developer/docs">{{ text.developerDocs }}</NuxtLink></MoeLink></template>
+      <template #preview><MoeCodeBlock :title="text.codeExampleTitle" :code="code" :copy-label="text.copy" :copied-label="text.copied" :error-label="text.copyFailed" /></template>
+      <MoePageHeading heading-level="h2" :title="text.integrationTitle" :description="text.integrationDescription" />
+      <MoeFeatureGrid :items="[{ id: 'identity', title: text.appIdentity, description: text.appIdentityDescription, icon: 'grid' }, { id: 'callback', title: text.callbacks, description: text.callbacksDescription, icon: 'code' }, { id: 'scopes', title: text.permissions, description: text.permissionsDescription, icon: 'shield' }]" />
     </MoeLandingLayout>
     <template v-else>
-      <MoePageHeading :title="section === 'applications' ? text.myApps : text.docsTitle" :description="section === 'applications' ? text.myAppsDescription : text.docsDescription"><template v-if="section === 'applications'" #actions><MoeButton disabled :title="text.createUnavailable"><MoeIcon name="plus" />{{ text.createApplication }}</MoeButton></template></MoePageHeading>
-      <template v-if="section === 'applications'">
-        <MoeAlert v-if="!account?.user && !loading" :title="text.signInNeeded" color="info">{{ text.signInNeededDescription }}<template #actions><MoeLink as-child><NuxtLink to="/auth/login?continue=developer-applications">{{ text.accountSignIn }}</NuxtLink></MoeLink></template></MoeAlert>
-        <MoeCard class="moe-console-empty" padding="none"><MoeEmptyState :title="text.appsEmpty" :description="text.appsEmptyDescription" icon="grid"><MoeLink as-child><NuxtLink to="/developer/docs">{{ text.developerDocs }}</NuxtLink></MoeLink></MoeEmptyState></MoeCard>
-      </template>
-      <DeveloperGuide v-else />
+      <MoePageHeading :title="text.myApps" :description="text.myAppsDescription"><template #actions><MoeButton @click="createOpen = true"><MoeIcon name="plus" />{{ text.createApplication }}</MoeButton></template></MoePageHeading>
+      <MoeCard class="moe-console-empty" padding="none"><MoeEmptyState :title="text.appsEmpty" :description="text.appsEmptyDescription" icon="grid"><MoeButton @click="createOpen = true"><MoeIcon name="plus" />{{ text.createApplication }}</MoeButton></MoeEmptyState></MoeCard>
+      <MoeAlert v-if="feedback" :title="accountText[feedback]" color="danger" announce />
+      <ApplicationCreate v-model:open="createOpen" />
     </template>
   </div>
 </template>

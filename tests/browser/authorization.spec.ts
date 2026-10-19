@@ -1,4 +1,5 @@
 import { selectLanguage } from './helpers/language'
+import { chooseTheme } from './helpers/theme'
 import { expect, test, type Page } from '@playwright/test'
 
 const id = 'a'.repeat(43)
@@ -174,7 +175,7 @@ test('English dark authorization fits a narrow screen without loading mascot art
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto(url)
   await selectLanguage(page, 'English')
-  await page.getByRole('button', { name: 'Change theme' }).click()
+  await chooseTheme(page, 'Change theme', 'Dark')
   await expect(page.getByRole('button', { name: 'Allow access', exact: true })).toBeEnabled()
   await expect(page.locator('main img')).toHaveCount(0)
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)

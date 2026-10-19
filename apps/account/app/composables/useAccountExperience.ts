@@ -1,5 +1,5 @@
 import { inject, type InjectionKey, type Ref } from 'vue'
-import type { AccountContext, AccountSessions, LoginRequest, RegistrationRequest, VerificationRequest, VerificationResponse } from '@moetopia/api-client'
+import type { AccountContext, LoginRequest, RegistrationRequest, VerificationRequest, VerificationResponse } from '@moetopia/api-client'
 import type { accountMessages, Locale } from '@moetopia/locales'
 import { emailLocale } from '@moetopia/locales'
 
@@ -8,8 +8,6 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
   const loginDestination = computed(() => route.query.continue === 'developer-applications' ? '/developer/applications' : '/profile')
   const loginQuery = computed(() => route.query.continue === 'developer-applications' ? { continue: 'developer-applications' } : {})
   const account = ref<AccountContext>()
-  const sessionList = ref<AccountSessions>()
-  const sessions = computed(() => sessionList.value?.items ?? [])
   const view = ref<'login' | 'register'>(route.path === '/auth/register' ? 'register' : 'login')
   const email = ref('')
   const password = ref('')
@@ -31,11 +29,10 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
     feedback.value = status === 429 ? 'limited' : status === 403 ? 'forbidden' : status === 401 ? (account.value?.user ? 'sessionExpired' : 'invalidCredentials') : status === 422 && registration ? 'invalidRegistration' : 'unavailable'
     success.value = false
   }
-  const loadSessions = async () => { sessionList.value = await $fetch<AccountSessions>('/api/v1/account/sessions') }
   const connect = async () => {
     loading.value = true
     feedback.value = undefined
-    try { account.value = await $fetch<AccountContext>('/api/v1/account/context'); if (account.value.user) await loadSessions() }
+    try { account.value = await $fetch<AccountContext>('/api/v1/account/context') }
     catch (error) { explain(error) }
     finally { loading.value = false }
   }
@@ -51,10 +48,9 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
     const body: LoginRequest = { email: email.value, password: password.value }
     const response = await $fetch<AccountContext>('/api/v1/account/login', { method: 'POST', headers: headers.value, body })
     password.value = ''
-    if (route.query.authorization_request === undefined && (route.path === '/' || route.path.startsWith('/auth/'))) await navigateTo(loginDestination.value)
     account.value = response
     authenticationVersion.value++
-    await loadSessions()
+    if (route.query.authorization_request === undefined) window.location.assign(portalLoginURL(loginDestination.value))
   })
   const sendCode = () => perform(async () => {
     const body: VerificationRequest = { email: email.value, locale: emailLocale(locale.value) }
@@ -67,12 +63,7 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
     password.value = ''; invitation.value = ''; code.value = ''; challenge.value = ''; view.value = 'login'; feedback.value = 'registered'; success.value = true
     if (route.query.authorization_request === undefined && route.path.startsWith('/auth/')) await navigateTo({ path: '/auth/login', query: loginQuery.value })
   }, true)
-  const logout = () => perform(async () => { account.value = await $fetch<AccountContext>('/api/v1/account/logout', { method: 'POST', headers: headers.value }); sessionList.value = undefined; if (route.query.authorization_request === undefined) await navigateTo('/auth/login') })
-  const revoke = (id: string) => perform(async () => {
-    await $fetch(`/api/v1/account/sessions/${encodeURIComponent(id)}`, { method: 'DELETE', headers: headers.value })
-    if (id === sessionList.value?.current_id) await connect()
-    else await loadSessions()
-  })
+  const logout = () => perform(async () => { account.value = await $fetch<AccountContext>('/api/v1/account/logout', { method: 'POST', headers: headers.value }) })
   const changeView = (value: string | undefined) => {
     if (value !== 'login' && value !== 'register') return
     view.value = value; feedback.value = undefined; password.value = ''
@@ -80,8 +71,10 @@ export const useAccountExperience = (locale: Ref<Locale>) => {
   }
   watch(() => route.path, path => { if (path.startsWith('/auth/')) { view.value = path === '/auth/register' ? 'register' : 'login'; password.value = '' } })
   watch(email, () => { if (email.value !== verificationEmail.value) { challenge.value = ''; code.value = '' } })
-  onMounted(connect)
-  return { account, sessionList, sessions, view, email, password, displayName, invitation, code, challenge, busy, loading, authenticationVersion, feedback, success, feedbackElement, formatTime, connect, perform, login, sendCode, register, logout, revoke, changeView, loadSessions }
+  const identityRoute = computed(() => route.path.startsWith('/auth/') || route.path === '/' && route.query.authorization_request !== undefined)
+  onMounted(() => { if (identityRoute.value) void connect() })
+  watch(identityRoute, active => { if (active) void connect() })
+  return { account, view, email, password, displayName, invitation, code, challenge, busy, loading, authenticationVersion, feedback, success, feedbackElement, formatTime, connect, perform, login, sendCode, register, logout, changeView }
 }
 
 export const accountExperienceKey: InjectionKey<ReturnType<typeof useAccountExperience>> = Symbol('account-experience')

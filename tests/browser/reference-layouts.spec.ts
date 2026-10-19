@@ -5,7 +5,8 @@ const user = { id: 'preview', display_name: '预览用户', email: 'preview@exam
 const setup = async (page: Page) => {
   await page.route('**/api/v1/status', route => route.fulfill({ json: { service: 'moetopia' } }))
   await page.route('**/api/v1/account/context', route => route.fulfill({ json: { user, csrf_token: 'preview-csrf', registration_mode: 'invite' } }))
-  await page.route('**/api/v1/account/sessions', route => route.fulfill({ json: { items: [], current_id: 'preview' } }))
+  await page.route('**/api/v1/portal/context', route => route.fulfill({ json: { authenticated: true, user, csrf_token: 'portal-csrf', login_url: '/api/v1/portal/login' } }))
+  await page.route('**/api/v1/portal/sessions', route => route.fulfill({ json: { items: [], current_id: 'preview' } }))
 }
 
 test('developer console follows the reference dimensions and account placement', async ({ page }) => {
@@ -19,7 +20,9 @@ test('developer console follows the reference dimensions and account placement',
   await expect(page.locator('.moe-console-layout')).toHaveCSS('gap', '32px')
   await expect(page.locator('.moe-console-sidebar .moe-sidebar')).toHaveCount(0)
   await expect(page.locator('.moe-console-sidebar').getByRole('button', { name: '退出登录' })).toBeVisible()
-  await expect(page.getByRole('button', { name: '创建应用', exact: true })).toBeDisabled()
+  await page.getByRole('button', { name: '创建应用', exact: true }).first().click()
+  await expect(page.getByRole('dialog').getByRole('button', { name: '创建应用', exact: true })).toBeDisabled()
+  await page.keyboard.press('Escape')
   await page.setViewportSize({ width: 820, height: 900 })
   await expect(page.locator('.moe-console-sidebar')).toBeHidden()
   await page.getByRole('button', { name: '打开导航' }).click()

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { DialogClose, DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle, DialogTrigger } from 'reka-ui'
 
-defineProps<{ title: string; description: string; closeLabel: string }>()
+withDefaults(defineProps<{ title: string; description: string; closeLabel: string; showCloseAction?: boolean }>(), { showCloseAction: true })
 const open = defineModel<boolean>('open', { default: false })
 </script>
 
@@ -15,7 +15,7 @@ const open = defineModel<boolean>('open', { default: false })
         <DialogDescription class="text-sm leading-6 text-muted">{{ description }}</DialogDescription>
         <slot />
         <slot name="footer" :close="() => open = false" />
-        <DialogClose class="min-h-11 justify-self-end rounded-lg px-3 text-sm font-medium text-primary focus-visible:outline-2 focus-visible:outline-focus">{{ closeLabel }}</DialogClose>
+        <DialogClose v-if="showCloseAction" class="min-h-11 justify-self-end rounded-lg px-3 text-sm font-medium text-primary focus-visible:outline-2 focus-visible:outline-focus">{{ closeLabel }}</DialogClose>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>

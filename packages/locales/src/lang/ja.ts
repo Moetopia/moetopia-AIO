@@ -2,11 +2,13 @@ import type { LocaleMessages } from '../types'
 
 export default {
   common: {
+    "system": "システム",
     tagline: 'ひとつのアカウントから、新しい出会いへ。', introduction: 'Moetopia アカウントサービス', account: 'アカウント', admin: '管理画面', developer: '開発者向け',
     accountDescription: 'プロフィール、セキュリティ、アプリのアクセス権を管理します。', adminDescription: 'アカウント、アプリの審査、プラットフォームの安全性を管理します。', developerDescription: 'アプリを Moetopia に接続しましょう。',
     phase: '準備中', notice: 'この機能は準備中です。公開までお待ちください。', connected: 'サービス正常', disconnected: '接続できません', checking: '接続中', serviceLabel: 'サービスの状態', themeLabel: 'テーマを切り替え', languageLabel: '言語', pageLoading: 'ページを読み込み中', light: 'ライト', dark: 'ダーク', ecosystem: 'ひとつのアカウントで、つながる世界',
   },
   account: {
+    "forgotPassword": "パスワードをお忘れですか？", "recoveryTitle": "アカウントを復旧", "recoveryDescription": "メールアドレスを入力して、アカウントへのアクセスを復旧します。", "resetTitle": "新しいパスワードを設定", "resetDescription": "Moetopia アカウントの新しいパスワードを設定します。", "recoveryUnavailable": "アカウント復旧は準備中です。送信できません。リカバリーコードを入力しないでください。", "backToLogin": "ログインに戻る",
     welcome: 'おかえりなさい', subtitle: 'Moetopia アカウントにログインします。', namePlaceholder: '表示名を入力', invitationPlaceholder: '招待コードを入力', passwordPlaceholder: 'パスワードを入力', codePlaceholder: '8 桁の確認コード', registerSubtitle: 'メールアドレスを確認して、Moetopia アカウントを作成します。',
     login: 'ログイン', register: 'アカウントを作成', email: 'メールアドレス', password: 'パスワード', name: '表示名', invitation: '招待コード', invitationHint: '現在、登録には招待コードが必要です。各コードは一度だけ使えます。', openHint: '登録する前にメールアドレスの確認が必要です。', passwordHint: '15 文字以上で入力してください。空白も使用できます。',
     code: 'メール確認コード', sendCode: 'コードを送信', resend: '再送信', codeHint: 'コードの有効期限は 10 分です。', showPassword: 'パスワードを表示', hidePassword: 'パスワードを隠す', continue: '確認してアカウントを作成', checking: 'アカウントの状態を確認中…', retry: '再接続', signedIn: 'アカウント', welcomeBack: 'おかえりなさい、',
@@ -16,6 +18,8 @@ export default {
     noAccount: '初めてご利用ですか？', haveAccount: 'アカウントをお持ちですか？', registerLink: '新規登録', loginLink: 'ログインする',
   },
   portal: {
+    "dashboard": "ダッシュボード", "quickActions": "クイック操作", "recentActivity": "最近のアクティビティ", "registrationTrend": "登録の推移", "adminUnavailable": "管理者認証とデータは未接続です",
+    "developerLogin": "開発者プラットフォームにログイン", "developerLoginDescription": "Moetopia アカウントでログインします。", "ssoLogin": "Moetopia でログイン", "cancel": "キャンセル", "signedOut": "サイトからログアウトしました", "localLogoutDescription": "サイトのセッションを終了しました。中央認証のセッションは保持されます。再ログインには認可の確認が必要です。", "revokeConfirmation": "終了後、このブラウザーでは Moetopia での再ログインが必要です。このセッションを終了しますか？", "changeAvatar": "アバターを変更", "biography": "自己紹介", "biographyPlaceholder": "簡単な自己紹介", "newEmail": "新しいメールアドレス", "changePassword": "パスワードを変更", "currentPassword": "現在のパスワード", "newPassword": "新しいパスワード", "confirmPassword": "新しいパスワードを確認", "deleteAccount": "アカウントを削除", "deleteAccountDescription": "アカウント削除とデータ消去は準備中です。削除は申請されません。", "copy": "コピー", "copied": "コピーしました", "copyFailed": "コピーできません。手動で選択してください。", "docsNavigation": "ドキュメントナビゲーション", "docsOverview": "クイックスタート", "docsAuthentication": "認証", "docsEndpoints": "プロトコルのエンドポイント", "docsErrors": "エラー処理", "docsCredentials": "認証情報とコールバック", "docsCurrentCapabilities": "利用できる機能", "docsAuthenticationBody": "認可コードと PKCE S256 でログインを開始します。利用者がアプリと権限を確認した後、サーバーでコールバックを処理し、コードを交換して ID Token を検証します。", "docsCredentialsBody": "アプリ情報、コールバック、スコープを事前に登録してください。セルフサービスの作成と審査は準備中です。クライアントシークレットをブラウザーのコードに含めないでください。", "docsErrorsBody": "拒否、有効期限切れ、検証失敗の場合はアプリからやり直します。自動で認可したり、使用済みのコールバックを再送したりしないでください。", "endpointTitle": "エンドポイント一覧", "endpointDescription": "現在の実装に対応するパスです。実際の URL は Discovery の issuer とエンドポイントを確認してください。", "docsExample": "接続の例", "protocolBadge": "OAuth 2.0 · OpenID Connect", "codeExampleTitle": "まず Discovery を取得", "createAppTitle": "アプリを作成", "appDescription": "アプリの説明（任意）",
     "console": "コンソール", "createApplication": "アプリを作成", "createUnavailable": "アプリの作成機能は準備中です。", "emailSettings": "メールアドレス", "emailSettingsDescription": "アカウントのメールを確認します。変更機能は準備中です。", "saveChanges": "変更を保存", "profileReadOnly": "プロフィールの編集は準備中です。現在は閲覧のみ可能です。",
     collapseNavigation: "サイドバーを折りたたむ", expandNavigation: "サイドバーを展開",
     brandDetail: 'アカウント、コミュニティ、創作', yourAccount: 'あなたのアカウント', identityDescription: 'このアカウントで Moetopia と接続済みのアプリにログインできます。', developerStart: '自分のアプリを見る', developerDocs: '接続ガイドを読む', developerIntro: 'あなたのアプリを Moetopia に。', developerIntroDescription: 'Moetopia アカウントでサイトにログインできるようにしましょう。接続の流れを確認して、アプリの情報と必要な権限を準備します。',

@@ -1,1 +1,1 @@
-<template><AccountPanel force-login /></template>
+<template><IdentityForm /></template>

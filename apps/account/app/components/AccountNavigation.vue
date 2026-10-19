@@ -6,7 +6,7 @@ defineProps<{ sidebar?: boolean }>()
 const { locale } = usePortalPreferences()
 const text = computed(() => accountMessages[locale.value])
 const pageText = computed(() => portalMessages[locale.value])
-const { account, logout, busy } = useAccountContext()
+const { context: account, authenticated, logout, busy } = usePortalContext()
 const items = computed<MoeMenuItem[]>(() => [
   { id: '/profile', label: pageText.value.profile, icon: 'user' },
   { id: '/sessions', label: pageText.value.sessions, icon: 'shield' },
@@ -17,10 +17,10 @@ const items = computed<MoeMenuItem[]>(() => [
 const select = (item: MoeMenuItem) => item.id === 'logout' ? logout() : navigateTo(item.id)
 </script>
 <template>
-  <MoeCard v-if="sidebar && account?.user" class="moe-console-account" padding="sm">
+  <MoeCard v-if="sidebar && authenticated && account?.user" class="moe-console-account" padding="sm">
     <MoeUserChip :name="account.user.display_name" :description="account.user.email" />
     <MoeButton class="mt-3 w-full" color="danger" variant="light" size="sm" :loading="busy" @click="logout"><MoeIcon name="logout" />{{ text.logout }}</MoeButton>
   </MoeCard>
-  <MoeAccountMenu v-else-if="!sidebar && account?.user" :label="text.signedIn" :name="account.user.display_name" :email="account.user.email" :items="items" @select="select" />
-  <MoeButton v-else-if="!sidebar" size="sm" @click="navigateTo('/auth/login?continue=developer-applications')">{{ text.login }}</MoeButton>
+  <MoeAccountMenu v-else-if="!sidebar && authenticated && account?.user" :label="text.signedIn" :name="account.user.display_name" :email="account.user.email" :items="items" @select="select" />
+  <DeveloperLogin v-else-if="!sidebar" />
 </template>

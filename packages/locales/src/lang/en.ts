@@ -1,5 +1,6 @@
 export default {
   "common": {
+    "system": "System",
     "tagline": "Every connection begins with one identity.",
     "introduction": "Moetopia identity platform",
     "account": "Account center",
@@ -22,6 +23,7 @@ export default {
     "pageLoading": "Loading page"
   },
   "account": {
+    "forgotPassword": "Forgot password?", "recoveryTitle": "Recover your account", "recoveryDescription": "Enter your account email to recover access by email.", "resetTitle": "Set a new password", "resetDescription": "Choose a new sign-in password for your Moetopia account.", "recoveryUnavailable": "Account recovery is not available yet. Submission is disabled; do not enter recovery codes here.", "backToLogin": "Back to sign in",
     "welcome": "Welcome back",
     "subtitle": "Sign in to your Moetopia account.",
     "namePlaceholder": "Your nickname",
@@ -72,6 +74,8 @@ export default {
     "loginLink": "Sign in"
   },
   "portal": {
+    "dashboard": "Dashboard", "quickActions": "Quick actions", "recentActivity": "Recent activity", "registrationTrend": "Registration trend", "adminUnavailable": "Administrator authentication and data are not connected",
+    "developerLogin": "Sign in to the developer platform", "developerLoginDescription": "Use your Moetopia account to sign in.", "ssoLogin": "Sign in with Moetopia", "cancel": "Cancel", "signedOut": "Signed out of the user site", "localLogoutDescription": "Your user-site session has ended. Your central identity session remains; signing in again still requires consent.", "revokeConfirmation": "This browser will need to sign in through Moetopia again. End this session?", "changeAvatar": "Change avatar", "biography": "Biography", "biographyPlaceholder": "A short introduction", "newEmail": "New email", "changePassword": "Change password", "currentPassword": "Current password", "newPassword": "New password", "confirmPassword": "Confirm new password", "deleteAccount": "Delete account", "deleteAccountDescription": "Account deletion and data removal are not available yet. No deletion request will be submitted.", "copy": "Copy", "copied": "Copied", "copyFailed": "Copy failed. Select the content manually.", "docsNavigation": "Documentation navigation", "docsOverview": "Quick start", "docsAuthentication": "Authentication", "docsEndpoints": "Protocol endpoints", "docsErrors": "Error handling", "docsCredentials": "Credentials and callbacks", "docsCurrentCapabilities": "Available capabilities", "docsAuthenticationBody": "Start sign-in using an authorization code and PKCE S256. After the user reviews the app and permissions, your server handles the callback, exchanges the code and validates the ID Token.", "docsCredentialsBody": "Application details, callbacks and scopes must be registered in advance. Self-service creation and review are not available yet. Keep client secrets out of browser code.", "docsErrorsBody": "Restart from your application after denial, expiry or validation failure. Never automatically approve consent or replay a consumed callback.", "endpointTitle": "Endpoint reference", "endpointDescription": "These paths reflect the current implementation. Use the issuer and endpoint URLs returned by Discovery.", "docsExample": "Integration example", "protocolBadge": "OAuth 2.0 · OpenID Connect", "codeExampleTitle": "Read Discovery first", "createAppTitle": "Create application", "appDescription": "Description (optional)",
     "console": "Console", "createApplication": "Create application", "createUnavailable": "Application creation is not available yet.", "emailSettings": "Email address", "emailSettingsDescription": "View your account email. Email changes are not available yet.", "saveChanges": "Save changes", "profileReadOnly": "Profile editing is not available yet. These details are read-only.",
     "collapseNavigation": "Collapse sidebar",
     "expandNavigation": "Expand sidebar",

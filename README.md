@@ -10,6 +10,8 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 
 ## 已确认方向
 
+2026-10-19 前端已接 Go RP 的正常页面登录/回调后上下文、会话与本地退出，并集中补足 nextmoe 对应页面与交互；完整范围和剩余服务端能力见 [页面对照](docs/nextmoe-parity.md) 与 [前端交接](docs/coordination/frontend.md)。
+
 - 一个共享账号体系服务多个应用，首期不做独立身份租户。
 - Nuxt + Vue + TypeScript；Headless UI + Storybook。
 - 邮箱密码、GitHub、Google 登录；第三方开发者受控自助接入。
