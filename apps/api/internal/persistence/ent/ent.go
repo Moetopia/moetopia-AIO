@@ -12,14 +12,20 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
+	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
+	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
+	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
+	"moetopia.local/aio/api/internal/persistence/ent/securityevent"
 	"moetopia.local/aio/api/internal/persistence/ent/signingkey"
 	"moetopia.local/aio/api/internal/persistence/ent/websession"
 )
@@ -82,14 +88,20 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			accountchallenge.Table:         accountchallenge.ValidColumn,
 			accountuser.Table:              accountuser.ValidColumn,
+			applicationversion.Table:       applicationversion.ValidColumn,
+			authorizationgrant.Table:       authorizationgrant.ValidColumn,
 			authorizationinteraction.Table: authorizationinteraction.ValidColumn,
+			developerapplication.Table:     developerapplication.ValidColumn,
 			emaildelivery.Table:            emaildelivery.ValidColumn,
 			emailverification.Table:        emailverification.ValidColumn,
 			invitation.Table:               invitation.ValidColumn,
 			oauthclient.Table:              oauthclient.ValidColumn,
 			protocolsession.Table:          protocolsession.ValidColumn,
+			rplogin.Table:                  rplogin.ValidColumn,
 			registrationpolicy.Table:       registrationpolicy.ValidColumn,
+			securityevent.Table:            securityevent.ValidColumn,
 			signingkey.Table:               signingkey.ValidColumn,
 			websession.Table:               websession.ValidColumn,
 		})

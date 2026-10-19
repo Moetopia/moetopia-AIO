@@ -50,11 +50,15 @@ Storybook 只在显式选择时启动；`pnpm dev account storybook` 不启动 A
 
 账号页请使用表中的 `account.localhost`，不要改用 Nuxt 控制台显示的 `127.0.0.1:3000`：当前 Go 严格检查 `.env` 中的账号 origin，地址不同会拒绝写请求。账号与开发者分区同源共享账号状态；admin 使用独立 host，不能据此继承管理员权限。
 
+发送验证码若返回 403 `Request verification failed`，先核对地址栏是否为 `http://account.localhost:3000`，`http://localhost:3000` 同样不属于该 Origin。直接打开 `http://account.localhost:3000/auth/register` 并刷新后重试，不要复制旧标签页的验证码请求或修改后端校验。account 启动日志现在明确输出配置的登录入口；Nuxt 自带的别名地址不代表后端允许的 Origin。地址正确而仍失败时，再检查 context 请求是否成功、浏览器是否接受 Cookie，以及页面是否持有最新 CSRF；不要把这些凭据发到聊天中。
+
 Vue、样式和翻译保存后由 Nuxt 自动更新。Go `.go`、迁移 `.sql`、go.mod/go.sum 变化触发 API 重新构建和重启；编译失败时保留上一版 API，错误显示在终端，修正后再保存即可。后端重启期间的请求可能失败，等待就绪后手动重试。开发启动器不会自动应用迁移。
 
 本轮改为用户站＋管理台，建议在自己的原启动终端退出并重新运行一次 `pnpm dev`，使 TUI 列表与配置更新。仅看前端可运行 `pnpm dev account` 或 `pnpm dev admin`；这不会启动 Go，账号服务不可用时显示连接失败。不要启动旧 developer 命令，也不要让其他对话结束归属不明的进程。
 
 认证页为 `/auth/login`、`/auth/register`，登录后进入 `/profile`。账号中心通过顶栏或手机菜单进入 `/profile`、`/sessions`、`/security`；`/` 兼容原入口与授权请求。开发者分区为 `/developer`、`/developer/applications`、`/developer/docs`，见 [ADR-0017](decisions/0017-user-site-layouts.md)。会话页复用现有查询与撤销接口；安全页展示现有会话入口及尚未开放的密码修改、第三方绑定、授权管理说明，不代表这些后端能力已完成。正面立绘暂不用于页面，保留角色配色。前后端分工和新对话接手说明见 [交接文档](workstreams.md)。
+
+2026-10-19 新增用户站自身的 Go OAuth RP：可从正常页面登录入口或 [直接发起 OAuth 登录](http://account.localhost:3000/api/v1/portal/login?return_to=/developer/applications) 试用真实启动、授权与回调，身份会话和用户站会话分开。正常入口/守卫已由前端接入并通过真实浏览器回归。迁移 5 和受控客户端初始化已在专属开发库执行，完整契约与其他工作区命令见 [接入说明](run-first-party-oidc.md)。资料/恢复和开发者新增接口见 [账号管理](run-account-management.md) 与 [开发者应用](run-developer-applications.md)，新表单仍需前端接入。
 
 跨应用地址来自 `NUXT_PUBLIC_ACCOUNT_URL`、`NUXT_PUBLIC_ADMIN_URL`。开发者入口使用用户站下的 `/developer`，不再读取独立开发者地址；旧 `.env` 中该变量不再生效，无需更改密钥或数据库。admin 为静态构建，应在构建环境配置公共用户站地址，未配置时跨应用链接禁用。这些公共地址不替代后端 Origin、回调或权限检查。
 
@@ -63,6 +67,8 @@ Vue、样式和翻译保存后由 Nuxt 自动更新。Go `.go`、迁移 `.sql`�
 停止自己的开发实例：TUI 在服务列表按 q，或按 Ctrl-C；纯文本模式按 Ctrl-C。仅停止该实例启动的进程树，Ubuntu 依赖继续运行。不要重复初始化 `.env`、密钥或删除数据卷。安装了新依赖的其他工作区先执行 pnpm install。
 
 ## 试用注册和登录
+
+没有预置的固定测试账号或默认管理员；此前自行注册的开发账号可以继续登录。自动化测试账号属于临时数据库，测试结束即清理，不能作为日常账号使用。邀请码与邮箱验证码不同，分别按下面步骤获取。
 
 1. 在另一个 PowerShell 终端进入同一目录，运行 `pnpm dev:invite`。命令创建一个默认 24 小时有效、单次使用的开发邀请码，并只向该终端输出一次原文；数据库仅保存哈希。不要把邀请码贴入 issue、日志或提交。
 2. 在账号页选择“创建账号”，填写邮箱、昵称、邀请码和至少 15 字符的密码。可使用例如 `reader@moetopia.test` 的测试邮箱。
@@ -85,7 +91,7 @@ pnpm storybook
 
 ## 数据变更与故障
 
-此前已应用迁移 2（identity、sessions、notifications）与迁移 3（authorization.interactions）。本轮前端合并没有新迁移，不修改开发库。后续有新迁移时，按该变更说明执行 `pnpm api:migrate`，必要时重新启动开发实例；不能用生成 Ent 代码代替迁移。
+专属开发库已按顺序应用迁移 1–7，最近的 6/7 分别新增账号管理及开发者应用数据，保留账号、既有会话和签名密钥；详见相应运行说明。前端布局合并本身没有迁移。其他工作区有新迁移时，确认目标库再执行 `pnpm api:migrate`；旧授权主体显式回填用 `pnpm api:grants:backfill`。API 因缺迁移退出时，迁移后在 TUI 选 api 按 r。不能用生成 Ent 代码代替迁移。
 
 账号服务不可用时先看启动终端，再运行 `pnpm dev:doctor:remote` 检查远程端口。该检查不验证密码或数据库结构；`/readyz` 和集成测试才会进行进一步检查。Ubuntu 重启后如何启动依赖见工程指南，不在 Windows 执行远程 `sudo` 或混用本机 `dev:up`。
 

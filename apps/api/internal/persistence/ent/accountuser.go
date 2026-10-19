@@ -21,6 +21,16 @@ type AccountUser struct {
 	Email string `json:"email,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
+	// Bio holds the value of the "bio" field.
+	Bio string `json:"bio,omitempty"`
+	// Avatar holds the value of the "avatar" field.
+	Avatar []byte `json:"avatar,omitempty"`
+	// AvatarDigest holds the value of the "avatar_digest" field.
+	AvatarDigest string `json:"avatar_digest,omitempty"`
+	// Revision holds the value of the "revision" field.
+	Revision int `json:"revision,omitempty"`
+	// SecurityVersion holds the value of the "security_version" field.
+	SecurityVersion int `json:"security_version,omitempty"`
 	// PasswordHash holds the value of the "password_hash" field.
 	PasswordHash string `json:"-"`
 	// Enabled holds the value of the "enabled" field.
@@ -37,9 +47,13 @@ func (*AccountUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case accountuser.FieldAvatar:
+			values[i] = new([]byte)
 		case accountuser.FieldEnabled:
 			values[i] = new(sql.NullBool)
-		case accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldPasswordHash:
+		case accountuser.FieldRevision, accountuser.FieldSecurityVersion:
+			values[i] = new(sql.NullInt64)
+		case accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldPasswordHash:
 			values[i] = new(sql.NullString)
 		case accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -75,6 +89,36 @@ func (_m *AccountUser) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field display_name", values[i])
 			} else if value.Valid {
 				_m.DisplayName = value.String
+			}
+		case accountuser.FieldBio:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field bio", values[i])
+			} else if value.Valid {
+				_m.Bio = value.String
+			}
+		case accountuser.FieldAvatar:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field avatar", values[i])
+			} else if value != nil {
+				_m.Avatar = *value
+			}
+		case accountuser.FieldAvatarDigest:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field avatar_digest", values[i])
+			} else if value.Valid {
+				_m.AvatarDigest = value.String
+			}
+		case accountuser.FieldRevision:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field revision", values[i])
+			} else if value.Valid {
+				_m.Revision = int(value.Int64)
+			}
+		case accountuser.FieldSecurityVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field security_version", values[i])
+			} else if value.Valid {
+				_m.SecurityVersion = int(value.Int64)
 			}
 		case accountuser.FieldPasswordHash:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -141,6 +185,21 @@ func (_m *AccountUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("display_name=")
 	builder.WriteString(_m.DisplayName)
+	builder.WriteString(", ")
+	builder.WriteString("bio=")
+	builder.WriteString(_m.Bio)
+	builder.WriteString(", ")
+	builder.WriteString("avatar=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Avatar))
+	builder.WriteString(", ")
+	builder.WriteString("avatar_digest=")
+	builder.WriteString(_m.AvatarDigest)
+	builder.WriteString(", ")
+	builder.WriteString("revision=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Revision))
+	builder.WriteString(", ")
+	builder.WriteString("security_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SecurityVersion))
 	builder.WriteString(", ")
 	builder.WriteString("password_hash=<sensitive>")
 	builder.WriteString(", ")

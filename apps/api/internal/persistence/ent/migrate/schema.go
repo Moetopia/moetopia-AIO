@@ -9,11 +9,48 @@ import (
 )
 
 var (
+	// AccountChallengesColumns holds the columns for the "account_challenges" table.
+	AccountChallengesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"reset", "email"}},
+		{Name: "user_id", Type: field.TypeString},
+		{Name: "email", Type: field.TypeString},
+		{Name: "binding", Type: field.TypeString},
+		{Name: "security_version", Type: field.TypeInt},
+		{Name: "code_hash", Type: field.TypeBytes},
+		{Name: "attempts", Type: field.TypeInt, Default: 0},
+		{Name: "consumed", Type: field.TypeBool, Default: false},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// AccountChallengesTable holds the schema information for the "account_challenges" table.
+	AccountChallengesTable = &schema.Table{
+		Name:       "account_challenges",
+		Columns:    AccountChallengesColumns,
+		PrimaryKey: []*schema.Column{AccountChallengesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "accountchallenge_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{AccountChallengesColumns[2]},
+			},
+			{
+				Name:    "accountchallenge_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{AccountChallengesColumns[9]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "display_name", Type: field.TypeString},
+		{Name: "bio", Type: field.TypeString, Default: ""},
+		{Name: "avatar", Type: field.TypeBytes, Nullable: true},
+		{Name: "avatar_digest", Type: field.TypeString, Default: ""},
+		{Name: "revision", Type: field.TypeInt, Default: 0},
+		{Name: "security_version", Type: field.TypeInt, Default: 0},
 		{Name: "password_hash", Type: field.TypeString},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "email_verified_at", Type: field.TypeTime},
@@ -24,6 +61,70 @@ var (
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+	}
+	// ApplicationVersionsColumns holds the columns for the "application_versions" table.
+	ApplicationVersionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "application_id", Type: field.TypeString},
+		{Name: "version", Type: field.TypeInt},
+		{Name: "config", Type: field.TypeJSON},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"draft", "pending", "approved", "rejected"}, Default: "draft"},
+		{Name: "review_reason", Type: field.TypeString, Default: ""},
+		{Name: "reviewer_id", Type: field.TypeString, Default: ""},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// ApplicationVersionsTable holds the schema information for the "application_versions" table.
+	ApplicationVersionsTable = &schema.Table{
+		Name:       "application_versions",
+		Columns:    ApplicationVersionsColumns,
+		PrimaryKey: []*schema.Column{ApplicationVersionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "applicationversion_application_id_version",
+				Unique:  true,
+				Columns: []*schema.Column{ApplicationVersionsColumns[1], ApplicationVersionsColumns[2]},
+			},
+			{
+				Name:    "applicationversion_status_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{ApplicationVersionsColumns[4], ApplicationVersionsColumns[7]},
+			},
+		},
+	}
+	// GrantsColumns holds the columns for the "grants" table.
+	GrantsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "client_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString, Default: ""},
+		{Name: "security_version", Type: field.TypeInt, Default: 0},
+		{Name: "scopes", Type: field.TypeJSON},
+		{Name: "audiences", Type: field.TypeJSON},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "revoked", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// GrantsTable holds the schema information for the "grants" table.
+	GrantsTable = &schema.Table{
+		Name:       "grants",
+		Columns:    GrantsColumns,
+		PrimaryKey: []*schema.Column{GrantsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "authorizationgrant_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{GrantsColumns[6]},
+			},
+			{
+				Name:    "authorizationgrant_client_id",
+				Unique:  false,
+				Columns: []*schema.Column{GrantsColumns[1]},
+			},
+			{
+				Name:    "authorizationgrant_user_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{GrantsColumns[2], GrantsColumns[8]},
+			},
+		},
 	}
 	// InteractionsColumns holds the columns for the "interactions" table.
 	InteractionsColumns = []*schema.Column{
@@ -45,6 +146,32 @@ var (
 				Name:    "authorizationinteraction_expires_at",
 				Unique:  false,
 				Columns: []*schema.Column{InteractionsColumns[6]},
+			},
+		},
+	}
+	// ApplicationsColumns holds the columns for the "applications" table.
+	ApplicationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "owner_id", Type: field.TypeString},
+		{Name: "client_id", Type: field.TypeString, Unique: true},
+		{Name: "public", Type: field.TypeBool},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "deleted", Type: field.TypeBool, Default: false},
+		{Name: "revision", Type: field.TypeInt, Default: 1},
+		{Name: "active_version", Type: field.TypeInt, Default: 0},
+		{Name: "latest_version", Type: field.TypeInt, Default: 1},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// ApplicationsTable holds the schema information for the "applications" table.
+	ApplicationsTable = &schema.Table{
+		Name:       "applications",
+		Columns:    ApplicationsColumns,
+		PrimaryKey: []*schema.Column{ApplicationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "developerapplication_owner_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{ApplicationsColumns[1], ApplicationsColumns[9]},
 			},
 		},
 	}
@@ -110,6 +237,8 @@ var (
 		{Name: "id", Type: field.TypeString},
 		{Name: "secret_hash", Type: field.TypeBytes, Nullable: true},
 		{Name: "name", Type: field.TypeString},
+		{Name: "owner_id", Type: field.TypeString, Default: ""},
+		{Name: "test_only", Type: field.TypeBool, Default: false},
 		{Name: "public", Type: field.TypeBool, Default: false},
 		{Name: "enabled", Type: field.TypeBool, Default: false},
 		{Name: "redirect_uris", Type: field.TypeJSON},
@@ -154,6 +283,28 @@ var (
 			},
 		},
 	}
+	// RpLoginsColumns holds the columns for the "rp_logins" table.
+	RpLoginsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "browser_hash", Type: field.TypeString},
+		{Name: "payload", Type: field.TypeBytes},
+		{Name: "expires_at", Type: field.TypeTime},
+		{Name: "consumed", Type: field.TypeBool, Default: false},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// RpLoginsTable holds the schema information for the "rp_logins" table.
+	RpLoginsTable = &schema.Table{
+		Name:       "rp_logins",
+		Columns:    RpLoginsColumns,
+		PrimaryKey: []*schema.Column{RpLoginsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "rplogin_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{RpLoginsColumns[3]},
+			},
+		},
+	}
 	// RegistrationPolicyColumns holds the columns for the "registration_policy" table.
 	RegistrationPolicyColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -164,6 +315,31 @@ var (
 		Name:       "registration_policy",
 		Columns:    RegistrationPolicyColumns,
 		PrimaryKey: []*schema.Column{RegistrationPolicyColumns[0]},
+	}
+	// SecurityEventsColumns holds the columns for the "security_events" table.
+	SecurityEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
+		{Name: "action", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// SecurityEventsTable holds the schema information for the "security_events" table.
+	SecurityEventsTable = &schema.Table{
+		Name:       "security_events",
+		Columns:    SecurityEventsColumns,
+		PrimaryKey: []*schema.Column{SecurityEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "securityevent_user_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{SecurityEventsColumns[1], SecurityEventsColumns[3]},
+			},
+			{
+				Name:    "securityevent_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{SecurityEventsColumns[3]},
+			},
+		},
 	}
 	// SigningKeysColumns holds the columns for the "signing_keys" table.
 	SigningKeysColumns = []*schema.Column{
@@ -209,25 +385,43 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AccountChallengesTable,
 		UsersTable,
+		ApplicationVersionsTable,
+		GrantsTable,
 		InteractionsTable,
+		ApplicationsTable,
 		EmailDeliveriesTable,
 		EmailVerificationsTable,
 		InvitationsTable,
 		ClientsTable,
 		ProtocolSessionsTable,
+		RpLoginsTable,
 		RegistrationPolicyTable,
+		SecurityEventsTable,
 		SigningKeysTable,
 		WebSessionsTable,
 	}
 )
 
 func init() {
+	AccountChallengesTable.Annotation = &entsql.Annotation{
+		Table: "account_challenges",
+	}
 	UsersTable.Annotation = &entsql.Annotation{
 		Table: "users",
 	}
+	ApplicationVersionsTable.Annotation = &entsql.Annotation{
+		Table: "application_versions",
+	}
+	GrantsTable.Annotation = &entsql.Annotation{
+		Table: "grants",
+	}
 	InteractionsTable.Annotation = &entsql.Annotation{
 		Table: "interactions",
+	}
+	ApplicationsTable.Annotation = &entsql.Annotation{
+		Table: "applications",
 	}
 	EmailDeliveriesTable.Annotation = &entsql.Annotation{
 		Table: "email_deliveries",
@@ -244,8 +438,14 @@ func init() {
 	ProtocolSessionsTable.Annotation = &entsql.Annotation{
 		Table: "protocol_sessions",
 	}
+	RpLoginsTable.Annotation = &entsql.Annotation{
+		Table: "rp_logins",
+	}
 	RegistrationPolicyTable.Annotation = &entsql.Annotation{
 		Table: "registration_policy",
+	}
+	SecurityEventsTable.Annotation = &entsql.Annotation{
+		Table: "security_events",
 	}
 	SigningKeysTable.Annotation = &entsql.Annotation{
 		Table: "signing_keys",

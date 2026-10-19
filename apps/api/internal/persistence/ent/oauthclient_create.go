@@ -32,6 +32,34 @@ func (_c *OAuthClientCreate) SetName(v string) *OAuthClientCreate {
 	return _c
 }
 
+// SetOwnerID sets the "owner_id" field.
+func (_c *OAuthClientCreate) SetOwnerID(v string) *OAuthClientCreate {
+	_c.mutation.SetOwnerID(v)
+	return _c
+}
+
+// SetNillableOwnerID sets the "owner_id" field if the given value is not nil.
+func (_c *OAuthClientCreate) SetNillableOwnerID(v *string) *OAuthClientCreate {
+	if v != nil {
+		_c.SetOwnerID(*v)
+	}
+	return _c
+}
+
+// SetTestOnly sets the "test_only" field.
+func (_c *OAuthClientCreate) SetTestOnly(v bool) *OAuthClientCreate {
+	_c.mutation.SetTestOnly(v)
+	return _c
+}
+
+// SetNillableTestOnly sets the "test_only" field if the given value is not nil.
+func (_c *OAuthClientCreate) SetNillableTestOnly(v *bool) *OAuthClientCreate {
+	if v != nil {
+		_c.SetTestOnly(*v)
+	}
+	return _c
+}
+
 // SetPublic sets the "public" field.
 func (_c *OAuthClientCreate) SetPublic(v bool) *OAuthClientCreate {
 	_c.mutation.SetPublic(v)
@@ -145,6 +173,14 @@ func (_c *OAuthClientCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *OAuthClientCreate) defaults() {
+	if _, ok := _c.mutation.OwnerID(); !ok {
+		v := oauthclient.DefaultOwnerID
+		_c.mutation.SetOwnerID(v)
+	}
+	if _, ok := _c.mutation.TestOnly(); !ok {
+		v := oauthclient.DefaultTestOnly
+		_c.mutation.SetTestOnly(v)
+	}
 	if _, ok := _c.mutation.Public(); !ok {
 		v := oauthclient.DefaultPublic
 		_c.mutation.SetPublic(v)
@@ -188,6 +224,12 @@ func (_c *OAuthClientCreate) check() error {
 		if err := oauthclient.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "OAuthClient.name": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.OwnerID(); !ok {
+		return &ValidationError{Name: "owner_id", err: errors.New(`ent: missing required field "OAuthClient.owner_id"`)}
+	}
+	if _, ok := _c.mutation.TestOnly(); !ok {
+		return &ValidationError{Name: "test_only", err: errors.New(`ent: missing required field "OAuthClient.test_only"`)}
 	}
 	if _, ok := _c.mutation.Public(); !ok {
 		return &ValidationError{Name: "public", err: errors.New(`ent: missing required field "OAuthClient.public"`)}
@@ -261,6 +303,14 @@ func (_c *OAuthClientCreate) createSpec() (*OAuthClient, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(oauthclient.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := _c.mutation.OwnerID(); ok {
+		_spec.SetField(oauthclient.FieldOwnerID, field.TypeString, value)
+		_node.OwnerID = value
+	}
+	if value, ok := _c.mutation.TestOnly(); ok {
+		_spec.SetField(oauthclient.FieldTestOnly, field.TypeBool, value)
+		_node.TestOnly = value
 	}
 	if value, ok := _c.mutation.Public(); ok {
 		_spec.SetField(oauthclient.FieldPublic, field.TypeBool, value)

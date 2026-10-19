@@ -25,9 +25,13 @@ var ErrCredentials = errors.New("invalid credentials")
 var ErrMissing = errors.New("account not available")
 
 type User struct {
-	ID          string `json:"id"`
-	Email       string `json:"email"`
-	DisplayName string `json:"display_name"`
+	ID              string `json:"id"`
+	Email           string `json:"email"`
+	DisplayName     string `json:"display_name"`
+	Bio             string `json:"bio" required:"false"`
+	AvatarURL       string `json:"avatar_url" required:"false"`
+	Revision        int    `json:"revision" required:"false"`
+	SecurityVersion int    `json:"-"`
 }
 type Service struct {
 	store  *Store

@@ -14,10 +14,12 @@ func (p *Provider) Metadata() any {
 		"issuer": p.issuer, "authorization_endpoint": p.issuer + "/oauth/authorize",
 		"token_endpoint": p.issuer + "/oauth/token", "userinfo_endpoint": p.issuer + "/oauth/userinfo", "jwks_uri": p.issuer + "/oauth/jwks",
 		"response_types_supported": []string{"code"}, "response_modes_supported": []string{"query"},
-		"grant_types_supported":   []string{"authorization_code", "client_credentials"},
-		"subject_types_supported": []string{"public"}, "id_token_signing_alg_values_supported": []string{"RS256"},
+		"grant_types_supported":                      []string{"authorization_code", "client_credentials", "refresh_token"},
+		"revocation_endpoint":                        p.issuer + "/oauth/revoke",
+		"revocation_endpoint_auth_methods_supported": []string{"client_secret_basic", "client_secret_post", "none"},
+		"subject_types_supported":                    []string{"public"}, "id_token_signing_alg_values_supported": []string{"RS256"},
 		"token_endpoint_auth_methods_supported": []string{"client_secret_basic", "client_secret_post", "none"},
-		"code_challenge_methods_supported":      []string{"S256"}, "scopes_supported": []string{"openid", "profile", "email", "demo.read"},
+		"code_challenge_methods_supported":      []string{"S256"}, "scopes_supported": []string{"openid", "profile", "email", "demo.read", "offline_access"},
 		"claims_supported":            []string{"sub", "iss", "aud", "exp", "iat", "nonce", "auth_time", "at_hash", "name", "email", "email_verified"},
 		"request_parameter_supported": false, "request_uri_parameter_supported": false,
 	}
@@ -54,6 +56,11 @@ func (p *Provider) UserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := p.users.User(r.Context(), request.GetSession().GetSubject())
 	if err != nil {
+		fail()
+		return
+	}
+	session, ok := request.GetSession().(*Session)
+	if !ok || session.SecurityVersion != user.SecurityVersion {
 		fail()
 		return
 	}

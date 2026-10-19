@@ -57,6 +57,88 @@ func (_u *AccountUserUpdate) SetNillableDisplayName(v *string) *AccountUserUpdat
 	return _u
 }
 
+// SetBio sets the "bio" field.
+func (_u *AccountUserUpdate) SetBio(v string) *AccountUserUpdate {
+	_u.mutation.SetBio(v)
+	return _u
+}
+
+// SetNillableBio sets the "bio" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableBio(v *string) *AccountUserUpdate {
+	if v != nil {
+		_u.SetBio(*v)
+	}
+	return _u
+}
+
+// SetAvatar sets the "avatar" field.
+func (_u *AccountUserUpdate) SetAvatar(v []byte) *AccountUserUpdate {
+	_u.mutation.SetAvatar(v)
+	return _u
+}
+
+// ClearAvatar clears the value of the "avatar" field.
+func (_u *AccountUserUpdate) ClearAvatar() *AccountUserUpdate {
+	_u.mutation.ClearAvatar()
+	return _u
+}
+
+// SetAvatarDigest sets the "avatar_digest" field.
+func (_u *AccountUserUpdate) SetAvatarDigest(v string) *AccountUserUpdate {
+	_u.mutation.SetAvatarDigest(v)
+	return _u
+}
+
+// SetNillableAvatarDigest sets the "avatar_digest" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableAvatarDigest(v *string) *AccountUserUpdate {
+	if v != nil {
+		_u.SetAvatarDigest(*v)
+	}
+	return _u
+}
+
+// SetRevision sets the "revision" field.
+func (_u *AccountUserUpdate) SetRevision(v int) *AccountUserUpdate {
+	_u.mutation.ResetRevision()
+	_u.mutation.SetRevision(v)
+	return _u
+}
+
+// SetNillableRevision sets the "revision" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableRevision(v *int) *AccountUserUpdate {
+	if v != nil {
+		_u.SetRevision(*v)
+	}
+	return _u
+}
+
+// AddRevision adds value to the "revision" field.
+func (_u *AccountUserUpdate) AddRevision(v int) *AccountUserUpdate {
+	_u.mutation.AddRevision(v)
+	return _u
+}
+
+// SetSecurityVersion sets the "security_version" field.
+func (_u *AccountUserUpdate) SetSecurityVersion(v int) *AccountUserUpdate {
+	_u.mutation.ResetSecurityVersion()
+	_u.mutation.SetSecurityVersion(v)
+	return _u
+}
+
+// SetNillableSecurityVersion sets the "security_version" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableSecurityVersion(v *int) *AccountUserUpdate {
+	if v != nil {
+		_u.SetSecurityVersion(*v)
+	}
+	return _u
+}
+
+// AddSecurityVersion adds value to the "security_version" field.
+func (_u *AccountUserUpdate) AddSecurityVersion(v int) *AccountUserUpdate {
+	_u.mutation.AddSecurityVersion(v)
+	return _u
+}
+
 // SetPasswordHash sets the "password_hash" field.
 func (_u *AccountUserUpdate) SetPasswordHash(v string) *AccountUserUpdate {
 	_u.mutation.SetPasswordHash(v)
@@ -159,6 +241,30 @@ func (_u *AccountUserUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(accountuser.FieldDisplayName, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Bio(); ok {
+		_spec.SetField(accountuser.FieldBio, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Avatar(); ok {
+		_spec.SetField(accountuser.FieldAvatar, field.TypeBytes, value)
+	}
+	if _u.mutation.AvatarCleared() {
+		_spec.ClearField(accountuser.FieldAvatar, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.AvatarDigest(); ok {
+		_spec.SetField(accountuser.FieldAvatarDigest, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Revision(); ok {
+		_spec.SetField(accountuser.FieldRevision, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRevision(); ok {
+		_spec.AddField(accountuser.FieldRevision, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SecurityVersion(); ok {
+		_spec.SetField(accountuser.FieldSecurityVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSecurityVersion(); ok {
+		_spec.AddField(accountuser.FieldSecurityVersion, field.TypeInt, value)
+	}
 	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(accountuser.FieldPasswordHash, field.TypeString, value)
 	}
@@ -215,6 +321,88 @@ func (_u *AccountUserUpdateOne) SetNillableDisplayName(v *string) *AccountUserUp
 	if v != nil {
 		_u.SetDisplayName(*v)
 	}
+	return _u
+}
+
+// SetBio sets the "bio" field.
+func (_u *AccountUserUpdateOne) SetBio(v string) *AccountUserUpdateOne {
+	_u.mutation.SetBio(v)
+	return _u
+}
+
+// SetNillableBio sets the "bio" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableBio(v *string) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetBio(*v)
+	}
+	return _u
+}
+
+// SetAvatar sets the "avatar" field.
+func (_u *AccountUserUpdateOne) SetAvatar(v []byte) *AccountUserUpdateOne {
+	_u.mutation.SetAvatar(v)
+	return _u
+}
+
+// ClearAvatar clears the value of the "avatar" field.
+func (_u *AccountUserUpdateOne) ClearAvatar() *AccountUserUpdateOne {
+	_u.mutation.ClearAvatar()
+	return _u
+}
+
+// SetAvatarDigest sets the "avatar_digest" field.
+func (_u *AccountUserUpdateOne) SetAvatarDigest(v string) *AccountUserUpdateOne {
+	_u.mutation.SetAvatarDigest(v)
+	return _u
+}
+
+// SetNillableAvatarDigest sets the "avatar_digest" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableAvatarDigest(v *string) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetAvatarDigest(*v)
+	}
+	return _u
+}
+
+// SetRevision sets the "revision" field.
+func (_u *AccountUserUpdateOne) SetRevision(v int) *AccountUserUpdateOne {
+	_u.mutation.ResetRevision()
+	_u.mutation.SetRevision(v)
+	return _u
+}
+
+// SetNillableRevision sets the "revision" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableRevision(v *int) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetRevision(*v)
+	}
+	return _u
+}
+
+// AddRevision adds value to the "revision" field.
+func (_u *AccountUserUpdateOne) AddRevision(v int) *AccountUserUpdateOne {
+	_u.mutation.AddRevision(v)
+	return _u
+}
+
+// SetSecurityVersion sets the "security_version" field.
+func (_u *AccountUserUpdateOne) SetSecurityVersion(v int) *AccountUserUpdateOne {
+	_u.mutation.ResetSecurityVersion()
+	_u.mutation.SetSecurityVersion(v)
+	return _u
+}
+
+// SetNillableSecurityVersion sets the "security_version" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableSecurityVersion(v *int) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetSecurityVersion(*v)
+	}
+	return _u
+}
+
+// AddSecurityVersion adds value to the "security_version" field.
+func (_u *AccountUserUpdateOne) AddSecurityVersion(v int) *AccountUserUpdateOne {
+	_u.mutation.AddSecurityVersion(v)
 	return _u
 }
 
@@ -349,6 +537,30 @@ func (_u *AccountUserUpdateOne) sqlSave(ctx context.Context) (_node *AccountUser
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(accountuser.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Bio(); ok {
+		_spec.SetField(accountuser.FieldBio, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Avatar(); ok {
+		_spec.SetField(accountuser.FieldAvatar, field.TypeBytes, value)
+	}
+	if _u.mutation.AvatarCleared() {
+		_spec.ClearField(accountuser.FieldAvatar, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.AvatarDigest(); ok {
+		_spec.SetField(accountuser.FieldAvatarDigest, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Revision(); ok {
+		_spec.SetField(accountuser.FieldRevision, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRevision(); ok {
+		_spec.AddField(accountuser.FieldRevision, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SecurityVersion(); ok {
+		_spec.SetField(accountuser.FieldSecurityVersion, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSecurityVersion(); ok {
+		_spec.AddField(accountuser.FieldSecurityVersion, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(accountuser.FieldPasswordHash, field.TypeString, value)

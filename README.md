@@ -4,7 +4,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 
 ## 当前状态
 
-**工程实施中，尚未完成身份产品。** 已有邀请注册、Mailpit 邮箱验证、密码登录和 account 会话管理，以及用户站与独立管理台两个 Nuxt 应用、共享 UI/Storybook、Go API、Ent/Goose、Valkey 和 Fosite。授权码/PKCE/OIDC 后端已通过数据库集成；授权页、独立 RP 浏览器互操作、刷新/撤销、联邦登录、应用审核与管理员 MFA 尚待完成。
+**工程实施中，尚未完成身份产品。** 已有邀请注册、Mailpit 邮箱验证、密码登录、资料/头像、改密/邮箱变更、密码恢复、授权族管理和个人安全记录后端；开发者创建/配置/提交/停启/密钥管理及版本生效逻辑已有数据库验证。授权码/PKCE/OIDC、刷新轮换、协议撤销及自有 Go RP 与普通页面通过真实浏览器验证。账号新表单仍需前端接入；管理员 RP/MFA/审核入口、注销、联邦登录、中央退出与公开内省尚待完成。
 
 2026-10-18 用户已要求开始执行实施计划。运行方法与前置条件见 [工程基座指南](docs/run-foundation.md)，已验证和未验证的范围见 [实施进度](docs/implementation-status.md)。依赖已运行于局域网 Ubuntu 的独立 Compose 网络，数据库/缓存基础集成测试通过；身份业务尚未完成，不可作为生产身份服务使用。
 
@@ -21,7 +21,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 - Go 模块化单体；account 用户站整合账号与 `/developer` 分区，admin 为独立 Nuxt 应用，共享 UI/API 类型；最新决定见 [ADR-0017](docs/decisions/0017-user-site-layouts.md)。
 - 已发布应用的敏感配置采用版本化审核：旧批准版本继续服务，新版本获批后生效。
 - 首期包含管理员 TOTP MFA、单次恢复码和一次性初始化；普通用户 MFA 后置。
-- 数据层采用 Ent + 独立版本化 SQL 迁移；工程已采用 Goose、chi/Fosite/Huma，账号与授权码适配通过集成验证，刷新/撤销及完整互操作仍待完成。
+- 数据层采用 Ent + 独立版本化 SQL 迁移；工程已采用 Goose、chi/Fosite/Huma，账号、授权码及刷新/撤销适配通过集成验证，生产互操作与故障验收仍待完成。
 - Go 统一管理自有 Web 服务端会话；注册支持后台切换开放/邀请模式，首期默认邀请。
 - 以长期专业化、工程化和商业项目的维护要求选型；邀请码不绑定邮箱、单次使用。
 - 当前生态预期低流量、活跃用户最多双位数；硬件未定，首期按简单运行与低空闲成本评估。
@@ -37,6 +37,10 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [前后端交接](docs/workstreams.md) | 对话分工、文件边界与后端接手说明 |
 | [对话进度同步](docs/coordination/README.md) | 各对话维护自己的进度与接口接入事项 |
 | [OAuth/OIDC 后端接入](docs/run-authorization.md) | 当前协议端点、授权确认 DTO、错误、迁移与验证 |
+| [自有用户站 OAuth 接入](docs/run-first-party-oidc.md) | Go RP 登录/回调、独立会话、前端接线与迁移 5 |
+| [账号管理接入](docs/run-account-management.md) | 资料/头像、密码/邮箱/恢复、授权/审计与迁移 6 |
+| [开发者应用接入](docs/run-developer-applications.md) | 创建、版本、测试、凭据、接口边界与迁移 7 |
+| [独立客户端验证](docs/oidc-interop.md) | 真实浏览器互操作、代理修复和 test:oidc 的隔离运行 |
 | [架构设计](docs/architecture.md) | 模块、数据所有权和扩展边界 |
 | [长期工程原则](docs/long-term-engineering.md) | 选型、商业依赖、运行与退出成本 |
 | [全栈复核](docs/stack-review.md) | 框架长期适配、性能风险与验证门槛 |

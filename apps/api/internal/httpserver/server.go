@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/valkey-io/valkey-go"
 	"moetopia.local/aio/api/internal/authorization"
+	"moetopia.local/aio/api/internal/developer"
 )
 
 type Dependencies struct {
@@ -21,6 +22,9 @@ type Dependencies struct {
 	Tokens        *authorization.Provider
 	Valkey        valkey.Client
 	Accounts      AccountEndpoints
+	Portal        PortalEndpoints
+	RateNamespace string
+	Developers    *developer.Service
 }
 
 type Status struct {
@@ -31,13 +35,18 @@ type Status struct {
 }
 
 func New(deps Dependencies) http.Handler {
+	deps.Accounts.RateNamespace = deps.RateNamespace
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID, middleware.Recoverer, accountClientIP)
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			w.Header().Set("X-Content-Type-Options", "nosniff")
 			w.Header().Set("Cache-Control", "no-store")
-			req.Body = http.MaxBytesReader(w, req.Body, 64<<10)
+			limit := int64(64 << 10)
+			if req.Method == http.MethodPut && req.URL.Path == "/api/v1/portal/avatar" {
+				limit = 768 << 10
+			}
+			req.Body = http.MaxBytesReader(w, req.Body, limit)
 			next.ServeHTTP(w, req)
 		})
 	})
@@ -57,12 +66,22 @@ func New(deps Dependencies) http.Handler {
 	})
 	if deps.Tokens != nil {
 		r.Get("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, http.StatusOK, deps.Tokens.Metadata()) })
-		r.Get("/oauth/authorize", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Authorize)))
-		r.Get("/oauth/userinfo", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.UserInfo)))
+		r.Get("/oauth/authorize", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Authorize), deps.RateNamespace))
+		r.Get("/oauth/userinfo", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.UserInfo), deps.RateNamespace))
 		r.Get("/oauth/jwks", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, http.StatusOK, deps.Tokens.JWKS()) })
-		r.Post("/oauth/token", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Token)))
+		r.Post("/oauth/token", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Token), deps.RateNamespace))
+		r.Post("/oauth/revoke", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Revoke), deps.RateNamespace))
 	}
 	api := humachi.New(r, huma.DefaultConfig("Moetopia API", "0.1.0"))
+	if deps.Portal.Service != nil {
+		r.Get("/api/v1/portal/login", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.Login), deps.RateNamespace))
+		r.Get("/api/v1/portal/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.Callback), deps.RateNamespace))
+	}
+	deps.Portal.Register(api)
+	deps.Portal.registerManagement(api, deps.Accounts)
+	deps.Accounts.registerRecovery(api)
+	DeveloperEndpoints{Portal: deps.Portal, Service: deps.Developers, Accounts: deps.Accounts}.Register(api)
+	r.Get("/api/v1/avatars/{id}", deps.Accounts.avatar)
 	deps.Accounts.Register(api)
 	deps.Accounts.registerAuthorization(api)
 	huma.Get(api, "/api/v1/status", func(context.Context, *struct{}) (*Status, error) {
@@ -79,7 +98,7 @@ func writeJSON(w http.ResponseWriter, status int, value any) {
 	_ = json.NewEncoder(w).Encode(value)
 }
 
-func limitCredentials(client valkey.Client, next http.Handler) http.HandlerFunc {
+func limitCredentials(client valkey.Client, next http.Handler, namespace string) http.HandlerFunc {
 	script := valkey.NewLuaScript("local n = redis.call('INCR', KEYS[1]); if n == 1 then redis.call('EXPIRE', KEYS[1], 60) end; return n")
 	return func(w http.ResponseWriter, r *http.Request) {
 		if client == nil {
@@ -91,7 +110,7 @@ func limitCredentials(client valkey.Client, next http.Handler) http.HandlerFunc 
 			writeJSON(w, 400, map[string]string{"error": "invalid_request"})
 			return
 		}
-		count, err := script.Exec(r.Context(), client, []string{"moetopia:limit:token:" + host}, nil).AsInt64()
+		count, err := script.Exec(r.Context(), client, []string{namespace + "limit:token:" + host}, nil).AsInt64()
 		if err != nil {
 			writeJSON(w, 503, map[string]string{"error": "temporarily_unavailable"})
 			return

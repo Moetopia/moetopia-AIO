@@ -40,7 +40,7 @@ func TestAuthorizationConsentContract(t *testing.T) {
 		PKCE       []string `json:"code_challenge_methods_supported"`
 		Revocation string   `json:"revocation_endpoint"`
 	}](t, f.request("GET", "/.well-known/openid-configuration", "", "", "", nil), 200)
-	if metadata.Issuer != "https://account.moetopia.test" || !slices.Contains(metadata.Grants, "authorization_code") || slices.Contains(metadata.Grants, "refresh_token") || !slices.Equal(metadata.PKCE, []string{"S256"}) || metadata.Revocation != "" {
+	if metadata.Issuer != "https://account.moetopia.test" || !slices.Contains(metadata.Grants, "authorization_code") || !slices.Contains(metadata.Grants, "refresh_token") || !slices.Equal(metadata.PKCE, []string{"S256"}) || metadata.Revocation != "https://account.moetopia.test/oauth/revoke" {
 		t.Fatal("metadata advertised unsupported capabilities")
 	}
 	id := uuid.NewString()

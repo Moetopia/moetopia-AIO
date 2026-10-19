@@ -77,6 +77,7 @@ type AccountEndpoints struct {
 	Sessions      *sessions.Service
 	Cache         valkey.Client
 	Authorization *authorization.Provider
+	RateNamespace string
 }
 type AccountProblem struct {
 	huma.ErrorModel
@@ -171,7 +172,7 @@ func (a AccountEndpoints) rate(ctx context.Context, email string, clientIP strin
 			limit.max = 3
 		}
 		sum := sha256.Sum256([]byte(limit.key))
-		count, err := script.Exec(ctx, a.Cache, []string{"moetopia:limit:account:" + hex.EncodeToString(sum[:])}, []string{limit.seconds}).AsInt64()
+		count, err := script.Exec(ctx, a.Cache, []string{a.RateNamespace + "limit:account:" + hex.EncodeToString(sum[:])}, []string{limit.seconds}).AsInt64()
 		if err != nil {
 			return huma.Error503ServiceUnavailable("Rate limiter unavailable")
 		}
@@ -210,7 +211,7 @@ func (a AccountEndpoints) Register(api huma.API) {
 		if err != nil {
 			return nil, accountError(err)
 		}
-		token, err := a.Sessions.Create(ctx, user.ID, a.token(input.Cookie))
+		token, err := a.Sessions.CreateVerified(ctx, user.ID, a.token(input.Cookie), user.SecurityVersion, a.Identity)
 		if err != nil {
 			return nil, accountError(err)
 		}

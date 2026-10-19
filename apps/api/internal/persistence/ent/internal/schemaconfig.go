@@ -7,14 +7,20 @@ import "context"
 // SchemaConfig represents alternative schema names for all tables
 // that can be passed at runtime.
 type SchemaConfig struct {
+	AccountChallenge         string // AccountChallenge table.
 	AccountUser              string // AccountUser table.
+	ApplicationVersion       string // ApplicationVersion table.
+	AuthorizationGrant       string // AuthorizationGrant table.
 	AuthorizationInteraction string // AuthorizationInteraction table.
+	DeveloperApplication     string // DeveloperApplication table.
 	EmailDelivery            string // EmailDelivery table.
 	EmailVerification        string // EmailVerification table.
 	Invitation               string // Invitation table.
 	OAuthClient              string // OAuthClient table.
 	ProtocolSession          string // ProtocolSession table.
+	RPLogin                  string // RPLogin table.
 	RegistrationPolicy       string // RegistrationPolicy table.
+	SecurityEvent            string // SecurityEvent table.
 	SigningKey               string // SigningKey table.
 	WebSession               string // WebSession table.
 }

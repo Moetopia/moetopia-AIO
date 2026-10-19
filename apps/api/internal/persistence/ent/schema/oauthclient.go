@@ -16,6 +16,8 @@ func (OAuthClient) Fields() []ent.Field {
 		field.String("id").NotEmpty().Immutable(),
 		field.Bytes("secret_hash").Sensitive().Optional(),
 		field.String("name").NotEmpty(),
+		field.String("owner_id").Default(""),
+		field.Bool("test_only").Default(false),
 		field.Bool("public").Default(false),
 		field.Bool("enabled").Default(false),
 		field.Strings("redirect_uris").Default([]string{}),

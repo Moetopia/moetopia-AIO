@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log/slog"
 	"net"
@@ -15,10 +16,12 @@ import (
 	"moetopia.local/aio/api/internal/authorization"
 	"moetopia.local/aio/api/internal/config"
 	"moetopia.local/aio/api/internal/cryptobox"
+	"moetopia.local/aio/api/internal/developer"
 	"moetopia.local/aio/api/internal/httpserver"
 	"moetopia.local/aio/api/internal/identity"
 	"moetopia.local/aio/api/internal/notifications"
 	"moetopia.local/aio/api/internal/persistence"
+	"moetopia.local/aio/api/internal/relyingparty"
 	"moetopia.local/aio/api/internal/sessions"
 )
 
@@ -66,7 +69,11 @@ func run() error {
 		return errors.New("MOETOPIA_SMTP_ADDRESS and MOETOPIA_SMTP_FROM are required")
 	}
 	outbox := notifications.New(db.Ent, box, notifications.DevelopmentSMTP{Address: cfg.SMTPAddress, From: cfg.SMTPFrom})
-	accounts, err := identity.New(identity.NewStore(db.Ent, outbox), cfg.EncryptionKey)
+	webSessions, err := sessions.New(db.Ent, cfg.EncryptionKey, cfg.AccountOrigin, cfg.Environment == "production")
+	if err != nil {
+		return err
+	}
+	accounts, err := identity.New(identity.NewStore(db.Ent, outbox).WithSessions(webSessions), cfg.EncryptionKey)
 	if err != nil {
 		return err
 	}
@@ -74,14 +81,26 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	webSessions, err := sessions.New(db.Ent, cfg.EncryptionKey, cfg.AccountOrigin, cfg.Environment == "production")
+	workerDone := make(chan struct{})
+	protocol := http.NewServeMux()
+	protocol.HandleFunc("POST /oauth/token", provider.Token)
+	protocol.HandleFunc("GET /oauth/jwks", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(provider.JWKS())
+	})
+	portal, err := relyingparty.New(db.Ent, box, accounts, cfg.Issuer, cfg.EncryptionKey, cfg.Environment == "production", protocol)
 	if err != nil {
 		return err
 	}
-	workerDone := make(chan struct{})
-	go func() { defer close(workerDone); runWorkers(ctx, outbox, accounts, webSessions, provider) }()
+	go func() { defer close(workerDone); runWorkers(ctx, outbox, accounts, webSessions, provider, portal) }()
 	defer func() { stop(); <-workerDone }()
-	handler := httpserver.New(httpserver.Dependencies{DatabaseReady: db.Ready, CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() }, Tokens: provider, Valkey: cache, Accounts: httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider}})
+	handler := httpserver.New(httpserver.Dependencies{
+		RateNamespace: cfg.RateNamespace(), DatabaseReady: db.Ready,
+		CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() },
+		Tokens:     provider, Valkey: cache, Portal: httpserver.PortalEndpoints{Service: portal},
+		Developers: developer.New(db.Ent, provider, accounts, cfg.Issuer),
+		Accounts:   httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider},
+	})
 	server := &http.Server{Addr: cfg.Listen, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second}
 	errorsCh := make(chan error, 1)
 	go func() { errorsCh <- server.ListenAndServe() }()

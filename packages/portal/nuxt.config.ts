@@ -19,7 +19,7 @@ export default defineNuxtConfig({
   vite: { plugins: [tailwindcss()] },
   routeRules: {
     '/.well-known/openid-configuration': { proxy: 'http://127.0.0.1:8080/.well-known/openid-configuration', headers: { 'cache-control': 'no-store' } },
-    '/api/**': { proxy: 'http://127.0.0.1:8080/api/**', headers: { 'cache-control': 'no-store' } },
-    '/oauth/**': { proxy: 'http://127.0.0.1:8080/oauth/**', headers: { 'cache-control': 'no-store' } },
+    '/api/**': { proxy: { to: 'http://127.0.0.1:8080/api/**', fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
+    '/oauth/**': { proxy: { to: 'http://127.0.0.1:8080/oauth/**', fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
   },
 })

@@ -37,8 +37,15 @@ func Open(ctx context.Context, dsn string) (*Database, error) {
 }
 
 func (d *Database) Ready(ctx context.Context) error {
+	var developerTables bool
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('developer.applications') IS NOT NULL AND to_regclass('developer.application_versions') IS NOT NULL").Scan(&developerTables); err != nil {
+		return err
+	}
+	if !developerTables {
+		return errors.New("database migration required")
+	}
 	var exists bool
-	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('authorization.interactions') IS NOT NULL AND to_regclass('authorization.protocol_sessions') IS NOT NULL AND to_regclass('authorization.signing_keys') IS NOT NULL AND to_regclass('authorization.clients') IS NOT NULL AND to_regclass('identity.users') IS NOT NULL AND to_regclass('identity.registration_policy') IS NOT NULL AND to_regclass('identity.email_verifications') IS NOT NULL AND to_regclass('identity.invitations') IS NOT NULL AND to_regclass('sessions.web_sessions') IS NOT NULL AND to_regclass('notifications.email_deliveries') IS NOT NULL").Scan(&exists); err != nil {
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('identity.account_challenges') IS NOT NULL AND to_regclass('audit.security_events') IS NOT NULL AND to_regclass('sessions.rp_logins') IS NOT NULL AND to_regclass('authorization.grants') IS NOT NULL AND to_regclass('authorization.interactions') IS NOT NULL AND to_regclass('authorization.protocol_sessions') IS NOT NULL AND to_regclass('authorization.signing_keys') IS NOT NULL AND to_regclass('authorization.clients') IS NOT NULL AND to_regclass('identity.users') IS NOT NULL AND to_regclass('identity.registration_policy') IS NOT NULL AND to_regclass('identity.email_verifications') IS NOT NULL AND to_regclass('identity.invitations') IS NOT NULL AND to_regclass('sessions.web_sessions') IS NOT NULL AND to_regclass('notifications.email_deliveries') IS NOT NULL").Scan(&exists); err != nil {
 		return err
 	}
 	if !exists {

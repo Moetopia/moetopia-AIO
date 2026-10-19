@@ -12,6 +12,7 @@ type Session struct {
 	oauth2.JWTSession
 	IdentityClaims  *jwt.IDTokenClaims `json:"id_token_claims"`
 	IdentityHeaders *jwt.Headers       `json:"id_token_headers"`
+	SecurityVersion int                `json:"security_version"`
 }
 
 func newSession(kid string) *Session {

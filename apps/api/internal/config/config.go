@@ -1,6 +1,8 @@
 package config
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"net/url"
 	"os"
@@ -22,6 +24,10 @@ type Config struct {
 
 func Load() (Config, error) {
 	return Read(os.Getenv)
+}
+func (c Config) RateNamespace() string {
+	hash := sha256.Sum256([]byte(c.Environment + "\n" + c.Issuer + "\n" + c.DatabaseURL))
+	return "moetopia:" + hex.EncodeToString(hash[:16]) + ":"
 }
 
 func Read(get func(string) string) (Config, error) {

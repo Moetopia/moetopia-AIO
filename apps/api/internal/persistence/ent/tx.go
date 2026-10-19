@@ -12,10 +12,18 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// AccountChallenge is the client for interacting with the AccountChallenge builders.
+	AccountChallenge *AccountChallengeClient
 	// AccountUser is the client for interacting with the AccountUser builders.
 	AccountUser *AccountUserClient
+	// ApplicationVersion is the client for interacting with the ApplicationVersion builders.
+	ApplicationVersion *ApplicationVersionClient
+	// AuthorizationGrant is the client for interacting with the AuthorizationGrant builders.
+	AuthorizationGrant *AuthorizationGrantClient
 	// AuthorizationInteraction is the client for interacting with the AuthorizationInteraction builders.
 	AuthorizationInteraction *AuthorizationInteractionClient
+	// DeveloperApplication is the client for interacting with the DeveloperApplication builders.
+	DeveloperApplication *DeveloperApplicationClient
 	// EmailDelivery is the client for interacting with the EmailDelivery builders.
 	EmailDelivery *EmailDeliveryClient
 	// EmailVerification is the client for interacting with the EmailVerification builders.
@@ -26,8 +34,12 @@ type Tx struct {
 	OAuthClient *OAuthClientClient
 	// ProtocolSession is the client for interacting with the ProtocolSession builders.
 	ProtocolSession *ProtocolSessionClient
+	// RPLogin is the client for interacting with the RPLogin builders.
+	RPLogin *RPLoginClient
 	// RegistrationPolicy is the client for interacting with the RegistrationPolicy builders.
 	RegistrationPolicy *RegistrationPolicyClient
+	// SecurityEvent is the client for interacting with the SecurityEvent builders.
+	SecurityEvent *SecurityEventClient
 	// SigningKey is the client for interacting with the SigningKey builders.
 	SigningKey *SigningKeyClient
 	// WebSession is the client for interacting with the WebSession builders.
@@ -163,14 +175,20 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.AccountChallenge = NewAccountChallengeClient(tx.config)
 	tx.AccountUser = NewAccountUserClient(tx.config)
+	tx.ApplicationVersion = NewApplicationVersionClient(tx.config)
+	tx.AuthorizationGrant = NewAuthorizationGrantClient(tx.config)
 	tx.AuthorizationInteraction = NewAuthorizationInteractionClient(tx.config)
+	tx.DeveloperApplication = NewDeveloperApplicationClient(tx.config)
 	tx.EmailDelivery = NewEmailDeliveryClient(tx.config)
 	tx.EmailVerification = NewEmailVerificationClient(tx.config)
 	tx.Invitation = NewInvitationClient(tx.config)
 	tx.OAuthClient = NewOAuthClientClient(tx.config)
 	tx.ProtocolSession = NewProtocolSessionClient(tx.config)
+	tx.RPLogin = NewRPLoginClient(tx.config)
 	tx.RegistrationPolicy = NewRegistrationPolicyClient(tx.config)
+	tx.SecurityEvent = NewSecurityEventClient(tx.config)
 	tx.SigningKey = NewSigningKeyClient(tx.config)
 	tx.WebSession = NewWebSessionClient(tx.config)
 }
@@ -182,7 +200,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: AccountUser.QueryXXX(), the query will be executed
+// applies a query, for example: AccountChallenge.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

@@ -18,8 +18,10 @@ const nuxt = await loadNuxt({ cwd: resolve('apps/account'), dev: false, override
   hooks: {
     'nitro:config': (config) => {
       for (const [path, rule] of Object.entries(rules)) {
-        if (config.routeRules?.[path]?.proxy !== rule.proxy.replace(':58490/', ':8080/')) throw new Error(`Account proxy route changed: ${path}; review the test upstream override`)
-        config.routeRules[path] = { ...config.routeRules[path], ...rule }
+        const original = config.routeRules?.[path]?.proxy
+        const target = typeof original === 'string' ? original : original?.to
+        if (target !== rule.proxy.replace(':58490/', ':8080/')) throw new Error(`Account proxy route changed: ${path}; review the test upstream override`)
+        config.routeRules[path].proxy = typeof original === 'string' ? rule.proxy : { ...original, to: rule.proxy }
       }
     },
   },

@@ -15,9 +15,10 @@ import (
 )
 
 type Message struct {
-	To      string
-	Subject string
-	Text    string
+	To         string
+	Subject    string
+	Text       string
+	Suppressed bool
 }
 type Sender interface {
 	Send(context.Context, Message) error
@@ -66,7 +67,7 @@ func (o *Outbox) Deliver(ctx context.Context) error {
 		if err == nil {
 			err = json.Unmarshal(plain, &message)
 		}
-		if err == nil {
+		if err == nil && !message.Suppressed {
 			err = o.sender.Send(ctx, message)
 		}
 		if err == nil {

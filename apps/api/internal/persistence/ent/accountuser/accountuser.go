@@ -17,6 +17,16 @@ const (
 	FieldEmail = "email"
 	// FieldDisplayName holds the string denoting the display_name field in the database.
 	FieldDisplayName = "display_name"
+	// FieldBio holds the string denoting the bio field in the database.
+	FieldBio = "bio"
+	// FieldAvatar holds the string denoting the avatar field in the database.
+	FieldAvatar = "avatar"
+	// FieldAvatarDigest holds the string denoting the avatar_digest field in the database.
+	FieldAvatarDigest = "avatar_digest"
+	// FieldRevision holds the string denoting the revision field in the database.
+	FieldRevision = "revision"
+	// FieldSecurityVersion holds the string denoting the security_version field in the database.
+	FieldSecurityVersion = "security_version"
 	// FieldPasswordHash holds the string denoting the password_hash field in the database.
 	FieldPasswordHash = "password_hash"
 	// FieldEnabled holds the string denoting the enabled field in the database.
@@ -34,6 +44,11 @@ var Columns = []string{
 	FieldID,
 	FieldEmail,
 	FieldDisplayName,
+	FieldBio,
+	FieldAvatar,
+	FieldAvatarDigest,
+	FieldRevision,
+	FieldSecurityVersion,
 	FieldPasswordHash,
 	FieldEnabled,
 	FieldEmailVerifiedAt,
@@ -53,6 +68,14 @@ func ValidColumn(column string) bool {
 var (
 	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	DisplayNameValidator func(string) error
+	// DefaultBio holds the default value on creation for the "bio" field.
+	DefaultBio string
+	// DefaultAvatarDigest holds the default value on creation for the "avatar_digest" field.
+	DefaultAvatarDigest string
+	// DefaultRevision holds the default value on creation for the "revision" field.
+	DefaultRevision int
+	// DefaultSecurityVersion holds the default value on creation for the "security_version" field.
+	DefaultSecurityVersion int
 	// DefaultEnabled holds the default value on creation for the "enabled" field.
 	DefaultEnabled bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
@@ -77,6 +100,26 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByDisplayName orders the results by the display_name field.
 func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
+}
+
+// ByBio orders the results by the bio field.
+func ByBio(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBio, opts...).ToFunc()
+}
+
+// ByAvatarDigest orders the results by the avatar_digest field.
+func ByAvatarDigest(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvatarDigest, opts...).ToFunc()
+}
+
+// ByRevision orders the results by the revision field.
+func ByRevision(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRevision, opts...).ToFunc()
+}
+
+// BySecurityVersion orders the results by the security_version field.
+func BySecurityVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSecurityVersion, opts...).ToFunc()
 }
 
 // ByPasswordHash orders the results by the password_hash field.

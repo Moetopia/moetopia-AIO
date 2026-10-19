@@ -10,9 +10,10 @@ import (
 
 type transactionKey struct{}
 type transaction struct {
-	tx       *ent.Tx
-	nested   bool
-	replayed *bool
+	tx         *ent.Tx
+	nested     bool
+	replayed   *bool
+	clientRead *bool
 }
 
 func (s *Store) database(ctx context.Context) *ent.Client {
@@ -23,14 +24,14 @@ func (s *Store) database(ctx context.Context) *ent.Client {
 }
 func (s *Store) BeginTX(ctx context.Context) (context.Context, error) {
 	if state, ok := ctx.Value(transactionKey{}).(transaction); ok {
-		return context.WithValue(ctx, transactionKey{}, transaction{state.tx, true, state.replayed}), nil
+		return context.WithValue(ctx, transactionKey{}, transaction{state.tx, true, state.replayed, state.clientRead}), nil
 	}
 	tx, err := s.client.Tx(ctx)
 	if err != nil {
 		return nil, err
 	}
 	ctx = persistence.WithClient(ctx, tx.Client())
-	return context.WithValue(ctx, transactionKey{}, transaction{tx, false, new(bool)}), nil
+	return context.WithValue(ctx, transactionKey{}, transaction{tx, false, new(bool), new(bool)}), nil
 }
 func (s *Store) Commit(ctx context.Context) error {
 	state, ok := ctx.Value(transactionKey{}).(transaction)

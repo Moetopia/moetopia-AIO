@@ -28,6 +28,7 @@ try {
   const env = { ...provision, MOETOPIA_ENV: 'test', MOETOPIA_DATABASE_URL: dsn.href, MOETOPIA_LISTEN: '127.0.0.1:58490', MOETOPIA_ISSUER: issuer, MOETOPIA_ACCOUNT_ORIGIN: issuer, MOETOPIA_ENCRYPTION_KEY: randomBytes(32).toString('base64'), MOETOPIA_TEST_API_BINARY: binary, MOETOPIA_TEST_OIDC_DIRECTORY: directory, MOETOPIA_TEST_OIDC_CALLBACK: 'http://localhost:54310/callback', MOETOPIA_TEST_OIDC_EMAIL: `oidc-${randomUUID()}@moetopia.test`, MOETOPIA_TEST_OIDC_PASSWORD: randomBytes(24).toString('base64url') }
   execute('go', ['-C', 'apps/api', 'run', './cmd/migrate'], env)
   execute('go', ['-C', 'apps/api', 'run', './cmd/keys', 'init'], env)
+  execute('go', ['-C', 'apps/api', 'run', './cmd/firstparty'], env)
   const fixture = JSON.parse(execute('go', ['-C', 'apps/api', 'run', './cmd/testoidc'], env, true))
   env.MOETOPIA_TEST_OIDC_CLIENT = fixture.client_id
   env.MOETOPIA_TEST_INVITATION = fixture.invitation
@@ -39,7 +40,10 @@ try {
   if (/\.[cm]?js$/.test(pnpm)) execute(process.execPath, [pnpm, ...args], env)
   else execute(pnpm, args, env)
 } finally {
-  if (created) execute('go', ['-C', 'apps/api', 'run', './cmd/testdb', 'drop'], provision)
-  if (!directory.startsWith(resolve('.data') + sep)) throw new Error('Refusing to remove an unowned test directory')
-  rmSync(directory, { recursive: true, force: true })
+  try {
+    if (created) execute('go', ['-C', 'apps/api', 'run', './cmd/testdb', 'drop'], provision)
+  } finally {
+    if (!directory.startsWith(resolve('.data') + sep)) throw new Error('Refusing to remove an unowned test directory')
+    rmSync(directory, { recursive: true, force: true })
+  }
 }

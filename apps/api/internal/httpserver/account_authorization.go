@@ -71,6 +71,14 @@ func (a AccountEndpoints) registerAuthorization(api huma.API) {
 		if err != nil {
 			return nil, authorizationError(err)
 		}
+		if user != nil {
+			if err := a.Authorization.AllowSubject(ctx, details.ClientID, user.ID); err != nil {
+				if errors.Is(err, authorization.ErrGrantMissing) {
+					return nil, authorizationProblem(403, "Application is limited to its owner while testing", "application_test_restricted")
+				}
+				return nil, authorizationError(err)
+			}
+		}
 		result := &AuthorizationOutput{}
 		result.Body.AuthorizationDetails, result.Body.User = details, user
 		return result, nil

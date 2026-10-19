@@ -27,7 +27,7 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/healthz') return json(res, { ready: true })
     if (url.pathname === '/login') {
       const mode = url.searchParams.get('mode') ?? 'normal'
-      if (!['normal', 'login', 'deny', 'bad-state', 'bad-nonce', 'bad-signature'].includes(mode)) return json(res, { error: 'invalid_mode' }, 400)
+      if (!['normal', 'login', 'deny', 'bad-state', 'bad-nonce', 'bad-signature', 'offline'].includes(mode)) return json(res, { error: 'invalid_mode' }, 400)
       for (const [id, session] of sessions) if (session.expires <= Date.now()) sessions.delete(id)
       const config = await oidc.discovery(new URL(issuer), clientID, { id_token_signed_response_alg: 'RS256' }, oidc.None(), {
         execute: [oidc.allowInsecureRequests, oidc.enableNonRepudiationChecks],
@@ -49,6 +49,7 @@ const server = createServer(async (req, res) => {
       sessions.set(id, { config, verifier, state, nonce, mode, expires: Date.now() + 600000 })
       const parameters = { redirect_uri: callback, response_type: 'code', scope: 'openid profile email demo.read', state, nonce, code_challenge_method: 'S256', code_challenge: await oidc.calculatePKCECodeChallenge(verifier) }
       if (mode === 'login') parameters.prompt = 'login'
+      if (mode === 'offline') parameters.scope += ' offline_access'
       res.setHeader('set-cookie', `oidc_test_rp=${id}; HttpOnly; SameSite=Lax; Path=/; Max-Age=600`)
       return redirect(res, oidc.buildAuthorizationUrl(config, parameters).href)
     }
@@ -71,6 +72,28 @@ const server = createServer(async (req, res) => {
       return redirect(res, origin + '/result')
     }
     if (url.pathname === '/result') return json(res, session.result ?? { status: 'pending' })
+    if (url.pathname === '/refresh' && session.tokens?.refresh_token) {
+      const original = session.tokens
+      const tokens = await oidc.refreshTokenGrant(session.config, original.refresh_token)
+      const claims = tokens.claims()
+      const user = await oidc.fetchUserInfo(session.config, tokens.access_token, original.claims().sub)
+      session.spentRefresh = original.refresh_token
+      session.tokens = tokens
+      return json(res, { rotated: tokens.refresh_token !== original.refresh_token, identity_preserved: claims.sub === original.claims().sub && claims.auth_time === original.claims().auth_time && user.sub === claims.sub })
+    }
+    if (url.pathname === '/replay-refresh' && session.spentRefresh && session.tokens) {
+      let rejected = false
+      try { await oidc.refreshTokenGrant(session.config, session.spentRefresh) } catch (error) { rejected = error instanceof oidc.ResponseBodyError && error.error === 'invalid_grant' }
+      const response = await fetch(issuer + '/oauth/userinfo', { headers: { authorization: `Bearer ${session.tokens.access_token}` } })
+      return json(res, { replay_rejected: rejected, family_revoked: response.status === 401 })
+    }
+    if (url.pathname === '/revoke' && session.tokens?.refresh_token) {
+      await oidc.tokenRevocation(session.config, session.tokens.refresh_token)
+      await oidc.tokenRevocation(session.config, session.tokens.refresh_token)
+      let rejected = false
+      try { await oidc.refreshTokenGrant(session.config, session.tokens.refresh_token) } catch (error) { rejected = error instanceof oidc.ResponseBodyError && error.error === 'invalid_grant' }
+      return json(res, { refresh_rejected: rejected })
+    }
     if (url.pathname === '/replay' && session.tokens && session.callback) {
       let replayRejected = false
       try { await oidc.authorizationCodeGrant(session.config, session.callback, checks(session)) } catch (error) { replayRejected = error instanceof oidc.ResponseBodyError && error.error === 'invalid_grant' }

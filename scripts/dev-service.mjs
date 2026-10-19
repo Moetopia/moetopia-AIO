@@ -10,6 +10,10 @@ if (!process.env.npm_execpath) throw new Error('Start services through pnpm dev'
 await checkPort(name, servicePort(name))
 const [command, ...args] = serviceCommand(name, process.execPath, process.env.npm_execpath)
 console.log(`[${name}] Starting ${services[name].description} on port ${servicePort(name)}`)
+if (name === 'account') {
+  console.log(`[account] Open ${process.env.MOETOPIA_ACCOUNT_ORIGIN ?? 'http://account.localhost:3000'}/auth/login`)
+  console.log('[account] Use this exact origin for registration and login; the localhost/127.0.0.1 aliases shown by Nuxt may fail request verification.')
+}
 const child = spawn(command, args, { cwd: root, stdio: 'inherit', windowsHide: true })
 let stopping = false
 let timeout

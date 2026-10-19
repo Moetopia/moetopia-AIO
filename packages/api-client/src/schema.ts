@@ -69,6 +69,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/account/password-resets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 account password resets */
+        post: operations["post-api-v1-account-password-resets"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/password-resets/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 account password resets confirm */
+        post: operations["post-api-v1-account-password-resets-confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/account/register": {
         parameters: {
             query?: never;
@@ -132,6 +166,314 @@ export interface paths {
         /** Post API v1 account verification */
         post: operations["post-api-v1-account-verification"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 developer applications */
+        get: operations["get-api-v1-developer-applications"];
+        put?: never;
+        /** Post API v1 developer applications */
+        post: operations["post-api-v1-developer-applications"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 developer applications by ID */
+        get: operations["get-api-v1-developer-applications-by-id"];
+        put?: never;
+        post?: never;
+        /** Delete API v1 developer applications by ID */
+        delete: operations["delete-api-v1-developer-applications-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 developer applications by ID availability */
+        post: operations["post-api-v1-developer-applications-by-id-availability"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put API v1 developer applications by ID draft */
+        put: operations["put-api-v1-developer-applications-by-id-draft"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}/secret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 developer applications by ID secret */
+        post: operations["post-api-v1-developer-applications-by-id-secret"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 developer applications by ID submit */
+        post: operations["post-api-v1-developer-applications-by-id-submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/authorizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 portal authorizations */
+        get: operations["get-api-v1-portal-authorizations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/authorizations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete API v1 portal authorizations by ID */
+        delete: operations["delete-api-v1-portal-authorizations-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Put API v1 portal avatar */
+        put: operations["put-api-v1-portal-avatar"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 portal context */
+        get: operations["get-api-v1-portal-context"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/email-changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 portal email changes */
+        post: operations["post-api-v1-portal-email-changes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/email-changes/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 portal email changes confirm */
+        post: operations["post-api-v1-portal-email-changes-confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 portal logout */
+        post: operations["post-api-v1-portal-logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 portal password */
+        post: operations["post-api-v1-portal-password"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch API v1 portal profile */
+        patch: operations["patch-api-v1-portal-profile"];
+        trace?: never;
+    };
+    "/api/v1/portal/security-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 portal security events */
+        get: operations["get-api-v1-portal-security-events"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 portal sessions */
+        get: operations["get-api-v1-portal-sessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete API v1 portal sessions by ID */
+        delete: operations["delete-api-v1-portal-sessions-by-id"];
         options?: never;
         head?: never;
         patch?: never;
@@ -210,6 +552,98 @@ export interface components {
              */
             type: string;
         };
+        Application: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Application.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            active_version: number;
+            approved?: components["schemas"]["Version"];
+            client_id: string;
+            /** Format: date-time */
+            created_at: string;
+            enabled: boolean;
+            id: string;
+            latest: components["schemas"]["Version"];
+            public: boolean;
+            /** Format: int64 */
+            revision: number;
+        };
+        ApplicationAvailabilityInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationAvailabilityInputBody.json
+             */
+            readonly $schema?: string;
+            enabled: boolean;
+            /** Format: int64 */
+            revision: number;
+        };
+        ApplicationCreateInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationCreateInputBody.json
+             */
+            readonly $schema?: string;
+            config: components["schemas"]["Config"];
+            public: boolean;
+        };
+        ApplicationDraftInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationDraftInputBody.json
+             */
+            readonly $schema?: string;
+            config: components["schemas"]["Config"];
+            /** Format: int64 */
+            revision: number;
+        };
+        ApplicationRevisionInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationRevisionInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            revision: number;
+        };
+        ApplicationSecretInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationSecretInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+            /** Format: int64 */
+            revision: number;
+        };
+        ApplicationSecretOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationSecretOutputBody.json
+             */
+            readonly $schema?: string;
+            client_secret: string;
+        };
+        Applications: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Applications.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["Application"][] | null;
+            next_cursor: string;
+        };
         AuthorizationDecisionInputBody: {
             /**
              * Format: uri
@@ -247,6 +681,57 @@ export interface components {
             scopes: string[] | null;
             user?: components["schemas"]["User"];
         };
+        AvatarInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AvatarInputBody.json
+             */
+            readonly $schema?: string;
+            image_base64: string;
+            /** Format: int64 */
+            revision: number;
+        };
+        Config: {
+            description: string;
+            homepage_url: string;
+            name: string;
+            redirect_uris: string[] | null;
+            scopes: string[] | null;
+        };
+        Created: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Created.json
+             */
+            readonly $schema?: string;
+            application: components["schemas"]["Application"];
+            client_secret?: string;
+        };
+        EmailChangeInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/EmailChangeInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+            email: string;
+            /** @enum {string} */
+            locale: "zh-CN" | "en";
+        };
+        EmailConfirmInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/EmailConfirmInputBody.json
+             */
+            readonly $schema?: string;
+            challenge_id: string;
+            code: string;
+            current_password: string;
+        };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
             location?: string;
@@ -254,6 +739,12 @@ export interface components {
             message?: string;
             /** @description The value at the given location */
             value?: unknown;
+        };
+        Event: {
+            action: string;
+            /** Format: date-time */
+            created_at: string;
+            id: string;
         };
         LoginInputBody: {
             /**
@@ -264,6 +755,53 @@ export interface components {
             readonly $schema?: string;
             email: string;
             password: string;
+        };
+        PasswordChangeInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PasswordChangeInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+            new_password: string;
+        };
+        PasswordResetInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PasswordResetInputBody.json
+             */
+            readonly $schema?: string;
+            challenge_id: string;
+            code: string;
+            new_password: string;
+        };
+        PortalContextBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PortalContextBody.json
+             */
+            readonly $schema?: string;
+            authenticated: boolean;
+            csrf_token: string;
+            /** Format: date-time */
+            expires_at?: string;
+            login_url: string;
+            user?: components["schemas"]["User"];
+        };
+        ProfileInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ProfileInputBody.json
+             */
+            readonly $schema?: string;
+            bio: string;
+            display_name: string;
+            /** Format: int64 */
+            revision: number;
         };
         RegisterInputBody: {
             /**
@@ -277,6 +815,15 @@ export interface components {
             display_name: string;
             invitation: string;
             password: string;
+        };
+        SecurityEventsOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/SecurityEventsOutputBody.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["Event"][] | null;
         };
         Session: {
             /** Format: date-time */
@@ -306,9 +853,40 @@ export interface components {
             service: string;
         };
         User: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/User.json
+             */
+            readonly $schema?: string;
+            avatar_url?: string;
+            bio?: string;
             display_name: string;
             email: string;
             id: string;
+            /** Format: int64 */
+            revision?: number;
+        };
+        UserGrant: {
+            audiences: string[] | null;
+            client_id: string;
+            client_name: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            id: string;
+            scopes: string[] | null;
+        };
+        UserGrants: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/UserGrants.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["UserGrant"][] | null;
+            next_cursor: string;
         };
         VerificationInputBody: {
             /**
@@ -329,6 +907,13 @@ export interface components {
              */
             readonly $schema?: string;
             challenge_id: string;
+        };
+        Version: {
+            config: components["schemas"]["Config"];
+            review_reason: string;
+            status: string;
+            /** Format: int64 */
+            version: number;
         };
     };
     responses: never;
@@ -515,6 +1100,78 @@ export interface operations {
             };
         };
     };
+    "post-api-v1-account-password-resets": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerificationInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-account-password-resets-confirm": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordResetInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
     "post-api-v1-account-register": {
         parameters: {
             query?: never;
@@ -639,6 +1296,710 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["VerificationOutputBody"];
                 };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-developer-applications": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Applications"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-developer-applications": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationCreateInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Created"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-developer-applications-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-developer-applications-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationRevisionInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-developer-applications-by-id-availability": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationAvailabilityInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "put-api-v1-developer-applications-by-id-draft": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationDraftInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-developer-applications-by-id-secret": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationSecretInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationSecretOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-developer-applications-by-id-submit": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationRevisionInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-portal-authorizations": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserGrants"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-portal-authorizations-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "put-api-v1-portal-avatar": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvatarInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-portal-context": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-portal-email-changes": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailChangeInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-portal-email-changes-confirm": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailConfirmInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-portal-logout": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-portal-password": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "patch-api-v1-portal-profile": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-portal-security-events": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SecurityEventsOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-portal-sessions": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionsOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-portal-sessions-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error */
             default: {

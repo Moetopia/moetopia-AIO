@@ -31,7 +31,7 @@ func TestLivenessDoesNotPretendDependenciesAreReady(t *testing.T) {
 
 func TestCredentialIssuanceFailsClosedWhenLimiterIsUnavailable(t *testing.T) {
 	called := false
-	handler := limitCredentials(nil, http.HandlerFunc(func(http.ResponseWriter, *http.Request) { called = true }))
+	handler := limitCredentials(nil, http.HandlerFunc(func(http.ResponseWriter, *http.Request) { called = true }), "test:")
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, httptest.NewRequest(http.MethodPost, "/oauth/token", nil))
 	if response.Code != 503 || called {

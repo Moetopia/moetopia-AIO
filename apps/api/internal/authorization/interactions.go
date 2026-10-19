@@ -6,6 +6,7 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"time"
@@ -120,6 +121,12 @@ func (p *Provider) Decide(ctx context.Context, id, token string, user identity.U
 	}
 	w := &redirectWriter{header: http.Header{}}
 	if approve {
+		if err := p.AllowSubject(ctx, ar.GetClient().GetID(), user.ID); err != nil {
+			if errors.Is(err, ErrGrantMissing) {
+				return "", ErrInteraction
+			}
+			return "", err
+		}
 		for _, scope := range ar.GetRequestedScopes() {
 			ar.GrantScope(scope)
 		}
@@ -128,9 +135,11 @@ func (p *Provider) Decide(ctx context.Context, id, token string, user identity.U
 		}
 		session := newSession(p.key.ID)
 		session.Subject, session.JWTClaims.Subject = user.ID, user.ID
+		session.SecurityVersion = user.SecurityVersion
 		session.JWTClaims.Extra = map[string]interface{}{"client_id": ar.GetClient().GetID()}
 		session.IdentityClaims.Subject, session.IdentityClaims.AuthTime, session.IdentityClaims.RequestedAt = user.ID, authenticated, row.CreatedAt
 		session.IdentityClaims.Extra = identityClaims(user, ar.GetGrantedScopes())
+		session.IdentityClaims.Extra["security_version"] = user.SecurityVersion
 		response, err := p.oauth.NewAuthorizeResponse(ctx, ar, session)
 		if err != nil {
 			return "", err

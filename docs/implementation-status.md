@@ -12,19 +12,20 @@ Nuxt/Vue/Reka/Tailwind/Storybook，Go/chi/Fosite/Huma，PostgreSQL/Ent/Goose，V
 | --- | --- |
 | 工程、依赖与集成验证 | 工程已建立，基础测试及构建通过；Ubuntu PG/Valkey 真实集成测试通过 |
 | 共享设计系统 | 常用组件、页框/认证/工作区布局、角色配色及 Storybook 已有；清单与限制由 UI 包说明维护 |
-| 账号与联邦登录 | 邀请注册、邮箱验证、密码登录及 account 会话管理已完成开发路径；联邦登录、密码恢复与资料修改待完成 |
-| OAuth/OIDC 与独立客户端互操作 | 授权码/PKCE/OIDC 后端与真实数据库集成通过；授权页、独立 RP 浏览器互操作及刷新/撤销待完成 |
-| 管理后台与开发者审核 | 待完成 |
+| 账号与联邦登录 | 邀请注册、邮箱验证、密码登录、资料/头像、密码/邮箱变更及密码恢复后端已有数据库验证；新表单前端接入、联邦登录待完成 |
+| OAuth/OIDC 与独立客户端互操作 | 授权码/PKCE/OIDC、刷新轮换及协议撤销的真实数据库与独立 RP Chromium 验证通过；公开内省及 RP 退出待完成 |
+| 自有用户站 OAuth 登录 | Go RP、普通前端入口/守卫、独立会话及本地退出的真实 Chromium 闭环通过；管理员 RP 待完成 |
+| 管理后台与开发者审核 | 开发者所有者 CRUD/提交/密钥及版本生效领域逻辑通过真实数据库测试；前端接入和管理员 RP/角色/MFA/审核入口待完成 |
 | 注销、恢复及数据清理 | 待完成 |
 | 端到端、性能与生产部署包 | 待完成 |
 
 ## 环境事实
 
-Go、Node.js 与 pnpm 可用。当前目录不是 Git 仓库，未初始化、提交或推送。Windows 未安装 Docker；用户随后提供 Ubuntu `192.168.101.41`，已在 `/home/misaka10843/code-stack/moetopia-dev` 启动专属 Compose。网络 `moetopia-dev_dependencies`，端口为 55432/56379/51025/58025。未复用该主机其他项目网络、数据库或容器。
+Go、Node.js 与 pnpm 可用。工作区现有 Git 元数据和 HEAD，早期“没有 Git”的记录只反映当时环境；本后端对话未初始化、暂存、提交或推送。Windows 未安装 Docker；用户随后提供 Ubuntu `192.168.101.41`，已在 `/home/misaka10843/code-stack/moetopia-dev` 启动专属 Compose。网络 `moetopia-dev_dependencies`，端口为 55432/56379/51025/58025。未复用该主机其他项目网络、数据库或容器。
 
 Go module 使用本地命名空间 `moetopia.local/aio/api`，不假定尚未提供的 Git remote 或正式域名。发布 Go 包之前再按实际仓库调整。
 
-## 验证证据
+## 基础阶段验证证据（历史，后续增量见文末）
 
 - Go 基础单元测试与 `go vet` 已通过。
 - Ent 代码生成已完成，authorization schema 的模型映射与真实持久化测试通过；其他领域尚无模型，不作泛化结论。
@@ -92,6 +93,12 @@ Go module 使用本地命名空间 `moetopia.local/aio/api`，不假定尚未提
 - OpenAPI 与 TypeScript 已生成；后端运行和前端 DTO/错误交接见 [run-authorization](run-authorization.md)，实施参数见 [ADR-0015](decisions/0015-authorization-code-oidc.md)。开发公开客户端 CLI 已编译，未自动创建默认客户端。
 - 没有修改前端页面、组件、翻译或前端测试，未停止其他会话进程。Nuxt Discovery 代理、真实授权页和独立 RP 的完整浏览器互操作仍待前端接入后验收；刷新、公开撤销/内省、RP 退出、应用审核、管理员 MFA 和生产邮件尚未交付。
 
+## 独立客户端与真实浏览器闭环
+
+2026-10-18 在前端接入完成后，新增 `pnpm test:oidc`，1 项真实 Chromium 端到端场景通过，覆盖实际 Nuxt 代理、专属 Go/PostgreSQL/Mailpit、邮件邀请注册、密码登录、Cookie 旋转、显式同意/拒绝、prompt=login、独立标准客户端 JWKS 验签/UserInfo、授权码重放撤销及错误 state/nonce/签名拒绝。详情及限制见 [独立客户端验证](oidc-interop.md)，更新上一节的“互操作待验收”状态。
+
+联调修复了授权翻译缺失导出，以及 OAuth 代理自动跟随跳转导致浏览器收不到事务 Cookie 的问题；只修改必要共享接线，未改页面样式。Go 测试、vet、account 类型检查通过。测试使用 54305/54310/58490、随机测试库及独立构建目录，结束后清理，未修改开发库或既有服务。没有新增迁移；本轮未实现刷新、公开撤销/内省、RP 退出或其他未完成身份业务。
+
 ## 用户站合并与 nextmoe 布局修订
 
 2026-10-18 用户授权实施 [ADR-0017](decisions/0017-user-site-layouts.md)：账号与开发者整合为 account 用户站，管理台独立。移除独立 developer 源码、workspace、构建与默认启动入口；开发者现在通过用户站 /developer、/developer/applications、/developer/docs 访问，不再启动 3002。
@@ -99,3 +106,37 @@ Go module 使用本地命名空间 `moetopia.local/aio/api`，不假定尚未提
 认证页使用独立 AuthShell，桌面表单列独立滚动，手机单列，无候选立绘；账号中心使用轻量顶栏和个人摘要/操作双栏，开发者首页与控制台分别组织。可复用 AuthShell、ProfileLayout 均进入共享 UI 并提供故事。原始 / 授权入口、Go 会话与 CSRF 契约保留，独立 /auth/login、/auth/register 支持历史导航；开发者登录只接受固定的应用管理续接标识，不接受任意 URL。
 
 本轮改动与最终验证详见 [前端协调记录](coordination/frontend.md)。不把页面壳视为应用创建、审核或管理员能力完成。生产构建产物 dist 已从版本跟踪移除并忽略，源码与构建命令继续维护，未删除本地构建输出。
+
+## 刷新轮换、协议撤销与开发账号
+
+2026-10-18 后端新增 refresh_token 轮换、offline_access、令牌族绝对期限与 RFC 7009 `/oauth/revoke`，更新 Discovery。原子刷新失败回滚、已消费凭据重用撤销、同族行锁与延迟清理规则见 [ADR-0018](decisions/0018-refresh-token-rotation.md)。这更新前述各历史轮次的“刷新/撤销未完成”状态；公开 introspection、RP 退出与用户授权管理仍未交付。
+
+- 迁移 4 已实际应用于 Ubuntu 专属 moetopia_dev，新增 authorization.grants 并回填旧协议状态，未重建账号/会话/密钥。迁移 3→4 回填有专属集成测试。
+- Go 单元测试、vet、真实 PG/Valkey 集成及 API 契约漂移检查通过。集成覆盖刷新身份保持、错误客户端/篡改输入隔离、并发重用、代码过期后的重放、绝对有效期、scope/audience、confidential/Basic 认证、重复/未知撤销及新令牌写入失败回滚。
+- `pnpm test:oidc` 的 1 项 Chromium 场景通过，新增独立 openid-client 刷新轮换、旧 refresh 重用与协议撤销验证。使用随机测试库、独立构建及测试端口，运行器清理临时资源；不占用日常开发服务。
+- 没有固定测试账号或默认管理员；既有开发注册账号继续保留。开发注册使用 `pnpm dev:invite`，验证码从 Mailpit 获取；本轮确认开发邮件 Web/API 可访问，不向真实外部邮箱投递。自动化测试账号随临时库清理。
+
+本轮未修改页面、翻译、前端状态文件或自有浏览器会话契约；没有新增业务 DTO。生产参数、目标硬件性能、密钥轮换和故障恢复仍待验证，不称为完整身份产品交付。
+
+## 2026-10-19：自有用户站 OAuth/OIDC
+
+根据前端交接的新用户要求，后端实现用户中心与 developer 共用受控 confidential RP，完成登录启动、单次浏览器绑定回调、服务端 PKCE/state/nonce、独立库验签、独立 RP Cookie、上下文、会话查询/撤销及本地退出。身份提供者的密码/注册/授权继续独立，身份 Cookie 不能直接认证 RP。详细运行和前端待接项见 [自有 RP 接入](run-first-party-oidc.md) 与 [ADR-0019](decisions/0019-first-party-oidc.md)。
+
+迁移 5 已实际应用 Ubuntu 专属 moetopia_dev，扩展会话应用约束并新增 sessions.rp_logins；受控客户端显式初始化已执行，未重建账号/密钥或修改其他项目。Go test/vet、专属 PG/Valkey 集成、生成契约检查通过；真实 Chromium 场景新增 Go RP 经 Nitro 的授权回调、恢复 developer 目的页与退出检查并通过。修复 `/api/**` 代理服务端跟随导致的 Cookie 丢失；没有修改页面样式或 frontend.md。新增 OIDC 库后漏洞扫描为 0 个可达漏洞，保留模块级告警。
+
+该轮最初普通页面接线待完成；随后前端已替换入口、上下文和守卫，2026-10-19 本后端再次执行真实 Chromium 回归通过。用户站本地退出不会结束身份提供者或第三方 RP 会话，不宣称全站同步退出。
+
+## 2026-10-19：账号安全和开发者应用整批后端
+
+已读取前端同步文档，按整批能力补齐可接接口，未修改页面、UI、翻译或前端会话状态，也未覆盖并行修改的 app.vue。新契约统一进入 Huma/OpenAPI/TypeScript，前端完整接线清单见 [账号管理](run-account-management.md)、[开发者应用](run-developer-applications.md) 和 [后端交接](coordination/backend.md)。
+
+- 资料、简介、头像上传/删除使用 revision 条件更新；头像限制输入体积/像素/并发并重编码，登录查询不读取图片 blob。个人安全事件支持最近 90 天的 50 条查询和到期清理。
+- 改密、恢复及邮箱确认绑定当前密码或专用挑战，安全版本、会话撤销、挑战消费、审计和安全通知原子完成。邮箱变更绑定发起的 RP 会话；恢复开始不披露账号存在性，不自动登录。旧安全版本不能用于授权码、刷新、UserInfo 或重建会话；离线 JWT 保留到期残留窗口。
+- 授权族列表/按所有权撤销和显式旧快照主体回填已完成。列表是授权族粒度，不假称已经按应用聚合，也不将 grant 撤销说成第三方 RP 全部退出。
+- 开发者创建/详情/列表/草稿编辑/提交/停启/密钥轮换/删除已接真实协议 client；测试只允许所有者授权。已发布配置等待审核或拒绝时继续使用旧批准版本；新版本批准原子生效，失败回滚。Review 仅内部领域命令，**没有开放管理员 HTTP 审核入口**。
+- 应用并发 revision、配额及协议配置共享/排他锁已有真实数据库验证；停用后重新启用不会复活旧授权。secret 单次返回、只存哈希；固定自有 RP 客户端不能经开发者接口修改。
+- 迁移 6 已实际应用，`pnpm api:grants:backfill` 实际 updated=0；迁移 7 随后于同日实际应用，开发库当前版本 7。保留原账号、签名密钥和既有会话数据，未执行破坏性 Down 或修改远程 Compose。
+- Go 单元测试/vet、专属随机库 PostgreSQL/Valkey 集成、全工作区类型检查、API 契约漂移检查通过。真实 `pnpm test:oidc` 1 项 Chromium 场景通过，包含前端正常用户站入口/守卫、Go RP、独立 RP 和刷新/撤销。账号与开发者新表单尚未做浏览器交互验收，不能将后端测试当作新页面完成。
+- x/image v0.47.0 用于头像处理，Go 漏洞复扫 0 个可达、0 个导入包及 1 个既有模块级告警；npm 本轮未复扫，既有告警保留。
+
+尚未完成：独立管理员 RP/角色/TOTP/恢复码/一次性初始化、后台用户/邀请/注册策略/平台暂停与审核入口、账号七天注销及清理、GitHub/Google 登录绑定、生产邮件、中央/RP 标准退出、公开内省、正式密钥轮换/部署/恢复及目标硬件性能验收。个人事件尚缺完整管理审计的目标/结果/关联 ID。前端新表单接入由其对话继续；本轮不将全部首期身份能力记作交付完成。

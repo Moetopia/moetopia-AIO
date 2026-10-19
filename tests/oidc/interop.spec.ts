@@ -27,7 +27,10 @@ test('real account proxy and independent RP validate the browser authorization l
     await expect(page.getByRole('heading', { name: '请登录后继续', exact: true })).toBeVisible()
     const detailsResponse = await detailsRequest
     const detailsBody = await detailsResponse.json() as { code?: string }
-    expect({ status: detailsResponse.status(), error: detailsBody.code ?? '', scriptErrors: pageErrors }).toEqual({ status: 200, error: '', scriptErrors: [] })
+    const cookieCheck = (await page.context().cookies()).some(cookie => cookie.name === 'moetopia_authorization')
+    const sentCookie = (await detailsResponse.request().allHeaders()).cookie?.includes('moetopia_authorization=') ?? false
+    const directDetails = await page.context().request.get('http://127.0.0.1:58490' + new URL(detailsResponse.url()).pathname)
+    expect({ status: detailsResponse.status(), directStatus: directDetails.status(), cookiePresent: cookieCheck, cookieSent: sentCookie, error: detailsBody.code ?? '', scriptErrors: pageErrors }).toEqual({ status: 200, directStatus: 200, cookiePresent: true, cookieSent: true, error: '', scriptErrors: [] })
     await expect(page.getByRole('heading', { name: 'Independent OIDC test RP', exact: true })).toBeVisible()
     const initial = await page.context().cookies()
     const browserCookie = initial.find(cookie => cookie.name === 'moetopia_authorization')
@@ -64,7 +67,7 @@ test('real account proxy and independent RP validate the browser authorization l
     await page.goto('http://localhost:54310/login?mode=deny')
     expect(await complete('拒绝')).toMatchObject({ status: 'denied' })
     await page.goto('http://localhost:54310/login?mode=login')
-    await expect(page.getByRole('alert')).toContainText('请重新验证账号')
+    await expect(page.getByText('请重新验证账号', { exact: true })).toBeVisible()
     await page.getByLabel('邮箱', { exact: true }).fill(email)
     await page.getByLabel('密码', { exact: true }).fill(password)
     await page.getByRole('button', { name: '登录', exact: true }).last().click()
@@ -73,6 +76,37 @@ test('real account proxy and independent RP validate the browser authorization l
       await page.goto(`http://localhost:54310/login?mode=${mode}`)
       expect(await complete()).toMatchObject({ status: 'rejected' })
     }
+    await page.goto('http://localhost:54310/login?mode=offline')
+    expect(await complete()).toMatchObject({ status: 'approved' })
+    await page.goto('http://localhost:54310/refresh')
+    expect(JSON.parse(await page.locator('body').innerText())).toEqual({ rotated: true, identity_preserved: true })
+    await page.goto('http://localhost:54310/replay-refresh')
+    expect(JSON.parse(await page.locator('body').innerText())).toEqual({ replay_rejected: true, family_revoked: true })
+    await page.goto('http://localhost:54310/login?mode=offline')
+    expect(await complete()).toMatchObject({ status: 'approved' })
+    await page.goto('http://localhost:54310/revoke')
+    expect(JSON.parse(await page.locator('body').innerText())).toEqual({ refresh_rejected: true })
+    const portalBefore = await page.context().request.get('http://127.0.0.1:54305/api/v1/portal/context')
+    expect(portalBefore.status()).toBe(200)
+    expect((await portalBefore.json() as { authenticated: boolean }).authenticated).toBe(false)
+    await page.goto('http://127.0.0.1:54305/api/v1/portal/login?return_to=/developer/applications')
+    await expect(page.getByRole('heading', { name: 'Moetopia user site', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: '允许访问', exact: true })).toBeEnabled()
+    const portalCallback = page.waitForResponse(response => new URL(response.url()).pathname === '/api/v1/portal/callback')
+    await page.getByRole('button', { name: '允许访问', exact: true }).click()
+    await page.waitForURL('http://127.0.0.1:54305/developer/applications')
+    expect((await portalCallback).status()).toBe(303)
+    const portalAfter = await page.context().request.get('http://127.0.0.1:54305/api/v1/portal/context')
+    expect((await portalAfter.json() as { authenticated: boolean }).authenticated).toBe(true)
+    expect((await page.context().cookies()).find(cookie => cookie.name === 'moetopia_portal')?.httpOnly).toBe(true)
+    const portalLogout = await page.evaluate(async () => {
+      const context = await (await fetch('/api/v1/portal/context')).json() as { csrf_token: string }
+      const response = await fetch('/api/v1/portal/logout', { method: 'POST', headers: { 'X-Moetopia-CSRF': context.csrf_token } })
+      const body = await response.json() as { authenticated: boolean }
+      const identity = await (await fetch('/api/v1/account/context')).json() as { user?: unknown }
+      return { status: response.status, authenticated: body.authenticated, identity_preserved: Boolean(identity.user) }
+    })
+    expect(portalLogout).toEqual({ status: 200, authenticated: false, identity_preserved: true })
     await verifyPortalUI(page)
     expect(pageErrors).toEqual([])
   } finally {

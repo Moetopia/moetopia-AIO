@@ -55,6 +55,34 @@ func (_u *OAuthClientUpdate) SetNillableName(v *string) *OAuthClientUpdate {
 	return _u
 }
 
+// SetOwnerID sets the "owner_id" field.
+func (_u *OAuthClientUpdate) SetOwnerID(v string) *OAuthClientUpdate {
+	_u.mutation.SetOwnerID(v)
+	return _u
+}
+
+// SetNillableOwnerID sets the "owner_id" field if the given value is not nil.
+func (_u *OAuthClientUpdate) SetNillableOwnerID(v *string) *OAuthClientUpdate {
+	if v != nil {
+		_u.SetOwnerID(*v)
+	}
+	return _u
+}
+
+// SetTestOnly sets the "test_only" field.
+func (_u *OAuthClientUpdate) SetTestOnly(v bool) *OAuthClientUpdate {
+	_u.mutation.SetTestOnly(v)
+	return _u
+}
+
+// SetNillableTestOnly sets the "test_only" field if the given value is not nil.
+func (_u *OAuthClientUpdate) SetNillableTestOnly(v *bool) *OAuthClientUpdate {
+	if v != nil {
+		_u.SetTestOnly(*v)
+	}
+	return _u
+}
+
 // SetPublic sets the "public" field.
 func (_u *OAuthClientUpdate) SetPublic(v bool) *OAuthClientUpdate {
 	_u.mutation.SetPublic(v)
@@ -206,6 +234,12 @@ func (_u *OAuthClientUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(oauthclient.FieldName, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.OwnerID(); ok {
+		_spec.SetField(oauthclient.FieldOwnerID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.TestOnly(); ok {
+		_spec.SetField(oauthclient.FieldTestOnly, field.TypeBool, value)
+	}
 	if value, ok := _u.mutation.Public(); ok {
 		_spec.SetField(oauthclient.FieldPublic, field.TypeBool, value)
 	}
@@ -296,6 +330,34 @@ func (_u *OAuthClientUpdateOne) SetName(v string) *OAuthClientUpdateOne {
 func (_u *OAuthClientUpdateOne) SetNillableName(v *string) *OAuthClientUpdateOne {
 	if v != nil {
 		_u.SetName(*v)
+	}
+	return _u
+}
+
+// SetOwnerID sets the "owner_id" field.
+func (_u *OAuthClientUpdateOne) SetOwnerID(v string) *OAuthClientUpdateOne {
+	_u.mutation.SetOwnerID(v)
+	return _u
+}
+
+// SetNillableOwnerID sets the "owner_id" field if the given value is not nil.
+func (_u *OAuthClientUpdateOne) SetNillableOwnerID(v *string) *OAuthClientUpdateOne {
+	if v != nil {
+		_u.SetOwnerID(*v)
+	}
+	return _u
+}
+
+// SetTestOnly sets the "test_only" field.
+func (_u *OAuthClientUpdateOne) SetTestOnly(v bool) *OAuthClientUpdateOne {
+	_u.mutation.SetTestOnly(v)
+	return _u
+}
+
+// SetNillableTestOnly sets the "test_only" field if the given value is not nil.
+func (_u *OAuthClientUpdateOne) SetNillableTestOnly(v *bool) *OAuthClientUpdateOne {
+	if v != nil {
+		_u.SetTestOnly(*v)
 	}
 	return _u
 }
@@ -480,6 +542,12 @@ func (_u *OAuthClientUpdateOne) sqlSave(ctx context.Context) (_node *OAuthClient
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(oauthclient.FieldName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.OwnerID(); ok {
+		_spec.SetField(oauthclient.FieldOwnerID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.TestOnly(); ok {
+		_spec.SetField(oauthclient.FieldTestOnly, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Public(); ok {
 		_spec.SetField(oauthclient.FieldPublic, field.TypeBool, value)

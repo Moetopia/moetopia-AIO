@@ -10,6 +10,10 @@
 
 Ent 的 CLI 通过 Go tool 依赖锁定，displaywidth 0.11.0 修复了本机遇到的生成工具兼容问题；没有修改下载缓存中的第三方源码。Fosite 的部分遥测间接依赖存在上游弃用提示，后续协议集成仍需关注维护与升级成本。
 
+2026-10-19 自有 RP 增加 coreos/go-oidc/v3 v3.21.0（间接 go-jose/v4 v4.1.4），将既有 x/oauth2 v0.36.0 作为直接依赖；没有替换 Fosite 授权服务器。实际 `go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...` 复扫通过：0 个可达漏洞、0 个导入包漏洞、1 个既有模块级告警。Go 单元与数据库集成、真实浏览器协议测试通过；此结论仅覆盖当前代码，不作为生产安全认证。
+
+同日账号管理将 golang.org/x/image 升级并作为直接依赖锁定 v0.47.0，用于头像解码后缩放；`go mod tidy` 后复扫仍为 0 个可达、0 个导入包及 1 个模块级告警。已有 npm 告警未在此轮重新扫描，不把 Go 结果扩展为 JavaScript 或镜像检查通过。
+
 ## JavaScript
 
 当前本机 npm 镜像不提供 audit endpoint，审计单次显式使用官方 registry，没有更改用户全局 registry。
@@ -21,6 +25,8 @@ Ent 的 CLI 通过 Go tool 依赖锁定，displaywidth 0.11.0 修复了本机遇
 - braces 由 Nitro 的文件匹配工具链带入；当前审计未列修复版本。来源：[braces 公告](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)。
 
 当前账号服务的已生成生产 manifest 未列 node-forge/braces；JWT 在 Go 侧签发，不使用 node-forge。文件匹配与开发服务不接收产品用户提供的任意 glob 或签名数据。但这些观察不等于全面不可达证明：保留两项未修复告警，不新增静默忽略列表，不宣称 npm audit 全通过。
+
+真实互操作阶段新增开发依赖 openid-client 6.8.8（用于独立 RP 验证）。2026-10-18 执行 `pnpm audit --json --registry https://registry.npmjs.org`，仍为上述 node-forge/braces 两项 high，新增客户端路径未出现告警；未修改全局 registry。
 
 正式发布前重新检查上游修复、最终镜像和实际可达路径，并记录修复或经过明确评审的处理结果。当前工程本就不满足生产身份系统交付条件，不因构建通过放行上线。
 

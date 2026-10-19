@@ -77,11 +77,11 @@ func newAccountFixture(t *testing.T) *accountFixture {
 	}
 	sender := &captureEmail{}
 	outbox := notifications.New(db.Ent, box, sender)
-	accounts, err := identity.New(identity.NewStore(db.Ent, outbox), key)
+	web, err := sessions.New(db.Ent, key, "https://account.moetopia.test", true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	web, err := sessions.New(db.Ent, key, "https://account.moetopia.test", true)
+	accounts, err := identity.New(identity.NewStore(db.Ent, outbox).WithSessions(web), key)
 	if err != nil {
 		t.Fatal(err)
 	}

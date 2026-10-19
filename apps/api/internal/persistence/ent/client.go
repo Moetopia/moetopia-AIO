@@ -14,14 +14,20 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
+	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
+	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
+	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
+	"moetopia.local/aio/api/internal/persistence/ent/securityevent"
 	"moetopia.local/aio/api/internal/persistence/ent/signingkey"
 	"moetopia.local/aio/api/internal/persistence/ent/websession"
 
@@ -33,10 +39,18 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// AccountChallenge is the client for interacting with the AccountChallenge builders.
+	AccountChallenge *AccountChallengeClient
 	// AccountUser is the client for interacting with the AccountUser builders.
 	AccountUser *AccountUserClient
+	// ApplicationVersion is the client for interacting with the ApplicationVersion builders.
+	ApplicationVersion *ApplicationVersionClient
+	// AuthorizationGrant is the client for interacting with the AuthorizationGrant builders.
+	AuthorizationGrant *AuthorizationGrantClient
 	// AuthorizationInteraction is the client for interacting with the AuthorizationInteraction builders.
 	AuthorizationInteraction *AuthorizationInteractionClient
+	// DeveloperApplication is the client for interacting with the DeveloperApplication builders.
+	DeveloperApplication *DeveloperApplicationClient
 	// EmailDelivery is the client for interacting with the EmailDelivery builders.
 	EmailDelivery *EmailDeliveryClient
 	// EmailVerification is the client for interacting with the EmailVerification builders.
@@ -47,8 +61,12 @@ type Client struct {
 	OAuthClient *OAuthClientClient
 	// ProtocolSession is the client for interacting with the ProtocolSession builders.
 	ProtocolSession *ProtocolSessionClient
+	// RPLogin is the client for interacting with the RPLogin builders.
+	RPLogin *RPLoginClient
 	// RegistrationPolicy is the client for interacting with the RegistrationPolicy builders.
 	RegistrationPolicy *RegistrationPolicyClient
+	// SecurityEvent is the client for interacting with the SecurityEvent builders.
+	SecurityEvent *SecurityEventClient
 	// SigningKey is the client for interacting with the SigningKey builders.
 	SigningKey *SigningKeyClient
 	// WebSession is the client for interacting with the WebSession builders.
@@ -64,14 +82,20 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.AccountChallenge = NewAccountChallengeClient(c.config)
 	c.AccountUser = NewAccountUserClient(c.config)
+	c.ApplicationVersion = NewApplicationVersionClient(c.config)
+	c.AuthorizationGrant = NewAuthorizationGrantClient(c.config)
 	c.AuthorizationInteraction = NewAuthorizationInteractionClient(c.config)
+	c.DeveloperApplication = NewDeveloperApplicationClient(c.config)
 	c.EmailDelivery = NewEmailDeliveryClient(c.config)
 	c.EmailVerification = NewEmailVerificationClient(c.config)
 	c.Invitation = NewInvitationClient(c.config)
 	c.OAuthClient = NewOAuthClientClient(c.config)
 	c.ProtocolSession = NewProtocolSessionClient(c.config)
+	c.RPLogin = NewRPLoginClient(c.config)
 	c.RegistrationPolicy = NewRegistrationPolicyClient(c.config)
+	c.SecurityEvent = NewSecurityEventClient(c.config)
 	c.SigningKey = NewSigningKeyClient(c.config)
 	c.WebSession = NewWebSessionClient(c.config)
 }
@@ -169,14 +193,20 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                      ctx,
 		config:                   cfg,
+		AccountChallenge:         NewAccountChallengeClient(cfg),
 		AccountUser:              NewAccountUserClient(cfg),
+		ApplicationVersion:       NewApplicationVersionClient(cfg),
+		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
 		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
+		DeveloperApplication:     NewDeveloperApplicationClient(cfg),
 		EmailDelivery:            NewEmailDeliveryClient(cfg),
 		EmailVerification:        NewEmailVerificationClient(cfg),
 		Invitation:               NewInvitationClient(cfg),
 		OAuthClient:              NewOAuthClientClient(cfg),
 		ProtocolSession:          NewProtocolSessionClient(cfg),
+		RPLogin:                  NewRPLoginClient(cfg),
 		RegistrationPolicy:       NewRegistrationPolicyClient(cfg),
+		SecurityEvent:            NewSecurityEventClient(cfg),
 		SigningKey:               NewSigningKeyClient(cfg),
 		WebSession:               NewWebSessionClient(cfg),
 	}, nil
@@ -198,14 +228,20 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                      ctx,
 		config:                   cfg,
+		AccountChallenge:         NewAccountChallengeClient(cfg),
 		AccountUser:              NewAccountUserClient(cfg),
+		ApplicationVersion:       NewApplicationVersionClient(cfg),
+		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
 		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
+		DeveloperApplication:     NewDeveloperApplicationClient(cfg),
 		EmailDelivery:            NewEmailDeliveryClient(cfg),
 		EmailVerification:        NewEmailVerificationClient(cfg),
 		Invitation:               NewInvitationClient(cfg),
 		OAuthClient:              NewOAuthClientClient(cfg),
 		ProtocolSession:          NewProtocolSessionClient(cfg),
+		RPLogin:                  NewRPLoginClient(cfg),
 		RegistrationPolicy:       NewRegistrationPolicyClient(cfg),
+		SecurityEvent:            NewSecurityEventClient(cfg),
 		SigningKey:               NewSigningKeyClient(cfg),
 		WebSession:               NewWebSessionClient(cfg),
 	}, nil
@@ -214,7 +250,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		AccountUser.
+//		AccountChallenge.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -237,9 +273,10 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AccountUser, c.AuthorizationInteraction, c.EmailDelivery, c.EmailVerification,
-		c.Invitation, c.OAuthClient, c.ProtocolSession, c.RegistrationPolicy,
-		c.SigningKey, c.WebSession,
+		c.AccountChallenge, c.AccountUser, c.ApplicationVersion, c.AuthorizationGrant,
+		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
+		c.EmailVerification, c.Invitation, c.OAuthClient, c.ProtocolSession, c.RPLogin,
+		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
 	} {
 		n.Use(hooks...)
 	}
@@ -249,9 +286,10 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AccountUser, c.AuthorizationInteraction, c.EmailDelivery, c.EmailVerification,
-		c.Invitation, c.OAuthClient, c.ProtocolSession, c.RegistrationPolicy,
-		c.SigningKey, c.WebSession,
+		c.AccountChallenge, c.AccountUser, c.ApplicationVersion, c.AuthorizationGrant,
+		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
+		c.EmailVerification, c.Invitation, c.OAuthClient, c.ProtocolSession, c.RPLogin,
+		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -260,10 +298,18 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *AccountChallengeMutation:
+		return c.AccountChallenge.mutate(ctx, m)
 	case *AccountUserMutation:
 		return c.AccountUser.mutate(ctx, m)
+	case *ApplicationVersionMutation:
+		return c.ApplicationVersion.mutate(ctx, m)
+	case *AuthorizationGrantMutation:
+		return c.AuthorizationGrant.mutate(ctx, m)
 	case *AuthorizationInteractionMutation:
 		return c.AuthorizationInteraction.mutate(ctx, m)
+	case *DeveloperApplicationMutation:
+		return c.DeveloperApplication.mutate(ctx, m)
 	case *EmailDeliveryMutation:
 		return c.EmailDelivery.mutate(ctx, m)
 	case *EmailVerificationMutation:
@@ -274,14 +320,151 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.OAuthClient.mutate(ctx, m)
 	case *ProtocolSessionMutation:
 		return c.ProtocolSession.mutate(ctx, m)
+	case *RPLoginMutation:
+		return c.RPLogin.mutate(ctx, m)
 	case *RegistrationPolicyMutation:
 		return c.RegistrationPolicy.mutate(ctx, m)
+	case *SecurityEventMutation:
+		return c.SecurityEvent.mutate(ctx, m)
 	case *SigningKeyMutation:
 		return c.SigningKey.mutate(ctx, m)
 	case *WebSessionMutation:
 		return c.WebSession.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// AccountChallengeClient is a client for the AccountChallenge schema.
+type AccountChallengeClient struct {
+	config
+}
+
+// NewAccountChallengeClient returns a client for the AccountChallenge from the given config.
+func NewAccountChallengeClient(c config) *AccountChallengeClient {
+	return &AccountChallengeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `accountchallenge.Hooks(f(g(h())))`.
+func (c *AccountChallengeClient) Use(hooks ...Hook) {
+	c.hooks.AccountChallenge = append(c.hooks.AccountChallenge, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `accountchallenge.Intercept(f(g(h())))`.
+func (c *AccountChallengeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AccountChallenge = append(c.inters.AccountChallenge, interceptors...)
+}
+
+// Create returns a builder for creating a AccountChallenge entity.
+func (c *AccountChallengeClient) Create() *AccountChallengeCreate {
+	mutation := newAccountChallengeMutation(c.config, OpCreate)
+	return &AccountChallengeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AccountChallenge entities.
+func (c *AccountChallengeClient) CreateBulk(builders ...*AccountChallengeCreate) *AccountChallengeCreateBulk {
+	return &AccountChallengeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AccountChallengeClient) MapCreateBulk(slice any, setFunc func(*AccountChallengeCreate, int)) *AccountChallengeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AccountChallengeCreateBulk{err: fmt.Errorf("calling to AccountChallengeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AccountChallengeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AccountChallengeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AccountChallenge.
+func (c *AccountChallengeClient) Update() *AccountChallengeUpdate {
+	mutation := newAccountChallengeMutation(c.config, OpUpdate)
+	return &AccountChallengeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AccountChallengeClient) UpdateOne(_m *AccountChallenge) *AccountChallengeUpdateOne {
+	mutation := newAccountChallengeMutation(c.config, OpUpdateOne, withAccountChallenge(_m))
+	return &AccountChallengeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AccountChallengeClient) UpdateOneID(id string) *AccountChallengeUpdateOne {
+	mutation := newAccountChallengeMutation(c.config, OpUpdateOne, withAccountChallengeID(id))
+	return &AccountChallengeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AccountChallenge.
+func (c *AccountChallengeClient) Delete() *AccountChallengeDelete {
+	mutation := newAccountChallengeMutation(c.config, OpDelete)
+	return &AccountChallengeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AccountChallengeClient) DeleteOne(_m *AccountChallenge) *AccountChallengeDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AccountChallengeClient) DeleteOneID(id string) *AccountChallengeDeleteOne {
+	builder := c.Delete().Where(accountchallenge.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AccountChallengeDeleteOne{builder}
+}
+
+// Query returns a query builder for AccountChallenge.
+func (c *AccountChallengeClient) Query() *AccountChallengeQuery {
+	return &AccountChallengeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAccountChallenge},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AccountChallenge entity by its id.
+func (c *AccountChallengeClient) Get(ctx context.Context, id string) (*AccountChallenge, error) {
+	return c.Query().Where(accountchallenge.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AccountChallengeClient) GetX(ctx context.Context, id string) *AccountChallenge {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AccountChallengeClient) Hooks() []Hook {
+	return c.hooks.AccountChallenge
+}
+
+// Interceptors returns the client interceptors.
+func (c *AccountChallengeClient) Interceptors() []Interceptor {
+	return c.inters.AccountChallenge
+}
+
+func (c *AccountChallengeClient) mutate(ctx context.Context, m *AccountChallengeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AccountChallengeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AccountChallengeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AccountChallengeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AccountChallengeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AccountChallenge mutation op: %q", m.Op())
 	}
 }
 
@@ -418,6 +601,272 @@ func (c *AccountUserClient) mutate(ctx context.Context, m *AccountUserMutation) 
 	}
 }
 
+// ApplicationVersionClient is a client for the ApplicationVersion schema.
+type ApplicationVersionClient struct {
+	config
+}
+
+// NewApplicationVersionClient returns a client for the ApplicationVersion from the given config.
+func NewApplicationVersionClient(c config) *ApplicationVersionClient {
+	return &ApplicationVersionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `applicationversion.Hooks(f(g(h())))`.
+func (c *ApplicationVersionClient) Use(hooks ...Hook) {
+	c.hooks.ApplicationVersion = append(c.hooks.ApplicationVersion, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `applicationversion.Intercept(f(g(h())))`.
+func (c *ApplicationVersionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ApplicationVersion = append(c.inters.ApplicationVersion, interceptors...)
+}
+
+// Create returns a builder for creating a ApplicationVersion entity.
+func (c *ApplicationVersionClient) Create() *ApplicationVersionCreate {
+	mutation := newApplicationVersionMutation(c.config, OpCreate)
+	return &ApplicationVersionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ApplicationVersion entities.
+func (c *ApplicationVersionClient) CreateBulk(builders ...*ApplicationVersionCreate) *ApplicationVersionCreateBulk {
+	return &ApplicationVersionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ApplicationVersionClient) MapCreateBulk(slice any, setFunc func(*ApplicationVersionCreate, int)) *ApplicationVersionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ApplicationVersionCreateBulk{err: fmt.Errorf("calling to ApplicationVersionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ApplicationVersionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ApplicationVersionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ApplicationVersion.
+func (c *ApplicationVersionClient) Update() *ApplicationVersionUpdate {
+	mutation := newApplicationVersionMutation(c.config, OpUpdate)
+	return &ApplicationVersionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ApplicationVersionClient) UpdateOne(_m *ApplicationVersion) *ApplicationVersionUpdateOne {
+	mutation := newApplicationVersionMutation(c.config, OpUpdateOne, withApplicationVersion(_m))
+	return &ApplicationVersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ApplicationVersionClient) UpdateOneID(id string) *ApplicationVersionUpdateOne {
+	mutation := newApplicationVersionMutation(c.config, OpUpdateOne, withApplicationVersionID(id))
+	return &ApplicationVersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ApplicationVersion.
+func (c *ApplicationVersionClient) Delete() *ApplicationVersionDelete {
+	mutation := newApplicationVersionMutation(c.config, OpDelete)
+	return &ApplicationVersionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ApplicationVersionClient) DeleteOne(_m *ApplicationVersion) *ApplicationVersionDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ApplicationVersionClient) DeleteOneID(id string) *ApplicationVersionDeleteOne {
+	builder := c.Delete().Where(applicationversion.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ApplicationVersionDeleteOne{builder}
+}
+
+// Query returns a query builder for ApplicationVersion.
+func (c *ApplicationVersionClient) Query() *ApplicationVersionQuery {
+	return &ApplicationVersionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeApplicationVersion},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ApplicationVersion entity by its id.
+func (c *ApplicationVersionClient) Get(ctx context.Context, id string) (*ApplicationVersion, error) {
+	return c.Query().Where(applicationversion.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ApplicationVersionClient) GetX(ctx context.Context, id string) *ApplicationVersion {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ApplicationVersionClient) Hooks() []Hook {
+	return c.hooks.ApplicationVersion
+}
+
+// Interceptors returns the client interceptors.
+func (c *ApplicationVersionClient) Interceptors() []Interceptor {
+	return c.inters.ApplicationVersion
+}
+
+func (c *ApplicationVersionClient) mutate(ctx context.Context, m *ApplicationVersionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ApplicationVersionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ApplicationVersionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ApplicationVersionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ApplicationVersionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ApplicationVersion mutation op: %q", m.Op())
+	}
+}
+
+// AuthorizationGrantClient is a client for the AuthorizationGrant schema.
+type AuthorizationGrantClient struct {
+	config
+}
+
+// NewAuthorizationGrantClient returns a client for the AuthorizationGrant from the given config.
+func NewAuthorizationGrantClient(c config) *AuthorizationGrantClient {
+	return &AuthorizationGrantClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `authorizationgrant.Hooks(f(g(h())))`.
+func (c *AuthorizationGrantClient) Use(hooks ...Hook) {
+	c.hooks.AuthorizationGrant = append(c.hooks.AuthorizationGrant, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `authorizationgrant.Intercept(f(g(h())))`.
+func (c *AuthorizationGrantClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AuthorizationGrant = append(c.inters.AuthorizationGrant, interceptors...)
+}
+
+// Create returns a builder for creating a AuthorizationGrant entity.
+func (c *AuthorizationGrantClient) Create() *AuthorizationGrantCreate {
+	mutation := newAuthorizationGrantMutation(c.config, OpCreate)
+	return &AuthorizationGrantCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AuthorizationGrant entities.
+func (c *AuthorizationGrantClient) CreateBulk(builders ...*AuthorizationGrantCreate) *AuthorizationGrantCreateBulk {
+	return &AuthorizationGrantCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AuthorizationGrantClient) MapCreateBulk(slice any, setFunc func(*AuthorizationGrantCreate, int)) *AuthorizationGrantCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AuthorizationGrantCreateBulk{err: fmt.Errorf("calling to AuthorizationGrantClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AuthorizationGrantCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AuthorizationGrantCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AuthorizationGrant.
+func (c *AuthorizationGrantClient) Update() *AuthorizationGrantUpdate {
+	mutation := newAuthorizationGrantMutation(c.config, OpUpdate)
+	return &AuthorizationGrantUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AuthorizationGrantClient) UpdateOne(_m *AuthorizationGrant) *AuthorizationGrantUpdateOne {
+	mutation := newAuthorizationGrantMutation(c.config, OpUpdateOne, withAuthorizationGrant(_m))
+	return &AuthorizationGrantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AuthorizationGrantClient) UpdateOneID(id string) *AuthorizationGrantUpdateOne {
+	mutation := newAuthorizationGrantMutation(c.config, OpUpdateOne, withAuthorizationGrantID(id))
+	return &AuthorizationGrantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AuthorizationGrant.
+func (c *AuthorizationGrantClient) Delete() *AuthorizationGrantDelete {
+	mutation := newAuthorizationGrantMutation(c.config, OpDelete)
+	return &AuthorizationGrantDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AuthorizationGrantClient) DeleteOne(_m *AuthorizationGrant) *AuthorizationGrantDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AuthorizationGrantClient) DeleteOneID(id string) *AuthorizationGrantDeleteOne {
+	builder := c.Delete().Where(authorizationgrant.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AuthorizationGrantDeleteOne{builder}
+}
+
+// Query returns a query builder for AuthorizationGrant.
+func (c *AuthorizationGrantClient) Query() *AuthorizationGrantQuery {
+	return &AuthorizationGrantQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAuthorizationGrant},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AuthorizationGrant entity by its id.
+func (c *AuthorizationGrantClient) Get(ctx context.Context, id string) (*AuthorizationGrant, error) {
+	return c.Query().Where(authorizationgrant.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AuthorizationGrantClient) GetX(ctx context.Context, id string) *AuthorizationGrant {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AuthorizationGrantClient) Hooks() []Hook {
+	return c.hooks.AuthorizationGrant
+}
+
+// Interceptors returns the client interceptors.
+func (c *AuthorizationGrantClient) Interceptors() []Interceptor {
+	return c.inters.AuthorizationGrant
+}
+
+func (c *AuthorizationGrantClient) mutate(ctx context.Context, m *AuthorizationGrantMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AuthorizationGrantCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AuthorizationGrantUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AuthorizationGrantUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AuthorizationGrantDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AuthorizationGrant mutation op: %q", m.Op())
+	}
+}
+
 // AuthorizationInteractionClient is a client for the AuthorizationInteraction schema.
 type AuthorizationInteractionClient struct {
 	config
@@ -548,6 +997,139 @@ func (c *AuthorizationInteractionClient) mutate(ctx context.Context, m *Authoriz
 		return (&AuthorizationInteractionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AuthorizationInteraction mutation op: %q", m.Op())
+	}
+}
+
+// DeveloperApplicationClient is a client for the DeveloperApplication schema.
+type DeveloperApplicationClient struct {
+	config
+}
+
+// NewDeveloperApplicationClient returns a client for the DeveloperApplication from the given config.
+func NewDeveloperApplicationClient(c config) *DeveloperApplicationClient {
+	return &DeveloperApplicationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `developerapplication.Hooks(f(g(h())))`.
+func (c *DeveloperApplicationClient) Use(hooks ...Hook) {
+	c.hooks.DeveloperApplication = append(c.hooks.DeveloperApplication, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `developerapplication.Intercept(f(g(h())))`.
+func (c *DeveloperApplicationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DeveloperApplication = append(c.inters.DeveloperApplication, interceptors...)
+}
+
+// Create returns a builder for creating a DeveloperApplication entity.
+func (c *DeveloperApplicationClient) Create() *DeveloperApplicationCreate {
+	mutation := newDeveloperApplicationMutation(c.config, OpCreate)
+	return &DeveloperApplicationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DeveloperApplication entities.
+func (c *DeveloperApplicationClient) CreateBulk(builders ...*DeveloperApplicationCreate) *DeveloperApplicationCreateBulk {
+	return &DeveloperApplicationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DeveloperApplicationClient) MapCreateBulk(slice any, setFunc func(*DeveloperApplicationCreate, int)) *DeveloperApplicationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DeveloperApplicationCreateBulk{err: fmt.Errorf("calling to DeveloperApplicationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DeveloperApplicationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DeveloperApplicationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DeveloperApplication.
+func (c *DeveloperApplicationClient) Update() *DeveloperApplicationUpdate {
+	mutation := newDeveloperApplicationMutation(c.config, OpUpdate)
+	return &DeveloperApplicationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DeveloperApplicationClient) UpdateOne(_m *DeveloperApplication) *DeveloperApplicationUpdateOne {
+	mutation := newDeveloperApplicationMutation(c.config, OpUpdateOne, withDeveloperApplication(_m))
+	return &DeveloperApplicationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DeveloperApplicationClient) UpdateOneID(id string) *DeveloperApplicationUpdateOne {
+	mutation := newDeveloperApplicationMutation(c.config, OpUpdateOne, withDeveloperApplicationID(id))
+	return &DeveloperApplicationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DeveloperApplication.
+func (c *DeveloperApplicationClient) Delete() *DeveloperApplicationDelete {
+	mutation := newDeveloperApplicationMutation(c.config, OpDelete)
+	return &DeveloperApplicationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DeveloperApplicationClient) DeleteOne(_m *DeveloperApplication) *DeveloperApplicationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DeveloperApplicationClient) DeleteOneID(id string) *DeveloperApplicationDeleteOne {
+	builder := c.Delete().Where(developerapplication.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DeveloperApplicationDeleteOne{builder}
+}
+
+// Query returns a query builder for DeveloperApplication.
+func (c *DeveloperApplicationClient) Query() *DeveloperApplicationQuery {
+	return &DeveloperApplicationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDeveloperApplication},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DeveloperApplication entity by its id.
+func (c *DeveloperApplicationClient) Get(ctx context.Context, id string) (*DeveloperApplication, error) {
+	return c.Query().Where(developerapplication.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DeveloperApplicationClient) GetX(ctx context.Context, id string) *DeveloperApplication {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DeveloperApplicationClient) Hooks() []Hook {
+	return c.hooks.DeveloperApplication
+}
+
+// Interceptors returns the client interceptors.
+func (c *DeveloperApplicationClient) Interceptors() []Interceptor {
+	return c.inters.DeveloperApplication
+}
+
+func (c *DeveloperApplicationClient) mutate(ctx context.Context, m *DeveloperApplicationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DeveloperApplicationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DeveloperApplicationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DeveloperApplicationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DeveloperApplicationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DeveloperApplication mutation op: %q", m.Op())
 	}
 }
 
@@ -1216,6 +1798,139 @@ func (c *ProtocolSessionClient) mutate(ctx context.Context, m *ProtocolSessionMu
 	}
 }
 
+// RPLoginClient is a client for the RPLogin schema.
+type RPLoginClient struct {
+	config
+}
+
+// NewRPLoginClient returns a client for the RPLogin from the given config.
+func NewRPLoginClient(c config) *RPLoginClient {
+	return &RPLoginClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `rplogin.Hooks(f(g(h())))`.
+func (c *RPLoginClient) Use(hooks ...Hook) {
+	c.hooks.RPLogin = append(c.hooks.RPLogin, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `rplogin.Intercept(f(g(h())))`.
+func (c *RPLoginClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RPLogin = append(c.inters.RPLogin, interceptors...)
+}
+
+// Create returns a builder for creating a RPLogin entity.
+func (c *RPLoginClient) Create() *RPLoginCreate {
+	mutation := newRPLoginMutation(c.config, OpCreate)
+	return &RPLoginCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RPLogin entities.
+func (c *RPLoginClient) CreateBulk(builders ...*RPLoginCreate) *RPLoginCreateBulk {
+	return &RPLoginCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RPLoginClient) MapCreateBulk(slice any, setFunc func(*RPLoginCreate, int)) *RPLoginCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RPLoginCreateBulk{err: fmt.Errorf("calling to RPLoginClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RPLoginCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RPLoginCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RPLogin.
+func (c *RPLoginClient) Update() *RPLoginUpdate {
+	mutation := newRPLoginMutation(c.config, OpUpdate)
+	return &RPLoginUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RPLoginClient) UpdateOne(_m *RPLogin) *RPLoginUpdateOne {
+	mutation := newRPLoginMutation(c.config, OpUpdateOne, withRPLogin(_m))
+	return &RPLoginUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RPLoginClient) UpdateOneID(id string) *RPLoginUpdateOne {
+	mutation := newRPLoginMutation(c.config, OpUpdateOne, withRPLoginID(id))
+	return &RPLoginUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RPLogin.
+func (c *RPLoginClient) Delete() *RPLoginDelete {
+	mutation := newRPLoginMutation(c.config, OpDelete)
+	return &RPLoginDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RPLoginClient) DeleteOne(_m *RPLogin) *RPLoginDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RPLoginClient) DeleteOneID(id string) *RPLoginDeleteOne {
+	builder := c.Delete().Where(rplogin.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RPLoginDeleteOne{builder}
+}
+
+// Query returns a query builder for RPLogin.
+func (c *RPLoginClient) Query() *RPLoginQuery {
+	return &RPLoginQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRPLogin},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RPLogin entity by its id.
+func (c *RPLoginClient) Get(ctx context.Context, id string) (*RPLogin, error) {
+	return c.Query().Where(rplogin.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RPLoginClient) GetX(ctx context.Context, id string) *RPLogin {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *RPLoginClient) Hooks() []Hook {
+	return c.hooks.RPLogin
+}
+
+// Interceptors returns the client interceptors.
+func (c *RPLoginClient) Interceptors() []Interceptor {
+	return c.inters.RPLogin
+}
+
+func (c *RPLoginClient) mutate(ctx context.Context, m *RPLoginMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RPLoginCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RPLoginUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RPLoginUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RPLoginDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RPLogin mutation op: %q", m.Op())
+	}
+}
+
 // RegistrationPolicyClient is a client for the RegistrationPolicy schema.
 type RegistrationPolicyClient struct {
 	config
@@ -1346,6 +2061,139 @@ func (c *RegistrationPolicyClient) mutate(ctx context.Context, m *RegistrationPo
 		return (&RegistrationPolicyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown RegistrationPolicy mutation op: %q", m.Op())
+	}
+}
+
+// SecurityEventClient is a client for the SecurityEvent schema.
+type SecurityEventClient struct {
+	config
+}
+
+// NewSecurityEventClient returns a client for the SecurityEvent from the given config.
+func NewSecurityEventClient(c config) *SecurityEventClient {
+	return &SecurityEventClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `securityevent.Hooks(f(g(h())))`.
+func (c *SecurityEventClient) Use(hooks ...Hook) {
+	c.hooks.SecurityEvent = append(c.hooks.SecurityEvent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `securityevent.Intercept(f(g(h())))`.
+func (c *SecurityEventClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SecurityEvent = append(c.inters.SecurityEvent, interceptors...)
+}
+
+// Create returns a builder for creating a SecurityEvent entity.
+func (c *SecurityEventClient) Create() *SecurityEventCreate {
+	mutation := newSecurityEventMutation(c.config, OpCreate)
+	return &SecurityEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SecurityEvent entities.
+func (c *SecurityEventClient) CreateBulk(builders ...*SecurityEventCreate) *SecurityEventCreateBulk {
+	return &SecurityEventCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SecurityEventClient) MapCreateBulk(slice any, setFunc func(*SecurityEventCreate, int)) *SecurityEventCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SecurityEventCreateBulk{err: fmt.Errorf("calling to SecurityEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SecurityEventCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SecurityEventCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SecurityEvent.
+func (c *SecurityEventClient) Update() *SecurityEventUpdate {
+	mutation := newSecurityEventMutation(c.config, OpUpdate)
+	return &SecurityEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SecurityEventClient) UpdateOne(_m *SecurityEvent) *SecurityEventUpdateOne {
+	mutation := newSecurityEventMutation(c.config, OpUpdateOne, withSecurityEvent(_m))
+	return &SecurityEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SecurityEventClient) UpdateOneID(id string) *SecurityEventUpdateOne {
+	mutation := newSecurityEventMutation(c.config, OpUpdateOne, withSecurityEventID(id))
+	return &SecurityEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SecurityEvent.
+func (c *SecurityEventClient) Delete() *SecurityEventDelete {
+	mutation := newSecurityEventMutation(c.config, OpDelete)
+	return &SecurityEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SecurityEventClient) DeleteOne(_m *SecurityEvent) *SecurityEventDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *SecurityEventClient) DeleteOneID(id string) *SecurityEventDeleteOne {
+	builder := c.Delete().Where(securityevent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SecurityEventDeleteOne{builder}
+}
+
+// Query returns a query builder for SecurityEvent.
+func (c *SecurityEventClient) Query() *SecurityEventQuery {
+	return &SecurityEventQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSecurityEvent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SecurityEvent entity by its id.
+func (c *SecurityEventClient) Get(ctx context.Context, id string) (*SecurityEvent, error) {
+	return c.Query().Where(securityevent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SecurityEventClient) GetX(ctx context.Context, id string) *SecurityEvent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *SecurityEventClient) Hooks() []Hook {
+	return c.hooks.SecurityEvent
+}
+
+// Interceptors returns the client interceptors.
+func (c *SecurityEventClient) Interceptors() []Interceptor {
+	return c.inters.SecurityEvent
+}
+
+func (c *SecurityEventClient) mutate(ctx context.Context, m *SecurityEventMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SecurityEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SecurityEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SecurityEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SecurityEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SecurityEvent mutation op: %q", m.Op())
 	}
 }
 
@@ -1618,32 +2466,40 @@ func (c *WebSessionClient) mutate(ctx context.Context, m *WebSessionMutation) (V
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AccountUser, AuthorizationInteraction, EmailDelivery, EmailVerification,
-		Invitation, OAuthClient, ProtocolSession, RegistrationPolicy, SigningKey,
-		WebSession []ent.Hook
+		AccountChallenge, AccountUser, ApplicationVersion, AuthorizationGrant,
+		AuthorizationInteraction, DeveloperApplication, EmailDelivery,
+		EmailVerification, Invitation, OAuthClient, ProtocolSession, RPLogin,
+		RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Hook
 	}
 	inters struct {
-		AccountUser, AuthorizationInteraction, EmailDelivery, EmailVerification,
-		Invitation, OAuthClient, ProtocolSession, RegistrationPolicy, SigningKey,
-		WebSession []ent.Interceptor
+		AccountChallenge, AccountUser, ApplicationVersion, AuthorizationGrant,
+		AuthorizationInteraction, DeveloperApplication, EmailDelivery,
+		EmailVerification, Invitation, OAuthClient, ProtocolSession, RPLogin,
+		RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Interceptor
 	}
 )
 
 var (
 	// DefaultSchemaConfig represents the default schema names for all tables as defined in ent/schema.
 	DefaultSchemaConfig = SchemaConfig{
-		AccountUser:              tableSchemas[1],
-		AuthorizationInteraction: tableSchemas[0],
-		EmailDelivery:            tableSchemas[2],
-		EmailVerification:        tableSchemas[1],
-		Invitation:               tableSchemas[1],
-		OAuthClient:              tableSchemas[0],
-		ProtocolSession:          tableSchemas[0],
-		RegistrationPolicy:       tableSchemas[1],
-		SigningKey:               tableSchemas[0],
-		WebSession:               tableSchemas[3],
+		AccountChallenge:         tableSchemas[3],
+		AccountUser:              tableSchemas[3],
+		ApplicationVersion:       tableSchemas[2],
+		AuthorizationGrant:       tableSchemas[1],
+		AuthorizationInteraction: tableSchemas[1],
+		DeveloperApplication:     tableSchemas[2],
+		EmailDelivery:            tableSchemas[4],
+		EmailVerification:        tableSchemas[3],
+		Invitation:               tableSchemas[3],
+		OAuthClient:              tableSchemas[1],
+		ProtocolSession:          tableSchemas[1],
+		RPLogin:                  tableSchemas[5],
+		RegistrationPolicy:       tableSchemas[3],
+		SecurityEvent:            tableSchemas[0],
+		SigningKey:               tableSchemas[1],
+		WebSession:               tableSchemas[5],
 	}
-	tableSchemas = [...]string{"authorization", "identity", "notifications", "sessions"}
+	tableSchemas = [...]string{"audit", "authorization", "developer", "identity", "notifications", "sessions"}
 )
 
 // SchemaConfig represents alternative schema names for all tables

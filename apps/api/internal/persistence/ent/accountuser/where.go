@@ -74,6 +74,31 @@ func DisplayName(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldDisplayName, v))
 }
 
+// Bio applies equality check predicate on the "bio" field. It's identical to BioEQ.
+func Bio(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldBio, v))
+}
+
+// Avatar applies equality check predicate on the "avatar" field. It's identical to AvatarEQ.
+func Avatar(v []byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldAvatar, v))
+}
+
+// AvatarDigest applies equality check predicate on the "avatar_digest" field. It's identical to AvatarDigestEQ.
+func AvatarDigest(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldAvatarDigest, v))
+}
+
+// Revision applies equality check predicate on the "revision" field. It's identical to RevisionEQ.
+func Revision(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldRevision, v))
+}
+
+// SecurityVersion applies equality check predicate on the "security_version" field. It's identical to SecurityVersionEQ.
+func SecurityVersion(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldSecurityVersion, v))
+}
+
 // PasswordHash applies equality check predicate on the "password_hash" field. It's identical to PasswordHashEQ.
 func PasswordHash(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldPasswordHash, v))
@@ -222,6 +247,266 @@ func DisplayNameEqualFold(v string) predicate.AccountUser {
 // DisplayNameContainsFold applies the ContainsFold predicate on the "display_name" field.
 func DisplayNameContainsFold(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldContainsFold(FieldDisplayName, v))
+}
+
+// BioEQ applies the EQ predicate on the "bio" field.
+func BioEQ(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldBio, v))
+}
+
+// BioNEQ applies the NEQ predicate on the "bio" field.
+func BioNEQ(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldBio, v))
+}
+
+// BioIn applies the In predicate on the "bio" field.
+func BioIn(vs ...string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldBio, vs...))
+}
+
+// BioNotIn applies the NotIn predicate on the "bio" field.
+func BioNotIn(vs ...string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldBio, vs...))
+}
+
+// BioGT applies the GT predicate on the "bio" field.
+func BioGT(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldBio, v))
+}
+
+// BioGTE applies the GTE predicate on the "bio" field.
+func BioGTE(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldBio, v))
+}
+
+// BioLT applies the LT predicate on the "bio" field.
+func BioLT(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldBio, v))
+}
+
+// BioLTE applies the LTE predicate on the "bio" field.
+func BioLTE(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldBio, v))
+}
+
+// BioContains applies the Contains predicate on the "bio" field.
+func BioContains(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldContains(FieldBio, v))
+}
+
+// BioHasPrefix applies the HasPrefix predicate on the "bio" field.
+func BioHasPrefix(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldHasPrefix(FieldBio, v))
+}
+
+// BioHasSuffix applies the HasSuffix predicate on the "bio" field.
+func BioHasSuffix(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldHasSuffix(FieldBio, v))
+}
+
+// BioEqualFold applies the EqualFold predicate on the "bio" field.
+func BioEqualFold(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEqualFold(FieldBio, v))
+}
+
+// BioContainsFold applies the ContainsFold predicate on the "bio" field.
+func BioContainsFold(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldContainsFold(FieldBio, v))
+}
+
+// AvatarEQ applies the EQ predicate on the "avatar" field.
+func AvatarEQ(v []byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldAvatar, v))
+}
+
+// AvatarNEQ applies the NEQ predicate on the "avatar" field.
+func AvatarNEQ(v []byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldAvatar, v))
+}
+
+// AvatarIn applies the In predicate on the "avatar" field.
+func AvatarIn(vs ...[]byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldAvatar, vs...))
+}
+
+// AvatarNotIn applies the NotIn predicate on the "avatar" field.
+func AvatarNotIn(vs ...[]byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldAvatar, vs...))
+}
+
+// AvatarGT applies the GT predicate on the "avatar" field.
+func AvatarGT(v []byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldAvatar, v))
+}
+
+// AvatarGTE applies the GTE predicate on the "avatar" field.
+func AvatarGTE(v []byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldAvatar, v))
+}
+
+// AvatarLT applies the LT predicate on the "avatar" field.
+func AvatarLT(v []byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldAvatar, v))
+}
+
+// AvatarLTE applies the LTE predicate on the "avatar" field.
+func AvatarLTE(v []byte) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldAvatar, v))
+}
+
+// AvatarIsNil applies the IsNil predicate on the "avatar" field.
+func AvatarIsNil() predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIsNull(FieldAvatar))
+}
+
+// AvatarNotNil applies the NotNil predicate on the "avatar" field.
+func AvatarNotNil() predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotNull(FieldAvatar))
+}
+
+// AvatarDigestEQ applies the EQ predicate on the "avatar_digest" field.
+func AvatarDigestEQ(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldAvatarDigest, v))
+}
+
+// AvatarDigestNEQ applies the NEQ predicate on the "avatar_digest" field.
+func AvatarDigestNEQ(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldAvatarDigest, v))
+}
+
+// AvatarDigestIn applies the In predicate on the "avatar_digest" field.
+func AvatarDigestIn(vs ...string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldAvatarDigest, vs...))
+}
+
+// AvatarDigestNotIn applies the NotIn predicate on the "avatar_digest" field.
+func AvatarDigestNotIn(vs ...string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldAvatarDigest, vs...))
+}
+
+// AvatarDigestGT applies the GT predicate on the "avatar_digest" field.
+func AvatarDigestGT(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldAvatarDigest, v))
+}
+
+// AvatarDigestGTE applies the GTE predicate on the "avatar_digest" field.
+func AvatarDigestGTE(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldAvatarDigest, v))
+}
+
+// AvatarDigestLT applies the LT predicate on the "avatar_digest" field.
+func AvatarDigestLT(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldAvatarDigest, v))
+}
+
+// AvatarDigestLTE applies the LTE predicate on the "avatar_digest" field.
+func AvatarDigestLTE(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldAvatarDigest, v))
+}
+
+// AvatarDigestContains applies the Contains predicate on the "avatar_digest" field.
+func AvatarDigestContains(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldContains(FieldAvatarDigest, v))
+}
+
+// AvatarDigestHasPrefix applies the HasPrefix predicate on the "avatar_digest" field.
+func AvatarDigestHasPrefix(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldHasPrefix(FieldAvatarDigest, v))
+}
+
+// AvatarDigestHasSuffix applies the HasSuffix predicate on the "avatar_digest" field.
+func AvatarDigestHasSuffix(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldHasSuffix(FieldAvatarDigest, v))
+}
+
+// AvatarDigestEqualFold applies the EqualFold predicate on the "avatar_digest" field.
+func AvatarDigestEqualFold(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEqualFold(FieldAvatarDigest, v))
+}
+
+// AvatarDigestContainsFold applies the ContainsFold predicate on the "avatar_digest" field.
+func AvatarDigestContainsFold(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldContainsFold(FieldAvatarDigest, v))
+}
+
+// RevisionEQ applies the EQ predicate on the "revision" field.
+func RevisionEQ(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldRevision, v))
+}
+
+// RevisionNEQ applies the NEQ predicate on the "revision" field.
+func RevisionNEQ(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldRevision, v))
+}
+
+// RevisionIn applies the In predicate on the "revision" field.
+func RevisionIn(vs ...int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldRevision, vs...))
+}
+
+// RevisionNotIn applies the NotIn predicate on the "revision" field.
+func RevisionNotIn(vs ...int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldRevision, vs...))
+}
+
+// RevisionGT applies the GT predicate on the "revision" field.
+func RevisionGT(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldRevision, v))
+}
+
+// RevisionGTE applies the GTE predicate on the "revision" field.
+func RevisionGTE(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldRevision, v))
+}
+
+// RevisionLT applies the LT predicate on the "revision" field.
+func RevisionLT(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldRevision, v))
+}
+
+// RevisionLTE applies the LTE predicate on the "revision" field.
+func RevisionLTE(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldRevision, v))
+}
+
+// SecurityVersionEQ applies the EQ predicate on the "security_version" field.
+func SecurityVersionEQ(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldSecurityVersion, v))
+}
+
+// SecurityVersionNEQ applies the NEQ predicate on the "security_version" field.
+func SecurityVersionNEQ(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldSecurityVersion, v))
+}
+
+// SecurityVersionIn applies the In predicate on the "security_version" field.
+func SecurityVersionIn(vs ...int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldSecurityVersion, vs...))
+}
+
+// SecurityVersionNotIn applies the NotIn predicate on the "security_version" field.
+func SecurityVersionNotIn(vs ...int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldSecurityVersion, vs...))
+}
+
+// SecurityVersionGT applies the GT predicate on the "security_version" field.
+func SecurityVersionGT(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldSecurityVersion, v))
+}
+
+// SecurityVersionGTE applies the GTE predicate on the "security_version" field.
+func SecurityVersionGTE(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldSecurityVersion, v))
+}
+
+// SecurityVersionLT applies the LT predicate on the "security_version" field.
+func SecurityVersionLT(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldSecurityVersion, v))
+}
+
+// SecurityVersionLTE applies the LTE predicate on the "security_version" field.
+func SecurityVersionLTE(v int) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldSecurityVersion, v))
 }
 
 // PasswordHashEQ applies the EQ predicate on the "password_hash" field.

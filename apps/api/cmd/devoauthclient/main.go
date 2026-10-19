@@ -22,6 +22,7 @@ func main() {
 }
 func run() error {
 	callback := flag.String("redirect-uri", "", "Exact loopback callback URI for the development client")
+	offline := flag.Bool("offline-access", false, "Allow explicitly consented offline access with refresh token rotation")
 	flag.Parse()
 	cfg, err := config.Load()
 	if err != nil {
@@ -46,7 +47,13 @@ func run() error {
 		return err
 	}
 	id := "dev-" + uuid.NewString()
-	_, err = db.Ent.OAuthClient.Create().SetID(id).SetName("Local OIDC integration").SetPublic(true).SetEnabled(true).SetRedirectUris([]string{*callback}).SetGrantTypes([]string{"authorization_code"}).SetResponseTypes([]string{"code"}).SetScopes([]string{"openid", "profile", "email", "demo.read"}).SetAudiences([]string{cfg.Issuer + "/api"}).Save(ctx)
+	grants := []string{"authorization_code"}
+	scopes := []string{"openid", "profile", "email", "demo.read"}
+	if *offline {
+		grants = append(grants, "refresh_token")
+		scopes = append(scopes, "offline_access")
+	}
+	_, err = db.Ent.OAuthClient.Create().SetID(id).SetName("Local OIDC integration").SetPublic(true).SetEnabled(true).SetRedirectUris([]string{*callback}).SetGrantTypes(grants).SetResponseTypes([]string{"code"}).SetScopes(scopes).SetAudiences([]string{cfg.Issuer + "/api"}).Save(ctx)
 	if err != nil {
 		return errors.New("development client could not be created")
 	}

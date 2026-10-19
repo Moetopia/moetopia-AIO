@@ -22,6 +22,10 @@ type OAuthClient struct {
 	SecretHash []byte `json:"-"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// OwnerID holds the value of the "owner_id" field.
+	OwnerID string `json:"owner_id,omitempty"`
+	// TestOnly holds the value of the "test_only" field.
+	TestOnly bool `json:"test_only,omitempty"`
 	// Public holds the value of the "public" field.
 	Public bool `json:"public,omitempty"`
 	// Enabled holds the value of the "enabled" field.
@@ -48,9 +52,9 @@ func (*OAuthClient) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case oauthclient.FieldSecretHash, oauthclient.FieldRedirectUris, oauthclient.FieldGrantTypes, oauthclient.FieldResponseTypes, oauthclient.FieldScopes, oauthclient.FieldAudiences:
 			values[i] = new([]byte)
-		case oauthclient.FieldPublic, oauthclient.FieldEnabled:
+		case oauthclient.FieldTestOnly, oauthclient.FieldPublic, oauthclient.FieldEnabled:
 			values[i] = new(sql.NullBool)
-		case oauthclient.FieldID, oauthclient.FieldName:
+		case oauthclient.FieldID, oauthclient.FieldName, oauthclient.FieldOwnerID:
 			values[i] = new(sql.NullString)
 		case oauthclient.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -86,6 +90,18 @@ func (_m *OAuthClient) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				_m.Name = value.String
+			}
+		case oauthclient.FieldOwnerID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field owner_id", values[i])
+			} else if value.Valid {
+				_m.OwnerID = value.String
+			}
+		case oauthclient.FieldTestOnly:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field test_only", values[i])
+			} else if value.Valid {
+				_m.TestOnly = value.Bool
 			}
 		case oauthclient.FieldPublic:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -185,6 +201,12 @@ func (_m *OAuthClient) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
+	builder.WriteString(", ")
+	builder.WriteString("owner_id=")
+	builder.WriteString(_m.OwnerID)
+	builder.WriteString(", ")
+	builder.WriteString("test_only=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TestOnly))
 	builder.WriteString(", ")
 	builder.WriteString("public=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Public))

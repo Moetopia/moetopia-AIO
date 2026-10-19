@@ -17,6 +17,10 @@ const (
 	FieldSecretHash = "secret_hash"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldOwnerID holds the string denoting the owner_id field in the database.
+	FieldOwnerID = "owner_id"
+	// FieldTestOnly holds the string denoting the test_only field in the database.
+	FieldTestOnly = "test_only"
 	// FieldPublic holds the string denoting the public field in the database.
 	FieldPublic = "public"
 	// FieldEnabled holds the string denoting the enabled field in the database.
@@ -42,6 +46,8 @@ var Columns = []string{
 	FieldID,
 	FieldSecretHash,
 	FieldName,
+	FieldOwnerID,
+	FieldTestOnly,
 	FieldPublic,
 	FieldEnabled,
 	FieldRedirectUris,
@@ -65,6 +71,10 @@ func ValidColumn(column string) bool {
 var (
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultOwnerID holds the default value on creation for the "owner_id" field.
+	DefaultOwnerID string
+	// DefaultTestOnly holds the default value on creation for the "test_only" field.
+	DefaultTestOnly bool
 	// DefaultPublic holds the default value on creation for the "public" field.
 	DefaultPublic bool
 	// DefaultEnabled holds the default value on creation for the "enabled" field.
@@ -96,6 +106,16 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByOwnerID orders the results by the owner_id field.
+func ByOwnerID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOwnerID, opts...).ToFunc()
+}
+
+// ByTestOnly orders the results by the test_only field.
+func ByTestOnly(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTestOnly, opts...).ToFunc()
 }
 
 // ByPublic orders the results by the public field.

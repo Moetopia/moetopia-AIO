@@ -1,6 +1,6 @@
 # 身份、授权与安全约束
 
-状态：目标安全约束；不代表通过合规或生产安全验收。已实现账号基础和授权码/OIDC 后端，选型和参数见 [ADR-0013](decisions/0013-implementation-baseline.md)、[ADR-0014](decisions/0014-account-preview.md)、[ADR-0015](decisions/0015-authorization-code-oidc.md)。授权页和独立 RP 浏览器互操作、刷新/公开撤销等仍待完成，不能把下述目标全部当作已实现。协议依据初次核对：2026-10-17；授权码源码和协议复核：2026-10-18。
+状态：目标安全约束；不代表通过合规或生产安全验收。已实现账号基础、授权码/OIDC、刷新轮换和协议撤销，选型和参数见 [ADR-0013](decisions/0013-implementation-baseline.md)、[ADR-0014](decisions/0014-account-preview.md)、[ADR-0015](decisions/0015-authorization-code-oidc.md) 及 [ADR-0018](decisions/0018-refresh-token-rotation.md)。授权页和独立 RP 的真实 Chromium 闭环已验证，退出/公开内省等仍待完成，不能把下述目标全部当作已实现。协议依据初次核对：2026-10-17；授权码、刷新和撤销源码及协议复核：2026-10-18。
 
 ## 规范依据与项目策略
 
@@ -37,7 +37,7 @@
 - discovery 的 issuer 是稳定配置，JWKS 只公开公钥；不得从 Host 头动态拼装可信 issuer。依据见 Discovery 规范。
 - token 响应与 Bearer 错误保留标准状态、字段和必要 header，不套业务信封。协议错误不得泄露内部栈或数据库信息。
 
-刷新令牌建议默认轮换并检测重用；轮换、旧凭据失效和新凭据创建需要原子操作，异常时处理整个令牌族。重放与合法并发的策略需测试并文档化，不能用无限宽限窗口隐藏问题。安全方向依据 RFC 9700；TTL、并发策略尚未确定。
+刷新令牌默认轮换并检测重用；轮换、旧凭据失效和新凭据创建需要原子操作，重用时处理整个令牌族。当前开发实现采用严格单次刷新、无并发宽限，时效、清理及失败语义由 [ADR-0018](decisions/0018-refresh-token-rotation.md) 唯一定义；不是已经确认的生产参数。安全方向依据 RFC 9700，生产 TTL 与并发体验仍需发布前评估。
 
 ## 账号注册、密码与恢复
 
@@ -64,6 +64,8 @@
 ## 会话、Cookie 与 CSRF
 
 中央身份会话、自有应用会话、OAuth grant、令牌族各有生命周期。Go 统一管理自有 Web 服务端会话已确认；建议 Cookie 只携带随机不透明句柄，详见 [ADR-0006](decisions/0006-web-sessions.md)。
+
+2026-10-19 用户要求自有用户中心/开发者中心也通过 OAuth/OIDC。Go RP 与普通页面接线已完成开发验证；当前实现严格区分身份 account Cookie 与用户站 portal Cookie，CSRF 不可交叉，完整契约见 [自有 RP 接入](run-first-party-oidc.md)，生命周期及开发参数见 [ADR-0019](decisions/0019-first-party-oidc.md)。管理员 RP 需独立角色/MFA，不能复用普通用户会话放行。
 
 生产 Cookie 使用 Secure、HttpOnly、适当 SameSite 与 Host-only 范围；登录和权限提升后旋转 session ID。写请求校验 CSRF 与允许 origin；SameSite 只是防护之一。GET 不执行普通业务写操作，标准退出交互单独按协议保护。
 
@@ -92,3 +94,9 @@ SSO 通过中央站点顶层跳转。授权页避免嵌入诱导点击，配置�
 审计记录行为、时间、操作者、目标、结果与关联 ID，访问受限；不记录密码、token、Cookie、验证码、MFA seed 或原始敏感请求。IP、设备和身份信息的保留期与账号注销策略一起确认。
 
 具体时效、限额、注销政策、算法及恢复权限仍为未决项，不在本轮填入假定生产值。验证要求见 [测试发布](testing-release.md)。
+
+## 2026-10-19 账号与应用实施补充
+
+资料 revision、安全版本、邮箱变更和密码恢复已实现，具体事务、参数与剩余边界由 [ADR-0020](decisions/0020-account-security-management.md) 和 [运行契约](run-account-management.md) 维护。安全变更撤销自有会话、使旧安全版本的授权码/刷新/UserInfo 失效；离线 JWT 的到期残留仍存在，不声称全站即时撤销。
+
+开发者所有者接口、仅所有者测试、版本提交和原子生效已实现，见 [ADR-0021](decisions/0021-developer-application-lifecycle.md)。后台角色/MFA 尚未实现，因此没有公开审核或平台暂停路由。个人审计当前仅有 ID、用户、动作、时间，保留 90 天；完整管理审计目标、结果和关联 ID 仍需补齐，不能据已有日志判定本文件全部约束已满足。

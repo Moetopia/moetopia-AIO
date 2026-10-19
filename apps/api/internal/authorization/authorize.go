@@ -47,11 +47,11 @@ func (p *Provider) authorizeRequest(ctx context.Context, query url.Values) (fosi
 	if err != nil || len(challenge) != 32 || query.Get("code_challenge_method") != "S256" {
 		return invalid()
 	}
-	if ar.GetRequestedScopes().Has("offline_access") {
+	if ar.GetRequestedScopes().Has("offline_access") && (!ar.GetRequestedScopes().Has("openid") || !client.GetGrantTypes().Has("refresh_token")) {
 		return ar, fosite.ErrInvalidScope
 	}
 	for _, scope := range ar.GetRequestedScopes() {
-		if !client.GetScopes().Has(scope) || !slices.Contains([]string{"openid", "profile", "email", "demo.read"}, scope) {
+		if !client.GetScopes().Has(scope) || !slices.Contains([]string{"openid", "profile", "email", "demo.read", "offline_access"}, scope) {
 			return ar, fosite.ErrInvalidScope
 		}
 	}
@@ -136,7 +136,7 @@ func (p *Provider) Authorize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{Name: p.browserCookie(), Value: token, Path: "/", HttpOnly: true, Secure: strings.HasPrefix(p.issuer, "https://"), SameSite: http.SameSiteLaxMode, MaxAge: 3600})
-	http.Redirect(w, r, p.issuer+"/?"+url.Values{"authorization_request": {id}}.Encode(), http.StatusSeeOther)
+	http.Redirect(w, r, p.issuer+"/auth/authorize?"+url.Values{"authorization_request": {id}}.Encode(), http.StatusSeeOther)
 }
 
 func loginRequired(query url.Values, created, authenticated time.Time) bool {

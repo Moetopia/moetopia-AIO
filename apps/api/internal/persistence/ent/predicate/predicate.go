@@ -6,11 +6,23 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// AccountChallenge is the predicate function for accountchallenge builders.
+type AccountChallenge func(*sql.Selector)
+
 // AccountUser is the predicate function for accountuser builders.
 type AccountUser func(*sql.Selector)
 
+// ApplicationVersion is the predicate function for applicationversion builders.
+type ApplicationVersion func(*sql.Selector)
+
+// AuthorizationGrant is the predicate function for authorizationgrant builders.
+type AuthorizationGrant func(*sql.Selector)
+
 // AuthorizationInteraction is the predicate function for authorizationinteraction builders.
 type AuthorizationInteraction func(*sql.Selector)
+
+// DeveloperApplication is the predicate function for developerapplication builders.
+type DeveloperApplication func(*sql.Selector)
 
 // EmailDelivery is the predicate function for emaildelivery builders.
 type EmailDelivery func(*sql.Selector)
@@ -27,8 +39,14 @@ type OAuthClient func(*sql.Selector)
 // ProtocolSession is the predicate function for protocolsession builders.
 type ProtocolSession func(*sql.Selector)
 
+// RPLogin is the predicate function for rplogin builders.
+type RPLogin func(*sql.Selector)
+
 // RegistrationPolicy is the predicate function for registrationpolicy builders.
 type RegistrationPolicy func(*sql.Selector)
+
+// SecurityEvent is the predicate function for securityevent builders.
+type SecurityEvent func(*sql.Selector)
 
 // SigningKey is the predicate function for signingkey builders.
 type SigningKey func(*sql.Selector)

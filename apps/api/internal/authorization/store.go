@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -13,18 +14,26 @@ import (
 	"github.com/ory/fosite/handler/oauth2"
 	"moetopia.local/aio/api/internal/cryptobox"
 	"moetopia.local/aio/api/internal/persistence/ent"
+	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 )
 
 type Store struct {
-	client *ent.Client
-	box    *cryptobox.Box
+	client   *ent.Client
+	box      *cryptobox.Box
+	strategy oauth2.CoreStrategy
 }
 
 func NewStore(client *ent.Client, box *cryptobox.Box) *Store { return &Store{client: client, box: box} }
 
 func (s *Store) GetClient(ctx context.Context, id string) (fosite.Client, error) {
-	row, err := s.database(ctx).OAuthClient.Get(ctx, id)
+	query := s.database(ctx).OAuthClient.Query().Where(oauthclient.ID(id))
+	if state, ok := ctx.Value(transactionKey{}).(transaction); ok && !*state.clientRead {
+		// Pin the incoming client's configuration before grant locks; foreign snapshots must not invert this order.
+		*state.clientRead = true
+		query.ForShare()
+	}
+	row, err := query.Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, fosite.ErrNotFound
 	}
@@ -66,6 +75,11 @@ func (s *Store) CreateAccessTokenSession(ctx context.Context, signature string, 
 }
 
 func (s *Store) save(ctx context.Context, kind, signature string, request fosite.Requester, tokenType fosite.TokenType) error {
+	if kind == "code" || kind == "access" {
+		if err := s.ensureGrant(ctx, request, tokenType); err != nil {
+			return err
+		}
+	}
 	session, err := json.Marshal(request.GetSession())
 	if err != nil {
 		return err
@@ -96,11 +110,6 @@ func (s *Store) GetAccessTokenSession(ctx context.Context, signature string, ses
 func (s *Store) load(ctx context.Context, kind, signature string, session fosite.Session) (fosite.Requester, error) {
 	id := signatureID(kind, signature)
 	query := s.database(ctx).ProtocolSession.Query().Where(protocolsession.ID(id))
-	if kind == "code" {
-		if _, ok := ctx.Value(transactionKey{}).(transaction); ok {
-			query.ForUpdate()
-		}
-	}
 	row, err := query.Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, fosite.ErrNotFound
@@ -108,8 +117,16 @@ func (s *Store) load(ctx context.Context, kind, signature string, session fosite
 	if err != nil {
 		return nil, err
 	}
-	if kind != "code" && row.Revoked || !row.Revoked && !time.Now().Before(row.ExpiresAt) {
-		return nil, fosite.ErrInactiveToken
+	grant, err := s.grant(ctx, row.RequestID)
+	if err != nil {
+		return nil, err
+	}
+	row, err = query.Only(ctx)
+	if ent.IsNotFound(err) {
+		return nil, fosite.ErrNotFound
+	}
+	if err != nil {
+		return nil, err
 	}
 	plaintext, err := s.box.Open(row.Payload, "protocol:"+id)
 	if err != nil {
@@ -119,6 +136,9 @@ func (s *Store) load(ctx context.Context, kind, signature string, session fosite
 	if err := json.Unmarshal(plaintext, &snapshot); err != nil {
 		return nil, err
 	}
+	if session == nil {
+		session = newSession("")
+	}
 	if err := json.Unmarshal(snapshot.Session, session); err != nil {
 		return nil, err
 	}
@@ -127,10 +147,60 @@ func (s *Store) load(ctx context.Context, kind, signature string, session fosite
 		return nil, err
 	}
 	request := &fosite.Request{ID: snapshot.ID, RequestedAt: snapshot.RequestedAt, Client: client, GrantedScope: snapshot.Scopes, RequestedScope: snapshot.RequestedScopes, GrantedAudience: snapshot.Audience, RequestedAudience: snapshot.RequestedAudience, Form: snapshot.Form, Session: session}
+	if kind == "code" || kind == "refresh" {
+		if incoming, ok := ctx.Value(fosite.AccessRequestContextKey).(fosite.AccessRequester); ok {
+			if incoming.GetClient().GetID() != client.GetID() || !s.authentic(ctx, kind, request, incoming.GetRequestForm().Get(map[string]string{"code": "code", "refresh": "refresh_token"}[kind])) {
+				return nil, fosite.ErrNotFound
+			}
+		}
+	}
+	if raw, ok := ctx.Value(fosite.RequestContextKey).(*http.Request); ok && raw.URL.Path == "/oauth/revoke" && raw.PostForm.Get("token") != "" {
+		if !s.authentic(ctx, kind, request, raw.PostForm.Get("token")) {
+			return nil, fosite.ErrNotFound
+		}
+		if kind == "refresh" && !grant.Revoked && time.Now().Before(grant.ExpiresAt) {
+			return request, nil
+		}
+	}
+	if grant.Revoked || !time.Now().Before(grant.ExpiresAt) {
+		if kind == "code" {
+			return nil, fosite.ErrNotFound
+		}
+		if kind == "refresh" && !grant.Revoked {
+			return nil, fosite.ErrNotFound
+		}
+		return request, fosite.ErrInactiveToken
+	}
 	if kind == "code" && row.Revoked {
 		return request, fosite.ErrInvalidatedAuthorizeCode
 	}
+	if row.Revoked {
+		return request, fosite.ErrInactiveToken
+	}
+	if !time.Now().Before(row.ExpiresAt) {
+		return nil, fosite.ErrNotFound
+	}
 	return request, nil
+}
+
+func (s *Store) authentic(ctx context.Context, kind string, request fosite.Requester, raw string) bool {
+	if s.strategy == nil {
+		return false
+	}
+	probe := request.Sanitize([]string{})
+	probe.SetSession(request.GetSession().Clone())
+	// Spent credentials still need signature verification before revoking their family.
+	switch kind {
+	case "code":
+		probe.GetSession().SetExpiresAt(fosite.AuthorizeCode, time.Now().Add(time.Minute))
+		return s.strategy.ValidateAuthorizeCode(ctx, probe, raw) == nil
+	case "refresh":
+		probe.GetSession().SetExpiresAt(fosite.RefreshToken, time.Now().Add(time.Minute))
+		return s.strategy.ValidateRefreshToken(ctx, probe, raw) == nil
+	case "access":
+		return s.strategy.ValidateAccessToken(ctx, probe, raw) == nil
+	}
+	return false
 }
 
 func (s *Store) DeleteAccessTokenSession(ctx context.Context, signature string) error {

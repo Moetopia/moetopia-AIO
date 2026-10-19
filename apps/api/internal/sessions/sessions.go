@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"time"
 
+	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/persistence/ent"
 	"moetopia.local/aio/api/internal/persistence/ent/websession"
 )
@@ -25,10 +26,12 @@ type Session struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 type Service struct {
-	db     *ent.Client
-	key    []byte
-	origin string
-	secure bool
+	db          *ent.Client
+	key         []byte
+	origin      string
+	secure      bool
+	application string
+	lifetime    time.Duration
 }
 
 func New(db *ent.Client, encodedKey, origin string, secure bool) (*Service, error) {
@@ -36,9 +39,23 @@ func New(db *ent.Client, encodedKey, origin string, secure bool) (*Service, erro
 	if err != nil || len(key) != 32 || origin == "" {
 		return nil, errors.New("invalid session configuration")
 	}
-	return &Service{db, key, origin, secure}, nil
+	return &Service{db: db, key: key, origin: origin, secure: secure, application: "account", lifetime: 7 * 24 * time.Hour}, nil
+}
+func NewPortal(db *ent.Client, encodedKey, origin string, secure bool) (*Service, error) {
+	service, err := New(db, encodedKey, origin, secure)
+	if err != nil {
+		return nil, err
+	}
+	service.application, service.lifetime = "user-site", 8*time.Hour
+	return service, nil
 }
 func (s *Service) CookieName() string {
+	if s.application == "user-site" {
+		if s.secure {
+			return "__Host-moetopia_portal"
+		}
+		return "moetopia_portal"
+	}
 	if s.secure {
 		return "__Host-moetopia_account"
 	}
@@ -60,11 +77,11 @@ func digest(value string) string {
 	return hex.EncodeToString(sum[:])
 }
 func (s *Service) Cookie(token string) http.Cookie {
-	return http.Cookie{Name: s.CookieName(), Value: token, Path: "/", HttpOnly: true, Secure: s.secure, SameSite: http.SameSiteLaxMode, MaxAge: 7 * 24 * 60 * 60}
+	return http.Cookie{Name: s.CookieName(), Value: token, Path: "/", HttpOnly: true, Secure: s.secure, SameSite: http.SameSiteLaxMode, MaxAge: int(s.lifetime.Seconds())}
 }
 func (s *Service) CSRF(token string) string {
 	mac := hmac.New(sha256.New, s.key)
-	_, _ = mac.Write([]byte("moetopia:account:csrf:v1:" + token))
+	_, _ = mac.Write([]byte("moetopia:" + s.application + ":csrf:v1:" + token))
 	return base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 }
 func (s *Service) Protect(token, origin, csrf string) bool {
@@ -74,7 +91,7 @@ func (s *Service) Find(ctx context.Context, token string) (Session, error) {
 	if !ValidToken(token) {
 		return Session{}, ErrMissing
 	}
-	value, err := s.db.WebSession.Query().Where(websession.IDEQ(digest(token)), websession.ApplicationEQ("account"), websession.ExpiresAtGT(time.Now())).Only(ctx)
+	value, err := s.db.WebSession.Query().Where(websession.IDEQ(digest(token)), websession.ApplicationEQ(s.application), websession.ExpiresAtGT(time.Now())).Only(ctx)
 	if ent.IsNotFound(err) {
 		return Session{}, ErrMissing
 	}
@@ -88,15 +105,16 @@ func (s *Service) Create(ctx context.Context, userID, previous string) (string, 
 	if err != nil {
 		return "", err
 	}
+	db := persistence.Client(ctx, s.db)
+	if db != s.db {
+		return s.create(ctx, db, userID, previous, token)
+	}
 	tx, err := s.db.Tx(ctx)
 	if err != nil {
 		return "", err
 	}
 	defer tx.Rollback()
-	if _, err := tx.WebSession.Delete().Where(websession.IDEQ(digest(previous)), websession.ApplicationEQ("account")).Exec(ctx); err != nil {
-		return "", err
-	}
-	if err := tx.WebSession.Create().SetID(digest(token)).SetUserID(userID).SetApplication("account").SetExpiresAt(time.Now().Add(7 * 24 * time.Hour)).Exec(ctx); err != nil {
+	if _, err := s.create(ctx, tx.Client(), userID, previous, token); err != nil {
 		return "", err
 	}
 	if err := tx.Commit(); err != nil {
@@ -104,8 +122,38 @@ func (s *Service) Create(ctx context.Context, userID, previous string) (string, 
 	}
 	return token, nil
 }
+func (s *Service) create(ctx context.Context, db *ent.Client, userID, previous, token string) (string, error) {
+	if _, err := db.WebSession.Delete().Where(websession.ID(digest(previous)), websession.Application(s.application)).Exec(ctx); err != nil {
+		return "", err
+	}
+	if err := db.WebSession.Create().SetID(digest(token)).SetUserID(userID).SetApplication(s.application).SetExpiresAt(time.Now().Add(s.lifetime)).Exec(ctx); err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+type VersionVerifier interface {
+	VerifyVersion(context.Context, string, int) error
+}
+
+func (s *Service) CreateVerified(ctx context.Context, userID, previous string, version int, verifier VersionVerifier) (string, error) {
+	tx, err := s.db.Tx(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback()
+	ctx = persistence.WithClient(ctx, tx.Client())
+	if err := verifier.VerifyVersion(ctx, userID, version); err != nil {
+		return "", err
+	}
+	token, err := s.Create(ctx, userID, previous)
+	if err != nil {
+		return "", err
+	}
+	return token, tx.Commit()
+}
 func (s *Service) List(ctx context.Context, userID string) ([]Session, error) {
-	values, err := s.db.WebSession.Query().Where(websession.UserIDEQ(userID), websession.ApplicationEQ("account"), websession.ExpiresAtGT(time.Now())).Order(ent.Desc(websession.FieldCreatedAt)).Limit(100).All(ctx)
+	values, err := s.db.WebSession.Query().Where(websession.UserIDEQ(userID), websession.ApplicationEQ(s.application), websession.ExpiresAtGT(time.Now())).Order(ent.Desc(websession.FieldCreatedAt)).Limit(100).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -116,10 +164,14 @@ func (s *Service) List(ctx context.Context, userID string) ([]Session, error) {
 	return result, nil
 }
 func (s *Service) Revoke(ctx context.Context, userID, id string) error {
-	_, err := s.db.WebSession.Delete().Where(websession.IDEQ(id), websession.UserIDEQ(userID), websession.ApplicationEQ("account")).Exec(ctx)
+	_, err := s.db.WebSession.Delete().Where(websession.IDEQ(id), websession.UserIDEQ(userID), websession.ApplicationEQ(s.application)).Exec(ctx)
 	return err
 }
 func (s *Service) Cleanup(ctx context.Context) error {
 	_, err := s.db.WebSession.Delete().Where(websession.ExpiresAtLTE(time.Now())).Exec(ctx)
+	return err
+}
+func (s *Service) RevokeUser(ctx context.Context, userID string) error {
+	_, err := persistence.Client(ctx, s.db).WebSession.Delete().Where(websession.UserID(userID)).Exec(ctx)
 	return err
 }

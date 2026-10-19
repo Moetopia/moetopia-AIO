@@ -49,7 +49,7 @@ func run() error {
 		return err
 	}
 	id := uuid.NewString()
-	_, err = db.Ent.OAuthClient.Create().SetID(id).SetName("Independent OIDC test RP").SetEnabled(true).SetPublic(true).SetRedirectUris([]string{callback}).SetGrantTypes([]string{"authorization_code"}).SetResponseTypes([]string{"code"}).SetScopes([]string{"openid", "profile", "email", "demo.read"}).SetAudiences([]string{cfg.Issuer + "/api"}).Save(ctx)
+	_, err = db.Ent.OAuthClient.Create().SetID(id).SetName("Independent OIDC test RP").SetEnabled(true).SetPublic(true).SetRedirectUris([]string{callback}).SetGrantTypes([]string{"authorization_code", "refresh_token"}).SetResponseTypes([]string{"code"}).SetScopes([]string{"openid", "profile", "email", "demo.read", "offline_access"}).SetAudiences([]string{cfg.Issuer + "/api"}).Save(ctx)
 	if err != nil {
 		return err
 	}

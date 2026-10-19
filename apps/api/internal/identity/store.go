@@ -3,20 +3,24 @@ package identity
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"moetopia.local/aio/api/internal/audit"
 	"moetopia.local/aio/api/internal/notifications"
 	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/persistence/ent"
+	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 )
 
 type Store struct {
-	db     *ent.Client
-	outbox *notifications.Outbox
+	db      *ent.Client
+	outbox  *notifications.Outbox
+	revoker SessionRevoker
 }
 type Verification struct {
 	Email     string
@@ -26,17 +30,36 @@ type Verification struct {
 	Consumed  bool
 }
 
-func NewStore(db *ent.Client, outbox *notifications.Outbox) *Store { return &Store{db, outbox} }
+type SessionRevoker interface {
+	RevokeUser(context.Context, string) error
+}
+
+func NewStore(db *ent.Client, outbox *notifications.Outbox) *Store {
+	return &Store{db: db, outbox: outbox}
+}
+func (s *Store) WithSessions(revoker SessionRevoker) *Store { s.revoker = revoker; return s }
 func (s *Store) Cleanup(ctx context.Context) error {
+	if _, err := s.db.AccountChallenge.Delete().Where(accountchallenge.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
+		return err
+	}
+	if err := audit.Cleanup(ctx, s.db); err != nil {
+		return err
+	}
 	_, err := s.db.EmailVerification.Delete().Where(emailverification.ExpiresAtLTE(time.Now())).Exec(ctx)
 	return err
 }
-func public(user *ent.AccountUser) User { return User{user.ID, user.Email, user.DisplayName} }
+func public(user *ent.AccountUser) User {
+	avatar := ""
+	if user.AvatarDigest != "" {
+		avatar = "/api/v1/avatars/" + user.ID + "?v=" + fmt.Sprint(user.Revision)
+	}
+	return User{ID: user.ID, Email: user.Email, DisplayName: user.DisplayName, Bio: user.Bio, AvatarURL: avatar, Revision: user.Revision, SecurityVersion: user.SecurityVersion}
+}
 func (s *Store) Exists(ctx context.Context, email string) (bool, error) {
 	return s.db.AccountUser.Query().Where(accountuser.EmailEQ(email)).Exist(ctx)
 }
 func (s *Store) Credentials(ctx context.Context, email string) (User, string, error) {
-	user, err := s.db.AccountUser.Query().Where(accountuser.EmailEQ(email), accountuser.EnabledEQ(true)).Only(ctx)
+	user, err := s.db.AccountUser.Query().Where(accountuser.EmailEQ(email), accountuser.EnabledEQ(true)).Select(userColumns...).Only(ctx)
 	if ent.IsNotFound(err) {
 		return User{}, "", ErrMissing
 	}
@@ -46,7 +69,7 @@ func (s *Store) Credentials(ctx context.Context, email string) (User, string, er
 	return public(user), user.PasswordHash, nil
 }
 func (s *Store) User(ctx context.Context, id string) (User, error) {
-	user, err := persistence.Client(ctx, s.db).AccountUser.Query().Where(accountuser.IDEQ(id), accountuser.EnabledEQ(true)).Only(ctx)
+	user, err := persistence.Client(ctx, s.db).AccountUser.Query().Where(accountuser.IDEQ(id), accountuser.EnabledEQ(true)).Select(userColumns...).Only(ctx)
 	if ent.IsNotFound(err) {
 		return User{}, ErrMissing
 	}

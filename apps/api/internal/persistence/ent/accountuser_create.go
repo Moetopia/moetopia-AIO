@@ -32,6 +32,68 @@ func (_c *AccountUserCreate) SetDisplayName(v string) *AccountUserCreate {
 	return _c
 }
 
+// SetBio sets the "bio" field.
+func (_c *AccountUserCreate) SetBio(v string) *AccountUserCreate {
+	_c.mutation.SetBio(v)
+	return _c
+}
+
+// SetNillableBio sets the "bio" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableBio(v *string) *AccountUserCreate {
+	if v != nil {
+		_c.SetBio(*v)
+	}
+	return _c
+}
+
+// SetAvatar sets the "avatar" field.
+func (_c *AccountUserCreate) SetAvatar(v []byte) *AccountUserCreate {
+	_c.mutation.SetAvatar(v)
+	return _c
+}
+
+// SetAvatarDigest sets the "avatar_digest" field.
+func (_c *AccountUserCreate) SetAvatarDigest(v string) *AccountUserCreate {
+	_c.mutation.SetAvatarDigest(v)
+	return _c
+}
+
+// SetNillableAvatarDigest sets the "avatar_digest" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableAvatarDigest(v *string) *AccountUserCreate {
+	if v != nil {
+		_c.SetAvatarDigest(*v)
+	}
+	return _c
+}
+
+// SetRevision sets the "revision" field.
+func (_c *AccountUserCreate) SetRevision(v int) *AccountUserCreate {
+	_c.mutation.SetRevision(v)
+	return _c
+}
+
+// SetNillableRevision sets the "revision" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableRevision(v *int) *AccountUserCreate {
+	if v != nil {
+		_c.SetRevision(*v)
+	}
+	return _c
+}
+
+// SetSecurityVersion sets the "security_version" field.
+func (_c *AccountUserCreate) SetSecurityVersion(v int) *AccountUserCreate {
+	_c.mutation.SetSecurityVersion(v)
+	return _c
+}
+
+// SetNillableSecurityVersion sets the "security_version" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableSecurityVersion(v *int) *AccountUserCreate {
+	if v != nil {
+		_c.SetSecurityVersion(*v)
+	}
+	return _c
+}
+
 // SetPasswordHash sets the "password_hash" field.
 func (_c *AccountUserCreate) SetPasswordHash(v string) *AccountUserCreate {
 	_c.mutation.SetPasswordHash(v)
@@ -113,6 +175,22 @@ func (_c *AccountUserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *AccountUserCreate) defaults() {
+	if _, ok := _c.mutation.Bio(); !ok {
+		v := accountuser.DefaultBio
+		_c.mutation.SetBio(v)
+	}
+	if _, ok := _c.mutation.AvatarDigest(); !ok {
+		v := accountuser.DefaultAvatarDigest
+		_c.mutation.SetAvatarDigest(v)
+	}
+	if _, ok := _c.mutation.Revision(); !ok {
+		v := accountuser.DefaultRevision
+		_c.mutation.SetRevision(v)
+	}
+	if _, ok := _c.mutation.SecurityVersion(); !ok {
+		v := accountuser.DefaultSecurityVersion
+		_c.mutation.SetSecurityVersion(v)
+	}
 	if _, ok := _c.mutation.Enabled(); !ok {
 		v := accountuser.DefaultEnabled
 		_c.mutation.SetEnabled(v)
@@ -135,6 +213,18 @@ func (_c *AccountUserCreate) check() error {
 		if err := accountuser.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "AccountUser.display_name": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.Bio(); !ok {
+		return &ValidationError{Name: "bio", err: errors.New(`ent: missing required field "AccountUser.bio"`)}
+	}
+	if _, ok := _c.mutation.AvatarDigest(); !ok {
+		return &ValidationError{Name: "avatar_digest", err: errors.New(`ent: missing required field "AccountUser.avatar_digest"`)}
+	}
+	if _, ok := _c.mutation.Revision(); !ok {
+		return &ValidationError{Name: "revision", err: errors.New(`ent: missing required field "AccountUser.revision"`)}
+	}
+	if _, ok := _c.mutation.SecurityVersion(); !ok {
+		return &ValidationError{Name: "security_version", err: errors.New(`ent: missing required field "AccountUser.security_version"`)}
 	}
 	if _, ok := _c.mutation.PasswordHash(); !ok {
 		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "AccountUser.password_hash"`)}
@@ -196,6 +286,26 @@ func (_c *AccountUserCreate) createSpec() (*AccountUser, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DisplayName(); ok {
 		_spec.SetField(accountuser.FieldDisplayName, field.TypeString, value)
 		_node.DisplayName = value
+	}
+	if value, ok := _c.mutation.Bio(); ok {
+		_spec.SetField(accountuser.FieldBio, field.TypeString, value)
+		_node.Bio = value
+	}
+	if value, ok := _c.mutation.Avatar(); ok {
+		_spec.SetField(accountuser.FieldAvatar, field.TypeBytes, value)
+		_node.Avatar = value
+	}
+	if value, ok := _c.mutation.AvatarDigest(); ok {
+		_spec.SetField(accountuser.FieldAvatarDigest, field.TypeString, value)
+		_node.AvatarDigest = value
+	}
+	if value, ok := _c.mutation.Revision(); ok {
+		_spec.SetField(accountuser.FieldRevision, field.TypeInt, value)
+		_node.Revision = value
+	}
+	if value, ok := _c.mutation.SecurityVersion(); ok {
+		_spec.SetField(accountuser.FieldSecurityVersion, field.TypeInt, value)
+		_node.SecurityVersion = value
 	}
 	if value, ok := _c.mutation.PasswordHash(); ok {
 		_spec.SetField(accountuser.FieldPasswordHash, field.TypeString, value)

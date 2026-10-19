@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"log/slog"
-	"moetopia.local/aio/api/internal/authorization"
 	"time"
 
+	"moetopia.local/aio/api/internal/authorization"
 	"moetopia.local/aio/api/internal/identity"
 	"moetopia.local/aio/api/internal/notifications"
+	"moetopia.local/aio/api/internal/relyingparty"
 	"moetopia.local/aio/api/internal/sessions"
 )
 
-func runWorkers(ctx context.Context, outbox *notifications.Outbox, accounts *identity.Service, web *sessions.Service, protocol *authorization.Provider) {
+func runWorkers(ctx context.Context, outbox *notifications.Outbox, accounts *identity.Service, web *sessions.Service, protocol *authorization.Provider, portal *relyingparty.Service) {
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	var lastCleanup time.Time
@@ -27,7 +28,7 @@ func runWorkers(ctx context.Context, outbox *notifications.Outbox, accounts *ide
 				continue
 			}
 			lastCleanup = now
-			for _, cleanup := range []func(context.Context) error{accounts.Cleanup, web.Cleanup, protocol.Cleanup} {
+			for _, cleanup := range []func(context.Context) error{accounts.Cleanup, web.Cleanup, protocol.Cleanup, portal.Cleanup} {
 				if err := cleanup(ctx); err != nil && ctx.Err() == nil {
 					slog.Error("expired account state cleanup failed")
 				}

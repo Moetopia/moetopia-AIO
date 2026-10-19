@@ -1,10 +1,10 @@
 # OAuth/OIDC 后端接入与验证
 
-更新时间：2026-10-18。本文件描述已实现后端；前端授权页由另一对话接入，不能据此认为浏览器端完整登录已可用。参数与事务决定见 [ADR-0015](decisions/0015-authorization-code-oidc.md)，跨对话交接见 [后端状态](coordination/backend.md)。
+更新时间：2026-10-18。本文件描述已实现后端；前端授权页已接入，并完成 [独立 RP 的真实浏览器验证](oidc-interop.md)，包括刷新轮换与 RFC 7009 撤销。RP 退出及公开内省仍未实现。参数与事务决定见 [ADR-0015](decisions/0015-authorization-code-oidc.md) 和 [ADR-0018](decisions/0018-refresh-token-rotation.md)，跨对话交接见 [后端状态](coordination/backend.md)。
 
 ## 运行前置条件
 
-沿用既有 Windows Go/Node/pnpm、`.env` 和 Ubuntu 专属依赖；不重复生成密钥或初始化数据库。迁移 3 新增 authorization.interactions，无其他 schema 修改，不改写迁移 1/2。API 的 readyz 现在要求该表存在。
+沿用既有 Windows Go/Node/pnpm、`.env` 和 Ubuntu 专属依赖；不重复生成密钥或初始化数据库。迁移 3 新增 authorization.interactions；迁移 4 新增 authorization.grants 并关联旧协议记录，不改写迁移 1/2/3。API readyz 要求上述表存在。专属 Ubuntu 开发库已实际应用迁移 4；其他工作区按自己的目标库确认。
 
 在仓库根目录 PowerShell：
 
@@ -13,7 +13,7 @@ pnpm api:migrate
 pnpm dev
 ```
 
-若已有本项目 `pnpm dev`，只执行迁移并等待 API 自动重建；不要启动第二份或结束其他对话的进程。`pnpm api:migrate` 使用 `.env` 的实际目标，执行前应确认是本项目开发库；不能将上述操作套到其他项目。日常账号创建见 [开发预览](live-development.md)。
+若已有本项目 `pnpm dev`，不要启动第二份或结束其他对话的进程；API 若因缺迁移退出，迁移成功后在 TUI 选 api 按 r。`pnpm api:migrate` 使用 `.env` 的实际目标，执行前应确认是本项目开发库；不能将上述操作套到其他项目。日常账号创建见 [开发预览](live-development.md)。
 
 ## 已实现协议路径
 
@@ -22,16 +22,25 @@ pnpm dev
 | GET `/.well-known/openid-configuration` | 固定 issuer 的真实元数据，仅声明已实现流程 |
 | GET `/oauth/jwks` | RS256 公钥 |
 | GET `/oauth/authorize` | Authorization Code + PKCE S256，创建授权交互并跳回 account |
-| POST `/oauth/token` | form 编码；authorization_code 和 client_credentials |
+| POST `/oauth/token` | form 编码；authorization_code、refresh_token 和 client_credentials |
+| POST `/oauth/revoke` | form 编码；客户端认证及整族撤销，成功为空 200 |
 | GET `/oauth/userinfo` | Authorization Bearer；要求 openid；返回 sub 和获准资料 |
 
 issuer 来自配置，不从 Host 或代理头推导。Nuxt 需将 Discovery 转发到固定 Go 上游；现有 `/oauth/**` 转发也需保留。标准 OAuth/OIDC 应由 RP 使用标准客户端实现 state、PKCE、nonce 和 ID Token 验证，不把浏览器账号 Cookie 送给第三方。
 
-本阶段没有 refresh_token、公开 revoke/introspect、RP 退出、动态注册或已记忆同意。openid 必须带 nonce；授权码请求必须有精确 redirect_uri、PKCE S256 和单一允许 audience（仅有一个注册 audience 时可省略）。project 当前只接受 code/query，支持单值 prompt=login/consent，prompt=none 返回 interaction_required；max_age=0 要求本次授权之后重新登录。
+本阶段没有公开 introspect、RP 退出、动态注册或已记忆同意。openid 必须带 nonce；授权码请求必须有精确 redirect_uri、PKCE S256 和单一允许 audience（仅有一个注册 audience 时可省略）。项目当前只接受 code/query，支持单值 prompt=login/consent，prompt=none 返回 interaction_required；max_age=0 要求本次授权之后重新登录。
+
+## 刷新与撤销
+
+客户端注册需允许 refresh_token grant 和 offline_access scope，授权时请求 openid/offline_access 并明确取得同意。只有该路径签发刷新令牌；默认公开客户端和普通登录不会因此自动获得长期权限。刷新请求为 `POST /oauth/token`，form 包含 grant_type=refresh_token、refresh_token 及对应客户端认证；公开客户端提交 client_id。成功使用标准 token 响应返回轮换后的 refresh_token。scope/audience 省略时沿用原授权，也可明确传入相同值；当前拒绝 scope 缩减和 audience 更换。
+
+刷新必须串行，收到成功响应后原子替换凭据。旧令牌重用会撤销整个族，包括并发刷新中先成功的请求；没有重试宽限。普通刷新不主动撤销旧 access token；重用/协议撤销时，UserInfo 在线检查立即失效，下游离线 JWT 仍有剩余有效期窗口。开发时效与绝对期限仅在 [ADR-0018](decisions/0018-refresh-token-rotation.md) 定义，不当作生产批准值。
+
+撤销请求为 `POST /oauth/revoke`，form 包含 token、可选 token_type_hint，以及客户端认证；可使用 HTTP Basic、client_secret_post 或公开客户端 client_id。有效、重复、未知或其他客户端所属 token 返回空 200；有效的本客户端 access/refresh（包括已消费 refresh）撤销整个族。认证失败是协议 invalid_client；存储故障为 temporarily_unavailable。成功撤销不结束自有用户站 Cookie 会话，也不代表已交付用户授权管理页。
 
 ## 给前端的业务接口
 
-入口跳到固定账号首页 `/?authorization_request=<43字符随机句柄>`。前端要跨登录保留这个句柄，但不能自动批准。详情和决定均依赖独立 HttpOnly 授权 Cookie；不得自己读取或生成 Cookie。
+入口跳到固定账号授权页 `/auth/authorize?authorization_request=<43字符随机句柄>`；旧首页事务入口由前端保留兼容。前端要跨身份登录保留这个句柄，但不能自动批准。详情和决定均依赖独立 HttpOnly 授权 Cookie；不得自己读取或生成 Cookie。用户站自身作为 RP 的登录与独立会话接线见 [自有 RP](run-first-party-oidc.md)，不能让授权页进入 RP 登录循环。
 
 `GET /api/v1/account/authorizations/{id}`：
 
@@ -69,6 +78,12 @@ node --env-file=.env scripts/dev-oauth-client.mjs -redirect-uri http://localhost
 
 CLI 只允许 development、moetopia_dev 数据库、55432 端口；创建一个启用的公开客户端，无 secret，仅 authorization_code、openid/profile/email/demo.read、单一 `<issuer>/api` audience。输出公开 client_id、redirect_uri、issuer、audience。每次执行创建新客户端，不要反复运行冒充幂等更新；此入口不代表正式开发者审核机制。
 
+需要测试刷新时显式加入 `-offline-access`，使该新客户端允许 refresh_token 和 offline_access；RP 也必须在授权时请求该 scope。本命令不修改旧客户端，也不创建预设测试账号：
+
+```powershell
+node --env-file=.env scripts/dev-oauth-client.mjs -redirect-uri http://localhost:53110/callback -offline-access
+```
+
 ## 验证范围
 
 ```powershell
@@ -79,3 +94,5 @@ pnpm api:check:client
 ```
 
 集成运行器创建独立随机测试库，完成迁移、协议与账号测试后清理，不拿开发库当测试库。后端测试不代替 Nuxt 代理、授权页操作、第三方 RP 浏览器互操作或生产负载验收。
+
+真实代理与独立客户端使用 `pnpm test:oidc`，当前已通过；专属端口、临时构建、邮件及数据清理要求见 [独立客户端验证](oidc-interop.md)。协议代理必须保留上游重定向，由浏览器处理 303 与 Set-Cookie，不能在 Nuxt 服务端自动跟随。

@@ -26,6 +26,8 @@
     "api:migrate": "node --env-file=.env scripts/api.mjs migrate",
     "api:keys:init": "node --env-file=.env scripts/api.mjs keys-init",
     "dev:invite": "node --env-file=.env scripts/api.mjs dev-invite",
+    "api:first-party:init": "node --env-file=.env scripts/api.mjs first-party-init",
+    "api:grants:backfill": "node --env-file=.env scripts/api.mjs grants-backfill",
     "test:integration": "node --env-file=.env scripts/integration.mjs",
     "test:browser": "playwright test",
     "test:ui": "playwright test --config playwright.ui.config.ts",

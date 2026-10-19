@@ -46,7 +46,29 @@ func TestPersistentClientCredentialsAndRestart(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if _, err := provider.UpTo(ctx, 3); err != nil {
+		t.Fatal(err)
+	}
+	legacyExpiry := time.Now().Add(3 * time.Minute).UTC().Truncate(time.Microsecond)
+	_, err = db.Ent.ProtocolSession.Create().SetID("migration-legacy-code").SetKind("code").SetRequestID("migration-legacy-grant").SetClientID("migration-legacy-client").SetPayload([]byte("synthetic-migration-fixture")).SetExpiresAt(legacyExpiry).SetRevoked(true).Save(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if _, err := provider.Up(ctx); err != nil {
+		t.Fatal(err)
+	}
+	legacyGrant, err := db.Ent.AuthorizationGrant.Get(ctx, "migration-legacy-grant")
+	if err != nil || !legacyGrant.ExpiresAt.Equal(legacyExpiry.Add(10*time.Minute)) {
+		t.Fatal("migration did not preserve the legacy grant expiry")
+	}
+	legacyCode, err := db.Ent.ProtocolSession.Get(ctx, "migration-legacy-code")
+	if err != nil || !legacyCode.Revoked {
+		t.Fatal("migration reactivated a consumed authorization code")
+	}
+	if err := db.Ent.ProtocolSession.DeleteOneID("migration-legacy-code").Exec(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Ent.AuthorizationGrant.DeleteOneID("migration-legacy-grant").Exec(ctx); err != nil {
 		t.Fatal(err)
 	}
 	if err := db.Ready(ctx); err != nil {
@@ -155,4 +177,6 @@ func TestPersistentClientCredentialsAndRestart(t *testing.T) {
 		}
 	}
 	t.Run("authorization_code_oidc", func(t *testing.T) { testCodeFlow(t, db, box, key, encoded) })
+	t.Run("refresh_rotation_and_revocation", func(t *testing.T) { testRefreshFlow(t, db, box, key, encoded) })
+	t.Run("user_grants_and_security_versions", func(t *testing.T) { testUserGrants(t, db, box, key, encoded) })
 }
