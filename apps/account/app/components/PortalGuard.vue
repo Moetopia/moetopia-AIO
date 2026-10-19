@@ -11,10 +11,12 @@ watch([() => props.required, () => route.path, loading, busy], () => {
 }, { immediate: true })
 </script>
 <template>
-  <slot v-if="!required || authenticated" />
-  <div v-else class="moe-access-state">
-    <MoeAlert v-if="feedback" :title="text[feedback]" color="danger" announce><template #actions><MoeButton variant="bordered" :loading="loading" @click="connect">{{ text.retry }}</MoeButton></template></MoeAlert>
-    <MoeSpinner v-else :label="text.checking" />
-    <MoeButton v-if="!loading && !feedback" :loading="navigating" @click="startLogin()">{{ text.login }}</MoeButton>
+  <div>
+    <slot v-if="!required || authenticated" />
+    <div v-else class="moe-access-state">
+      <MoeAlert v-if="feedback" :title="text[feedback]" color="danger" announce><template #actions><MoeButton variant="bordered" :loading="loading" @click="connect">{{ text.retry }}</MoeButton></template></MoeAlert>
+      <MoeSpinner v-else :label="text.checking" />
+      <MoeButton v-if="!loading && !feedback" :loading="navigating" @click="startLogin()">{{ text.login }}</MoeButton>
+    </div>
   </div>
 </template>

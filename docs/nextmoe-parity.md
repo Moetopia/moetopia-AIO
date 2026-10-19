@@ -14,6 +14,11 @@
 | developer/components/login/Modal.vue | DeveloperLogin | 顶栏登录打开弹窗、跳转 Go 登录启动入口；注册返回路径受控，登录守卫使用 RP 上下文 |
 | developer/components/layout/AccountMenu.vue、layouts/dashboard.vue | AccountNavigation、ConsoleLayout | 顶栏头像菜单，侧栏账号/退出；页面跳转保留上下文；移动抽屉选择后关闭 |
 | account/components/profile/Container.vue、Info.vue | `/profile` | 64px 顶栏、1024px 容器、304px 摘要列、24px 间距、分区表单；数据来自 RP，而非身份 Cookie |
+| profile/Edit.vue、EmailChange.vue、PasswordChange.vue | ProfileEditor、AccountCredentials | 接入资料/头像版本更新、邮箱挑战与确认、改密；冲突重读、密码错误不重试，安全变更后回到身份登录 |
+| auth/forgot-password、reset-password | RecoveryPanel | 身份 CSRF 专用恢复挑战、验证码与新密码；统一提示，不根据响应断言账号存在或邮件已发送，不自动登录 |
+| dashboard/CreateAppModal.vue、apps/Detail.vue、EditModal.vue、UserLoginModal.vue | `/developer/applications`、`/[id]` | 真实分页列表、创建弹窗、配置弹窗、应用详情、草稿与当前批准版本、提交/待审状态、停启/删除确认；使用本项目 UUID 与 revision |
+| keys/RevealModal.vue 与轮换确认交互 | ApplicationSecret、应用详情凭据区 | confidential 创建/轮换密钥只保留于组件内存，关闭即清空；public 无密钥；遵循后端立即失效策略，不照搬参考 API key 的宽限期 |
+| 账号安全入口（本项目扩展） | `/security` | 授权族分页、逐条确认撤销、最近安全事件；不把同一应用的多次授权合并，不虚构统计 |
 | Web 会话操作（本项目额外入口） | `/sessions` | PortalSessions 列表、加载/失败区分、撤销前确认、当前会话撤销后重新登录；只用 portal CSRF |
 | account/components/auth/logout/Container.vue | `/auth/logout` | 用户站退出后显示完成状态；与参考中央退出语义不同，明确告知身份会话保留，不谎称全站退出 |
 | developer/components/landing/Container.vue | `/developer` | 双栏首页、状态标签、主次入口、示例代码面板、三列接入信息；不展示参考作品/目录统计 |
@@ -27,15 +32,9 @@
 
 | 参考功能 | 当前 UI | 后端需要提供的能力 |
 | --- | --- | --- |
-| profile/Edit.vue | 头像入口、昵称与简介、保存区；读真实昵称，其余禁用 | 资料字段、更新/头像上传契约及并发校验；不能直接套用参考项目 17/107 字限制 |
-| profile/EmailChange.vue | 当前邮箱、新邮箱与验证码操作位置 | 新邮箱验证、旧凭据重新验证、邮箱冲突/速率限制与会话影响 |
-| profile/PasswordChange.vue | 当前/新/确认密码、忘记密码入口 | 密码修改、强制重新认证、其他会话处理与审计 |
-| auth/forgot-password、reset-password | 页面与返回导航；禁用收集/提交恢复信息 | 恢复事务、统一对外响应、邮件/验证码、过期与消费；不要复用注册验证码 |
 | profile/DeleteAccount.vue | 独立危险区、禁用提交 | 注销确认、凭据验证、冷静期与清理状态 |
-| dashboard/CreateAppModal.vue | 控制台两处入口打开同一创建弹窗、草稿字段、取消/关闭；最终提交明确禁用 | 应用列表、创建、详情、所有权、注册策略/配额及结构化错误 |
-| dashboard/apps/Detail、EditModal、UserLoginModal | 尚无真实应用，不能伪造详情或凭据 | 配置详情与版本、回调/scope 修改、提交/拒绝/重新审核、批准版本继续生效、停用/删除 |
-| keys/MintModal、RevealModal、Table | 尚未建立应用凭据页面 | 凭据类别、一次性展示、轮换/撤销；不能把参考开放 API key 直接当 OAuth client secret |
-| dashboard/usage 与账号授权管理 | 无虚构统计或授权列表 | 授权清单/撤销与可用统计接口；无数据与故障必须可区分 |
+| dashboard/apps 审核与扩展管理 | 所有者提交后展示真实 pending；已批准配置独立展示 | 管理员审核 HTTP 入口、测试成员、历史版本、管理员暂停与通知 |
+| dashboard/usage 与 keys/Table | 没有虚构统计或多 API key 列表 | 使用量统计及独立 API key 产品契约；当前 OAuth client secret 不冒充可铸造的多个 key |
 | admin/users、oauth-clients、permission、settings、devapi | admin 壳保留，不能靠用户站 RP 放行 | 管理员 RP、角色/MFA/恢复、用户检索/封禁、应用审核、邀请与审计 |
 
 ## 不复制的参考业务
@@ -49,3 +48,5 @@ GitHub/Google 联邦登录仍缺服务端提供者契约；参考 FederationButt
 每轮主动检查本表和参考源码，先完成全部可接的前端工作，再集中交接缺失后端契约。新增可复用结构直接进入 UI 并补 Storybook；不能让用户继续逐项指出重复布局、缺失按钮或未接接口。Go 交接更新后主动替换对应禁用状态并验证真实流程。
 
 本表是差异清单，不是用户已完成 1:1 视觉验收的证明。配色、多语言、无立绘和用户要求的第一方 RP 路径是明确保留差异；没有运行参考站截图做逐像素比对。测试与本轮事实见 [前端协调记录](coordination/frontend.md)，既有尺寸对照见 [布局复核](ui-layout-audit.md)。
+
+开发者首页、文档和控制台使用三个独立 Nuxt layout，避免在页面离场动画期间替换承载 NuxtPage 的父容器。页面与布局动画和加载进度条继续保留；新增页面不能通过动态换壳重新引入不稳定的过渡挂载点。

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoeAlert, MoeBadge, MoeButton, MoeIcon, MoeCard, MoeEmptyState, MoeLink, MoePageHeading, MoeLandingLayout, MoeCodeBlock, MoeFeatureGrid } from '@moetopia/ui'
+import { MoeAlert, MoeBadge, MoeButton, MoeIcon, MoeLink, MoePageHeading, MoeLandingLayout, MoeCodeBlock, MoeFeatureGrid } from '@moetopia/ui'
 import { accountMessages, portalMessages } from '@moetopia/locales'
 defineProps<{ section: 'overview' | 'applications' }>()
 const { locale } = usePortalPreferences()
@@ -7,6 +7,7 @@ const text = computed(() => portalMessages[locale.value])
 const accountText = computed(() => accountMessages[locale.value])
 const { feedback } = usePortalContext()
 const createOpen = ref(false)
+const applications = ref<{ created: (app: import('@moetopia/api-client').DeveloperApplication) => void }>()
 const code = 'GET /.well-known/openid-configuration\n\nresponse_type=code\nscope=openid profile email\ncode_challenge_method=S256'
 </script>
 <template>
@@ -20,9 +21,9 @@ const code = 'GET /.well-known/openid-configuration\n\nresponse_type=code\nscope
     </MoeLandingLayout>
     <template v-else>
       <MoePageHeading :title="text.myApps" :description="text.myAppsDescription"><template #actions><MoeButton @click="createOpen = true"><MoeIcon name="plus" />{{ text.createApplication }}</MoeButton></template></MoePageHeading>
-      <MoeCard class="moe-console-empty" padding="none"><MoeEmptyState :title="text.appsEmpty" :description="text.appsEmptyDescription" icon="grid"><MoeButton @click="createOpen = true"><MoeIcon name="plus" />{{ text.createApplication }}</MoeButton></MoeEmptyState></MoeCard>
+      <ApplicationList ref="applications"><MoeButton @click="createOpen = true"><MoeIcon name="plus" />{{ text.createApplication }}</MoeButton></ApplicationList>
       <MoeAlert v-if="feedback" :title="accountText[feedback]" color="danger" announce />
-      <ApplicationCreate v-model:open="createOpen" />
+      <ApplicationCreate v-model:open="createOpen" @created="applications?.created($event)" />
     </template>
   </div>
 </template>

@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 
 export default defineConfig({
   testDir: './tests/oidc', workers: 1, timeout: 90000, reporter: 'line',
+  testMatch: process.env.MOETOPIA_TEST_OIDC_SUITE === 'management' ? 'management.spec.ts' : 'interop.spec.ts',
   outputDir: resolve(process.env.MOETOPIA_TEST_OIDC_DIRECTORY ?? '.data/oidc-playwright', 'playwright'), preserveOutput: 'never',
   use: { browserName: 'chromium', baseURL: 'http://127.0.0.1:54305', trace: 'off', screenshot: 'off', video: 'off' },
   webServer: [

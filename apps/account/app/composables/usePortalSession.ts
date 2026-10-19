@@ -3,7 +3,7 @@ import type { PortalContext, PortalSessions } from '@moetopia/api-client'
 import type { Locale, accountMessages } from '@moetopia/locales'
 
 const destinations = new Set(['/profile', '/sessions', '/security', '/developer', '/developer/applications', '/developer/docs'])
-export const portalLoginURL = (destination: string) => `/api/v1/portal/login?return_to=${encodeURIComponent(destinations.has(destination) ? destination : '/profile')}`
+export const portalLoginURL = (destination: string) => `/api/v1/portal/login?return_to=${encodeURIComponent(destinations.has(destination) ? destination : destination.startsWith('/developer/applications/') ? '/developer/applications' : '/profile')}`
 
 export const usePortalSession = (locale: Ref<Locale>) => {
   const route = useRoute()

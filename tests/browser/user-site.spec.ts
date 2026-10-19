@@ -46,27 +46,27 @@ test('developer login opens a modal and starts OAuth with a fixed destination', 
   await expect(page).toHaveURL(`${origin}/api/v1/portal/login?return_to=%2Fdeveloper%2Fapplications`)
 })
 
-test('application creation opens the reference form without faking a successful API', async ({ page }) => {
+test('application creation opens the complete reference form', async ({ page }) => {
   await mockPortal(page)
   await page.goto(`${origin}/developer/applications`)
   await page.getByRole('button', { name: '创建应用', exact: true }).first().click()
   const dialog = page.getByRole('dialog', { name: '创建应用' })
   await expect(dialog).toBeVisible()
-  await dialog.getByRole('textbox', { name: '应用名称与说明' }).fill('A review draft')
-  await expect(dialog.getByRole('button', { name: '创建应用', exact: true })).toBeDisabled()
-  await expect(dialog).toContainText('应用创建接口尚未开放')
+  await dialog.getByRole('textbox', { name: '应用名称', exact: true }).fill('A review draft')
+  await expect(dialog.getByRole('button', { name: '创建应用', exact: true })).toBeEnabled()
+  await expect(dialog.getByRole('textbox', { name: '回调地址（每行一个）' })).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(dialog).toHaveCount(0)
 })
 
-test('recovery entry preserves authorization and does not submit unsupported recovery', async ({ page }) => {
+test('recovery entry preserves authorization and enables supported recovery', async ({ page }) => {
   const id = 'a'.repeat(43)
   await page.route('**/api/v1/account/context', route => route.fulfill({ json: { csrf_token: 'identity-csrf', registration_mode: 'invite' } }))
   await page.goto(`${origin}/auth/login?authorization_request=${id}`)
   await page.getByRole('link', { name: '忘记密码？' }).click()
   await expect(page).toHaveURL(`${origin}/auth/forgot-password?authorization_request=${id}`)
-  await expect(page.getByRole('button', { name: '发送验证码' })).toBeDisabled()
-  await expect(page.getByRole('link', { name: '返回登录' })).toHaveAttribute('href', `/auth/authorize?authorization_request=${id}`)
+  await expect(page.getByRole('button', { name: '发送验证码' })).toBeEnabled()
+  await expect(page.getByRole('link', { name: '返回登录' })).toHaveAttribute('href', `/auth/login?authorization_request=${id}`)
 })
 
 test('registration history is private and the illustrated layout never loads candidate art', async ({ page }) => {

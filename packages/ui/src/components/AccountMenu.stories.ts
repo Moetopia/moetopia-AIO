@@ -4,3 +4,4 @@ const meta = { title: 'Navigation/AccountMenu', component: AccountMenu, tags: ['
 export default meta
 type Story = StoryObj<typeof meta>
 export const Default: Story = {}
+export const UnavailableAvatar: Story = { args: { src: '/example-unavailable-avatar.png' } }

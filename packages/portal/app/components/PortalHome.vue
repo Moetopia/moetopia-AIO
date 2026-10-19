@@ -4,12 +4,12 @@ import type { MoeNavEntry } from '@moetopia/ui'
 import { portalMessages, type Portal } from '@moetopia/locales'
 import type { StatusResponse } from '@moetopia/api-client'
 
-const props = defineProps<{ kind: Portal; workspace?: boolean; auth?: boolean }>()
+const props = defineProps<{ kind: Portal; workspace?: boolean; documentation?: boolean; auth?: boolean }>()
 const route = useRoute()
 const { locale, theme, text } = usePortalPreferences()
 const pageText = computed(() => portalMessages[locale.value])
 const workspace = computed(() => props.kind === 'developer' && props.workspace)
-const activeSection = computed(() => props.kind === 'account' ? route.path === '/sessions' ? 'sessions' : route.path === '/security' ? 'security' : 'profile' : props.kind === 'developer' ? route.path.endsWith('/applications') ? 'applications' : route.path.startsWith('/developer/docs') ? 'preparation' : 'overview' : route.hash.slice(1) || 'overview')
+const activeSection = computed(() => props.kind === 'account' ? route.path === '/sessions' ? 'sessions' : route.path === '/security' ? 'security' : 'profile' : props.kind === 'developer' ? route.path.startsWith('/developer/applications') ? 'applications' : route.path.startsWith('/developer/docs') ? 'preparation' : 'overview' : route.hash.slice(1) || 'overview')
 const sectionItems = computed<MoeNavEntry[]>(() => props.kind === 'account' ? [
   { id: 'profile', label: pageText.value.profile, href: '/profile', icon: 'user' },
   { id: 'sessions', label: pageText.value.sessions, href: '/sessions', icon: 'shield' },
@@ -30,7 +30,7 @@ const navigate = (event: MouseEvent, item: MoeNavEntry) => {
 }
 const navigation = computed<MoeNavEntry[]>(() => props.kind === 'admin' ? [] : props.kind === 'account' ? [sectionItems.value[0]!, { id: 'developer', label: text.value.developer, href: '/developer' }] : [sectionItems.value[0]!, sectionItems.value[2]!, { id: 'console', label: pageText.value.console, href: '/developer/applications' }])
 const consoleGroups = computed(() => [{ label: pageText.value.console, items: [sectionItems.value[1]!, sectionItems.value[2]!] }])
-const documentation = computed(() => props.kind === 'developer' && (route.path === '/developer/docs' || route.path.startsWith('/developer/docs/')))
+const documentation = computed(() => props.kind === 'developer' && props.documentation)
 const docsGroups = computed(() => [{ label: pageText.value.docsNavigation, items: [
   { id: 'overview', label: pageText.value.docsOverview, href: '/developer/docs' },
   { id: 'authentication', label: pageText.value.docsAuthentication, href: '/developer/docs/authentication' },

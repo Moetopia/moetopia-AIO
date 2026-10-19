@@ -1,0 +1,1 @@
+<template><div><PortalHome kind="developer" workspace><template #account><AccountNavigation /></template><template #workspace-account><AccountNavigation sidebar /></template><slot /></PortalHome></div></template>

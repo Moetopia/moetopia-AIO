@@ -2,6 +2,10 @@ import zhCN from './lang/zh-CN'
 import zhTW from './lang/zh-TW'
 import en from './lang/en'
 import ja from './lang/ja'
+import managementCN from './management/zh-CN'
+import managementTW from './management/zh-TW'
+import managementEN from './management/en'
+import managementJA from './management/ja'
 import type { Locale, LocaleMessages } from './types'
 
 export type { Locale, LocaleMessages, Portal } from './types'
@@ -22,3 +26,4 @@ export const messages = pick('common')
 export const accountMessages = pick('account')
 export const portalMessages = pick('portal')
 export const authorizationMessages = pick('authorization')
+export const managementMessages = { 'zh-CN': managementCN, 'zh-TW': managementTW, en: managementEN, ja: managementJA } satisfies Record<Locale, Record<keyof typeof managementCN, string>>

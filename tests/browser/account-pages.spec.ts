@@ -62,12 +62,12 @@ test('session revocation confirms once and uses portal CSRF, including current-s
   expect(state.writes).toEqual(['portal-csrf', 'portal-csrf'])
 })
 
-test('profile navigation reuses portal context and unavailable changes cannot submit', async ({ page }) => {
+test('profile navigation reuses portal context and exposes account management', async ({ page }) => {
   const state = await mockPortal(page)
   await page.goto(`${origin}/profile`)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('个人资料')
-  await expect(page.getByRole('button', { name: '保存修改' })).toBeDisabled()
-  await expect(page.getByRole('button', { name: '修改密码', exact: true })).toBeDisabled()
+  await expect(page.getByRole('button', { name: '保存修改' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: '修改密码', exact: true })).toBeEnabled()
   await page.getByRole('link', { name: '管理登录会话', exact: true }).click()
   await expect(page).toHaveURL(`${origin}/sessions`)
   await page.getByRole('button', { name: '你的账号', exact: true }).click()

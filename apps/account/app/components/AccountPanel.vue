@@ -17,7 +17,7 @@ const confirmRevoke = async () => { if (!selected.value) return; await revoke(se
   <div v-if="context?.user" class="grid gap-8">
     <MoePageHeading :title="title" :description="description" />
     <MoeProfileLayout>
-      <template v-if="section === 'profile'" #summary><MoeProfileSummary :name="context.user.display_name" :email="context.user.email" :description="pageText.identityDescription" /></template>
+      <template v-if="section === 'profile'" #summary><MoeProfileSummary :name="context.user.display_name" :email="context.user.email" :src="context.user.avatar_url" :description="context.user.bio || pageText.identityDescription" /></template>
       <ProfileSettings v-if="section === 'profile'" :user="context.user" />
       <MoeCard v-if="section === 'sessions'" :title="text.sessions" :description="pageText.sessionCardDescription" layout="form">
         <MoeSpinner v-if="sessionsLoading" :label="text.checking" /><template v-else-if="sessions.length"><MoeSettingRow v-for="session in sessions" :key="session.id" :title="session.id === sessionList?.current_id ? text.current : pageText.sessionTitle" icon="shield"><MoeDescriptionList :items="[{ key: 'created', label: text.created, value: formatTime(session.created_at) }, { key: 'expires', label: text.expires, value: formatTime(session.expires_at) }]" /><template #actions><MoeBadge v-if="session.id === sessionList?.current_id">{{ text.current }}</MoeBadge><MoeButton variant="light" color="danger" :disabled="busy" @click="selected = session.id; revoking = true">{{ text.revoke }}</MoeButton></template></MoeSettingRow></template>

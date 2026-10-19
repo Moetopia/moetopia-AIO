@@ -1,8 +1,10 @@
 import { expect, test, type Page } from '@playwright/test'
+import { mockPortal } from './helpers/portal'
 
 const origin = 'http://127.0.0.1:53000'
 const user = { id: 'preview', display_name: '预览用户', email: 'preview@example.com' }
 const setup = async (page: Page) => {
+  await mockPortal(page)
   await page.route('**/api/v1/status', route => route.fulfill({ json: { service: 'moetopia' } }))
   await page.route('**/api/v1/account/context', route => route.fulfill({ json: { user, csrf_token: 'preview-csrf', registration_mode: 'invite' } }))
   await page.route('**/api/v1/portal/context', route => route.fulfill({ json: { authenticated: true, user, csrf_token: 'portal-csrf', login_url: '/api/v1/portal/login' } }))
@@ -21,7 +23,7 @@ test('developer console follows the reference dimensions and account placement',
   await expect(page.locator('.moe-console-sidebar .moe-sidebar')).toHaveCount(0)
   await expect(page.locator('.moe-console-sidebar').getByRole('button', { name: '退出登录' })).toBeVisible()
   await page.getByRole('button', { name: '创建应用', exact: true }).first().click()
-  await expect(page.getByRole('dialog').getByRole('button', { name: '创建应用', exact: true })).toBeDisabled()
+  await expect(page.getByRole('dialog').getByRole('button', { name: '创建应用', exact: true })).toBeEnabled()
   await page.keyboard.press('Escape')
   await page.setViewportSize({ width: 820, height: 900 })
   await expect(page.locator('.moe-console-sidebar')).toBeHidden()
@@ -42,7 +44,7 @@ test('profile uses the reference width, grouped panels and avatar account naviga
   await expect(page.locator('.moe-profile-layout')).toHaveCSS('gap', '24px')
   expect((await page.locator('.moe-profile-summary').boundingBox())?.width).toBe(304)
   await expect(page.getByLabel('昵称', { exact: true })).toHaveValue(user.display_name)
-  await expect(page.getByLabel('昵称', { exact: true })).toHaveAttribute('readonly', '')
+  await expect(page.getByLabel('昵称', { exact: true })).toBeEditable()
   await expect(page.locator('.moe-card-form-heading').first()).toHaveCSS('border-bottom-width', '0px')
   await page.getByRole('button', { name: '你的账号', exact: true }).click()
   await page.getByRole('menuitem', { name: '登录会话', exact: true }).click()
