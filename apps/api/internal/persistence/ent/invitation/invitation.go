@@ -17,6 +17,8 @@ const (
 	FieldExpiresAt = "expires_at"
 	// FieldConsumed holds the string denoting the consumed field in the database.
 	FieldConsumed = "consumed"
+	// FieldRevoked holds the string denoting the revoked field in the database.
+	FieldRevoked = "revoked"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// Table holds the table name of the invitation in the database.
@@ -28,6 +30,7 @@ var Columns = []string{
 	FieldID,
 	FieldExpiresAt,
 	FieldConsumed,
+	FieldRevoked,
 	FieldCreatedAt,
 }
 
@@ -44,6 +47,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultConsumed holds the default value on creation for the "consumed" field.
 	DefaultConsumed bool
+	// DefaultRevoked holds the default value on creation for the "revoked" field.
+	DefaultRevoked bool
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )
@@ -64,6 +69,11 @@ func ByExpiresAt(opts ...sql.OrderTermOption) OrderOption {
 // ByConsumed orders the results by the consumed field.
 func ByConsumed(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldConsumed, opts...).ToFunc()
+}
+
+// ByRevoked orders the results by the revoked field.
+func ByRevoked(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRevoked, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

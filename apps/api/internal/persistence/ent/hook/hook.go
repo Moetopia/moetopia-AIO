@@ -33,6 +33,42 @@ func (f AccountUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccountUserMutation", m)
 }
 
+// The AdminBootstrapFunc type is an adapter to allow the use of ordinary
+// function as AdminBootstrap mutator.
+type AdminBootstrapFunc func(context.Context, *ent.AdminBootstrapMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AdminBootstrapFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AdminBootstrapMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdminBootstrapMutation", m)
+}
+
+// The AdminElevationFunc type is an adapter to allow the use of ordinary
+// function as AdminElevation mutator.
+type AdminElevationFunc func(context.Context, *ent.AdminElevationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AdminElevationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AdminElevationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdminElevationMutation", m)
+}
+
+// The AdminPrincipalFunc type is an adapter to allow the use of ordinary
+// function as AdminPrincipal mutator.
+type AdminPrincipalFunc func(context.Context, *ent.AdminPrincipalMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AdminPrincipalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AdminPrincipalMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdminPrincipalMutation", m)
+}
+
 // The ApplicationVersionFunc type is an adapter to allow the use of ordinary
 // function as ApplicationVersion mutator.
 type ApplicationVersionFunc func(context.Context, *ent.ApplicationVersionMutation) (ent.Value, error)

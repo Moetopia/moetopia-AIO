@@ -3,6 +3,7 @@ package developer
 import (
 	"context"
 	"moetopia.local/aio/api/internal/audit"
+	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/persistence/ent"
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
@@ -15,7 +16,7 @@ func (s *Service) Review(ctx context.Context, reviewer, id string, revision int,
 	if reviewer == "" || !utf8.ValidString(reason) || utf8.RuneCountInString(reason) > 500 || !approve && strings.TrimSpace(reason) == "" {
 		return Application{}, ErrInvalid
 	}
-	meta, err := s.db.DeveloperApplication.Get(ctx, id)
+	meta, err := persistence.Client(ctx, s.db).DeveloperApplication.Get(ctx, id)
 	if ent.IsNotFound(err) {
 		return Application{}, ErrMissing
 	}
@@ -35,7 +36,7 @@ func (s *Service) Review(ctx context.Context, reviewer, id string, revision int,
 	if err != nil {
 		return Application{}, err
 	}
-	if latest.Status != applicationversion.StatusPending || !row.Enabled || row.Deleted {
+	if latest.Status != applicationversion.StatusPending || !row.Enabled || row.Deleted || row.Suspended {
 		return Application{}, ErrConflict
 	}
 	status := applicationversion.StatusRejected
@@ -65,7 +66,7 @@ func (s *Service) Review(ctx context.Context, reviewer, id string, revision int,
 		return Application{}, err
 	}
 	row.Revision++
-	if err := audit.Record(ctx, tx.Client(), reviewer, action); err != nil {
+	if err := audit.RecordTarget(ctx, tx.Client(), reviewer, action, id, "success"); err != nil {
 		return Application{}, err
 	}
 	view, err := s.view(ctx, tx.Client(), row)
@@ -75,5 +76,5 @@ func (s *Service) Review(ctx context.Context, reviewer, id string, revision int,
 	return view, tx.Commit()
 }
 func (s *Service) HasPublishedApplications(ctx context.Context, owner string) (bool, error) {
-	return s.db.DeveloperApplication.Query().Where(developerapplication.OwnerID(owner), developerapplication.ActiveVersionGT(0), developerapplication.Enabled(true), developerapplication.Deleted(false)).Exist(ctx)
+	return persistence.Client(ctx, s.db).DeveloperApplication.Query().Where(developerapplication.OwnerID(owner), developerapplication.ActiveVersionGT(0), developerapplication.Enabled(true), developerapplication.Deleted(false)).Exist(ctx)
 }

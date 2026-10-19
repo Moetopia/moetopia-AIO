@@ -18,6 +18,7 @@ type Config struct {
 	ValkeyPassword string
 	EncryptionKey  string
 	AccountOrigin  string
+	AdminOrigin    string
 	SMTPAddress    string
 	SMTPFrom       string
 }
@@ -40,6 +41,7 @@ func Read(get func(string) string) (Config, error) {
 		ValkeyPassword: get("MOETOPIA_VALKEY_PASSWORD"),
 		EncryptionKey:  get("MOETOPIA_ENCRYPTION_KEY"),
 		AccountOrigin:  value(get, "MOETOPIA_ACCOUNT_ORIGIN", strings.TrimRight(get("MOETOPIA_ISSUER"), "/")),
+		AdminOrigin:    strings.TrimRight(get("MOETOPIA_ADMIN_ORIGIN"), "/"),
 		SMTPAddress:    get("MOETOPIA_SMTP_ADDRESS"),
 		SMTPFrom:       get("MOETOPIA_SMTP_FROM"),
 	}
@@ -63,6 +65,15 @@ func Read(get func(string) string) (Config, error) {
 	}
 	if c.AccountOrigin != c.Issuer {
 		return c, errors.New("MOETOPIA_ACCOUNT_ORIGIN must match the current account issuer origin")
+	}
+	if c.AdminOrigin != "" {
+		admin, err := url.Parse(c.AdminOrigin)
+		if err != nil || admin.Host == "" || admin.User != nil || admin.RawQuery != "" || admin.Fragment != "" || admin.Path != "" || c.AdminOrigin == c.Issuer {
+			return c, errors.New("MOETOPIA_ADMIN_ORIGIN must be an independent origin without credentials, path, query or fragment")
+		}
+		if admin.Scheme != "https" && !(c.Environment != "production" && admin.Scheme == "http" && localHost(admin.Hostname())) {
+			return c, errors.New("MOETOPIA_ADMIN_ORIGIN requires HTTPS; development HTTP is limited to loopback hosts")
+		}
 	}
 	return c, nil
 }

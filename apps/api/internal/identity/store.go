@@ -15,6 +15,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
+	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
 )
 
 type Store struct {
@@ -131,12 +132,12 @@ func (s *Store) Register(ctx context.Context, id, email, name, hash, invite stri
 	if count != 1 {
 		return ErrInvalid
 	}
-	policy, err := tx.RegistrationPolicy.Get(ctx, "registration")
+	policy, err := tx.RegistrationPolicy.Query().Where(registrationpolicy.ID("registration")).ForShare().Only(ctx)
 	if err != nil {
 		return err
 	}
 	if policy.Mode == "invite" {
-		count, err = tx.Invitation.Update().Where(invitation.IDEQ(invite), invitation.ConsumedEQ(false), invitation.ExpiresAtGT(now)).SetConsumed(true).Save(ctx)
+		count, err = tx.Invitation.Update().Where(invitation.IDEQ(invite), invitation.ConsumedEQ(false), invitation.Revoked(false), invitation.ExpiresAtGT(now)).SetConsumed(true).Save(ctx)
 		if err != nil {
 			return err
 		}
@@ -156,5 +157,5 @@ func (s *Store) IssueInvitation(ctx context.Context, id string, expires time.Tim
 	if !expires.After(time.Now()) || expires.After(time.Now().Add(30*24*time.Hour)) {
 		return errors.New("invitation expiry must be within thirty days")
 	}
-	return s.db.Invitation.Create().SetID(id).SetExpiresAt(expires).Exec(ctx)
+	return persistence.Client(ctx, s.db).Invitation.Create().SetID(id).SetExpiresAt(expires).Exec(ctx)
 }

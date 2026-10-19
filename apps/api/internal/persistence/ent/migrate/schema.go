@@ -53,6 +53,7 @@ var (
 		{Name: "security_version", Type: field.TypeInt, Default: 0},
 		{Name: "password_hash", Type: field.TypeString},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "disabled_reason", Type: field.TypeString, Default: ""},
 		{Name: "email_verified_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 	}
@@ -61,6 +62,62 @@ var (
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+	}
+	// BootstrapColumns holds the columns for the "bootstrap" table.
+	BootstrapColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// BootstrapTable holds the schema information for the "bootstrap" table.
+	BootstrapTable = &schema.Table{
+		Name:       "bootstrap",
+		Columns:    BootstrapColumns,
+		PrimaryKey: []*schema.Column{BootstrapColumns[0]},
+	}
+	// ElevationsColumns holds the columns for the "elevations" table.
+	ElevationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
+		{Name: "factor_version", Type: field.TypeInt},
+		{Name: "expires_at", Type: field.TypeTime},
+	}
+	// ElevationsTable holds the schema information for the "elevations" table.
+	ElevationsTable = &schema.Table{
+		Name:       "elevations",
+		Columns:    ElevationsColumns,
+		PrimaryKey: []*schema.Column{ElevationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "adminelevation_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{ElevationsColumns[3]},
+			},
+			{
+				Name:    "adminelevation_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ElevationsColumns[1]},
+			},
+		},
+	}
+	// PrincipalsColumns holds the columns for the "principals" table.
+	PrincipalsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "enabled", Type: field.TypeBool, Default: true},
+		{Name: "secret", Type: field.TypeBytes, Nullable: true},
+		{Name: "pending_secret", Type: field.TypeBytes, Nullable: true},
+		{Name: "pending_session", Type: field.TypeString, Default: ""},
+		{Name: "pending_expires_at", Type: field.TypeTime, Nullable: true},
+		{Name: "last_counter", Type: field.TypeInt64, Default: -1},
+		{Name: "factor_version", Type: field.TypeInt, Default: 0},
+		{Name: "recovery_hashes", Type: field.TypeJSON},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// PrincipalsTable holds the schema information for the "principals" table.
+	PrincipalsTable = &schema.Table{
+		Name:       "principals",
+		Columns:    PrincipalsColumns,
+		PrimaryKey: []*schema.Column{PrincipalsColumns[0]},
 	}
 	// ApplicationVersionsColumns holds the columns for the "application_versions" table.
 	ApplicationVersionsColumns = []*schema.Column{
@@ -157,6 +214,8 @@ var (
 		{Name: "public", Type: field.TypeBool},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
+		{Name: "suspended", Type: field.TypeBool, Default: false},
+		{Name: "suspension_reason", Type: field.TypeString, Default: ""},
 		{Name: "revision", Type: field.TypeInt, Default: 1},
 		{Name: "active_version", Type: field.TypeInt, Default: 0},
 		{Name: "latest_version", Type: field.TypeInt, Default: 1},
@@ -171,7 +230,7 @@ var (
 			{
 				Name:    "developerapplication_owner_id_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{ApplicationsColumns[1], ApplicationsColumns[9]},
+				Columns: []*schema.Column{ApplicationsColumns[1], ApplicationsColumns[11]},
 			},
 		},
 	}
@@ -224,6 +283,7 @@ var (
 		{Name: "id", Type: field.TypeString},
 		{Name: "expires_at", Type: field.TypeTime},
 		{Name: "consumed", Type: field.TypeBool, Default: false},
+		{Name: "revoked", Type: field.TypeBool, Default: false},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// InvitationsTable holds the schema information for the "invitations" table.
@@ -309,6 +369,7 @@ var (
 	RegistrationPolicyColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
 		{Name: "mode", Type: field.TypeEnum, Enums: []string{"invite", "open"}, Default: "invite"},
+		{Name: "revision", Type: field.TypeInt, Default: 0},
 	}
 	// RegistrationPolicyTable holds the schema information for the "registration_policy" table.
 	RegistrationPolicyTable = &schema.Table{
@@ -321,6 +382,9 @@ var (
 		{Name: "id", Type: field.TypeString},
 		{Name: "user_id", Type: field.TypeString},
 		{Name: "action", Type: field.TypeString},
+		{Name: "target_id", Type: field.TypeString, Default: ""},
+		{Name: "request_id", Type: field.TypeString, Default: ""},
+		{Name: "outcome", Type: field.TypeString, Default: "success"},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// SecurityEventsTable holds the schema information for the "security_events" table.
@@ -332,12 +396,12 @@ var (
 			{
 				Name:    "securityevent_user_id_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SecurityEventsColumns[1], SecurityEventsColumns[3]},
+				Columns: []*schema.Column{SecurityEventsColumns[1], SecurityEventsColumns[6]},
 			},
 			{
 				Name:    "securityevent_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SecurityEventsColumns[3]},
+				Columns: []*schema.Column{SecurityEventsColumns[6]},
 			},
 		},
 	}
@@ -387,6 +451,9 @@ var (
 	Tables = []*schema.Table{
 		AccountChallengesTable,
 		UsersTable,
+		BootstrapTable,
+		ElevationsTable,
+		PrincipalsTable,
 		ApplicationVersionsTable,
 		GrantsTable,
 		InteractionsTable,
@@ -410,6 +477,15 @@ func init() {
 	}
 	UsersTable.Annotation = &entsql.Annotation{
 		Table: "users",
+	}
+	BootstrapTable.Annotation = &entsql.Annotation{
+		Table: "bootstrap",
+	}
+	ElevationsTable.Annotation = &entsql.Annotation{
+		Table: "elevations",
+	}
+	PrincipalsTable.Annotation = &entsql.Annotation{
+		Table: "principals",
 	}
 	ApplicationVersionsTable.Annotation = &entsql.Annotation{
 		Table: "application_versions",

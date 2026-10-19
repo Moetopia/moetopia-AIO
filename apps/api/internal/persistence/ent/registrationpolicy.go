@@ -17,7 +17,9 @@ type RegistrationPolicy struct {
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
 	// Mode holds the value of the "mode" field.
-	Mode         registrationpolicy.Mode `json:"mode,omitempty"`
+	Mode registrationpolicy.Mode `json:"mode,omitempty"`
+	// Revision holds the value of the "revision" field.
+	Revision     int `json:"revision,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -26,6 +28,8 @@ func (*RegistrationPolicy) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case registrationpolicy.FieldRevision:
+			values[i] = new(sql.NullInt64)
 		case registrationpolicy.FieldID, registrationpolicy.FieldMode:
 			values[i] = new(sql.NullString)
 		default:
@@ -54,6 +58,12 @@ func (_m *RegistrationPolicy) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field mode", values[i])
 			} else if value.Valid {
 				_m.Mode = registrationpolicy.Mode(value.String)
+			}
+		case registrationpolicy.FieldRevision:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field revision", values[i])
+			} else if value.Valid {
+				_m.Revision = int(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -93,6 +103,9 @@ func (_m *RegistrationPolicy) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("mode=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Mode))
+	builder.WriteString(", ")
+	builder.WriteString("revision=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Revision))
 	builder.WriteByte(')')
 	return builder.String()
 }

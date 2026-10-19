@@ -103,6 +103,375 @@
         ],
         "type": "object"
       },
+      "AdminCodeInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminCodeInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 6,
+            "minLength": 6,
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "type": "object"
+      },
+      "AdminContextBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminContextBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "authenticated": {
+            "type": "boolean"
+          },
+          "csrf_token": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "login_url": {
+            "type": "string"
+          },
+          "mfa": {
+            "$ref": "#/components/schemas/State"
+          },
+          "recovery_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "authenticated",
+          "csrf_token",
+          "login_url"
+        ],
+        "type": "object"
+      },
+      "AdminEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "actor_id",
+          "target_id",
+          "action",
+          "outcome",
+          "request_id",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "AdminEvents": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminEvents.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AdminEvent"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
+      "AdminInviteInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminInviteInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expires_in_hours": {
+            "format": "int64",
+            "maximum": 720,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expires_in_hours"
+        ],
+        "type": "object"
+      },
+      "AdminPasswordInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminPasswordInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "current_password": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "current_password"
+        ],
+        "type": "object"
+      },
+      "AdminPolicyInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminPolicyInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "invite",
+              "open"
+            ],
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "mode",
+          "revision"
+        ],
+        "type": "object"
+      },
+      "AdminRecoveryInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminRecoveryInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "current_password": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "recovery_code": {
+            "maxLength": 32,
+            "minLength": 32,
+            "type": "string"
+          }
+        },
+        "required": [
+          "current_password",
+          "recovery_code"
+        ],
+        "type": "object"
+      },
+      "AdminRecoveryOutputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminRecoveryOutputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "recovery_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "recovery_codes"
+        ],
+        "type": "object"
+      },
+      "AdminReviewInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminReviewInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "approve": {
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "approve",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "AdminSuspendInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminSuspendInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "suspended": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "revision",
+          "suspended",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "AdminUserAvailabilityInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AdminUserAvailabilityInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "enabled",
+          "reason"
+        ],
+        "type": "object"
+      },
       "Application": {
         "additionalProperties": false,
         "properties": {
@@ -144,6 +513,12 @@
           "revision": {
             "format": "int64",
             "type": "integer"
+          },
+          "suspended": {
+            "type": "boolean"
+          },
+          "suspension_reason": {
+            "type": "string"
           }
         },
         "required": [
@@ -622,6 +997,36 @@
         ],
         "type": "object"
       },
+      "Enrollment": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/Enrollment.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "otpauth_uri": {
+            "type": "string"
+          },
+          "secret": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "secret",
+          "otpauth_uri",
+          "expires_at"
+        ],
+        "type": "object"
+      },
       "ErrorDetail": {
         "additionalProperties": false,
         "properties": {
@@ -660,6 +1065,36 @@
         ],
         "type": "object"
       },
+      "IssuedInvitation": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/IssuedInvitation.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "expires_at"
+        ],
+        "type": "object"
+      },
       "LoginInputBody": {
         "additionalProperties": false,
         "properties": {
@@ -684,6 +1119,150 @@
         "required": [
           "email",
           "password"
+        ],
+        "type": "object"
+      },
+      "ManagedInvitation": {
+        "additionalProperties": false,
+        "properties": {
+          "consumed": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "revoked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "consumed",
+          "revoked",
+          "created_at",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "ManagedInvitations": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/ManagedInvitations.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ManagedInvitation"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "type": "object"
+      },
+      "ManagedUser": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/ManagedUser.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "avatar_url": {
+            "type": "string"
+          },
+          "bio": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "disabled_reason": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enabled",
+          "disabled_reason",
+          "created_at",
+          "id",
+          "email",
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "ManagedUsers": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/ManagedUsers.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ManagedUser"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
         ],
         "type": "object"
       },
@@ -865,6 +1444,32 @@
         ],
         "type": "object"
       },
+      "RegistrationPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/RegistrationPolicy.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "mode",
+          "revision"
+        ],
+        "type": "object"
+      },
       "SecurityEventsOutputBody": {
         "additionalProperties": false,
         "properties": {
@@ -942,6 +1547,31 @@
         "required": [
           "items",
           "current_id"
+        ],
+        "type": "object"
+      },
+      "State": {
+        "additionalProperties": false,
+        "properties": {
+          "enrolled": {
+            "type": "boolean"
+          },
+          "recovery_codes_remaining": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "verified_until": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "enrolled",
+          "verified",
+          "recovery_codes_remaining"
         ],
         "type": "object"
       },
@@ -1778,6 +2408,1195 @@
           }
         },
         "summary": "Post API v1 account verification"
+      }
+    },
+    "/api/v1/admin/applications": {
+      "get": {
+        "operationId": "get-api-v1-admin-applications",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "maxLength": 300,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "default": "pending",
+              "enum": [
+                "pending",
+                "all"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Applications"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin applications"
+      }
+    },
+    "/api/v1/admin/applications/{id}": {
+      "get": {
+        "operationId": "get-api-v1-admin-applications-by-id",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin applications by ID"
+      }
+    },
+    "/api/v1/admin/applications/{id}/review": {
+      "post": {
+        "operationId": "post-api-v1-admin-applications-by-id-review",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminReviewInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin applications by ID review"
+      }
+    },
+    "/api/v1/admin/applications/{id}/suspension": {
+      "post": {
+        "operationId": "post-api-v1-admin-applications-by-id-suspension",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminSuspendInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin applications by ID suspension"
+      }
+    },
+    "/api/v1/admin/audit-events": {
+      "get": {
+        "operationId": "get-api-v1-admin-audit-events",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "maxLength": 300,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEvents"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin audit events"
+      }
+    },
+    "/api/v1/admin/context": {
+      "get": {
+        "operationId": "get-api-v1-admin-context",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminContextBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin context"
+      }
+    },
+    "/api/v1/admin/invitations": {
+      "get": {
+        "operationId": "get-api-v1-admin-invitations",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "maxLength": 300,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedInvitations"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin invitations"
+      },
+      "post": {
+        "operationId": "post-api-v1-admin-invitations",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminInviteInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssuedInvitation"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin invitations"
+      }
+    },
+    "/api/v1/admin/invitations/{id}": {
+      "delete": {
+        "operationId": "delete-api-v1-admin-invitations-by-id",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 64,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Delete API v1 admin invitations by ID"
+      }
+    },
+    "/api/v1/admin/logout": {
+      "post": {
+        "operationId": "post-api-v1-admin-logout",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminContextBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin logout"
+      }
+    },
+    "/api/v1/admin/mfa/enrollment": {
+      "post": {
+        "operationId": "post-api-v1-admin-mfa-enrollment",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPasswordInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Enrollment"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin mfa enrollment"
+      }
+    },
+    "/api/v1/admin/mfa/enrollment/confirm": {
+      "post": {
+        "operationId": "post-api-v1-admin-mfa-enrollment-confirm",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCodeInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminContextBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin mfa enrollment confirm"
+      }
+    },
+    "/api/v1/admin/mfa/recover": {
+      "post": {
+        "operationId": "post-api-v1-admin-mfa-recover",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRecoveryInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminContextBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin mfa recover"
+      }
+    },
+    "/api/v1/admin/mfa/recovery-codes": {
+      "post": {
+        "operationId": "post-api-v1-admin-mfa-recovery-codes",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPasswordInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRecoveryOutputBody"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin mfa recovery codes"
+      }
+    },
+    "/api/v1/admin/mfa/verify": {
+      "post": {
+        "operationId": "post-api-v1-admin-mfa-verify",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCodeInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminContextBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin mfa verify"
+      }
+    },
+    "/api/v1/admin/registration-policy": {
+      "get": {
+        "operationId": "get-api-v1-admin-registration-policy",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationPolicy"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin registration policy"
+      },
+      "put": {
+        "operationId": "put-api-v1-admin-registration-policy",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPolicyInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationPolicy"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Put API v1 admin registration policy"
+      }
+    },
+    "/api/v1/admin/sessions": {
+      "get": {
+        "operationId": "get-api-v1-admin-sessions",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionsOutputBody"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin sessions"
+      }
+    },
+    "/api/v1/admin/sessions/{id}": {
+      "delete": {
+        "operationId": "delete-api-v1-admin-sessions-by-id",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Delete API v1 admin sessions by ID"
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "operationId": "get-api-v1-admin-users",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "query",
+            "schema": {
+              "maxLength": 254,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "maxLength": 1000,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUsers"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin users"
+      }
+    },
+    "/api/v1/admin/users/{id}/availability": {
+      "post": {
+        "operationId": "post-api-v1-admin-users-by-id-availability",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserAvailabilityInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagedUser"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 admin users by ID availability"
       }
     },
     "/api/v1/developer/applications": {

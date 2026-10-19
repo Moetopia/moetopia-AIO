@@ -21,6 +21,8 @@ type Invitation struct {
 	ExpiresAt time.Time `json:"expires_at,omitempty"`
 	// Consumed holds the value of the "consumed" field.
 	Consumed bool `json:"consumed,omitempty"`
+	// Revoked holds the value of the "revoked" field.
+	Revoked bool `json:"revoked,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	selectValues sql.SelectValues
@@ -31,7 +33,7 @@ func (*Invitation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case invitation.FieldConsumed:
+		case invitation.FieldConsumed, invitation.FieldRevoked:
 			values[i] = new(sql.NullBool)
 		case invitation.FieldID:
 			values[i] = new(sql.NullString)
@@ -69,6 +71,12 @@ func (_m *Invitation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field consumed", values[i])
 			} else if value.Valid {
 				_m.Consumed = value.Bool
+			}
+		case invitation.FieldRevoked:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field revoked", values[i])
+			} else if value.Valid {
+				_m.Revoked = value.Bool
 			}
 		case invitation.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -117,6 +125,9 @@ func (_m *Invitation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("consumed=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Consumed))
+	builder.WriteString(", ")
+	builder.WriteString("revoked=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Revoked))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

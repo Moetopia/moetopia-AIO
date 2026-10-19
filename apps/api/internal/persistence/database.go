@@ -37,6 +37,13 @@ func Open(ctx context.Context, dsn string) (*Database, error) {
 }
 
 func (d *Database) Ready(ctx context.Context) error {
+	var administratorTables bool
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('administration.principals') IS NOT NULL AND to_regclass('administration.elevations') IS NOT NULL AND to_regclass('administration.bootstrap') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='identity' AND table_name='users' AND column_name='disabled_reason') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='identity' AND table_name='registration_policy' AND column_name='revision') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='identity' AND table_name='invitations' AND column_name='revoked')").Scan(&administratorTables); err != nil {
+		return err
+	}
+	if !administratorTables {
+		return errors.New("database migration required")
+	}
 	var developerTables bool
 	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('developer.applications') IS NOT NULL AND to_regclass('developer.application_versions') IS NOT NULL").Scan(&developerTables); err != nil {
 		return err

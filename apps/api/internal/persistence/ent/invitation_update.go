@@ -57,6 +57,20 @@ func (_u *InvitationUpdate) SetNillableConsumed(v *bool) *InvitationUpdate {
 	return _u
 }
 
+// SetRevoked sets the "revoked" field.
+func (_u *InvitationUpdate) SetRevoked(v bool) *InvitationUpdate {
+	_u.mutation.SetRevoked(v)
+	return _u
+}
+
+// SetNillableRevoked sets the "revoked" field if the given value is not nil.
+func (_u *InvitationUpdate) SetNillableRevoked(v *bool) *InvitationUpdate {
+	if v != nil {
+		_u.SetRevoked(*v)
+	}
+	return _u
+}
+
 // Mutation returns the InvitationMutation object of the builder.
 func (_u *InvitationUpdate) Mutation() *InvitationMutation {
 	return _u.mutation
@@ -104,6 +118,9 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.Consumed(); ok {
 		_spec.SetField(invitation.FieldConsumed, field.TypeBool, value)
 	}
+	if value, ok := _u.mutation.Revoked(); ok {
+		_spec.SetField(invitation.FieldRevoked, field.TypeBool, value)
+	}
 	_spec.Node.Schema = _u.schemaConfig.Invitation
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -150,6 +167,20 @@ func (_u *InvitationUpdateOne) SetConsumed(v bool) *InvitationUpdateOne {
 func (_u *InvitationUpdateOne) SetNillableConsumed(v *bool) *InvitationUpdateOne {
 	if v != nil {
 		_u.SetConsumed(*v)
+	}
+	return _u
+}
+
+// SetRevoked sets the "revoked" field.
+func (_u *InvitationUpdateOne) SetRevoked(v bool) *InvitationUpdateOne {
+	_u.mutation.SetRevoked(v)
+	return _u
+}
+
+// SetNillableRevoked sets the "revoked" field if the given value is not nil.
+func (_u *InvitationUpdateOne) SetNillableRevoked(v *bool) *InvitationUpdateOne {
+	if v != nil {
+		_u.SetRevoked(*v)
 	}
 	return _u
 }
@@ -230,6 +261,9 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 	}
 	if value, ok := _u.mutation.Consumed(); ok {
 		_spec.SetField(invitation.FieldConsumed, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Revoked(); ok {
+		_spec.SetField(invitation.FieldRevoked, field.TypeBool, value)
 	}
 	_spec.Node.Schema = _u.schemaConfig.Invitation
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)

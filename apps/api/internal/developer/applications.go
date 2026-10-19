@@ -31,7 +31,7 @@ func (s *Service) Create(ctx context.Context, user identity.User, public bool, c
 			return result, err
 		}
 	}
-	tx, err := s.db.Tx(ctx)
+	tx, err := persistence.Begin(ctx, s.db)
 	if err != nil {
 		return result, err
 	}
@@ -58,7 +58,7 @@ func (s *Service) Create(ctx context.Context, user identity.User, public bool, c
 	if err := s.protocol.InstallManagedClient(ctx, s.spec(row, config, true), hash); err != nil {
 		return result, err
 	}
-	if err := audit.Record(ctx, tx.Client(), user.ID, "application.created"); err != nil {
+	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.created", id, "success"); err != nil {
 		return result, err
 	}
 	view, err := s.view(ctx, tx.Client(), row)
@@ -109,7 +109,7 @@ func (s *Service) UpdateDraft(ctx context.Context, user identity.User, id string
 		return Application{}, err
 	}
 	row.Revision++
-	if err := audit.Record(ctx, tx.Client(), user.ID, "application.draft.updated"); err != nil {
+	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.draft.updated", id, "success"); err != nil {
 		return Application{}, err
 	}
 	view, err := s.view(ctx, tx.Client(), row)
@@ -128,7 +128,7 @@ func (s *Service) Submit(ctx context.Context, user identity.User, id string, rev
 	if err != nil {
 		return Application{}, err
 	}
-	if latest.Status != applicationversion.StatusDraft || !row.Enabled {
+	if latest.Status != applicationversion.StatusDraft || !row.Enabled || row.Suspended {
 		return Application{}, ErrConflict
 	}
 	if err := tx.ApplicationVersion.UpdateOneID(latest.ID).SetStatus(applicationversion.StatusPending).SetReviewReason("").Exec(ctx); err != nil {
@@ -138,7 +138,7 @@ func (s *Service) Submit(ctx context.Context, user identity.User, id string, rev
 		return Application{}, err
 	}
 	row.Revision++
-	if err := audit.Record(ctx, tx.Client(), user.ID, "application.review.submitted"); err != nil {
+	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.review.submitted", id, "success"); err != nil {
 		return Application{}, err
 	}
 	view, err := s.view(ctx, tx.Client(), row)
@@ -153,7 +153,7 @@ func (s *Service) SetEnabled(ctx context.Context, user identity.User, id string,
 		return Application{}, err
 	}
 	defer tx.Rollback()
-	if err := s.protocol.SetManagedClientEnabled(ctx, row.ClientID, user.ID, enabled); err != nil {
+	if err := s.protocol.SetManagedClientEnabled(ctx, row.ClientID, user.ID, enabled && !row.Suspended); err != nil {
 		return Application{}, err
 	}
 	if err := tx.DeveloperApplication.UpdateOneID(id).SetEnabled(enabled).AddRevision(1).Exec(ctx); err != nil {
@@ -161,7 +161,7 @@ func (s *Service) SetEnabled(ctx context.Context, user identity.User, id string,
 	}
 	row.Enabled = enabled
 	row.Revision++
-	if err := audit.Record(ctx, tx.Client(), user.ID, "application.availability.changed"); err != nil {
+	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.availability.changed", id, "success"); err != nil {
 		return Application{}, err
 	}
 	view, err := s.view(ctx, tx.Client(), row)
@@ -186,7 +186,7 @@ func (s *Service) RotateSecret(ctx context.Context, user identity.User, id strin
 	if err := tx.DeveloperApplication.UpdateOneID(id).AddRevision(1).Exec(ctx); err != nil {
 		return "", err
 	}
-	if err := audit.Record(ctx, tx.Client(), user.ID, "application.secret.rotated"); err != nil {
+	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.secret.rotated", id, "success"); err != nil {
 		return "", err
 	}
 	return secret, tx.Commit()
@@ -203,7 +203,7 @@ func (s *Service) Delete(ctx context.Context, user identity.User, id string, rev
 	if err := tx.DeveloperApplication.UpdateOneID(id).SetDeleted(true).AddRevision(1).Exec(ctx); err != nil {
 		return err
 	}
-	if err := audit.Record(ctx, tx.Client(), user.ID, "application.deleted"); err != nil {
+	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.deleted", id, "success"); err != nil {
 		return err
 	}
 	return tx.Commit()
@@ -219,8 +219,12 @@ type listCursor struct {
 }
 
 func (s *Service) List(ctx context.Context, owner, cursor string) (Applications, error) {
+	db := persistence.Client(ctx, s.db)
+	return s.list(ctx, db.DeveloperApplication.Query().Where(developerapplication.OwnerID(owner), developerapplication.Deleted(false)), cursor)
+}
+func (s *Service) list(ctx context.Context, query *ent.DeveloperApplicationQuery, cursor string) (Applications, error) {
+	db := persistence.Client(ctx, s.db)
 	result := Applications{Items: []Application{}}
-	query := s.db.DeveloperApplication.Query().Where(developerapplication.OwnerID(owner), developerapplication.Deleted(false))
 	if cursor != "" {
 		if len(cursor) > 300 {
 			return result, ErrInvalid
@@ -255,7 +259,7 @@ func (s *Service) List(ctx context.Context, owner, cursor string) (Applications,
 	for _, row := range rows {
 		conditions = append(conditions, applicationversion.And(applicationversion.ApplicationID(row.ID), applicationversion.VersionIn(row.LatestVersion, row.ActiveVersion)))
 	}
-	versions, err := s.db.ApplicationVersion.Query().Where(applicationversion.Or(conditions...)).All(ctx)
+	versions, err := db.ApplicationVersion.Query().Where(applicationversion.Or(conditions...)).All(ctx)
 	if err != nil {
 		return result, err
 	}

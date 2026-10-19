@@ -9,6 +9,9 @@ import "context"
 type SchemaConfig struct {
 	AccountChallenge         string // AccountChallenge table.
 	AccountUser              string // AccountUser table.
+	AdminBootstrap           string // AdminBootstrap table.
+	AdminElevation           string // AdminElevation table.
+	AdminPrincipal           string // AdminPrincipal table.
 	ApplicationVersion       string // ApplicationVersion table.
 	AuthorizationGrant       string // AuthorizationGrant table.
 	AuthorizationInteraction string // AuthorizationInteraction table.

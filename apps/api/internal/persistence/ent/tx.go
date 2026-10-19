@@ -16,6 +16,12 @@ type Tx struct {
 	AccountChallenge *AccountChallengeClient
 	// AccountUser is the client for interacting with the AccountUser builders.
 	AccountUser *AccountUserClient
+	// AdminBootstrap is the client for interacting with the AdminBootstrap builders.
+	AdminBootstrap *AdminBootstrapClient
+	// AdminElevation is the client for interacting with the AdminElevation builders.
+	AdminElevation *AdminElevationClient
+	// AdminPrincipal is the client for interacting with the AdminPrincipal builders.
+	AdminPrincipal *AdminPrincipalClient
 	// ApplicationVersion is the client for interacting with the ApplicationVersion builders.
 	ApplicationVersion *ApplicationVersionClient
 	// AuthorizationGrant is the client for interacting with the AuthorizationGrant builders.
@@ -177,6 +183,9 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AccountChallenge = NewAccountChallengeClient(tx.config)
 	tx.AccountUser = NewAccountUserClient(tx.config)
+	tx.AdminBootstrap = NewAdminBootstrapClient(tx.config)
+	tx.AdminElevation = NewAdminElevationClient(tx.config)
+	tx.AdminPrincipal = NewAdminPrincipalClient(tx.config)
 	tx.ApplicationVersion = NewApplicationVersionClient(tx.config)
 	tx.AuthorizationGrant = NewAuthorizationGrantClient(tx.config)
 	tx.AuthorizationInteraction = NewAuthorizationInteractionClient(tx.config)

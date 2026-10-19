@@ -10,8 +10,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"moetopia.local/aio/api/internal/administration"
 	"moetopia.local/aio/api/internal/config"
 	"moetopia.local/aio/api/internal/identity"
+	"moetopia.local/aio/api/internal/password"
 	"moetopia.local/aio/api/internal/persistence"
 )
 
@@ -52,6 +54,23 @@ func run() error {
 	_, err = db.Ent.OAuthClient.Create().SetID(id).SetName("Independent OIDC test RP").SetEnabled(true).SetPublic(true).SetRedirectUris([]string{callback}).SetGrantTypes([]string{"authorization_code", "refresh_token"}).SetResponseTypes([]string{"code"}).SetScopes([]string{"openid", "profile", "email", "demo.read", "offline_access"}).SetAudiences([]string{cfg.Issuer + "/api"}).Save(ctx)
 	if err != nil {
 		return err
+	}
+	if os.Getenv("MOETOPIA_TEST_OIDC_SUITE") == "admin" {
+		email := os.Getenv("MOETOPIA_TEST_OIDC_EMAIL")
+		value := os.Getenv("MOETOPIA_TEST_OIDC_PASSWORD")
+		if email == "" || !password.Valid(value) {
+			return errors.New("isolated administrator fixture credentials are required")
+		}
+		hash, err := password.Hash(ctx, value)
+		if err != nil {
+			return err
+		}
+		if err := db.Ent.AccountUser.Create().SetID(uuid.NewString()).SetEmail(email).SetDisplayName("OIDC administrator fixture").SetPasswordHash(hash).SetEmailVerifiedAt(time.Now()).Exec(ctx); err != nil {
+			return err
+		}
+		if err := administration.Bootstrap(ctx, db.Ent, service, email); err != nil {
+			return err
+		}
 	}
 	return json.NewEncoder(os.Stdout).Encode(map[string]string{"client_id": id, "invitation": invitation})
 }

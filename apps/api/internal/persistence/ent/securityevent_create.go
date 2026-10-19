@@ -32,6 +32,48 @@ func (_c *SecurityEventCreate) SetAction(v string) *SecurityEventCreate {
 	return _c
 }
 
+// SetTargetID sets the "target_id" field.
+func (_c *SecurityEventCreate) SetTargetID(v string) *SecurityEventCreate {
+	_c.mutation.SetTargetID(v)
+	return _c
+}
+
+// SetNillableTargetID sets the "target_id" field if the given value is not nil.
+func (_c *SecurityEventCreate) SetNillableTargetID(v *string) *SecurityEventCreate {
+	if v != nil {
+		_c.SetTargetID(*v)
+	}
+	return _c
+}
+
+// SetRequestID sets the "request_id" field.
+func (_c *SecurityEventCreate) SetRequestID(v string) *SecurityEventCreate {
+	_c.mutation.SetRequestID(v)
+	return _c
+}
+
+// SetNillableRequestID sets the "request_id" field if the given value is not nil.
+func (_c *SecurityEventCreate) SetNillableRequestID(v *string) *SecurityEventCreate {
+	if v != nil {
+		_c.SetRequestID(*v)
+	}
+	return _c
+}
+
+// SetOutcome sets the "outcome" field.
+func (_c *SecurityEventCreate) SetOutcome(v string) *SecurityEventCreate {
+	_c.mutation.SetOutcome(v)
+	return _c
+}
+
+// SetNillableOutcome sets the "outcome" field if the given value is not nil.
+func (_c *SecurityEventCreate) SetNillableOutcome(v *string) *SecurityEventCreate {
+	if v != nil {
+		_c.SetOutcome(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *SecurityEventCreate) SetCreatedAt(v time.Time) *SecurityEventCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -87,6 +129,18 @@ func (_c *SecurityEventCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *SecurityEventCreate) defaults() {
+	if _, ok := _c.mutation.TargetID(); !ok {
+		v := securityevent.DefaultTargetID
+		_c.mutation.SetTargetID(v)
+	}
+	if _, ok := _c.mutation.RequestID(); !ok {
+		v := securityevent.DefaultRequestID
+		_c.mutation.SetRequestID(v)
+	}
+	if _, ok := _c.mutation.Outcome(); !ok {
+		v := securityevent.DefaultOutcome
+		_c.mutation.SetOutcome(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := securityevent.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -100,6 +154,15 @@ func (_c *SecurityEventCreate) check() error {
 	}
 	if _, ok := _c.mutation.Action(); !ok {
 		return &ValidationError{Name: "action", err: errors.New(`ent: missing required field "SecurityEvent.action"`)}
+	}
+	if _, ok := _c.mutation.TargetID(); !ok {
+		return &ValidationError{Name: "target_id", err: errors.New(`ent: missing required field "SecurityEvent.target_id"`)}
+	}
+	if _, ok := _c.mutation.RequestID(); !ok {
+		return &ValidationError{Name: "request_id", err: errors.New(`ent: missing required field "SecurityEvent.request_id"`)}
+	}
+	if _, ok := _c.mutation.Outcome(); !ok {
+		return &ValidationError{Name: "outcome", err: errors.New(`ent: missing required field "SecurityEvent.outcome"`)}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "SecurityEvent.created_at"`)}
@@ -147,6 +210,18 @@ func (_c *SecurityEventCreate) createSpec() (*SecurityEvent, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.Action(); ok {
 		_spec.SetField(securityevent.FieldAction, field.TypeString, value)
 		_node.Action = value
+	}
+	if value, ok := _c.mutation.TargetID(); ok {
+		_spec.SetField(securityevent.FieldTargetID, field.TypeString, value)
+		_node.TargetID = value
+	}
+	if value, ok := _c.mutation.RequestID(); ok {
+		_spec.SetField(securityevent.FieldRequestID, field.TypeString, value)
+		_node.RequestID = value
+	}
+	if value, ok := _c.mutation.Outcome(); ok {
+		_spec.SetField(securityevent.FieldOutcome, field.TypeString, value)
+		_node.Outcome = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(securityevent.FieldCreatedAt, field.TypeTime, value)

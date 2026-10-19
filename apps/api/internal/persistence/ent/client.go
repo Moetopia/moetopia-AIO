@@ -16,6 +16,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
+	"moetopia.local/aio/api/internal/persistence/ent/adminbootstrap"
+	"moetopia.local/aio/api/internal/persistence/ent/adminelevation"
+	"moetopia.local/aio/api/internal/persistence/ent/adminprincipal"
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
@@ -43,6 +46,12 @@ type Client struct {
 	AccountChallenge *AccountChallengeClient
 	// AccountUser is the client for interacting with the AccountUser builders.
 	AccountUser *AccountUserClient
+	// AdminBootstrap is the client for interacting with the AdminBootstrap builders.
+	AdminBootstrap *AdminBootstrapClient
+	// AdminElevation is the client for interacting with the AdminElevation builders.
+	AdminElevation *AdminElevationClient
+	// AdminPrincipal is the client for interacting with the AdminPrincipal builders.
+	AdminPrincipal *AdminPrincipalClient
 	// ApplicationVersion is the client for interacting with the ApplicationVersion builders.
 	ApplicationVersion *ApplicationVersionClient
 	// AuthorizationGrant is the client for interacting with the AuthorizationGrant builders.
@@ -84,6 +93,9 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AccountChallenge = NewAccountChallengeClient(c.config)
 	c.AccountUser = NewAccountUserClient(c.config)
+	c.AdminBootstrap = NewAdminBootstrapClient(c.config)
+	c.AdminElevation = NewAdminElevationClient(c.config)
+	c.AdminPrincipal = NewAdminPrincipalClient(c.config)
 	c.ApplicationVersion = NewApplicationVersionClient(c.config)
 	c.AuthorizationGrant = NewAuthorizationGrantClient(c.config)
 	c.AuthorizationInteraction = NewAuthorizationInteractionClient(c.config)
@@ -195,6 +207,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:                   cfg,
 		AccountChallenge:         NewAccountChallengeClient(cfg),
 		AccountUser:              NewAccountUserClient(cfg),
+		AdminBootstrap:           NewAdminBootstrapClient(cfg),
+		AdminElevation:           NewAdminElevationClient(cfg),
+		AdminPrincipal:           NewAdminPrincipalClient(cfg),
 		ApplicationVersion:       NewApplicationVersionClient(cfg),
 		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
 		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
@@ -230,6 +245,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:                   cfg,
 		AccountChallenge:         NewAccountChallengeClient(cfg),
 		AccountUser:              NewAccountUserClient(cfg),
+		AdminBootstrap:           NewAdminBootstrapClient(cfg),
+		AdminElevation:           NewAdminElevationClient(cfg),
+		AdminPrincipal:           NewAdminPrincipalClient(cfg),
 		ApplicationVersion:       NewApplicationVersionClient(cfg),
 		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
 		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
@@ -273,7 +291,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AccountChallenge, c.AccountUser, c.ApplicationVersion, c.AuthorizationGrant,
+		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminElevation,
+		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
 		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
 		c.EmailVerification, c.Invitation, c.OAuthClient, c.ProtocolSession, c.RPLogin,
 		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
@@ -286,7 +305,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AccountChallenge, c.AccountUser, c.ApplicationVersion, c.AuthorizationGrant,
+		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminElevation,
+		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
 		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
 		c.EmailVerification, c.Invitation, c.OAuthClient, c.ProtocolSession, c.RPLogin,
 		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
@@ -302,6 +322,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AccountChallenge.mutate(ctx, m)
 	case *AccountUserMutation:
 		return c.AccountUser.mutate(ctx, m)
+	case *AdminBootstrapMutation:
+		return c.AdminBootstrap.mutate(ctx, m)
+	case *AdminElevationMutation:
+		return c.AdminElevation.mutate(ctx, m)
+	case *AdminPrincipalMutation:
+		return c.AdminPrincipal.mutate(ctx, m)
 	case *ApplicationVersionMutation:
 		return c.ApplicationVersion.mutate(ctx, m)
 	case *AuthorizationGrantMutation:
@@ -598,6 +624,405 @@ func (c *AccountUserClient) mutate(ctx context.Context, m *AccountUserMutation) 
 		return (&AccountUserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AccountUser mutation op: %q", m.Op())
+	}
+}
+
+// AdminBootstrapClient is a client for the AdminBootstrap schema.
+type AdminBootstrapClient struct {
+	config
+}
+
+// NewAdminBootstrapClient returns a client for the AdminBootstrap from the given config.
+func NewAdminBootstrapClient(c config) *AdminBootstrapClient {
+	return &AdminBootstrapClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `adminbootstrap.Hooks(f(g(h())))`.
+func (c *AdminBootstrapClient) Use(hooks ...Hook) {
+	c.hooks.AdminBootstrap = append(c.hooks.AdminBootstrap, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `adminbootstrap.Intercept(f(g(h())))`.
+func (c *AdminBootstrapClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AdminBootstrap = append(c.inters.AdminBootstrap, interceptors...)
+}
+
+// Create returns a builder for creating a AdminBootstrap entity.
+func (c *AdminBootstrapClient) Create() *AdminBootstrapCreate {
+	mutation := newAdminBootstrapMutation(c.config, OpCreate)
+	return &AdminBootstrapCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AdminBootstrap entities.
+func (c *AdminBootstrapClient) CreateBulk(builders ...*AdminBootstrapCreate) *AdminBootstrapCreateBulk {
+	return &AdminBootstrapCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AdminBootstrapClient) MapCreateBulk(slice any, setFunc func(*AdminBootstrapCreate, int)) *AdminBootstrapCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AdminBootstrapCreateBulk{err: fmt.Errorf("calling to AdminBootstrapClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AdminBootstrapCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AdminBootstrapCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AdminBootstrap.
+func (c *AdminBootstrapClient) Update() *AdminBootstrapUpdate {
+	mutation := newAdminBootstrapMutation(c.config, OpUpdate)
+	return &AdminBootstrapUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AdminBootstrapClient) UpdateOne(_m *AdminBootstrap) *AdminBootstrapUpdateOne {
+	mutation := newAdminBootstrapMutation(c.config, OpUpdateOne, withAdminBootstrap(_m))
+	return &AdminBootstrapUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AdminBootstrapClient) UpdateOneID(id string) *AdminBootstrapUpdateOne {
+	mutation := newAdminBootstrapMutation(c.config, OpUpdateOne, withAdminBootstrapID(id))
+	return &AdminBootstrapUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AdminBootstrap.
+func (c *AdminBootstrapClient) Delete() *AdminBootstrapDelete {
+	mutation := newAdminBootstrapMutation(c.config, OpDelete)
+	return &AdminBootstrapDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AdminBootstrapClient) DeleteOne(_m *AdminBootstrap) *AdminBootstrapDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AdminBootstrapClient) DeleteOneID(id string) *AdminBootstrapDeleteOne {
+	builder := c.Delete().Where(adminbootstrap.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AdminBootstrapDeleteOne{builder}
+}
+
+// Query returns a query builder for AdminBootstrap.
+func (c *AdminBootstrapClient) Query() *AdminBootstrapQuery {
+	return &AdminBootstrapQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAdminBootstrap},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AdminBootstrap entity by its id.
+func (c *AdminBootstrapClient) Get(ctx context.Context, id string) (*AdminBootstrap, error) {
+	return c.Query().Where(adminbootstrap.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AdminBootstrapClient) GetX(ctx context.Context, id string) *AdminBootstrap {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AdminBootstrapClient) Hooks() []Hook {
+	return c.hooks.AdminBootstrap
+}
+
+// Interceptors returns the client interceptors.
+func (c *AdminBootstrapClient) Interceptors() []Interceptor {
+	return c.inters.AdminBootstrap
+}
+
+func (c *AdminBootstrapClient) mutate(ctx context.Context, m *AdminBootstrapMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AdminBootstrapCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AdminBootstrapUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AdminBootstrapUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AdminBootstrapDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AdminBootstrap mutation op: %q", m.Op())
+	}
+}
+
+// AdminElevationClient is a client for the AdminElevation schema.
+type AdminElevationClient struct {
+	config
+}
+
+// NewAdminElevationClient returns a client for the AdminElevation from the given config.
+func NewAdminElevationClient(c config) *AdminElevationClient {
+	return &AdminElevationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `adminelevation.Hooks(f(g(h())))`.
+func (c *AdminElevationClient) Use(hooks ...Hook) {
+	c.hooks.AdminElevation = append(c.hooks.AdminElevation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `adminelevation.Intercept(f(g(h())))`.
+func (c *AdminElevationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AdminElevation = append(c.inters.AdminElevation, interceptors...)
+}
+
+// Create returns a builder for creating a AdminElevation entity.
+func (c *AdminElevationClient) Create() *AdminElevationCreate {
+	mutation := newAdminElevationMutation(c.config, OpCreate)
+	return &AdminElevationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AdminElevation entities.
+func (c *AdminElevationClient) CreateBulk(builders ...*AdminElevationCreate) *AdminElevationCreateBulk {
+	return &AdminElevationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AdminElevationClient) MapCreateBulk(slice any, setFunc func(*AdminElevationCreate, int)) *AdminElevationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AdminElevationCreateBulk{err: fmt.Errorf("calling to AdminElevationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AdminElevationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AdminElevationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AdminElevation.
+func (c *AdminElevationClient) Update() *AdminElevationUpdate {
+	mutation := newAdminElevationMutation(c.config, OpUpdate)
+	return &AdminElevationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AdminElevationClient) UpdateOne(_m *AdminElevation) *AdminElevationUpdateOne {
+	mutation := newAdminElevationMutation(c.config, OpUpdateOne, withAdminElevation(_m))
+	return &AdminElevationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AdminElevationClient) UpdateOneID(id string) *AdminElevationUpdateOne {
+	mutation := newAdminElevationMutation(c.config, OpUpdateOne, withAdminElevationID(id))
+	return &AdminElevationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AdminElevation.
+func (c *AdminElevationClient) Delete() *AdminElevationDelete {
+	mutation := newAdminElevationMutation(c.config, OpDelete)
+	return &AdminElevationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AdminElevationClient) DeleteOne(_m *AdminElevation) *AdminElevationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AdminElevationClient) DeleteOneID(id string) *AdminElevationDeleteOne {
+	builder := c.Delete().Where(adminelevation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AdminElevationDeleteOne{builder}
+}
+
+// Query returns a query builder for AdminElevation.
+func (c *AdminElevationClient) Query() *AdminElevationQuery {
+	return &AdminElevationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAdminElevation},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AdminElevation entity by its id.
+func (c *AdminElevationClient) Get(ctx context.Context, id string) (*AdminElevation, error) {
+	return c.Query().Where(adminelevation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AdminElevationClient) GetX(ctx context.Context, id string) *AdminElevation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AdminElevationClient) Hooks() []Hook {
+	return c.hooks.AdminElevation
+}
+
+// Interceptors returns the client interceptors.
+func (c *AdminElevationClient) Interceptors() []Interceptor {
+	return c.inters.AdminElevation
+}
+
+func (c *AdminElevationClient) mutate(ctx context.Context, m *AdminElevationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AdminElevationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AdminElevationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AdminElevationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AdminElevationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AdminElevation mutation op: %q", m.Op())
+	}
+}
+
+// AdminPrincipalClient is a client for the AdminPrincipal schema.
+type AdminPrincipalClient struct {
+	config
+}
+
+// NewAdminPrincipalClient returns a client for the AdminPrincipal from the given config.
+func NewAdminPrincipalClient(c config) *AdminPrincipalClient {
+	return &AdminPrincipalClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `adminprincipal.Hooks(f(g(h())))`.
+func (c *AdminPrincipalClient) Use(hooks ...Hook) {
+	c.hooks.AdminPrincipal = append(c.hooks.AdminPrincipal, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `adminprincipal.Intercept(f(g(h())))`.
+func (c *AdminPrincipalClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AdminPrincipal = append(c.inters.AdminPrincipal, interceptors...)
+}
+
+// Create returns a builder for creating a AdminPrincipal entity.
+func (c *AdminPrincipalClient) Create() *AdminPrincipalCreate {
+	mutation := newAdminPrincipalMutation(c.config, OpCreate)
+	return &AdminPrincipalCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AdminPrincipal entities.
+func (c *AdminPrincipalClient) CreateBulk(builders ...*AdminPrincipalCreate) *AdminPrincipalCreateBulk {
+	return &AdminPrincipalCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AdminPrincipalClient) MapCreateBulk(slice any, setFunc func(*AdminPrincipalCreate, int)) *AdminPrincipalCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AdminPrincipalCreateBulk{err: fmt.Errorf("calling to AdminPrincipalClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AdminPrincipalCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AdminPrincipalCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AdminPrincipal.
+func (c *AdminPrincipalClient) Update() *AdminPrincipalUpdate {
+	mutation := newAdminPrincipalMutation(c.config, OpUpdate)
+	return &AdminPrincipalUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AdminPrincipalClient) UpdateOne(_m *AdminPrincipal) *AdminPrincipalUpdateOne {
+	mutation := newAdminPrincipalMutation(c.config, OpUpdateOne, withAdminPrincipal(_m))
+	return &AdminPrincipalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AdminPrincipalClient) UpdateOneID(id string) *AdminPrincipalUpdateOne {
+	mutation := newAdminPrincipalMutation(c.config, OpUpdateOne, withAdminPrincipalID(id))
+	return &AdminPrincipalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AdminPrincipal.
+func (c *AdminPrincipalClient) Delete() *AdminPrincipalDelete {
+	mutation := newAdminPrincipalMutation(c.config, OpDelete)
+	return &AdminPrincipalDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AdminPrincipalClient) DeleteOne(_m *AdminPrincipal) *AdminPrincipalDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AdminPrincipalClient) DeleteOneID(id string) *AdminPrincipalDeleteOne {
+	builder := c.Delete().Where(adminprincipal.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AdminPrincipalDeleteOne{builder}
+}
+
+// Query returns a query builder for AdminPrincipal.
+func (c *AdminPrincipalClient) Query() *AdminPrincipalQuery {
+	return &AdminPrincipalQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAdminPrincipal},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AdminPrincipal entity by its id.
+func (c *AdminPrincipalClient) Get(ctx context.Context, id string) (*AdminPrincipal, error) {
+	return c.Query().Where(adminprincipal.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AdminPrincipalClient) GetX(ctx context.Context, id string) *AdminPrincipal {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AdminPrincipalClient) Hooks() []Hook {
+	return c.hooks.AdminPrincipal
+}
+
+// Interceptors returns the client interceptors.
+func (c *AdminPrincipalClient) Interceptors() []Interceptor {
+	return c.inters.AdminPrincipal
+}
+
+func (c *AdminPrincipalClient) mutate(ctx context.Context, m *AdminPrincipalMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AdminPrincipalCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AdminPrincipalUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AdminPrincipalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AdminPrincipalDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AdminPrincipal mutation op: %q", m.Op())
 	}
 }
 
@@ -2466,40 +2891,45 @@ func (c *WebSessionClient) mutate(ctx context.Context, m *WebSessionMutation) (V
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AccountChallenge, AccountUser, ApplicationVersion, AuthorizationGrant,
-		AuthorizationInteraction, DeveloperApplication, EmailDelivery,
-		EmailVerification, Invitation, OAuthClient, ProtocolSession, RPLogin,
-		RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Hook
+		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
+		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
+		DeveloperApplication, EmailDelivery, EmailVerification, Invitation,
+		OAuthClient, ProtocolSession, RPLogin, RegistrationPolicy, SecurityEvent,
+		SigningKey, WebSession []ent.Hook
 	}
 	inters struct {
-		AccountChallenge, AccountUser, ApplicationVersion, AuthorizationGrant,
-		AuthorizationInteraction, DeveloperApplication, EmailDelivery,
-		EmailVerification, Invitation, OAuthClient, ProtocolSession, RPLogin,
-		RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Interceptor
+		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
+		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
+		DeveloperApplication, EmailDelivery, EmailVerification, Invitation,
+		OAuthClient, ProtocolSession, RPLogin, RegistrationPolicy, SecurityEvent,
+		SigningKey, WebSession []ent.Interceptor
 	}
 )
 
 var (
 	// DefaultSchemaConfig represents the default schema names for all tables as defined in ent/schema.
 	DefaultSchemaConfig = SchemaConfig{
-		AccountChallenge:         tableSchemas[3],
-		AccountUser:              tableSchemas[3],
-		ApplicationVersion:       tableSchemas[2],
-		AuthorizationGrant:       tableSchemas[1],
-		AuthorizationInteraction: tableSchemas[1],
-		DeveloperApplication:     tableSchemas[2],
-		EmailDelivery:            tableSchemas[4],
-		EmailVerification:        tableSchemas[3],
-		Invitation:               tableSchemas[3],
-		OAuthClient:              tableSchemas[1],
-		ProtocolSession:          tableSchemas[1],
-		RPLogin:                  tableSchemas[5],
-		RegistrationPolicy:       tableSchemas[3],
-		SecurityEvent:            tableSchemas[0],
-		SigningKey:               tableSchemas[1],
-		WebSession:               tableSchemas[5],
+		AccountChallenge:         tableSchemas[4],
+		AccountUser:              tableSchemas[4],
+		AdminBootstrap:           tableSchemas[0],
+		AdminElevation:           tableSchemas[0],
+		AdminPrincipal:           tableSchemas[0],
+		ApplicationVersion:       tableSchemas[3],
+		AuthorizationGrant:       tableSchemas[2],
+		AuthorizationInteraction: tableSchemas[2],
+		DeveloperApplication:     tableSchemas[3],
+		EmailDelivery:            tableSchemas[5],
+		EmailVerification:        tableSchemas[4],
+		Invitation:               tableSchemas[4],
+		OAuthClient:              tableSchemas[2],
+		ProtocolSession:          tableSchemas[2],
+		RPLogin:                  tableSchemas[6],
+		RegistrationPolicy:       tableSchemas[4],
+		SecurityEvent:            tableSchemas[1],
+		SigningKey:               tableSchemas[2],
+		WebSession:               tableSchemas[6],
 	}
-	tableSchemas = [...]string{"audit", "authorization", "developer", "identity", "notifications", "sessions"}
+	tableSchemas = [...]string{"administration", "audit", "authorization", "developer", "identity", "notifications", "sessions"}
 )
 
 // SchemaConfig represents alternative schema names for all tables

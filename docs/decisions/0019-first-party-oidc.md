@@ -1,7 +1,7 @@
 # ADR-0019：自有中心通过 OAuth/OIDC 登录
 
 - 日期：2026-10-19。
-- 状态：用户已要求；Go RP、普通前端入口/守卫、真实数据库与 Chromium 协议闭环已完成，管理员 RP 仍待接入。
+- 状态：用户已要求；Go RP、普通前端入口/守卫、真实数据库与 Chromium 协议闭环已完成；独立管理员 RP 后端由 [ADR-0022](0022-administrator-security-and-review.md) 扩展，后台页面待接入。
 - 更新范围：ADR-0006、ADR-0017 中直接复用身份认证 Cookie 登录用户站的实施路径；Go 服务端会话所有权、两个前端、同源 developer 分区保持。
 
 ## 用户决定与参考事实
@@ -26,7 +26,7 @@ state/nonce/PKCE 及回调校验、秘密、令牌和会话归 Go；Nuxt 渲染�
 
 当前模块化单体使用受限的进程内 HTTP transport 调用真实 Fosite token handler 与 JWKS handler：只接受配置 issuer 的两个固定路径，不访问浏览器指定上游，也不绕过授权码、客户端认证或验签。RP 入口仍执行公开协议限流。此方式避免回调处理依赖 Nuxt 再代理回 Go；未来拆分服务时替换为受控网络 transport，并重新验证 HTTPS、超时、密钥更新与故障边界。
 
-兑换所得 OAuth 凭据仅用于验证本次登录，随后丢弃，不请求 offline_access、不持久化刷新令牌。建立独立 RP 会话后不依赖 ID Token 每次充当访问令牌；本地退出只结束 RP 会话，不等于中央或跨 RP 退出。管理台需独立客户端、角色与 MFA，当前未注册或放行管理员 RP。上述时效与密钥派生是开发基线，正式轮换和生产策略仍需验收。
+兑换所得 OAuth 凭据仅用于验证本次登录，随后丢弃，不请求 offline_access、不持久化刷新令牌。建立独立 RP 会话后不依赖 ID Token 每次充当访问令牌；本地退出只结束 RP 会话，不等于中央或跨 RP 退出。管理台的独立客户端、角色与 MFA 已由 ADR-0022 实现，不能复用普通用户 Cookie 放行。上述时效与密钥派生是开发基线，正式轮换和生产策略仍需验收。
 
 需验证匿名/已有身份会话/已有 RP 会话、回调重放、错误 state/nonce/issuer/audience/签名、拒绝、过期、退出、恢复原目的页与管理员权限/MFA。不能仅用 mock 跳转代替真实协议验收。具体交接见 [前端协调](../coordination/frontend.md)。
 

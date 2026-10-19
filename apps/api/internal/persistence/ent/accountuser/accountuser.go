@@ -31,6 +31,8 @@ const (
 	FieldPasswordHash = "password_hash"
 	// FieldEnabled holds the string denoting the enabled field in the database.
 	FieldEnabled = "enabled"
+	// FieldDisabledReason holds the string denoting the disabled_reason field in the database.
+	FieldDisabledReason = "disabled_reason"
 	// FieldEmailVerifiedAt holds the string denoting the email_verified_at field in the database.
 	FieldEmailVerifiedAt = "email_verified_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -51,6 +53,7 @@ var Columns = []string{
 	FieldSecurityVersion,
 	FieldPasswordHash,
 	FieldEnabled,
+	FieldDisabledReason,
 	FieldEmailVerifiedAt,
 	FieldCreatedAt,
 }
@@ -78,6 +81,8 @@ var (
 	DefaultSecurityVersion int
 	// DefaultEnabled holds the default value on creation for the "enabled" field.
 	DefaultEnabled bool
+	// DefaultDisabledReason holds the default value on creation for the "disabled_reason" field.
+	DefaultDisabledReason string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -130,6 +135,11 @@ func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
 // ByEnabled orders the results by the enabled field.
 func ByEnabled(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEnabled, opts...).ToFunc()
+}
+
+// ByDisabledReason orders the results by the disabled_reason field.
+func ByDisabledReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDisabledReason, opts...).ToFunc()
 }
 
 // ByEmailVerifiedAt orders the results by the email_verified_at field.

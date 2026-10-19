@@ -12,6 +12,15 @@ type AccountChallenge func(*sql.Selector)
 // AccountUser is the predicate function for accountuser builders.
 type AccountUser func(*sql.Selector)
 
+// AdminBootstrap is the predicate function for adminbootstrap builders.
+type AdminBootstrap func(*sql.Selector)
+
+// AdminElevation is the predicate function for adminelevation builders.
+type AdminElevation func(*sql.Selector)
+
+// AdminPrincipal is the predicate function for adminprincipal builders.
+type AdminPrincipal func(*sql.Selector)
+
 // ApplicationVersion is the predicate function for applicationversion builders.
 type ApplicationVersion func(*sql.Selector)
 

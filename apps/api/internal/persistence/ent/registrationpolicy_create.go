@@ -33,6 +33,20 @@ func (_c *RegistrationPolicyCreate) SetNillableMode(v *registrationpolicy.Mode) 
 	return _c
 }
 
+// SetRevision sets the "revision" field.
+func (_c *RegistrationPolicyCreate) SetRevision(v int) *RegistrationPolicyCreate {
+	_c.mutation.SetRevision(v)
+	return _c
+}
+
+// SetNillableRevision sets the "revision" field if the given value is not nil.
+func (_c *RegistrationPolicyCreate) SetNillableRevision(v *int) *RegistrationPolicyCreate {
+	if v != nil {
+		_c.SetRevision(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *RegistrationPolicyCreate) SetID(v string) *RegistrationPolicyCreate {
 	_c.mutation.SetID(v)
@@ -78,6 +92,10 @@ func (_c *RegistrationPolicyCreate) defaults() {
 		v := registrationpolicy.DefaultMode
 		_c.mutation.SetMode(v)
 	}
+	if _, ok := _c.mutation.Revision(); !ok {
+		v := registrationpolicy.DefaultRevision
+		_c.mutation.SetRevision(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -89,6 +107,9 @@ func (_c *RegistrationPolicyCreate) check() error {
 		if err := registrationpolicy.ModeValidator(v); err != nil {
 			return &ValidationError{Name: "mode", err: fmt.Errorf(`ent: validator failed for field "RegistrationPolicy.mode": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.Revision(); !ok {
+		return &ValidationError{Name: "revision", err: errors.New(`ent: missing required field "RegistrationPolicy.revision"`)}
 	}
 	return nil
 }
@@ -129,6 +150,10 @@ func (_c *RegistrationPolicyCreate) createSpec() (*RegistrationPolicy, *sqlgraph
 	if value, ok := _c.mutation.Mode(); ok {
 		_spec.SetField(registrationpolicy.FieldMode, field.TypeEnum, value)
 		_node.Mode = value
+	}
+	if value, ok := _c.mutation.Revision(); ok {
+		_spec.SetField(registrationpolicy.FieldRevision, field.TypeInt, value)
+		_node.Revision = value
 	}
 	return _node, _spec
 }

@@ -87,6 +87,7 @@ func TestPersistentClientCredentialsAndRestart(t *testing.T) {
 		t.Fatal(err)
 	}
 	encoded := base64.StdEncoding.EncodeToString(root)
+	t.Run("administrator bootstrap", func(t *testing.T) { testAdministratorBootstrap(t, db, encoded) })
 	box, err := cryptobox.New(encoded)
 	if err != nil {
 		t.Fatal(err)

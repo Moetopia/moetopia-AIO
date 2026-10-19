@@ -12,6 +12,7 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/ory/fosite v0.49.0
+	github.com/pquerna/otp v1.5.0
 	github.com/pressly/goose/v3 v3.29.0
 	github.com/valkey-io/valkey-go v1.0.79
 	golang.org/x/crypto v0.58.0
@@ -25,6 +26,7 @@ require (
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect

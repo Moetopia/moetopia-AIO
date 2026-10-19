@@ -17,9 +17,11 @@ import (
 )
 
 type loginPayload struct {
-	Verifier string `json:"verifier"`
-	Nonce    string `json:"nonce"`
-	ReturnTo string `json:"return_to"`
+	Verifier  string `json:"verifier"`
+	Nonce     string `json:"nonce"`
+	ReturnTo  string `json:"return_to"`
+	ClientID  string `json:"client_id"`
+	StartedAt int64  `json:"started_at"`
 }
 
 func (s *Service) Login(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +38,7 @@ func (s *Service) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	path, err := ReturnPath(query.Get("return_to"))
+	path, err := s.returnPath(query.Get("return_to"))
 	if err != nil {
 		s.Problem(w, 400, "rp_return_path_invalid")
 		return
@@ -67,7 +69,7 @@ func (s *Service) Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	verifier := oauth2.GenerateVerifier()
-	payload, _ := json.Marshal(loginPayload{verifier, nonce, path})
+	payload, _ := json.Marshal(loginPayload{verifier, nonce, path, s.clientID, time.Now().Unix()})
 	id := digest("rp-state:" + state)
 	encrypted, err := s.box.Seal(payload, "rp-login:"+id)
 	if err != nil {
@@ -79,7 +81,11 @@ func (s *Service) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{Name: s.browserCookie(), Value: browser, Path: "/", HttpOnly: true, Secure: s.secure, SameSite: http.SameSiteLaxMode, MaxAge: 3600})
-	http.Redirect(w, r, s.oauth.AuthCodeURL(state, oauth2.S256ChallengeOption(verifier), oidc.Nonce(nonce), oauth2.SetAuthURLParam("audience", s.issuer+"/api")), http.StatusSeeOther)
+	options := []oauth2.AuthCodeOption{oauth2.S256ChallengeOption(verifier), oidc.Nonce(nonce), oauth2.SetAuthURLParam("audience", s.issuer+"/api")}
+	if s.admin {
+		options = append(options, oauth2.SetAuthURLParam("prompt", "login"), oauth2.SetAuthURLParam("max_age", "0"))
+	}
+	http.Redirect(w, r, s.oauth.AuthCodeURL(state, options...), http.StatusSeeOther)
 }
 
 func (s *Service) consume(ctx context.Context, r *http.Request, state string) (loginPayload, error) {
@@ -117,7 +123,10 @@ func (s *Service) consume(ctx context.Context, r *http.Request, state string) (l
 	if err := json.Unmarshal(plaintext, &payload); err != nil {
 		return payload, err
 	}
-	if _, err := ReturnPath(payload.ReturnTo); err != nil {
+	if payload.ClientID != s.clientID || payload.StartedAt <= 0 {
+		return payload, ErrLogin
+	}
+	if _, err := s.returnPath(payload.ReturnTo); err != nil {
 		return payload, err
 	}
 	if err := tx.RPLogin.UpdateOneID(id).SetConsumed(true).SetPayload([]byte{}).Exec(ctx); err != nil {
@@ -185,7 +194,7 @@ func (s *Service) Callback(w http.ResponseWriter, r *http.Request) {
 		AuthTime        int64  `json:"auth_time"`
 		SecurityVersion int    `json:"security_version"`
 	}
-	if err := idToken.Claims(&claims); err != nil || len(idToken.Audience) != 1 || claims.AuthorizedParty != "" && claims.AuthorizedParty != ClientID || idToken.Subject == "" || idToken.Nonce != payload.Nonce || idToken.IssuedAt.IsZero() || idToken.IssuedAt.After(time.Now().Add(time.Minute)) || idToken.IssuedAt.Before(time.Now().Add(-6*time.Minute)) || claims.AuthTime <= 0 || claims.AuthTime > time.Now().Add(time.Minute).Unix() || idToken.AccessTokenHash == "" || idToken.VerifyAccessToken(token.AccessToken) != nil {
+	if err := idToken.Claims(&claims); err != nil || len(idToken.Audience) != 1 || claims.AuthorizedParty != "" && claims.AuthorizedParty != s.clientID || idToken.Subject == "" || idToken.Nonce != payload.Nonce || idToken.IssuedAt.IsZero() || idToken.IssuedAt.After(time.Now().Add(time.Minute)) || idToken.IssuedAt.Before(time.Now().Add(-6*time.Minute)) || claims.AuthTime <= 0 || claims.AuthTime > time.Now().Add(time.Minute).Unix() || s.admin && claims.AuthTime < payload.StartedAt-1 || idToken.AccessTokenHash == "" || idToken.VerifyAccessToken(token.AccessToken) != nil {
 		s.Problem(w, 400, "rp_identity_invalid")
 		return
 	}
@@ -213,5 +222,5 @@ func (s *Service) Callback(w http.ResponseWriter, r *http.Request) {
 	cookie := s.Sessions.Cookie(handle)
 	http.SetCookie(w, &cookie)
 	// OAuth credentials are discarded after verified login; only the server-side RP session persists.
-	http.Redirect(w, r, s.issuer+payload.ReturnTo, http.StatusSeeOther)
+	http.Redirect(w, r, s.origin+payload.ReturnTo, http.StatusSeeOther)
 }

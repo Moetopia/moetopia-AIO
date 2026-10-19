@@ -56,6 +56,34 @@ func (_u *DeveloperApplicationUpdate) SetNillableDeleted(v *bool) *DeveloperAppl
 	return _u
 }
 
+// SetSuspended sets the "suspended" field.
+func (_u *DeveloperApplicationUpdate) SetSuspended(v bool) *DeveloperApplicationUpdate {
+	_u.mutation.SetSuspended(v)
+	return _u
+}
+
+// SetNillableSuspended sets the "suspended" field if the given value is not nil.
+func (_u *DeveloperApplicationUpdate) SetNillableSuspended(v *bool) *DeveloperApplicationUpdate {
+	if v != nil {
+		_u.SetSuspended(*v)
+	}
+	return _u
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (_u *DeveloperApplicationUpdate) SetSuspensionReason(v string) *DeveloperApplicationUpdate {
+	_u.mutation.SetSuspensionReason(v)
+	return _u
+}
+
+// SetNillableSuspensionReason sets the "suspension_reason" field if the given value is not nil.
+func (_u *DeveloperApplicationUpdate) SetNillableSuspensionReason(v *string) *DeveloperApplicationUpdate {
+	if v != nil {
+		_u.SetSuspensionReason(*v)
+	}
+	return _u
+}
+
 // SetRevision sets the "revision" field.
 func (_u *DeveloperApplicationUpdate) SetRevision(v int) *DeveloperApplicationUpdate {
 	_u.mutation.ResetRevision()
@@ -166,6 +194,12 @@ func (_u *DeveloperApplicationUpdate) sqlSave(ctx context.Context) (_node int, e
 	if value, ok := _u.mutation.Deleted(); ok {
 		_spec.SetField(developerapplication.FieldDeleted, field.TypeBool, value)
 	}
+	if value, ok := _u.mutation.Suspended(); ok {
+		_spec.SetField(developerapplication.FieldSuspended, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.SuspensionReason(); ok {
+		_spec.SetField(developerapplication.FieldSuspensionReason, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Revision(); ok {
 		_spec.SetField(developerapplication.FieldRevision, field.TypeInt, value)
 	}
@@ -230,6 +264,34 @@ func (_u *DeveloperApplicationUpdateOne) SetDeleted(v bool) *DeveloperApplicatio
 func (_u *DeveloperApplicationUpdateOne) SetNillableDeleted(v *bool) *DeveloperApplicationUpdateOne {
 	if v != nil {
 		_u.SetDeleted(*v)
+	}
+	return _u
+}
+
+// SetSuspended sets the "suspended" field.
+func (_u *DeveloperApplicationUpdateOne) SetSuspended(v bool) *DeveloperApplicationUpdateOne {
+	_u.mutation.SetSuspended(v)
+	return _u
+}
+
+// SetNillableSuspended sets the "suspended" field if the given value is not nil.
+func (_u *DeveloperApplicationUpdateOne) SetNillableSuspended(v *bool) *DeveloperApplicationUpdateOne {
+	if v != nil {
+		_u.SetSuspended(*v)
+	}
+	return _u
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (_u *DeveloperApplicationUpdateOne) SetSuspensionReason(v string) *DeveloperApplicationUpdateOne {
+	_u.mutation.SetSuspensionReason(v)
+	return _u
+}
+
+// SetNillableSuspensionReason sets the "suspension_reason" field if the given value is not nil.
+func (_u *DeveloperApplicationUpdateOne) SetNillableSuspensionReason(v *string) *DeveloperApplicationUpdateOne {
+	if v != nil {
+		_u.SetSuspensionReason(*v)
 	}
 	return _u
 }
@@ -373,6 +435,12 @@ func (_u *DeveloperApplicationUpdateOne) sqlSave(ctx context.Context) (_node *De
 	}
 	if value, ok := _u.mutation.Deleted(); ok {
 		_spec.SetField(developerapplication.FieldDeleted, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Suspended(); ok {
+		_spec.SetField(developerapplication.FieldSuspended, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.SuspensionReason(); ok {
+		_spec.SetField(developerapplication.FieldSuspensionReason, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Revision(); ok {
 		_spec.SetField(developerapplication.FieldRevision, field.TypeInt, value)

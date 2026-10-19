@@ -15,6 +15,8 @@ const (
 	FieldID = "id"
 	// FieldMode holds the string denoting the mode field in the database.
 	FieldMode = "mode"
+	// FieldRevision holds the string denoting the revision field in the database.
+	FieldRevision = "revision"
 	// Table holds the table name of the registrationpolicy in the database.
 	Table = "registration_policy"
 )
@@ -23,6 +25,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldMode,
+	FieldRevision,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -34,6 +37,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultRevision holds the default value on creation for the "revision" field.
+	DefaultRevision int
+)
 
 // Mode defines the type for the "mode" enum field.
 type Mode string
@@ -72,4 +80,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByMode orders the results by the mode field.
 func ByMode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMode, opts...).ToFunc()
+}
+
+// ByRevision orders the results by the revision field.
+func ByRevision(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRevision, opts...).ToFunc()
 }

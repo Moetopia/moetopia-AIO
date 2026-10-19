@@ -35,6 +35,8 @@ type AccountUser struct {
 	PasswordHash string `json:"-"`
 	// Enabled holds the value of the "enabled" field.
 	Enabled bool `json:"enabled,omitempty"`
+	// DisabledReason holds the value of the "disabled_reason" field.
+	DisabledReason string `json:"disabled_reason,omitempty"`
 	// EmailVerifiedAt holds the value of the "email_verified_at" field.
 	EmailVerifiedAt time.Time `json:"email_verified_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -53,7 +55,7 @@ func (*AccountUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case accountuser.FieldRevision, accountuser.FieldSecurityVersion:
 			values[i] = new(sql.NullInt64)
-		case accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldPasswordHash:
+		case accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldPasswordHash, accountuser.FieldDisabledReason:
 			values[i] = new(sql.NullString)
 		case accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -132,6 +134,12 @@ func (_m *AccountUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Enabled = value.Bool
 			}
+		case accountuser.FieldDisabledReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field disabled_reason", values[i])
+			} else if value.Valid {
+				_m.DisabledReason = value.String
+			}
 		case accountuser.FieldEmailVerifiedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field email_verified_at", values[i])
@@ -205,6 +213,9 @@ func (_m *AccountUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("enabled=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Enabled))
+	builder.WriteString(", ")
+	builder.WriteString("disabled_reason=")
+	builder.WriteString(_m.DisabledReason)
 	builder.WriteString(", ")
 	builder.WriteString("email_verified_at=")
 	builder.WriteString(_m.EmailVerifiedAt.Format(time.ANSIC))

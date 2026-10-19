@@ -14,6 +14,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
+	"moetopia.local/aio/api/internal/persistence/ent/adminbootstrap"
+	"moetopia.local/aio/api/internal/persistence/ent/adminelevation"
+	"moetopia.local/aio/api/internal/persistence/ent/adminprincipal"
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
@@ -90,6 +93,9 @@ func checkColumn(t, c string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			accountchallenge.Table:         accountchallenge.ValidColumn,
 			accountuser.Table:              accountuser.ValidColumn,
+			adminbootstrap.Table:           adminbootstrap.ValidColumn,
+			adminelevation.Table:           adminelevation.ValidColumn,
+			adminprincipal.Table:           adminprincipal.ValidColumn,
 			applicationversion.Table:       applicationversion.ValidColumn,
 			authorizationgrant.Table:       authorizationgrant.ValidColumn,
 			authorizationinteraction.Table: authorizationinteraction.ValidColumn,

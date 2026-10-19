@@ -7,6 +7,8 @@ import (
 
 	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
+	"moetopia.local/aio/api/internal/persistence/ent/adminbootstrap"
+	"moetopia.local/aio/api/internal/persistence/ent/adminprincipal"
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
@@ -16,6 +18,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
+	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
 	"moetopia.local/aio/api/internal/persistence/ent/schema"
 	"moetopia.local/aio/api/internal/persistence/ent/securityevent"
@@ -67,14 +70,50 @@ func init() {
 	accountuserDescEnabled := accountuserFields[9].Descriptor()
 	// accountuser.DefaultEnabled holds the default value on creation for the enabled field.
 	accountuser.DefaultEnabled = accountuserDescEnabled.Default.(bool)
+	// accountuserDescDisabledReason is the schema descriptor for disabled_reason field.
+	accountuserDescDisabledReason := accountuserFields[10].Descriptor()
+	// accountuser.DefaultDisabledReason holds the default value on creation for the disabled_reason field.
+	accountuser.DefaultDisabledReason = accountuserDescDisabledReason.Default.(string)
 	// accountuserDescCreatedAt is the schema descriptor for created_at field.
-	accountuserDescCreatedAt := accountuserFields[11].Descriptor()
+	accountuserDescCreatedAt := accountuserFields[12].Descriptor()
 	// accountuser.DefaultCreatedAt holds the default value on creation for the created_at field.
 	accountuser.DefaultCreatedAt = accountuserDescCreatedAt.Default.(func() time.Time)
 	// accountuserDescID is the schema descriptor for id field.
 	accountuserDescID := accountuserFields[0].Descriptor()
 	// accountuser.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	accountuser.IDValidator = accountuserDescID.Validators[0].(func(string) error)
+	adminbootstrapFields := schema.AdminBootstrap{}.Fields()
+	_ = adminbootstrapFields
+	// adminbootstrapDescCreatedAt is the schema descriptor for created_at field.
+	adminbootstrapDescCreatedAt := adminbootstrapFields[2].Descriptor()
+	// adminbootstrap.DefaultCreatedAt holds the default value on creation for the created_at field.
+	adminbootstrap.DefaultCreatedAt = adminbootstrapDescCreatedAt.Default.(func() time.Time)
+	adminprincipalFields := schema.AdminPrincipal{}.Fields()
+	_ = adminprincipalFields
+	// adminprincipalDescEnabled is the schema descriptor for enabled field.
+	adminprincipalDescEnabled := adminprincipalFields[1].Descriptor()
+	// adminprincipal.DefaultEnabled holds the default value on creation for the enabled field.
+	adminprincipal.DefaultEnabled = adminprincipalDescEnabled.Default.(bool)
+	// adminprincipalDescPendingSession is the schema descriptor for pending_session field.
+	adminprincipalDescPendingSession := adminprincipalFields[4].Descriptor()
+	// adminprincipal.DefaultPendingSession holds the default value on creation for the pending_session field.
+	adminprincipal.DefaultPendingSession = adminprincipalDescPendingSession.Default.(string)
+	// adminprincipalDescLastCounter is the schema descriptor for last_counter field.
+	adminprincipalDescLastCounter := adminprincipalFields[6].Descriptor()
+	// adminprincipal.DefaultLastCounter holds the default value on creation for the last_counter field.
+	adminprincipal.DefaultLastCounter = adminprincipalDescLastCounter.Default.(int64)
+	// adminprincipalDescFactorVersion is the schema descriptor for factor_version field.
+	adminprincipalDescFactorVersion := adminprincipalFields[7].Descriptor()
+	// adminprincipal.DefaultFactorVersion holds the default value on creation for the factor_version field.
+	adminprincipal.DefaultFactorVersion = adminprincipalDescFactorVersion.Default.(int)
+	// adminprincipalDescRecoveryHashes is the schema descriptor for recovery_hashes field.
+	adminprincipalDescRecoveryHashes := adminprincipalFields[8].Descriptor()
+	// adminprincipal.DefaultRecoveryHashes holds the default value on creation for the recovery_hashes field.
+	adminprincipal.DefaultRecoveryHashes = adminprincipalDescRecoveryHashes.Default.([]string)
+	// adminprincipalDescCreatedAt is the schema descriptor for created_at field.
+	adminprincipalDescCreatedAt := adminprincipalFields[9].Descriptor()
+	// adminprincipal.DefaultCreatedAt holds the default value on creation for the created_at field.
+	adminprincipal.DefaultCreatedAt = adminprincipalDescCreatedAt.Default.(func() time.Time)
 	applicationversionFields := schema.ApplicationVersion{}.Fields()
 	_ = applicationversionFields
 	// applicationversionDescReviewReason is the schema descriptor for review_reason field.
@@ -135,20 +174,28 @@ func init() {
 	developerapplicationDescDeleted := developerapplicationFields[5].Descriptor()
 	// developerapplication.DefaultDeleted holds the default value on creation for the deleted field.
 	developerapplication.DefaultDeleted = developerapplicationDescDeleted.Default.(bool)
+	// developerapplicationDescSuspended is the schema descriptor for suspended field.
+	developerapplicationDescSuspended := developerapplicationFields[6].Descriptor()
+	// developerapplication.DefaultSuspended holds the default value on creation for the suspended field.
+	developerapplication.DefaultSuspended = developerapplicationDescSuspended.Default.(bool)
+	// developerapplicationDescSuspensionReason is the schema descriptor for suspension_reason field.
+	developerapplicationDescSuspensionReason := developerapplicationFields[7].Descriptor()
+	// developerapplication.DefaultSuspensionReason holds the default value on creation for the suspension_reason field.
+	developerapplication.DefaultSuspensionReason = developerapplicationDescSuspensionReason.Default.(string)
 	// developerapplicationDescRevision is the schema descriptor for revision field.
-	developerapplicationDescRevision := developerapplicationFields[6].Descriptor()
+	developerapplicationDescRevision := developerapplicationFields[8].Descriptor()
 	// developerapplication.DefaultRevision holds the default value on creation for the revision field.
 	developerapplication.DefaultRevision = developerapplicationDescRevision.Default.(int)
 	// developerapplicationDescActiveVersion is the schema descriptor for active_version field.
-	developerapplicationDescActiveVersion := developerapplicationFields[7].Descriptor()
+	developerapplicationDescActiveVersion := developerapplicationFields[9].Descriptor()
 	// developerapplication.DefaultActiveVersion holds the default value on creation for the active_version field.
 	developerapplication.DefaultActiveVersion = developerapplicationDescActiveVersion.Default.(int)
 	// developerapplicationDescLatestVersion is the schema descriptor for latest_version field.
-	developerapplicationDescLatestVersion := developerapplicationFields[8].Descriptor()
+	developerapplicationDescLatestVersion := developerapplicationFields[10].Descriptor()
 	// developerapplication.DefaultLatestVersion holds the default value on creation for the latest_version field.
 	developerapplication.DefaultLatestVersion = developerapplicationDescLatestVersion.Default.(int)
 	// developerapplicationDescCreatedAt is the schema descriptor for created_at field.
-	developerapplicationDescCreatedAt := developerapplicationFields[9].Descriptor()
+	developerapplicationDescCreatedAt := developerapplicationFields[11].Descriptor()
 	// developerapplication.DefaultCreatedAt holds the default value on creation for the created_at field.
 	developerapplication.DefaultCreatedAt = developerapplicationDescCreatedAt.Default.(func() time.Time)
 	emaildeliveryFields := schema.EmailDelivery{}.Fields()
@@ -173,8 +220,12 @@ func init() {
 	invitationDescConsumed := invitationFields[2].Descriptor()
 	// invitation.DefaultConsumed holds the default value on creation for the consumed field.
 	invitation.DefaultConsumed = invitationDescConsumed.Default.(bool)
+	// invitationDescRevoked is the schema descriptor for revoked field.
+	invitationDescRevoked := invitationFields[3].Descriptor()
+	// invitation.DefaultRevoked holds the default value on creation for the revoked field.
+	invitation.DefaultRevoked = invitationDescRevoked.Default.(bool)
 	// invitationDescCreatedAt is the schema descriptor for created_at field.
-	invitationDescCreatedAt := invitationFields[3].Descriptor()
+	invitationDescCreatedAt := invitationFields[4].Descriptor()
 	// invitation.DefaultCreatedAt holds the default value on creation for the created_at field.
 	invitation.DefaultCreatedAt = invitationDescCreatedAt.Default.(func() time.Time)
 	oauthclientFields := schema.OAuthClient{}.Fields()
@@ -249,10 +300,26 @@ func init() {
 	rplogin.DefaultCreatedAt = rploginDescCreatedAt.Default.(func() time.Time)
 	registrationpolicyFields := schema.RegistrationPolicy{}.Fields()
 	_ = registrationpolicyFields
+	// registrationpolicyDescRevision is the schema descriptor for revision field.
+	registrationpolicyDescRevision := registrationpolicyFields[2].Descriptor()
+	// registrationpolicy.DefaultRevision holds the default value on creation for the revision field.
+	registrationpolicy.DefaultRevision = registrationpolicyDescRevision.Default.(int)
 	securityeventFields := schema.SecurityEvent{}.Fields()
 	_ = securityeventFields
+	// securityeventDescTargetID is the schema descriptor for target_id field.
+	securityeventDescTargetID := securityeventFields[3].Descriptor()
+	// securityevent.DefaultTargetID holds the default value on creation for the target_id field.
+	securityevent.DefaultTargetID = securityeventDescTargetID.Default.(string)
+	// securityeventDescRequestID is the schema descriptor for request_id field.
+	securityeventDescRequestID := securityeventFields[4].Descriptor()
+	// securityevent.DefaultRequestID holds the default value on creation for the request_id field.
+	securityevent.DefaultRequestID = securityeventDescRequestID.Default.(string)
+	// securityeventDescOutcome is the schema descriptor for outcome field.
+	securityeventDescOutcome := securityeventFields[5].Descriptor()
+	// securityevent.DefaultOutcome holds the default value on creation for the outcome field.
+	securityevent.DefaultOutcome = securityeventDescOutcome.Default.(string)
 	// securityeventDescCreatedAt is the schema descriptor for created_at field.
-	securityeventDescCreatedAt := securityeventFields[3].Descriptor()
+	securityeventDescCreatedAt := securityeventFields[6].Descriptor()
 	// securityevent.DefaultCreatedAt holds the default value on creation for the created_at field.
 	securityevent.DefaultCreatedAt = securityeventDescCreatedAt.Default.(func() time.Time)
 	signingkeyFields := schema.SigningKey{}.Fields()

@@ -167,6 +167,20 @@ func (_u *AccountUserUpdate) SetNillableEnabled(v *bool) *AccountUserUpdate {
 	return _u
 }
 
+// SetDisabledReason sets the "disabled_reason" field.
+func (_u *AccountUserUpdate) SetDisabledReason(v string) *AccountUserUpdate {
+	_u.mutation.SetDisabledReason(v)
+	return _u
+}
+
+// SetNillableDisabledReason sets the "disabled_reason" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableDisabledReason(v *string) *AccountUserUpdate {
+	if v != nil {
+		_u.SetDisabledReason(*v)
+	}
+	return _u
+}
+
 // SetEmailVerifiedAt sets the "email_verified_at" field.
 func (_u *AccountUserUpdate) SetEmailVerifiedAt(v time.Time) *AccountUserUpdate {
 	_u.mutation.SetEmailVerifiedAt(v)
@@ -270,6 +284,9 @@ func (_u *AccountUserUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	}
 	if value, ok := _u.mutation.Enabled(); ok {
 		_spec.SetField(accountuser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.DisabledReason(); ok {
+		_spec.SetField(accountuser.FieldDisabledReason, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.EmailVerifiedAt(); ok {
 		_spec.SetField(accountuser.FieldEmailVerifiedAt, field.TypeTime, value)
@@ -434,6 +451,20 @@ func (_u *AccountUserUpdateOne) SetNillableEnabled(v *bool) *AccountUserUpdateOn
 	return _u
 }
 
+// SetDisabledReason sets the "disabled_reason" field.
+func (_u *AccountUserUpdateOne) SetDisabledReason(v string) *AccountUserUpdateOne {
+	_u.mutation.SetDisabledReason(v)
+	return _u
+}
+
+// SetNillableDisabledReason sets the "disabled_reason" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableDisabledReason(v *string) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetDisabledReason(*v)
+	}
+	return _u
+}
+
 // SetEmailVerifiedAt sets the "email_verified_at" field.
 func (_u *AccountUserUpdateOne) SetEmailVerifiedAt(v time.Time) *AccountUserUpdateOne {
 	_u.mutation.SetEmailVerifiedAt(v)
@@ -567,6 +598,9 @@ func (_u *AccountUserUpdateOne) sqlSave(ctx context.Context) (_node *AccountUser
 	}
 	if value, ok := _u.mutation.Enabled(); ok {
 		_spec.SetField(accountuser.FieldEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.DisabledReason(); ok {
+		_spec.SetField(accountuser.FieldDisabledReason, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.EmailVerifiedAt(); ok {
 		_spec.SetField(accountuser.FieldEmailVerifiedAt, field.TypeTime, value)

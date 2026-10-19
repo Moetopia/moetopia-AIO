@@ -37,15 +37,17 @@ type Version struct {
 	ReviewReason string `json:"review_reason"`
 }
 type Application struct {
-	ID            string    `json:"id"`
-	ClientID      string    `json:"client_id"`
-	Public        bool      `json:"public"`
-	Enabled       bool      `json:"enabled"`
-	Revision      int       `json:"revision"`
-	ActiveVersion int       `json:"active_version"`
-	Latest        Version   `json:"latest"`
-	Approved      *Version  `json:"approved,omitempty"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID               string    `json:"id"`
+	ClientID         string    `json:"client_id"`
+	Public           bool      `json:"public"`
+	Enabled          bool      `json:"enabled"`
+	Suspended        bool      `json:"suspended" required:"false"`
+	SuspensionReason string    `json:"suspension_reason" required:"false"`
+	Revision         int       `json:"revision"`
+	ActiveVersion    int       `json:"active_version"`
+	Latest           Version   `json:"latest"`
+	Approved         *Version  `json:"approved,omitempty"`
+	CreatedAt        time.Time `json:"created_at"`
 }
 type Created struct {
 	Application  Application `json:"application"`
@@ -140,7 +142,7 @@ func assemble(row *ent.DeveloperApplication, versions []*ent.ApplicationVersion)
 	if err != nil {
 		return Application{}, err
 	}
-	result := Application{ID: row.ID, ClientID: row.ClientID, Public: row.Public, Enabled: row.Enabled, Revision: row.Revision, ActiveVersion: row.ActiveVersion, Latest: version, CreatedAt: row.CreatedAt}
+	result := Application{ID: row.ID, ClientID: row.ClientID, Public: row.Public, Enabled: row.Enabled, Suspended: row.Suspended, SuspensionReason: row.SuspensionReason, Revision: row.Revision, ActiveVersion: row.ActiveVersion, Latest: version, CreatedAt: row.CreatedAt}
 	if row.ActiveVersion > 0 {
 		if active == nil {
 			return result, errors.New("approved version unavailable")
@@ -154,17 +156,18 @@ func assemble(row *ent.DeveloperApplication, versions []*ent.ApplicationVersion)
 	return result, nil
 }
 func (s *Service) Detail(ctx context.Context, owner, id string) (Application, error) {
-	row, err := s.db.DeveloperApplication.Query().Where(developerapplication.ID(id), developerapplication.OwnerID(owner), developerapplication.Deleted(false)).Only(ctx)
+	db := persistence.Client(ctx, s.db)
+	row, err := db.DeveloperApplication.Query().Where(developerapplication.ID(id), developerapplication.OwnerID(owner), developerapplication.Deleted(false)).Only(ctx)
 	if ent.IsNotFound(err) {
 		return Application{}, ErrMissing
 	}
 	if err != nil {
 		return Application{}, err
 	}
-	return s.view(ctx, s.db, row)
+	return s.view(ctx, db, row)
 }
-func (s *Service) begin(ctx context.Context, user identity.User, id string, revision int) (context.Context, *ent.Tx, *ent.DeveloperApplication, error) {
-	tx, err := s.db.Tx(ctx)
+func (s *Service) begin(ctx context.Context, user identity.User, id string, revision int) (context.Context, *persistence.Unit, *ent.DeveloperApplication, error) {
+	tx, err := persistence.Begin(ctx, s.db)
 	if err != nil {
 		return ctx, nil, nil, err
 	}
@@ -188,5 +191,5 @@ func (s *Service) begin(ctx context.Context, user identity.User, id string, revi
 	return ctx, tx, row, nil
 }
 func (s *Service) spec(row *ent.DeveloperApplication, config Config, testOnly bool) authorization.ManagedClient {
-	return authorization.ManagedClient{ID: row.ClientID, OwnerID: row.OwnerID, Name: config.Name, Public: row.Public, Enabled: row.Enabled, TestOnly: testOnly, RedirectURIs: config.RedirectURIs, Scopes: config.Scopes}
+	return authorization.ManagedClient{ID: row.ClientID, OwnerID: row.OwnerID, Name: config.Name, Public: row.Public, Enabled: row.Enabled && !row.Suspended, TestOnly: testOnly, RedirectURIs: config.RedirectURIs, Scopes: config.Scopes}
 }

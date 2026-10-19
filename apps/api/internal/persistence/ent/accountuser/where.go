@@ -109,6 +109,11 @@ func Enabled(v bool) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldEnabled, v))
 }
 
+// DisabledReason applies equality check predicate on the "disabled_reason" field. It's identical to DisabledReasonEQ.
+func DisabledReason(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldDisabledReason, v))
+}
+
 // EmailVerifiedAt applies equality check predicate on the "email_verified_at" field. It's identical to EmailVerifiedAtEQ.
 func EmailVerifiedAt(v time.Time) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldEmailVerifiedAt, v))
@@ -582,6 +587,71 @@ func EnabledEQ(v bool) predicate.AccountUser {
 // EnabledNEQ applies the NEQ predicate on the "enabled" field.
 func EnabledNEQ(v bool) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldNEQ(FieldEnabled, v))
+}
+
+// DisabledReasonEQ applies the EQ predicate on the "disabled_reason" field.
+func DisabledReasonEQ(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldDisabledReason, v))
+}
+
+// DisabledReasonNEQ applies the NEQ predicate on the "disabled_reason" field.
+func DisabledReasonNEQ(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldDisabledReason, v))
+}
+
+// DisabledReasonIn applies the In predicate on the "disabled_reason" field.
+func DisabledReasonIn(vs ...string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldDisabledReason, vs...))
+}
+
+// DisabledReasonNotIn applies the NotIn predicate on the "disabled_reason" field.
+func DisabledReasonNotIn(vs ...string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldDisabledReason, vs...))
+}
+
+// DisabledReasonGT applies the GT predicate on the "disabled_reason" field.
+func DisabledReasonGT(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldDisabledReason, v))
+}
+
+// DisabledReasonGTE applies the GTE predicate on the "disabled_reason" field.
+func DisabledReasonGTE(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldDisabledReason, v))
+}
+
+// DisabledReasonLT applies the LT predicate on the "disabled_reason" field.
+func DisabledReasonLT(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldDisabledReason, v))
+}
+
+// DisabledReasonLTE applies the LTE predicate on the "disabled_reason" field.
+func DisabledReasonLTE(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldDisabledReason, v))
+}
+
+// DisabledReasonContains applies the Contains predicate on the "disabled_reason" field.
+func DisabledReasonContains(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldContains(FieldDisabledReason, v))
+}
+
+// DisabledReasonHasPrefix applies the HasPrefix predicate on the "disabled_reason" field.
+func DisabledReasonHasPrefix(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldHasPrefix(FieldDisabledReason, v))
+}
+
+// DisabledReasonHasSuffix applies the HasSuffix predicate on the "disabled_reason" field.
+func DisabledReasonHasSuffix(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldHasSuffix(FieldDisabledReason, v))
+}
+
+// DisabledReasonEqualFold applies the EqualFold predicate on the "disabled_reason" field.
+func DisabledReasonEqualFold(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEqualFold(FieldDisabledReason, v))
+}
+
+// DisabledReasonContainsFold applies the ContainsFold predicate on the "disabled_reason" field.
+func DisabledReasonContainsFold(v string) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldContainsFold(FieldDisabledReason, v))
 }
 
 // EmailVerifiedAtEQ applies the EQ predicate on the "email_verified_at" field.

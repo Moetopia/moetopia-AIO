@@ -74,6 +74,11 @@ func Consumed(v bool) predicate.Invitation {
 	return predicate.Invitation(sql.FieldEQ(FieldConsumed, v))
 }
 
+// Revoked applies equality check predicate on the "revoked" field. It's identical to RevokedEQ.
+func Revoked(v bool) predicate.Invitation {
+	return predicate.Invitation(sql.FieldEQ(FieldRevoked, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Invitation {
 	return predicate.Invitation(sql.FieldEQ(FieldCreatedAt, v))
@@ -127,6 +132,16 @@ func ConsumedEQ(v bool) predicate.Invitation {
 // ConsumedNEQ applies the NEQ predicate on the "consumed" field.
 func ConsumedNEQ(v bool) predicate.Invitation {
 	return predicate.Invitation(sql.FieldNEQ(FieldConsumed, v))
+}
+
+// RevokedEQ applies the EQ predicate on the "revoked" field.
+func RevokedEQ(v bool) predicate.Invitation {
+	return predicate.Invitation(sql.FieldEQ(FieldRevoked, v))
+}
+
+// RevokedNEQ applies the NEQ predicate on the "revoked" field.
+func RevokedNEQ(v bool) predicate.Invitation {
+	return predicate.Invitation(sql.FieldNEQ(FieldRevoked, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

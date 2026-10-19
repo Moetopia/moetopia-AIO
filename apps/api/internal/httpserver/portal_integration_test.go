@@ -35,6 +35,8 @@ type portalFixture struct {
 	userID         string
 	mutation       string
 	applications   *developer.Service
+	protocol       *authorization.Provider
+	backchannel    http.Handler
 }
 
 func newPortalFixture(t *testing.T) *portalFixture {
@@ -130,6 +132,7 @@ func newPortalFixture(t *testing.T) *portalFixture {
 		t.Fatal(err)
 	}
 	f.portal = portal
+	f.protocol, f.backchannel = provider, backchannel
 	f.applications = developer.New(f.db.Ent, provider, f.identity, portalOrigin)
 	f.handler = New(Dependencies{Tokens: provider, Valkey: f.cache, Portal: PortalEndpoints{Service: portal}, Developers: f.applications, Accounts: AccountEndpoints{Identity: f.identity, Sessions: f.sessions, Cache: f.cache, Authorization: provider}})
 	f.userID = uuid.NewString()

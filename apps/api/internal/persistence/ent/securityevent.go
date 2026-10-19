@@ -21,6 +21,12 @@ type SecurityEvent struct {
 	UserID string `json:"user_id,omitempty"`
 	// Action holds the value of the "action" field.
 	Action string `json:"action,omitempty"`
+	// TargetID holds the value of the "target_id" field.
+	TargetID string `json:"target_id,omitempty"`
+	// RequestID holds the value of the "request_id" field.
+	RequestID string `json:"request_id,omitempty"`
+	// Outcome holds the value of the "outcome" field.
+	Outcome string `json:"outcome,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	selectValues sql.SelectValues
@@ -31,7 +37,7 @@ func (*SecurityEvent) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case securityevent.FieldID, securityevent.FieldUserID, securityevent.FieldAction:
+		case securityevent.FieldID, securityevent.FieldUserID, securityevent.FieldAction, securityevent.FieldTargetID, securityevent.FieldRequestID, securityevent.FieldOutcome:
 			values[i] = new(sql.NullString)
 		case securityevent.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -67,6 +73,24 @@ func (_m *SecurityEvent) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field action", values[i])
 			} else if value.Valid {
 				_m.Action = value.String
+			}
+		case securityevent.FieldTargetID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field target_id", values[i])
+			} else if value.Valid {
+				_m.TargetID = value.String
+			}
+		case securityevent.FieldRequestID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field request_id", values[i])
+			} else if value.Valid {
+				_m.RequestID = value.String
+			}
+		case securityevent.FieldOutcome:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field outcome", values[i])
+			} else if value.Valid {
+				_m.Outcome = value.String
 			}
 		case securityevent.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -115,6 +139,15 @@ func (_m *SecurityEvent) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("action=")
 	builder.WriteString(_m.Action)
+	builder.WriteString(", ")
+	builder.WriteString("target_id=")
+	builder.WriteString(_m.TargetID)
+	builder.WriteString(", ")
+	builder.WriteString("request_id=")
+	builder.WriteString(_m.RequestID)
+	builder.WriteString(", ")
+	builder.WriteString("outcome=")
+	builder.WriteString(_m.Outcome)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

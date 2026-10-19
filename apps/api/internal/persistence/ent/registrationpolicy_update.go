@@ -42,6 +42,27 @@ func (_u *RegistrationPolicyUpdate) SetNillableMode(v *registrationpolicy.Mode) 
 	return _u
 }
 
+// SetRevision sets the "revision" field.
+func (_u *RegistrationPolicyUpdate) SetRevision(v int) *RegistrationPolicyUpdate {
+	_u.mutation.ResetRevision()
+	_u.mutation.SetRevision(v)
+	return _u
+}
+
+// SetNillableRevision sets the "revision" field if the given value is not nil.
+func (_u *RegistrationPolicyUpdate) SetNillableRevision(v *int) *RegistrationPolicyUpdate {
+	if v != nil {
+		_u.SetRevision(*v)
+	}
+	return _u
+}
+
+// AddRevision adds value to the "revision" field.
+func (_u *RegistrationPolicyUpdate) AddRevision(v int) *RegistrationPolicyUpdate {
+	_u.mutation.AddRevision(v)
+	return _u
+}
+
 // Mutation returns the RegistrationPolicyMutation object of the builder.
 func (_u *RegistrationPolicyUpdate) Mutation() *RegistrationPolicyMutation {
 	return _u.mutation
@@ -99,6 +120,12 @@ func (_u *RegistrationPolicyUpdate) sqlSave(ctx context.Context) (_node int, err
 	if value, ok := _u.mutation.Mode(); ok {
 		_spec.SetField(registrationpolicy.FieldMode, field.TypeEnum, value)
 	}
+	if value, ok := _u.mutation.Revision(); ok {
+		_spec.SetField(registrationpolicy.FieldRevision, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRevision(); ok {
+		_spec.AddField(registrationpolicy.FieldRevision, field.TypeInt, value)
+	}
 	_spec.Node.Schema = _u.schemaConfig.RegistrationPolicy
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -132,6 +159,27 @@ func (_u *RegistrationPolicyUpdateOne) SetNillableMode(v *registrationpolicy.Mod
 	if v != nil {
 		_u.SetMode(*v)
 	}
+	return _u
+}
+
+// SetRevision sets the "revision" field.
+func (_u *RegistrationPolicyUpdateOne) SetRevision(v int) *RegistrationPolicyUpdateOne {
+	_u.mutation.ResetRevision()
+	_u.mutation.SetRevision(v)
+	return _u
+}
+
+// SetNillableRevision sets the "revision" field if the given value is not nil.
+func (_u *RegistrationPolicyUpdateOne) SetNillableRevision(v *int) *RegistrationPolicyUpdateOne {
+	if v != nil {
+		_u.SetRevision(*v)
+	}
+	return _u
+}
+
+// AddRevision adds value to the "revision" field.
+func (_u *RegistrationPolicyUpdateOne) AddRevision(v int) *RegistrationPolicyUpdateOne {
+	_u.mutation.AddRevision(v)
 	return _u
 }
 
@@ -221,6 +269,12 @@ func (_u *RegistrationPolicyUpdateOne) sqlSave(ctx context.Context) (_node *Regi
 	}
 	if value, ok := _u.mutation.Mode(); ok {
 		_spec.SetField(registrationpolicy.FieldMode, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Revision(); ok {
+		_spec.SetField(registrationpolicy.FieldRevision, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRevision(); ok {
+		_spec.AddField(registrationpolicy.FieldRevision, field.TypeInt, value)
 	}
 	_spec.Node.Schema = _u.schemaConfig.RegistrationPolicy
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)

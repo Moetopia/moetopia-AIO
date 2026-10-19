@@ -1,6 +1,6 @@
 # 自有用户站 OAuth/OIDC 接入
 
-更新时间：2026-10-19。Go 登录、真实协议回调、独立会话与本地退出已实现；前端已接入普通页面入口、portal 上下文、登录守卫、会话及本地退出。真实 Chromium 回归已覆盖正常页面发起登录；管理员 RP 尚未实现。架构与开发参数见 [ADR-0019](decisions/0019-first-party-oidc.md)。
+更新时间：2026-10-19。Go 登录、真实协议回调、独立会话与本地退出已实现；前端已接入普通页面入口、portal 上下文、登录守卫、会话及本地退出。真实 Chromium 回归已覆盖正常页面发起登录；独立管理员 RP/MFA 后端另见 [管理员接入](run-administration.md)。架构与开发参数见 [ADR-0019](decisions/0019-first-party-oidc.md)。
 
 ## 已完成的链路
 
@@ -30,7 +30,7 @@
 
 允许的 return_to 只有 `/profile`、`/sessions`、`/security`、`/developer`、`/developer/applications`、`/developer/docs`；省略时 `/profile`。拒绝任意 URL、协议相对地址、query、fragment、认证/回调路径和非白名单路径，防止开放重定向及登录循环。
 
-管理员没有复用这个 RP。admin RP、管理员角色和 TOTP/MFA 尚未实现；不能用用户站已登录或隐藏菜单放行后台。
+管理员没有复用这个 RP。admin RP、管理员角色和 TOTP/MFA 已独立实现，页面接线见管理员接入；不能用用户站已登录或隐藏菜单放行后台。
 
 ## 错误与恢复
 
@@ -70,4 +70,4 @@ pnpm api:first-party:init
 - `pnpm test:oidc` 的 1 项真实 Chromium 场景通过，保留独立 openid-client 的原有协议验证，新增 Go 自有 RP 经 Nitro 启动、授权、回调、恢复开发者目的页、Cookie 和本地退出验证。使用临时数据库、测试邮件和独立端口/构建，运行器清理；没有用 mock 替代协议响应。
 - Go OIDC 使用锁定的 coreos/go-oidc v3.21.0 与 x/oauth2；govulncheck v1.9.0 复扫 0 个可达漏洞，保留既有模块级告警，见 [依赖审计](dependency-audit.md)。
 
-2026-10-19 前端接入已由本后端再次运行 `pnpm test:oidc` 验证，保留 portal-ui 正常 developer 页面入口、同意、回调、会话和退出的浏览器检查。账号管理新增契约见 [账号安全](run-account-management.md) 和 [开发者应用](run-developer-applications.md)。匿名用户从 RP 全流程进入身份注册的专用回归、管理员 RP/MFA、中央退出、正式部署及性能验收仍未完成，不代表完整身份产品或 OIDC 认证。
+2026-10-19 前端接入已由本后端再次运行 `pnpm test:oidc` 验证，保留 portal-ui 正常 developer 页面入口、同意、回调、会话和退出的浏览器检查。账号管理新增契约见 [账号安全](run-account-management.md) 和 [开发者应用](run-developer-applications.md)。管理员协议/MFA 由独立 `pnpm test:admin` 验证，成品后台接线另计；匿名用户从 RP 全流程进入身份注册的专用回归、中央退出、正式部署及性能验收仍未完成，不代表完整身份产品或 OIDC 认证。

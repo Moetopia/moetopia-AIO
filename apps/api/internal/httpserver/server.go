@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/valkey-io/valkey-go"
+	"moetopia.local/aio/api/internal/audit"
 	"moetopia.local/aio/api/internal/authorization"
 	"moetopia.local/aio/api/internal/developer"
 )
@@ -25,6 +26,7 @@ type Dependencies struct {
 	Portal        PortalEndpoints
 	RateNamespace string
 	Developers    *developer.Service
+	Admin         AdminEndpoints
 }
 
 type Status struct {
@@ -36,6 +38,7 @@ type Status struct {
 
 func New(deps Dependencies) http.Handler {
 	deps.Accounts.RateNamespace = deps.RateNamespace
+	deps.Admin.Accounts, deps.Admin.Developers = deps.Accounts, deps.Developers
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID, middleware.Recoverer, accountClientIP)
 	r.Use(func(next http.Handler) http.Handler {
@@ -47,6 +50,7 @@ func New(deps Dependencies) http.Handler {
 				limit = 768 << 10
 			}
 			req.Body = http.MaxBytesReader(w, req.Body, limit)
+			req = req.WithContext(audit.WithRequest(req.Context(), middleware.GetReqID(req.Context())))
 			next.ServeHTTP(w, req)
 		})
 	})
@@ -78,6 +82,11 @@ func New(deps Dependencies) http.Handler {
 		r.Get("/api/v1/portal/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.Callback), deps.RateNamespace))
 	}
 	deps.Portal.Register(api)
+	if deps.Admin.RP != nil {
+		r.Get("/api/v1/admin/login", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Admin.RP.Login), deps.RateNamespace))
+		r.Get("/api/v1/admin/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Admin.RP.Callback), deps.RateNamespace))
+	}
+	deps.Admin.Register(api)
 	deps.Portal.registerManagement(api, deps.Accounts)
 	deps.Accounts.registerRecovery(api)
 	DeveloperEndpoints{Portal: deps.Portal, Service: deps.Developers, Accounts: deps.Accounts}.Register(api)

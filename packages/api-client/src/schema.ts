@@ -171,6 +171,331 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin applications */
+        get: operations["get-api-v1-admin-applications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/applications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin applications by ID */
+        get: operations["get-api-v1-admin-applications-by-id"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/applications/{id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin applications by ID review */
+        post: operations["post-api-v1-admin-applications-by-id-review"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/applications/{id}/suspension": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin applications by ID suspension */
+        post: operations["post-api-v1-admin-applications-by-id-suspension"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/audit-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin audit events */
+        get: operations["get-api-v1-admin-audit-events"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin context */
+        get: operations["get-api-v1-admin-context"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin invitations */
+        get: operations["get-api-v1-admin-invitations"];
+        put?: never;
+        /** Post API v1 admin invitations */
+        post: operations["post-api-v1-admin-invitations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/invitations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete API v1 admin invitations by ID */
+        delete: operations["delete-api-v1-admin-invitations-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin logout */
+        post: operations["post-api-v1-admin-logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/mfa/enrollment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin mfa enrollment */
+        post: operations["post-api-v1-admin-mfa-enrollment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/mfa/enrollment/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin mfa enrollment confirm */
+        post: operations["post-api-v1-admin-mfa-enrollment-confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/mfa/recover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin mfa recover */
+        post: operations["post-api-v1-admin-mfa-recover"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/mfa/recovery-codes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin mfa recovery codes */
+        post: operations["post-api-v1-admin-mfa-recovery-codes"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/mfa/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin mfa verify */
+        post: operations["post-api-v1-admin-mfa-verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/registration-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin registration policy */
+        get: operations["get-api-v1-admin-registration-policy"];
+        /** Put API v1 admin registration policy */
+        put: operations["put-api-v1-admin-registration-policy"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin sessions */
+        get: operations["get-api-v1-admin-sessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete API v1 admin sessions by ID */
+        delete: operations["delete-api-v1-admin-sessions-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin users */
+        get: operations["get-api-v1-admin-users"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/users/{id}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin users by ID availability */
+        post: operations["post-api-v1-admin-users-by-id-availability"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/developer/applications": {
         parameters: {
             query?: never;
@@ -552,6 +877,137 @@ export interface components {
              */
             type: string;
         };
+        AdminCodeInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminCodeInputBody.json
+             */
+            readonly $schema?: string;
+            code: string;
+        };
+        AdminContextBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminContextBody.json
+             */
+            readonly $schema?: string;
+            authenticated: boolean;
+            csrf_token: string;
+            /** Format: date-time */
+            expires_at?: string;
+            login_url: string;
+            mfa?: components["schemas"]["State"];
+            recovery_codes?: string[] | null;
+            user?: components["schemas"]["User"];
+        };
+        AdminEvent: {
+            action: string;
+            actor_id: string;
+            /** Format: date-time */
+            created_at: string;
+            id: string;
+            outcome: string;
+            request_id: string;
+            target_id: string;
+        };
+        AdminEvents: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminEvents.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["AdminEvent"][] | null;
+            next_cursor: string;
+        };
+        AdminInviteInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminInviteInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            expires_in_hours: number;
+        };
+        AdminPasswordInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminPasswordInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+        };
+        AdminPolicyInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminPolicyInputBody.json
+             */
+            readonly $schema?: string;
+            /** @enum {string} */
+            mode: "invite" | "open";
+            /** Format: int64 */
+            revision: number;
+        };
+        AdminRecoveryInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminRecoveryInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+            recovery_code: string;
+        };
+        AdminRecoveryOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminRecoveryOutputBody.json
+             */
+            readonly $schema?: string;
+            recovery_codes: string[] | null;
+        };
+        AdminReviewInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminReviewInputBody.json
+             */
+            readonly $schema?: string;
+            approve: boolean;
+            reason: string;
+            /** Format: int64 */
+            revision: number;
+        };
+        AdminSuspendInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminSuspendInputBody.json
+             */
+            readonly $schema?: string;
+            reason: string;
+            /** Format: int64 */
+            revision: number;
+            suspended: boolean;
+        };
+        AdminUserAvailabilityInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminUserAvailabilityInputBody.json
+             */
+            readonly $schema?: string;
+            enabled: boolean;
+            reason: string;
+            /** Format: int64 */
+            revision: number;
+        };
         Application: {
             /**
              * Format: uri
@@ -571,6 +1027,8 @@ export interface components {
             public: boolean;
             /** Format: int64 */
             revision: number;
+            suspended?: boolean;
+            suspension_reason?: string;
         };
         ApplicationAvailabilityInputBody: {
             /**
@@ -732,6 +1190,18 @@ export interface components {
             code: string;
             current_password: string;
         };
+        Enrollment: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Enrollment.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            expires_at: string;
+            otpauth_uri: string;
+            secret: string;
+        };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
             location?: string;
@@ -746,6 +1216,18 @@ export interface components {
             created_at: string;
             id: string;
         };
+        IssuedInvitation: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/IssuedInvitation.json
+             */
+            readonly $schema?: string;
+            code: string;
+            /** Format: date-time */
+            expires_at: string;
+            id: string;
+        };
         LoginInputBody: {
             /**
              * Format: uri
@@ -755,6 +1237,54 @@ export interface components {
             readonly $schema?: string;
             email: string;
             password: string;
+        };
+        ManagedInvitation: {
+            consumed: boolean;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            id: string;
+            revoked: boolean;
+        };
+        ManagedInvitations: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ManagedInvitations.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["ManagedInvitation"][] | null;
+            next_cursor: string;
+        };
+        ManagedUser: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ManagedUser.json
+             */
+            readonly $schema?: string;
+            avatar_url?: string;
+            bio?: string;
+            /** Format: date-time */
+            created_at: string;
+            disabled_reason: string;
+            display_name: string;
+            email: string;
+            enabled: boolean;
+            id: string;
+            /** Format: int64 */
+            revision?: number;
+        };
+        ManagedUsers: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ManagedUsers.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["ManagedUser"][] | null;
+            next_cursor: string;
         };
         PasswordChangeInputBody: {
             /**
@@ -816,6 +1346,17 @@ export interface components {
             invitation: string;
             password: string;
         };
+        RegistrationPolicy: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/RegistrationPolicy.json
+             */
+            readonly $schema?: string;
+            mode: string;
+            /** Format: int64 */
+            revision: number;
+        };
         SecurityEventsOutputBody: {
             /**
              * Format: uri
@@ -841,6 +1382,14 @@ export interface components {
             readonly $schema?: string;
             current_id: string;
             items: components["schemas"]["Session"][] | null;
+        };
+        State: {
+            enrolled: boolean;
+            /** Format: int64 */
+            recovery_codes_remaining: number;
+            verified: boolean;
+            /** Format: date-time */
+            verified_until?: string;
         };
         StatusBody: {
             /**
@@ -1295,6 +1844,746 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VerificationOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-applications": {
+        parameters: {
+            query?: {
+                cursor?: string;
+                status?: "pending" | "all";
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Applications"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-applications-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-applications-by-id-review": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminReviewInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-applications-by-id-suspension": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminSuspendInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-audit-events": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminEvents"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-context": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-invitations": {
+        parameters: {
+            query?: {
+                cursor?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedInvitations"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-invitations": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminInviteInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IssuedInvitation"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-admin-invitations-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-logout": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-mfa-enrollment": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPasswordInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Enrollment"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-mfa-enrollment-confirm": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCodeInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-mfa-recover": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminRecoveryInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-mfa-recovery-codes": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPasswordInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRecoveryOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-mfa-verify": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCodeInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-registration-policy": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationPolicy"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "put-api-v1-admin-registration-policy": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPolicyInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationPolicy"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-sessions": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionsOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-admin-sessions-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-users": {
+        parameters: {
+            query?: {
+                query?: string;
+                cursor?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedUsers"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-users-by-id-availability": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminUserAvailabilityInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedUser"];
                 };
             };
             /** @description Error */

@@ -15,6 +15,8 @@ func (DeveloperApplication) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").Immutable(), field.String("owner_id").Immutable(), field.String("client_id").Unique().Immutable(),
 		field.Bool("public").Immutable(), field.Bool("enabled").Default(true), field.Bool("deleted").Default(false),
+		field.Bool("suspended").Default(false),
+		field.String("suspension_reason").Default(""),
 		field.Int("revision").Default(1), field.Int("active_version").Default(0), field.Int("latest_version").Default(1),
 		field.Time("created_at").Default(time.Now).Immutable(),
 	}

@@ -28,6 +28,48 @@ func (_u *SecurityEventUpdate) Where(ps ...predicate.SecurityEvent) *SecurityEve
 	return _u
 }
 
+// SetTargetID sets the "target_id" field.
+func (_u *SecurityEventUpdate) SetTargetID(v string) *SecurityEventUpdate {
+	_u.mutation.SetTargetID(v)
+	return _u
+}
+
+// SetNillableTargetID sets the "target_id" field if the given value is not nil.
+func (_u *SecurityEventUpdate) SetNillableTargetID(v *string) *SecurityEventUpdate {
+	if v != nil {
+		_u.SetTargetID(*v)
+	}
+	return _u
+}
+
+// SetRequestID sets the "request_id" field.
+func (_u *SecurityEventUpdate) SetRequestID(v string) *SecurityEventUpdate {
+	_u.mutation.SetRequestID(v)
+	return _u
+}
+
+// SetNillableRequestID sets the "request_id" field if the given value is not nil.
+func (_u *SecurityEventUpdate) SetNillableRequestID(v *string) *SecurityEventUpdate {
+	if v != nil {
+		_u.SetRequestID(*v)
+	}
+	return _u
+}
+
+// SetOutcome sets the "outcome" field.
+func (_u *SecurityEventUpdate) SetOutcome(v string) *SecurityEventUpdate {
+	_u.mutation.SetOutcome(v)
+	return _u
+}
+
+// SetNillableOutcome sets the "outcome" field if the given value is not nil.
+func (_u *SecurityEventUpdate) SetNillableOutcome(v *string) *SecurityEventUpdate {
+	if v != nil {
+		_u.SetOutcome(*v)
+	}
+	return _u
+}
+
 // Mutation returns the SecurityEventMutation object of the builder.
 func (_u *SecurityEventUpdate) Mutation() *SecurityEventMutation {
 	return _u.mutation
@@ -69,6 +111,15 @@ func (_u *SecurityEventUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			}
 		}
 	}
+	if value, ok := _u.mutation.TargetID(); ok {
+		_spec.SetField(securityevent.FieldTargetID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.RequestID(); ok {
+		_spec.SetField(securityevent.FieldRequestID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Outcome(); ok {
+		_spec.SetField(securityevent.FieldOutcome, field.TypeString, value)
+	}
 	_spec.Node.Schema = _u.schemaConfig.SecurityEvent
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -89,6 +140,48 @@ type SecurityEventUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *SecurityEventMutation
+}
+
+// SetTargetID sets the "target_id" field.
+func (_u *SecurityEventUpdateOne) SetTargetID(v string) *SecurityEventUpdateOne {
+	_u.mutation.SetTargetID(v)
+	return _u
+}
+
+// SetNillableTargetID sets the "target_id" field if the given value is not nil.
+func (_u *SecurityEventUpdateOne) SetNillableTargetID(v *string) *SecurityEventUpdateOne {
+	if v != nil {
+		_u.SetTargetID(*v)
+	}
+	return _u
+}
+
+// SetRequestID sets the "request_id" field.
+func (_u *SecurityEventUpdateOne) SetRequestID(v string) *SecurityEventUpdateOne {
+	_u.mutation.SetRequestID(v)
+	return _u
+}
+
+// SetNillableRequestID sets the "request_id" field if the given value is not nil.
+func (_u *SecurityEventUpdateOne) SetNillableRequestID(v *string) *SecurityEventUpdateOne {
+	if v != nil {
+		_u.SetRequestID(*v)
+	}
+	return _u
+}
+
+// SetOutcome sets the "outcome" field.
+func (_u *SecurityEventUpdateOne) SetOutcome(v string) *SecurityEventUpdateOne {
+	_u.mutation.SetOutcome(v)
+	return _u
+}
+
+// SetNillableOutcome sets the "outcome" field if the given value is not nil.
+func (_u *SecurityEventUpdateOne) SetNillableOutcome(v *string) *SecurityEventUpdateOne {
+	if v != nil {
+		_u.SetOutcome(*v)
+	}
+	return _u
 }
 
 // Mutation returns the SecurityEventMutation object of the builder.
@@ -161,6 +254,15 @@ func (_u *SecurityEventUpdateOne) sqlSave(ctx context.Context) (_node *SecurityE
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TargetID(); ok {
+		_spec.SetField(securityevent.FieldTargetID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.RequestID(); ok {
+		_spec.SetField(securityevent.FieldRequestID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Outcome(); ok {
+		_spec.SetField(securityevent.FieldOutcome, field.TypeString, value)
 	}
 	_spec.Node.Schema = _u.schemaConfig.SecurityEvent
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)

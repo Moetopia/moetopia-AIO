@@ -99,4 +99,6 @@ SSO 通过中央站点顶层跳转。授权页避免嵌入诱导点击，配置�
 
 资料 revision、安全版本、邮箱变更和密码恢复已实现，具体事务、参数与剩余边界由 [ADR-0020](decisions/0020-account-security-management.md) 和 [运行契约](run-account-management.md) 维护。安全变更撤销自有会话、使旧安全版本的授权码/刷新/UserInfo 失效；离线 JWT 的到期残留仍存在，不声称全站即时撤销。
 
-开发者所有者接口、仅所有者测试、版本提交和原子生效已实现，见 [ADR-0021](decisions/0021-developer-application-lifecycle.md)。后台角色/MFA 尚未实现，因此没有公开审核或平台暂停路由。个人审计当前仅有 ID、用户、动作、时间，保留 90 天；完整管理审计目标、结果和关联 ID 仍需补齐，不能据已有日志判定本文件全部约束已满足。
+开发者所有者接口、仅所有者测试、版本提交和原子生效已实现，见 [ADR-0021](decisions/0021-developer-application-lifecycle.md)。平台暂停与所有者停用独立，原批准版在待审期间继续服务，审核入口只能由独立管理员角色/MFA gate 调用。
+
+独立管理员 RP/角色/TOTP/恢复/一次性 CLI 与受保护的审核、暂停和身份管理后端由 [ADR-0022](decisions/0022-administrator-security-and-review.md) 实现；新增审计目标、结果与 request ID。种子/恢复码和会话、权限期限、失败语义及当前生产缺口由 [管理员运行契约](run-administration.md) 唯一定义。成品后台 UI、完整角色管理、所有失败路径审计与生产应急恢复仍待完成，不能把本批测试当作整个安全目标已验收。

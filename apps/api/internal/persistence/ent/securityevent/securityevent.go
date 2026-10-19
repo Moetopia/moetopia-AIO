@@ -17,6 +17,12 @@ const (
 	FieldUserID = "user_id"
 	// FieldAction holds the string denoting the action field in the database.
 	FieldAction = "action"
+	// FieldTargetID holds the string denoting the target_id field in the database.
+	FieldTargetID = "target_id"
+	// FieldRequestID holds the string denoting the request_id field in the database.
+	FieldRequestID = "request_id"
+	// FieldOutcome holds the string denoting the outcome field in the database.
+	FieldOutcome = "outcome"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// Table holds the table name of the securityevent in the database.
@@ -28,6 +34,9 @@ var Columns = []string{
 	FieldID,
 	FieldUserID,
 	FieldAction,
+	FieldTargetID,
+	FieldRequestID,
+	FieldOutcome,
 	FieldCreatedAt,
 }
 
@@ -42,6 +51,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultTargetID holds the default value on creation for the "target_id" field.
+	DefaultTargetID string
+	// DefaultRequestID holds the default value on creation for the "request_id" field.
+	DefaultRequestID string
+	// DefaultOutcome holds the default value on creation for the "outcome" field.
+	DefaultOutcome string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )
@@ -62,6 +77,21 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 // ByAction orders the results by the action field.
 func ByAction(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAction, opts...).ToFunc()
+}
+
+// ByTargetID orders the results by the target_id field.
+func ByTargetID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTargetID, opts...).ToFunc()
+}
+
+// ByRequestID orders the results by the request_id field.
+func ByRequestID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRequestID, opts...).ToFunc()
+}
+
+// ByOutcome orders the results by the outcome field.
+func ByOutcome(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOutcome, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

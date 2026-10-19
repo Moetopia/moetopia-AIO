@@ -50,6 +50,12 @@ func NewPortal(db *ent.Client, encodedKey, origin string, secure bool) (*Service
 	return service, nil
 }
 func (s *Service) CookieName() string {
+	if s.application == "admin" {
+		if s.secure {
+			return "__Host-moetopia_admin"
+		}
+		return "moetopia_admin"
+	}
 	if s.application == "user-site" {
 		if s.secure {
 			return "__Host-moetopia_portal"
@@ -91,7 +97,7 @@ func (s *Service) Find(ctx context.Context, token string) (Session, error) {
 	if !ValidToken(token) {
 		return Session{}, ErrMissing
 	}
-	value, err := s.db.WebSession.Query().Where(websession.IDEQ(digest(token)), websession.ApplicationEQ(s.application), websession.ExpiresAtGT(time.Now())).Only(ctx)
+	value, err := persistence.Client(ctx, s.db).WebSession.Query().Where(websession.IDEQ(digest(token)), websession.ApplicationEQ(s.application), websession.ExpiresAtGT(time.Now())).Only(ctx)
 	if ent.IsNotFound(err) {
 		return Session{}, ErrMissing
 	}
@@ -153,7 +159,7 @@ func (s *Service) CreateVerified(ctx context.Context, userID, previous string, v
 	return token, tx.Commit()
 }
 func (s *Service) List(ctx context.Context, userID string) ([]Session, error) {
-	values, err := s.db.WebSession.Query().Where(websession.UserIDEQ(userID), websession.ApplicationEQ(s.application), websession.ExpiresAtGT(time.Now())).Order(ent.Desc(websession.FieldCreatedAt)).Limit(100).All(ctx)
+	values, err := persistence.Client(ctx, s.db).WebSession.Query().Where(websession.UserIDEQ(userID), websession.ApplicationEQ(s.application), websession.ExpiresAtGT(time.Now())).Order(ent.Desc(websession.FieldCreatedAt)).Limit(100).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +170,7 @@ func (s *Service) List(ctx context.Context, userID string) ([]Session, error) {
 	return result, nil
 }
 func (s *Service) Revoke(ctx context.Context, userID, id string) error {
-	_, err := s.db.WebSession.Delete().Where(websession.IDEQ(id), websession.UserIDEQ(userID), websession.ApplicationEQ(s.application)).Exec(ctx)
+	_, err := persistence.Client(ctx, s.db).WebSession.Delete().Where(websession.IDEQ(id), websession.UserIDEQ(userID), websession.ApplicationEQ(s.application)).Exec(ctx)
 	return err
 }
 func (s *Service) Cleanup(ctx context.Context) error {
@@ -174,4 +180,39 @@ func (s *Service) Cleanup(ctx context.Context) error {
 func (s *Service) RevokeUser(ctx context.Context, userID string) error {
 	_, err := persistence.Client(ctx, s.db).WebSession.Delete().Where(websession.UserID(userID)).Exec(ctx)
 	return err
+}
+
+func NewAdmin(db *ent.Client, encodedKey, origin string, secure bool) (*Service, error) {
+	service, err := New(db, encodedKey, origin, secure)
+	if err != nil {
+		return nil, err
+	}
+	service.application, service.lifetime = "admin", time.Hour
+	return service, nil
+}
+func (s *Service) RevokeApplicationUser(ctx context.Context, userID string) error {
+	_, err := persistence.Client(ctx, s.db).WebSession.Delete().Where(websession.UserID(userID), websession.Application(s.application)).Exec(ctx)
+	return err
+}
+
+func (s *Service) AssertLive(ctx context.Context, userID, id string) error {
+	_, err := persistence.Client(ctx, s.db).WebSession.Query().Where(websession.ID(id), websession.UserID(userID), websession.Application(s.application), websession.ExpiresAtGT(time.Now())).ForShare().Only(ctx)
+	if ent.IsNotFound(err) {
+		return ErrMissing
+	}
+	return err
+}
+
+func (s *Service) Rotate(ctx context.Context, previous Session) (string, error) {
+	if err := s.Revoke(ctx, previous.UserID, previous.ID); err != nil {
+		return "", err
+	}
+	handle, err := s.Create(ctx, previous.UserID, "")
+	if err != nil {
+		return "", err
+	}
+	if err := persistence.Client(ctx, s.db).WebSession.UpdateOneID(digest(handle)).SetExpiresAt(previous.ExpiresAt).Exec(ctx); err != nil {
+		return "", err
+	}
+	return handle, nil
 }

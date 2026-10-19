@@ -35,3 +35,17 @@ func TestDevelopmentAndProductionIssuer(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestAdministratorOriginIsolation(t *testing.T) {
+	values := map[string]string{"MOETOPIA_DATABASE_URL": "dsn", "MOETOPIA_VALKEY_ADDRESS": "localhost:6379", "MOETOPIA_ENCRYPTION_KEY": "key", "MOETOPIA_ISSUER": "https://account.example.test"}
+	for _, origin := range []string{"https://account.example.test", "https://admin.example.test/path", "https://user:secret@admin.example.test", "http://192.168.101.41:3001", "https://admin.example.test?token=secret"} {
+		values["MOETOPIA_ADMIN_ORIGIN"] = origin
+		if _, err := Read(func(k string) string { return values[k] }); err == nil {
+			t.Fatal("unsafe administrator origin accepted")
+		}
+	}
+	values["MOETOPIA_ADMIN_ORIGIN"] = "https://admin.example.test"
+	if _, err := Read(func(k string) string { return values[k] }); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -33,9 +33,10 @@
 | [0016](0016-development-tui.md) | 开发服务 TUI、日志隔离与独立重启 | Windows 实测通过；其他平台生命周期未实测 |
 | [0017](0017-user-site-layouts.md) | 账号与开发者合并用户站、独立管理台与场景布局 | 用户已授权实施；替代三个独立前端，视觉继续评审 |
 | [0018](0018-refresh-token-rotation.md) | 刷新轮换、令牌族与 RFC 7009 撤销 | 开发集成及独立 RP 验证通过；生产参数与退出/内省待验收 |
-| [0019](0019-first-party-oidc.md) | 用户中心与开发者中心通过 OAuth/OIDC 登录 | Go RP、普通页面接线及真实 Chromium 闭环通过；管理员 RP 待完成 |
+| [0019](0019-first-party-oidc.md) | 用户中心与开发者中心通过 OAuth/OIDC 登录 | 用户站闭环通过；管理员独立 RP 后端由 0022 扩展，后台页面待接 |
 | [0020](0020-account-security-management.md) | 资料、安全版本、邮箱变更与恢复 | 开发实现及数据库验证通过；注销/联邦/生产恢复未完成 |
-| [0021](0021-developer-application-lifecycle.md) | 开发者所有权、测试态、版本生效与凭据 | 所有者接口及状态机通过数据库验证；管理员审核入口未开放 |
+| [0021](0021-developer-application-lifecycle.md) | 开发者所有权、测试态、版本生效与凭据 | 所有者已接线；管理员审核/暂停后端由 0022 完成，后台页面待接 |
+| [0022](0022-administrator-security-and-review.md) | 独立管理员 RP/MFA、恢复与后台事务 | 管理安全、审核/暂停和用户/邀请/审计后端已验证；成品后台接线及生产验收待完成 |
 
 ## 第一轮已确认
 

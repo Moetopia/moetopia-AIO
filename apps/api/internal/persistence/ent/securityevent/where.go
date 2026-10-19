@@ -74,6 +74,21 @@ func Action(v string) predicate.SecurityEvent {
 	return predicate.SecurityEvent(sql.FieldEQ(FieldAction, v))
 }
 
+// TargetID applies equality check predicate on the "target_id" field. It's identical to TargetIDEQ.
+func TargetID(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldTargetID, v))
+}
+
+// RequestID applies equality check predicate on the "request_id" field. It's identical to RequestIDEQ.
+func RequestID(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldRequestID, v))
+}
+
+// Outcome applies equality check predicate on the "outcome" field. It's identical to OutcomeEQ.
+func Outcome(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldOutcome, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.SecurityEvent {
 	return predicate.SecurityEvent(sql.FieldEQ(FieldCreatedAt, v))
@@ -207,6 +222,201 @@ func ActionEqualFold(v string) predicate.SecurityEvent {
 // ActionContainsFold applies the ContainsFold predicate on the "action" field.
 func ActionContainsFold(v string) predicate.SecurityEvent {
 	return predicate.SecurityEvent(sql.FieldContainsFold(FieldAction, v))
+}
+
+// TargetIDEQ applies the EQ predicate on the "target_id" field.
+func TargetIDEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldTargetID, v))
+}
+
+// TargetIDNEQ applies the NEQ predicate on the "target_id" field.
+func TargetIDNEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNEQ(FieldTargetID, v))
+}
+
+// TargetIDIn applies the In predicate on the "target_id" field.
+func TargetIDIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldIn(FieldTargetID, vs...))
+}
+
+// TargetIDNotIn applies the NotIn predicate on the "target_id" field.
+func TargetIDNotIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNotIn(FieldTargetID, vs...))
+}
+
+// TargetIDGT applies the GT predicate on the "target_id" field.
+func TargetIDGT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGT(FieldTargetID, v))
+}
+
+// TargetIDGTE applies the GTE predicate on the "target_id" field.
+func TargetIDGTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGTE(FieldTargetID, v))
+}
+
+// TargetIDLT applies the LT predicate on the "target_id" field.
+func TargetIDLT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLT(FieldTargetID, v))
+}
+
+// TargetIDLTE applies the LTE predicate on the "target_id" field.
+func TargetIDLTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLTE(FieldTargetID, v))
+}
+
+// TargetIDContains applies the Contains predicate on the "target_id" field.
+func TargetIDContains(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContains(FieldTargetID, v))
+}
+
+// TargetIDHasPrefix applies the HasPrefix predicate on the "target_id" field.
+func TargetIDHasPrefix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasPrefix(FieldTargetID, v))
+}
+
+// TargetIDHasSuffix applies the HasSuffix predicate on the "target_id" field.
+func TargetIDHasSuffix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasSuffix(FieldTargetID, v))
+}
+
+// TargetIDEqualFold applies the EqualFold predicate on the "target_id" field.
+func TargetIDEqualFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEqualFold(FieldTargetID, v))
+}
+
+// TargetIDContainsFold applies the ContainsFold predicate on the "target_id" field.
+func TargetIDContainsFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContainsFold(FieldTargetID, v))
+}
+
+// RequestIDEQ applies the EQ predicate on the "request_id" field.
+func RequestIDEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldRequestID, v))
+}
+
+// RequestIDNEQ applies the NEQ predicate on the "request_id" field.
+func RequestIDNEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNEQ(FieldRequestID, v))
+}
+
+// RequestIDIn applies the In predicate on the "request_id" field.
+func RequestIDIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldIn(FieldRequestID, vs...))
+}
+
+// RequestIDNotIn applies the NotIn predicate on the "request_id" field.
+func RequestIDNotIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNotIn(FieldRequestID, vs...))
+}
+
+// RequestIDGT applies the GT predicate on the "request_id" field.
+func RequestIDGT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGT(FieldRequestID, v))
+}
+
+// RequestIDGTE applies the GTE predicate on the "request_id" field.
+func RequestIDGTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGTE(FieldRequestID, v))
+}
+
+// RequestIDLT applies the LT predicate on the "request_id" field.
+func RequestIDLT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLT(FieldRequestID, v))
+}
+
+// RequestIDLTE applies the LTE predicate on the "request_id" field.
+func RequestIDLTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLTE(FieldRequestID, v))
+}
+
+// RequestIDContains applies the Contains predicate on the "request_id" field.
+func RequestIDContains(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContains(FieldRequestID, v))
+}
+
+// RequestIDHasPrefix applies the HasPrefix predicate on the "request_id" field.
+func RequestIDHasPrefix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasPrefix(FieldRequestID, v))
+}
+
+// RequestIDHasSuffix applies the HasSuffix predicate on the "request_id" field.
+func RequestIDHasSuffix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasSuffix(FieldRequestID, v))
+}
+
+// RequestIDEqualFold applies the EqualFold predicate on the "request_id" field.
+func RequestIDEqualFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEqualFold(FieldRequestID, v))
+}
+
+// RequestIDContainsFold applies the ContainsFold predicate on the "request_id" field.
+func RequestIDContainsFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContainsFold(FieldRequestID, v))
+}
+
+// OutcomeEQ applies the EQ predicate on the "outcome" field.
+func OutcomeEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldOutcome, v))
+}
+
+// OutcomeNEQ applies the NEQ predicate on the "outcome" field.
+func OutcomeNEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNEQ(FieldOutcome, v))
+}
+
+// OutcomeIn applies the In predicate on the "outcome" field.
+func OutcomeIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldIn(FieldOutcome, vs...))
+}
+
+// OutcomeNotIn applies the NotIn predicate on the "outcome" field.
+func OutcomeNotIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNotIn(FieldOutcome, vs...))
+}
+
+// OutcomeGT applies the GT predicate on the "outcome" field.
+func OutcomeGT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGT(FieldOutcome, v))
+}
+
+// OutcomeGTE applies the GTE predicate on the "outcome" field.
+func OutcomeGTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGTE(FieldOutcome, v))
+}
+
+// OutcomeLT applies the LT predicate on the "outcome" field.
+func OutcomeLT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLT(FieldOutcome, v))
+}
+
+// OutcomeLTE applies the LTE predicate on the "outcome" field.
+func OutcomeLTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLTE(FieldOutcome, v))
+}
+
+// OutcomeContains applies the Contains predicate on the "outcome" field.
+func OutcomeContains(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContains(FieldOutcome, v))
+}
+
+// OutcomeHasPrefix applies the HasPrefix predicate on the "outcome" field.
+func OutcomeHasPrefix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasPrefix(FieldOutcome, v))
+}
+
+// OutcomeHasSuffix applies the HasSuffix predicate on the "outcome" field.
+func OutcomeHasSuffix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasSuffix(FieldOutcome, v))
+}
+
+// OutcomeEqualFold applies the EqualFold predicate on the "outcome" field.
+func OutcomeEqualFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEqualFold(FieldOutcome, v))
+}
+
+// OutcomeContainsFold applies the ContainsFold predicate on the "outcome" field.
+func OutcomeContainsFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContainsFold(FieldOutcome, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

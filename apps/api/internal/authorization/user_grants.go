@@ -102,7 +102,7 @@ func (p *Provider) RevokeUserGrant(ctx context.Context, userID, id string) error
 	if _, err := p.store.database(ctx).ProtocolSession.Update().Where(protocolsession.RequestID(id)).SetRevoked(true).Save(ctx); err != nil {
 		return err
 	}
-	if err := audit.Record(ctx, p.store.database(ctx), userID, "authorization.revoked"); err != nil {
+	if err := audit.RecordTarget(ctx, p.store.database(ctx), userID, "authorization.revoked", id, "success"); err != nil {
 		return err
 	}
 	return p.store.Commit(ctx)

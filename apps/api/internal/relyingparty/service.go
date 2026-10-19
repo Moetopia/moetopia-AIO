@@ -35,22 +35,39 @@ type Service struct {
 	oauth    oauth2.Config
 	verifier *oidc.IDTokenVerifier
 	Sessions *sessions.Service
+	clientID string
+	origin   string
+	admin    bool
 }
 
 func New(db *ent.Client, box *cryptobox.Box, users SubjectSource, issuer, key string, secure bool, protocol http.Handler) (*Service, error) {
-	secret, err := clientSecret(key)
+	return newService(db, box, users, issuer, issuer, key, secure, protocol, false)
+}
+func NewAdmin(db *ent.Client, box *cryptobox.Box, users SubjectSource, issuer, origin, key string, secure bool, protocol http.Handler) (*Service, error) {
+	return newService(db, box, users, issuer, origin, key, secure, protocol, true)
+}
+func newService(db *ent.Client, box *cryptobox.Box, users SubjectSource, issuer, origin, key string, secure bool, protocol http.Handler, admin bool) (*Service, error) {
+	id, callback := ClientID, CallbackPath
+	if admin {
+		id, callback = AdminClientID, AdminCallbackPath
+	}
+	secret, err := profileSecret(key, admin)
 	if err != nil {
 		return nil, err
 	}
-	web, err := sessions.NewPortal(db, key, issuer, secure)
+	constructor := sessions.NewPortal
+	if admin {
+		constructor = sessions.NewAdmin
+	}
+	web, err := constructor(db, key, origin, secure)
 	if err != nil {
 		return nil, err
 	}
 	client := &http.Client{Transport: protocolTransport{issuer, protocol}, Timeout: 8 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	ctx := oidc.ClientContext(context.Background(), client)
-	verifier := oidc.NewVerifier(issuer, oidc.NewRemoteKeySet(ctx, issuer+"/oauth/jwks"), &oidc.Config{ClientID: ClientID, SupportedSigningAlgs: []string{oidc.RS256}})
-	return &Service{db: db, box: box, users: users, issuer: issuer, secure: secure, client: client, verifier: verifier, Sessions: web,
-		oauth: oauth2.Config{ClientID: ClientID, ClientSecret: secret, RedirectURL: issuer + CallbackPath, Scopes: []string{"openid", "profile", "email"}, Endpoint: oauth2.Endpoint{AuthURL: issuer + "/oauth/authorize", TokenURL: issuer + "/oauth/token", AuthStyle: oauth2.AuthStyleInHeader}}}, nil
+	verifier := oidc.NewVerifier(issuer, oidc.NewRemoteKeySet(ctx, issuer+"/oauth/jwks"), &oidc.Config{ClientID: id, SupportedSigningAlgs: []string{oidc.RS256}})
+	return &Service{db: db, box: box, users: users, issuer: issuer, secure: secure, client: client, verifier: verifier, Sessions: web, clientID: id, origin: origin, admin: admin,
+		oauth: oauth2.Config{ClientID: id, ClientSecret: secret, RedirectURL: origin + callback, Scopes: []string{"openid", "profile", "email"}, Endpoint: oauth2.Endpoint{AuthURL: issuer + "/oauth/authorize", TokenURL: issuer + "/oauth/token", AuthStyle: oauth2.AuthStyleInHeader}}}, nil
 }
 
 func digest(value string) string {
@@ -67,6 +84,12 @@ func ReturnPath(value string) (string, error) {
 	return value, nil
 }
 func (s *Service) browserCookie() string {
+	if s.admin {
+		if s.secure {
+			return "__Host-moetopia_admin_browser"
+		}
+		return "moetopia_admin_browser"
+	}
 	if s.secure {
 		return "__Host-moetopia_rp_browser"
 	}
@@ -96,14 +119,27 @@ func (s *Service) Cleanup(ctx context.Context) error {
 	return err
 }
 func (s *Service) currentClient(ctx context.Context) error {
-	row, err := s.db.OAuthClient.Get(ctx, ClientID)
+	row, err := s.db.OAuthClient.Get(ctx, s.clientID)
 	if err != nil {
 		return err
 	}
-	if !row.Enabled || row.Public || !slices.Equal(row.RedirectUris, []string{s.oauth.RedirectURL}) || !slices.Equal(row.GrantTypes, []string{"authorization_code"}) || !slices.Equal(row.ResponseTypes, []string{"code"}) || !slices.Equal(row.Scopes, s.oauth.Scopes) || !slices.Equal(row.Audiences, []string{s.issuer + "/api"}) {
+	if !row.Enabled || row.Public || row.OwnerID != "" || row.TestOnly || !slices.Equal(row.RedirectUris, []string{s.oauth.RedirectURL}) || !slices.Equal(row.GrantTypes, []string{"authorization_code"}) || !slices.Equal(row.ResponseTypes, []string{"code"}) || !slices.Equal(row.Scopes, s.oauth.Scopes) || !slices.Equal(row.Audiences, []string{s.issuer + "/api"}) {
 		return ErrLogin
 	}
 	return nil
+}
+
+func (s *Service) returnPath(value string) (string, error) {
+	if !s.admin {
+		return ReturnPath(value)
+	}
+	if value == "" {
+		return "/", nil
+	}
+	if !slices.Contains([]string{"/", "/applications", "/users", "/invitations", "/audit", "/settings"}, value) {
+		return "", ErrLogin
+	}
+	return value, nil
 }
 func (s *Service) Problem(w http.ResponseWriter, status int, code string) {
 	w.Header().Set("Cache-Control", "no-store")

@@ -10,7 +10,7 @@ import (
 type RegistrationPolicy struct{ ent.Schema }
 
 func (RegistrationPolicy) Fields() []ent.Field {
-	return []ent.Field{field.String("id").Immutable(), field.Enum("mode").Values("invite", "open").Default("invite")}
+	return []ent.Field{field.String("id").Immutable(), field.Enum("mode").Values("invite", "open").Default("invite"), field.Int("revision").Default(0)}
 }
 func (RegistrationPolicy) Annotations() []schema.Annotation {
 	return []schema.Annotation{entsql.Annotation{Schema: "identity", Table: "registration_policy"}}

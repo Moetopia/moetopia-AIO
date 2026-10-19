@@ -22,6 +22,7 @@ func (AccountUser) Fields() []ent.Field {
 		field.Int("security_version").Default(0),
 		field.String("password_hash").Sensitive(),
 		field.Bool("enabled").Default(true),
+		field.String("disabled_reason").Default(""),
 		field.Time("email_verified_at"),
 		field.Time("created_at").Default(time.Now).Immutable(),
 	}

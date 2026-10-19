@@ -114,6 +114,20 @@ func (_c *AccountUserCreate) SetNillableEnabled(v *bool) *AccountUserCreate {
 	return _c
 }
 
+// SetDisabledReason sets the "disabled_reason" field.
+func (_c *AccountUserCreate) SetDisabledReason(v string) *AccountUserCreate {
+	_c.mutation.SetDisabledReason(v)
+	return _c
+}
+
+// SetNillableDisabledReason sets the "disabled_reason" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableDisabledReason(v *string) *AccountUserCreate {
+	if v != nil {
+		_c.SetDisabledReason(*v)
+	}
+	return _c
+}
+
 // SetEmailVerifiedAt sets the "email_verified_at" field.
 func (_c *AccountUserCreate) SetEmailVerifiedAt(v time.Time) *AccountUserCreate {
 	_c.mutation.SetEmailVerifiedAt(v)
@@ -195,6 +209,10 @@ func (_c *AccountUserCreate) defaults() {
 		v := accountuser.DefaultEnabled
 		_c.mutation.SetEnabled(v)
 	}
+	if _, ok := _c.mutation.DisabledReason(); !ok {
+		v := accountuser.DefaultDisabledReason
+		_c.mutation.SetDisabledReason(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := accountuser.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -231,6 +249,9 @@ func (_c *AccountUserCreate) check() error {
 	}
 	if _, ok := _c.mutation.Enabled(); !ok {
 		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "AccountUser.enabled"`)}
+	}
+	if _, ok := _c.mutation.DisabledReason(); !ok {
+		return &ValidationError{Name: "disabled_reason", err: errors.New(`ent: missing required field "AccountUser.disabled_reason"`)}
 	}
 	if _, ok := _c.mutation.EmailVerifiedAt(); !ok {
 		return &ValidationError{Name: "email_verified_at", err: errors.New(`ent: missing required field "AccountUser.email_verified_at"`)}
@@ -314,6 +335,10 @@ func (_c *AccountUserCreate) createSpec() (*AccountUser, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Enabled(); ok {
 		_spec.SetField(accountuser.FieldEnabled, field.TypeBool, value)
 		_node.Enabled = value
+	}
+	if value, ok := _c.mutation.DisabledReason(); ok {
+		_spec.SetField(accountuser.FieldDisabledReason, field.TypeString, value)
+		_node.DisabledReason = value
 	}
 	if value, ok := _c.mutation.EmailVerifiedAt(); ok {
 		_spec.SetField(accountuser.FieldEmailVerifiedAt, field.TypeTime, value)

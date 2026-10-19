@@ -15,6 +15,7 @@ func (Invitation) Fields() []ent.Field {
 		field.String("id").Immutable(),
 		field.Time("expires_at"),
 		field.Bool("consumed").Default(false),
+		field.Bool("revoked").Default(false),
 		field.Time("created_at").Default(time.Now).Immutable(),
 	}
 }

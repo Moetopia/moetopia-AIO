@@ -14,6 +14,8 @@ Ent 的 CLI 通过 Go tool 依赖锁定，displaywidth 0.11.0 修复了本机遇
 
 同日账号管理将 golang.org/x/image 升级并作为直接依赖锁定 v0.47.0，用于头像解码后缩放；`go mod tidy` 后复扫仍为 0 个可达、0 个导入包及 1 个模块级告警。已有 npm 告警未在此轮重新扫描，不把 Go 结果扩展为 JavaScript 或镜像检查通过。
 
+管理员 MFA 使用 pquerna/otp v1.5.0（Apache-2.0），带入 barcode 间接依赖；未手写服务端 TOTP 算法。已核对库接口与 RFC 6238，`go mod tidy` 后 govulncheck v1.9.0 复扫仍为 0 个可达、0 个导入包和 1 个既有模块级告警。独立浏览器测试中的 Node HMAC 只作为测试客户端生成验证码，不用于产品服务端验证。npm 与镜像本轮未复扫。
+
 ## JavaScript
 
 当前本机 npm 镜像不提供 audit endpoint，审计单次显式使用官方 registry，没有更改用户全局 registry。

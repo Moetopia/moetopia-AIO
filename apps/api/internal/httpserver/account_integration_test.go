@@ -88,8 +88,10 @@ func newAccountFixture(t *testing.T) *accountFixture {
 	return &accountFixture{db, accounts, web, outbox, sender, New(Dependencies{Accounts: AccountEndpoints{Identity: accounts, Sessions: web, Cache: cache}}), "[2001:db8:" + uuid.NewString()[:4] + "::1]:1234", cache}
 }
 func (f *accountFixture) request(method, path, cookie, csrf, origin string, body any) *httptest.ResponseRecorder {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	encoded, _ := json.Marshal(body)
-	r := httptest.NewRequest(method, path, bytes.NewReader(encoded))
+	r := httptest.NewRequestWithContext(ctx, method, path, bytes.NewReader(encoded))
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("Origin", origin)
 	r.Header.Set("Cookie", cookie)
@@ -126,12 +128,16 @@ func (f *accountFixture) verification(t *testing.T, email string) (string, strin
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := f.outbox.Deliver(t.Context()); err != nil {
-		t.Fatal(err)
-	}
-	for _, message := range f.sender.values {
-		if message.To == email {
-			return id, regexp.MustCompile(`[0-9]{8}`).FindString(message.Text)
+	for range 10 {
+		if err := f.outbox.Deliver(t.Context()); err != nil {
+			t.Fatal(err)
+		}
+		for _, message := range f.sender.values {
+			if message.To == email {
+				if code := regexp.MustCompile(`[0-9]{8}`).FindString(message.Text); code != "" {
+					return id, code
+				}
+			}
 		}
 	}
 	t.Fatal("verification email missing")

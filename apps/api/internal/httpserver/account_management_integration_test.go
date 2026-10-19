@@ -40,14 +40,16 @@ func managementFixture(t *testing.T) (*portalFixture, string, string) {
 }
 func resetCode(t *testing.T, f *portalFixture, email string) string {
 	t.Helper()
-	if err := f.outbox.Deliver(t.Context()); err != nil {
-		t.Fatal(err)
-	}
-	for i := len(f.sender.values) - 1; i >= 0; i-- {
-		message := f.sender.values[i]
-		if message.To == email {
-			if code := regexp.MustCompile(`[0-9]{8}`).FindString(message.Text); code != "" {
-				return code
+	for range 10 {
+		if err := f.outbox.Deliver(t.Context()); err != nil {
+			t.Fatal(err)
+		}
+		for i := len(f.sender.values) - 1; i >= 0; i-- {
+			message := f.sender.values[i]
+			if message.To == email {
+				if code := regexp.MustCompile(`[0-9]{8}`).FindString(message.Text); code != "" {
+					return code
+				}
 			}
 		}
 	}

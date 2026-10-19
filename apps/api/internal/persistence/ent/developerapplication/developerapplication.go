@@ -23,6 +23,10 @@ const (
 	FieldEnabled = "enabled"
 	// FieldDeleted holds the string denoting the deleted field in the database.
 	FieldDeleted = "deleted"
+	// FieldSuspended holds the string denoting the suspended field in the database.
+	FieldSuspended = "suspended"
+	// FieldSuspensionReason holds the string denoting the suspension_reason field in the database.
+	FieldSuspensionReason = "suspension_reason"
 	// FieldRevision holds the string denoting the revision field in the database.
 	FieldRevision = "revision"
 	// FieldActiveVersion holds the string denoting the active_version field in the database.
@@ -43,6 +47,8 @@ var Columns = []string{
 	FieldPublic,
 	FieldEnabled,
 	FieldDeleted,
+	FieldSuspended,
+	FieldSuspensionReason,
 	FieldRevision,
 	FieldActiveVersion,
 	FieldLatestVersion,
@@ -64,6 +70,10 @@ var (
 	DefaultEnabled bool
 	// DefaultDeleted holds the default value on creation for the "deleted" field.
 	DefaultDeleted bool
+	// DefaultSuspended holds the default value on creation for the "suspended" field.
+	DefaultSuspended bool
+	// DefaultSuspensionReason holds the default value on creation for the "suspension_reason" field.
+	DefaultSuspensionReason string
 	// DefaultRevision holds the default value on creation for the "revision" field.
 	DefaultRevision int
 	// DefaultActiveVersion holds the default value on creation for the "active_version" field.
@@ -105,6 +115,16 @@ func ByEnabled(opts ...sql.OrderTermOption) OrderOption {
 // ByDeleted orders the results by the deleted field.
 func ByDeleted(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeleted, opts...).ToFunc()
+}
+
+// BySuspended orders the results by the suspended field.
+func BySuspended(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuspended, opts...).ToFunc()
+}
+
+// BySuspensionReason orders the results by the suspension_reason field.
+func BySuspensionReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSuspensionReason, opts...).ToFunc()
 }
 
 // ByRevision orders the results by the revision field.

@@ -89,6 +89,16 @@ func Deleted(v bool) predicate.DeveloperApplication {
 	return predicate.DeveloperApplication(sql.FieldEQ(FieldDeleted, v))
 }
 
+// Suspended applies equality check predicate on the "suspended" field. It's identical to SuspendedEQ.
+func Suspended(v bool) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldEQ(FieldSuspended, v))
+}
+
+// SuspensionReason applies equality check predicate on the "suspension_reason" field. It's identical to SuspensionReasonEQ.
+func SuspensionReason(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldEQ(FieldSuspensionReason, v))
+}
+
 // Revision applies equality check predicate on the "revision" field. It's identical to RevisionEQ.
 func Revision(v int) predicate.DeveloperApplication {
 	return predicate.DeveloperApplication(sql.FieldEQ(FieldRevision, v))
@@ -267,6 +277,81 @@ func DeletedEQ(v bool) predicate.DeveloperApplication {
 // DeletedNEQ applies the NEQ predicate on the "deleted" field.
 func DeletedNEQ(v bool) predicate.DeveloperApplication {
 	return predicate.DeveloperApplication(sql.FieldNEQ(FieldDeleted, v))
+}
+
+// SuspendedEQ applies the EQ predicate on the "suspended" field.
+func SuspendedEQ(v bool) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldEQ(FieldSuspended, v))
+}
+
+// SuspendedNEQ applies the NEQ predicate on the "suspended" field.
+func SuspendedNEQ(v bool) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldNEQ(FieldSuspended, v))
+}
+
+// SuspensionReasonEQ applies the EQ predicate on the "suspension_reason" field.
+func SuspensionReasonEQ(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldEQ(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonNEQ applies the NEQ predicate on the "suspension_reason" field.
+func SuspensionReasonNEQ(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldNEQ(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonIn applies the In predicate on the "suspension_reason" field.
+func SuspensionReasonIn(vs ...string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldIn(FieldSuspensionReason, vs...))
+}
+
+// SuspensionReasonNotIn applies the NotIn predicate on the "suspension_reason" field.
+func SuspensionReasonNotIn(vs ...string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldNotIn(FieldSuspensionReason, vs...))
+}
+
+// SuspensionReasonGT applies the GT predicate on the "suspension_reason" field.
+func SuspensionReasonGT(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldGT(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonGTE applies the GTE predicate on the "suspension_reason" field.
+func SuspensionReasonGTE(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldGTE(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonLT applies the LT predicate on the "suspension_reason" field.
+func SuspensionReasonLT(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldLT(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonLTE applies the LTE predicate on the "suspension_reason" field.
+func SuspensionReasonLTE(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldLTE(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonContains applies the Contains predicate on the "suspension_reason" field.
+func SuspensionReasonContains(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldContains(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonHasPrefix applies the HasPrefix predicate on the "suspension_reason" field.
+func SuspensionReasonHasPrefix(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldHasPrefix(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonHasSuffix applies the HasSuffix predicate on the "suspension_reason" field.
+func SuspensionReasonHasSuffix(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldHasSuffix(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonEqualFold applies the EqualFold predicate on the "suspension_reason" field.
+func SuspensionReasonEqualFold(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldEqualFold(FieldSuspensionReason, v))
+}
+
+// SuspensionReasonContainsFold applies the ContainsFold predicate on the "suspension_reason" field.
+func SuspensionReasonContainsFold(v string) predicate.DeveloperApplication {
+	return predicate.DeveloperApplication(sql.FieldContainsFold(FieldSuspensionReason, v))
 }
 
 // RevisionEQ applies the EQ predicate on the "revision" field.

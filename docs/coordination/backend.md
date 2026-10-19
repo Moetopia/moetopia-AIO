@@ -1,6 +1,6 @@
 # 后端进度与前端接入
 
-更新时间：2026-10-19。所有者：本后端对话。**当前接入状态优先读文末“账号安全与开发者管理整批交接”**；前文保留历史轮次。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。本轮使用共享文档交接，不声称前端已收到自动通知。
+更新时间：2026-10-19。所有者：本后端对话。**当前接入状态优先读文末“管理员安全与后台整批交接”**；前文保留历史轮次。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。本轮使用共享文档交接，不声称前端已收到自动通知。
 
 ## 已完成
 
@@ -106,3 +106,34 @@ Go 测试与 vet 已通过。真实 Ubuntu PostgreSQL/Valkey 的专属临时库�
 迁移 6/7 已实际应用专属开发库，原账号/密钥保留；显式主体回填已执行 updated=0。API readyz 要求新表，若自己的 TUI 中 api 已 DOWN，选 api 按 r；不重新初始化密钥/数据库。其他工作区运行前先核对目标，再用已有 api:migrate 和 api:grants:backfill，不能把随机测试库账号当开发账号。
 
 验证：Go test/vet、真实 PostgreSQL/Valkey 随机库集成、全工作区类型检查与 OpenAPI 漂移检查通过；真实 Chromium OIDC 1 项场景通过。账号/开发者新页面尚未在浏览器接入验收，本轮未修改 UI、翻译或 frontend.md，也未停止其他会话进程。完整状态、缺口和安全扫描范围见 [实施进度](../implementation-status.md)。后端余项包括管理员完整安全链路/审核、注销、联邦、标准退出/内省及生产验收。
+
+## 2026-10-19：管理员安全与后台整批交接
+
+已读取前端提交 0584eda 和最新 frontend.md：上一批账号/开发者表单已完成接线，后端不再把它们列为“尚待接入”；真实管理批次的具体浏览器覆盖由前端记录维护。本批未修改 UI、页面、翻译或 frontend.md，也没有使用内部 Review 绕过角色/MFA。
+
+**以下管理员契约与生成类型已正式可接，完整字段/错误/顺序见 [run-administration.md](../run-administration.md)。** 不需要再等待逐项开放：
+
+| 功能 | `/api/v1/admin` 下接口 |
+| --- | --- |
+| 独立 Go RP | login、callback、context、logout |
+| TOTP 与恢复 | mfa/enrollment、mfa/enrollment/confirm、mfa/verify、mfa/recover、mfa/recovery-codes |
+| 管理员会话 | GET sessions、DELETE sessions/{id} |
+| 应用审核/暂停 | GET applications（status=pending/all）、GET applications/{id}、POST review、POST suspension |
+| 普通账号管理 | GET users（query/cursor）、POST users/{id}/availability |
+| 注册策略 | GET/PUT registration-policy，携带 revision |
+| 邀请码 | GET/POST invitations、DELETE invitations/{id} |
+| 审计 | GET audit-events（cursor），最近 90 天每页 50 |
+
+管理员登录为完整浏览器导航，固定 confidential client、独立 origin/Cookie/CSRF/application；第一因素强制重新认证。**AdminContext.authenticated 不代表已具备后台权限，必须检查 mfa.verified。** 未绑定进入绑定、已绑定未验证或过期进入验证；MFA 相关页和退出不受“已完成 MFA”守卫保护。独立 Cookie 不等于单独账号：使用用户原邮箱密码，但普通账号无角色时无法建立管理会话。
+
+MFA 绑定开始需要当前密码，返回 seed/otpauth_uri 只在组件内存用于本次扫码/手动绑定。确认/验证/恢复旋转 Cookie 和 CSRF，立即替换上下文。恢复需要当前密码+单次恢复码，废止旧 seed、整组码和全部管理会话，只获得重新绑定的受限会话；恢复本身不能进入业务后台。新恢复码、邀请码及 seed 不落 localStorage/useState/SSR payload/日志/截图，不自动重试有秘密的一次返回操作。成品 UI 尚未由后端实现。
+
+应用新增 suspended/suspension_reason，真实响应包含，生成字段保持增量兼容。有效可用为 owner enabled 且未 suspended；平台暂停不能被所有者启用/改草稿覆盖，解除也不恢复旧授权。review/suspension 要求当前应用 revision，拒绝/暂停必须说明原因；pending 新版不污染旧 approved。
+
+用户停启使用 User.revision，停用必须说明原因，重启后旧会话/授权码/刷新仍失效。普通用户管理接口拒绝任何管理员目标，不能用它自封/恢复最后管理员。注册策略 revision 独立于用户 revision。邀请码创建只返回一次原文；列表和删除用记录 hash ID，不用 bearer code，撤销后不能兑换；列表游标空字符串结束。审计新字段是 actor_id/target_id/action/outcome/request_id/created_at，历史缺失值保留为空；当前无统计趋势接口，不将列表长度当全站统计。
+
+迁移 8/9 已实际应用专属开发库，当前版本 9；固定管理员 client 已显式初始化，并已按用户指定的已有验证账号执行一次性角色赋予。**该日常账号尚未绑定 TOTP，没有为它生成或查看 seed/恢复码。** 前端完成绑定/验证页后用户自行操作。若自己的 TUI 中 api 因缺迁移已退出，选 api 按 r；不用重新初始化账号/签名密钥或反复 bootstrap。其他工作区按运行文档核对目标后执行迁移/显式初始化，不复制真实邮箱或凭据。
+
+验证：Go test/vet、真实专属 PG/Valkey 随机库集成、全工作区类型检查与 OpenAPI 漂移检查通过。涵盖 bootstrap 并发单次赋予、真实 Go OIDC/JWKS、MFA 重放/过期/限流/恢复并发、跨 RP/Origin 隔离、角色失效、审核和审计失败回滚/单连接池、暂停不能被所有者绕过、用户停启和管理员保护、策略版本冲突及撤销邀请拒绝注册。新增 `pnpm test:admin` 的 1 项真实 Chromium 场景通过，使用独立管理域名和测试专属协议探针；原 `pnpm test:oidc` 1 项场景也回归通过。探针不是成品后台页面验收，正式 admin UI 需前端接入后验证。
+
+当前仍缺账号注销、联邦登录绑定、标准退出/内省、生产邮件/部署/密钥轮换/恢复/性能验收；后台统计趋势、完整角色管理、测试成员、历史版本和应用通知未开放。全部 MFA 因素丢失没有绕过入口，生产受控应急流程待验收。本轮只通过共享文档交接，没有自动向另一个对话发送消息。

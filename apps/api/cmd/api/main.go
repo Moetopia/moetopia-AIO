@@ -9,10 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/valkey-io/valkey-go"
+	"moetopia.local/aio/api/internal/administration"
 	"moetopia.local/aio/api/internal/authorization"
 	"moetopia.local/aio/api/internal/config"
 	"moetopia.local/aio/api/internal/cryptobox"
@@ -92,13 +94,29 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	go func() { defer close(workerDone); runWorkers(ctx, outbox, accounts, webSessions, provider, portal) }()
+	admin := httpserver.AdminEndpoints{}
+	if cfg.AdminOrigin != "" {
+		adminWeb, err := sessions.NewAdmin(db.Ent, cfg.EncryptionKey, cfg.AdminOrigin, strings.HasPrefix(cfg.AdminOrigin, "https://"))
+		if err != nil {
+			return err
+		}
+		admin.Service = administration.New(db.Ent, box, accounts, outbox, adminWeb)
+		admin.RP, err = relyingparty.NewAdmin(db.Ent, box, admin.Service, cfg.Issuer, cfg.AdminOrigin, cfg.EncryptionKey, strings.HasPrefix(cfg.AdminOrigin, "https://"), protocol)
+		if err != nil {
+			return err
+		}
+	}
+	go func() {
+		defer close(workerDone)
+		runWorkers(ctx, outbox, accounts, webSessions, provider, portal, admin.Service)
+	}()
 	defer func() { stop(); <-workerDone }()
 	handler := httpserver.New(httpserver.Dependencies{
 		RateNamespace: cfg.RateNamespace(), DatabaseReady: db.Ready,
 		CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() },
 		Tokens:     provider, Valkey: cache, Portal: httpserver.PortalEndpoints{Service: portal},
 		Developers: developer.New(db.Ent, provider, accounts, cfg.Issuer),
+		Admin:      admin,
 		Accounts:   httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider},
 	})
 	server := &http.Server{Addr: cfg.Listen, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second}

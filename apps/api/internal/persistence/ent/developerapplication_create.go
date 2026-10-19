@@ -66,6 +66,34 @@ func (_c *DeveloperApplicationCreate) SetNillableDeleted(v *bool) *DeveloperAppl
 	return _c
 }
 
+// SetSuspended sets the "suspended" field.
+func (_c *DeveloperApplicationCreate) SetSuspended(v bool) *DeveloperApplicationCreate {
+	_c.mutation.SetSuspended(v)
+	return _c
+}
+
+// SetNillableSuspended sets the "suspended" field if the given value is not nil.
+func (_c *DeveloperApplicationCreate) SetNillableSuspended(v *bool) *DeveloperApplicationCreate {
+	if v != nil {
+		_c.SetSuspended(*v)
+	}
+	return _c
+}
+
+// SetSuspensionReason sets the "suspension_reason" field.
+func (_c *DeveloperApplicationCreate) SetSuspensionReason(v string) *DeveloperApplicationCreate {
+	_c.mutation.SetSuspensionReason(v)
+	return _c
+}
+
+// SetNillableSuspensionReason sets the "suspension_reason" field if the given value is not nil.
+func (_c *DeveloperApplicationCreate) SetNillableSuspensionReason(v *string) *DeveloperApplicationCreate {
+	if v != nil {
+		_c.SetSuspensionReason(*v)
+	}
+	return _c
+}
+
 // SetRevision sets the "revision" field.
 func (_c *DeveloperApplicationCreate) SetRevision(v int) *DeveloperApplicationCreate {
 	_c.mutation.SetRevision(v)
@@ -171,6 +199,14 @@ func (_c *DeveloperApplicationCreate) defaults() {
 		v := developerapplication.DefaultDeleted
 		_c.mutation.SetDeleted(v)
 	}
+	if _, ok := _c.mutation.Suspended(); !ok {
+		v := developerapplication.DefaultSuspended
+		_c.mutation.SetSuspended(v)
+	}
+	if _, ok := _c.mutation.SuspensionReason(); !ok {
+		v := developerapplication.DefaultSuspensionReason
+		_c.mutation.SetSuspensionReason(v)
+	}
 	if _, ok := _c.mutation.Revision(); !ok {
 		v := developerapplication.DefaultRevision
 		_c.mutation.SetRevision(v)
@@ -205,6 +241,12 @@ func (_c *DeveloperApplicationCreate) check() error {
 	}
 	if _, ok := _c.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "DeveloperApplication.deleted"`)}
+	}
+	if _, ok := _c.mutation.Suspended(); !ok {
+		return &ValidationError{Name: "suspended", err: errors.New(`ent: missing required field "DeveloperApplication.suspended"`)}
+	}
+	if _, ok := _c.mutation.SuspensionReason(); !ok {
+		return &ValidationError{Name: "suspension_reason", err: errors.New(`ent: missing required field "DeveloperApplication.suspension_reason"`)}
 	}
 	if _, ok := _c.mutation.Revision(); !ok {
 		return &ValidationError{Name: "revision", err: errors.New(`ent: missing required field "DeveloperApplication.revision"`)}
@@ -273,6 +315,14 @@ func (_c *DeveloperApplicationCreate) createSpec() (*DeveloperApplication, *sqlg
 	if value, ok := _c.mutation.Deleted(); ok {
 		_spec.SetField(developerapplication.FieldDeleted, field.TypeBool, value)
 		_node.Deleted = value
+	}
+	if value, ok := _c.mutation.Suspended(); ok {
+		_spec.SetField(developerapplication.FieldSuspended, field.TypeBool, value)
+		_node.Suspended = value
+	}
+	if value, ok := _c.mutation.SuspensionReason(); ok {
+		_spec.SetField(developerapplication.FieldSuspensionReason, field.TypeString, value)
+		_node.SuspensionReason = value
 	}
 	if value, ok := _c.mutation.Revision(); ok {
 		_spec.SetField(developerapplication.FieldRevision, field.TypeInt, value)

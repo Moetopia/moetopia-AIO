@@ -40,6 +40,20 @@ func (_c *InvitationCreate) SetNillableConsumed(v *bool) *InvitationCreate {
 	return _c
 }
 
+// SetRevoked sets the "revoked" field.
+func (_c *InvitationCreate) SetRevoked(v bool) *InvitationCreate {
+	_c.mutation.SetRevoked(v)
+	return _c
+}
+
+// SetNillableRevoked sets the "revoked" field if the given value is not nil.
+func (_c *InvitationCreate) SetNillableRevoked(v *bool) *InvitationCreate {
+	if v != nil {
+		_c.SetRevoked(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *InvitationCreate) SetCreatedAt(v time.Time) *InvitationCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -99,6 +113,10 @@ func (_c *InvitationCreate) defaults() {
 		v := invitation.DefaultConsumed
 		_c.mutation.SetConsumed(v)
 	}
+	if _, ok := _c.mutation.Revoked(); !ok {
+		v := invitation.DefaultRevoked
+		_c.mutation.SetRevoked(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := invitation.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -112,6 +130,9 @@ func (_c *InvitationCreate) check() error {
 	}
 	if _, ok := _c.mutation.Consumed(); !ok {
 		return &ValidationError{Name: "consumed", err: errors.New(`ent: missing required field "Invitation.consumed"`)}
+	}
+	if _, ok := _c.mutation.Revoked(); !ok {
+		return &ValidationError{Name: "revoked", err: errors.New(`ent: missing required field "Invitation.revoked"`)}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Invitation.created_at"`)}
@@ -159,6 +180,10 @@ func (_c *InvitationCreate) createSpec() (*Invitation, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Consumed(); ok {
 		_spec.SetField(invitation.FieldConsumed, field.TypeBool, value)
 		_node.Consumed = value
+	}
+	if value, ok := _c.mutation.Revoked(); ok {
+		_spec.SetField(invitation.FieldRevoked, field.TypeBool, value)
+		_node.Revoked = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(invitation.FieldCreatedAt, field.TypeTime, value)

@@ -62,3 +62,5 @@ HTTP 状态表达结果：401 未认证、403 无权限、404 不存在或按策
 契约变化同时更新拥有者文档、OpenAPI、生成类型和示例。尚无实现时本文件是设计提议；有实现后以测试证明代码符合契约，差异必须修复或明确记录，不能用“以代码为准”掩盖漂移。
 
 2026-10-19 新增的 [账号管理](run-account-management.md) 和 [开发者应用](run-developer-applications.md) 接口已由真实 Huma 路由生成；新增字段和方法不改变旧 account 密码/注册契约。profile/avatar 使用 revision，应用管理使用独立应用 revision；密钥只在创建/轮换响应出现，密码、验证码等校验错误不回显输入值。
+
+同日新增 `/api/v1/admin/*`，契约见 [管理员接入](run-administration.md)。AdminContext.authenticated 只表示第一因素与角色，业务 gate 还要求 mfa.verified；MFA 成功会旋转 Cookie/CSRF。TOTP 初次绑定载荷、恢复码和邀请码只在相应 POST 成功时返回，读取接口不返回秘密。平台暂停新增字段保留生成类型的增量兼容性；真实响应包含 suspended/suspension_reason。

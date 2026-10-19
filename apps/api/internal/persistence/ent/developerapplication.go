@@ -27,6 +27,10 @@ type DeveloperApplication struct {
 	Enabled bool `json:"enabled,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted bool `json:"deleted,omitempty"`
+	// Suspended holds the value of the "suspended" field.
+	Suspended bool `json:"suspended,omitempty"`
+	// SuspensionReason holds the value of the "suspension_reason" field.
+	SuspensionReason string `json:"suspension_reason,omitempty"`
 	// Revision holds the value of the "revision" field.
 	Revision int `json:"revision,omitempty"`
 	// ActiveVersion holds the value of the "active_version" field.
@@ -43,11 +47,11 @@ func (*DeveloperApplication) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case developerapplication.FieldPublic, developerapplication.FieldEnabled, developerapplication.FieldDeleted:
+		case developerapplication.FieldPublic, developerapplication.FieldEnabled, developerapplication.FieldDeleted, developerapplication.FieldSuspended:
 			values[i] = new(sql.NullBool)
 		case developerapplication.FieldRevision, developerapplication.FieldActiveVersion, developerapplication.FieldLatestVersion:
 			values[i] = new(sql.NullInt64)
-		case developerapplication.FieldID, developerapplication.FieldOwnerID, developerapplication.FieldClientID:
+		case developerapplication.FieldID, developerapplication.FieldOwnerID, developerapplication.FieldClientID, developerapplication.FieldSuspensionReason:
 			values[i] = new(sql.NullString)
 		case developerapplication.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -101,6 +105,18 @@ func (_m *DeveloperApplication) assignValues(columns []string, values []any) err
 				return fmt.Errorf("unexpected type %T for field deleted", values[i])
 			} else if value.Valid {
 				_m.Deleted = value.Bool
+			}
+		case developerapplication.FieldSuspended:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field suspended", values[i])
+			} else if value.Valid {
+				_m.Suspended = value.Bool
+			}
+		case developerapplication.FieldSuspensionReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field suspension_reason", values[i])
+			} else if value.Valid {
+				_m.SuspensionReason = value.String
 			}
 		case developerapplication.FieldRevision:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -176,6 +192,12 @@ func (_m *DeveloperApplication) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deleted=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Deleted))
+	builder.WriteString(", ")
+	builder.WriteString("suspended=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Suspended))
+	builder.WriteString(", ")
+	builder.WriteString("suspension_reason=")
+	builder.WriteString(_m.SuspensionReason)
 	builder.WriteString(", ")
 	builder.WriteString("revision=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Revision))
