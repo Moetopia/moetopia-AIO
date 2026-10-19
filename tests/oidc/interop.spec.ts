@@ -23,7 +23,7 @@ test('real account proxy and independent RP validate the browser authorization l
     expect(await proxied.json()).toEqual(await direct.json())
     const detailsRequest = page.waitForResponse(response => new URL(response.url()).pathname.startsWith('/api/v1/account/authorizations/') && response.request().method() === 'GET')
     await page.goto('http://localhost:54310/login')
-    await expect(page.getByRole('heading', { name: '确认应用访问', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '请登录后继续', exact: true })).toBeVisible()
     const detailsResponse = await detailsRequest
     const detailsBody = await detailsResponse.json() as { code?: string }
     expect({ status: detailsResponse.status(), error: detailsBody.code ?? '', scriptErrors: pageErrors }).toEqual({ status: 200, error: '', scriptErrors: [] })

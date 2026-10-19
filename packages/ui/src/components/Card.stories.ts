@@ -5,3 +5,4 @@ export default meta
 type Story = StoryObj<typeof meta>
 export const Default: Story = {}
 export const Plain: Story = { args: { title: undefined, description: undefined } }
+export const Form: Story = { args: { layout: 'form', title: '基本资料', description: '表单分区使用内嵌标题，不额外分隔标题栏。' } }

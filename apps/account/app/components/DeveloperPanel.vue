@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoeAlert, MoeBadge, MoeCard, MoeEmptyState, MoeLink, MoePageHeading, MoeProfileLayout, MoeUserChip, MoeLandingLayout } from '@moetopia/ui'
+import { MoeAlert, MoeBadge, MoeButton, MoeIcon, MoeCard, MoeEmptyState, MoeLink, MoePageHeading, MoeProfileLayout, MoeLandingLayout } from '@moetopia/ui'
 import { portalMessages } from '@moetopia/locales'
 defineProps<{ section: 'overview' | 'applications' | 'docs' }>()
 const { locale } = usePortalPreferences()
@@ -14,14 +14,12 @@ const { account, loading } = useAccountContext()
       <MoeAlert :title="text.development" color="info">{{ text.developmentDescription }}</MoeAlert>
     </MoeLandingLayout>
     <template v-else>
-      <MoePageHeading :title="section === 'applications' ? text.myApps : text.docsTitle" :description="section === 'applications' ? text.myAppsDescription : text.docsDescription" />
+      <MoePageHeading :title="section === 'applications' ? text.myApps : text.docsTitle" :description="section === 'applications' ? text.myAppsDescription : text.docsDescription"><template v-if="section === 'applications'" #actions><MoeButton disabled :title="text.createUnavailable"><MoeIcon name="plus" />{{ text.createApplication }}</MoeButton></template></MoePageHeading>
       <template v-if="section === 'applications'">
-        <MoeCard v-if="account?.user" :title="text.yourAccount"><MoeUserChip :name="account.user.display_name" :description="account.user.email" /></MoeCard>
-        <MoeAlert v-else-if="!loading" :title="text.signInNeeded" color="info">{{ text.signInNeededDescription }}<template #actions><MoeLink as-child><NuxtLink to="/auth/login?continue=developer-applications">{{ text.accountSignIn }}</NuxtLink></MoeLink></template></MoeAlert>
-        <MoeCard :title="text.myApps"><MoeEmptyState :title="text.appsEmpty" :description="text.appsEmptyDescription" icon="code"><MoeLink as-child><NuxtLink to="/developer/docs">{{ text.developerDocs }}</NuxtLink></MoeLink></MoeEmptyState></MoeCard>
+        <MoeAlert v-if="!account?.user && !loading" :title="text.signInNeeded" color="info">{{ text.signInNeededDescription }}<template #actions><MoeLink as-child><NuxtLink to="/auth/login?continue=developer-applications">{{ text.accountSignIn }}</NuxtLink></MoeLink></template></MoeAlert>
+        <MoeCard class="moe-console-empty" padding="none"><MoeEmptyState :title="text.appsEmpty" :description="text.appsEmptyDescription" icon="grid"><MoeLink as-child><NuxtLink to="/developer/docs">{{ text.developerDocs }}</NuxtLink></MoeLink></MoeEmptyState></MoeCard>
       </template>
       <DeveloperGuide v-else />
-      <MoeAlert :title="text.development" color="info">{{ text.developmentDescription }}</MoeAlert>
     </template>
   </div>
 </template>

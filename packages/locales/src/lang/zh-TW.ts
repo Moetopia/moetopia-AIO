@@ -21,6 +21,7 @@ export default {
     noAccount: '還沒有帳號？', haveAccount: '已經有帳號？', registerLink: '立即註冊', loginLink: '前往登入',
   },
   portal: {
+    "console": "控制台", "createApplication": "建立應用程式", "createUnavailable": "應用程式建立功能尚未開放。", "emailSettings": "電子郵件地址", "emailSettingsDescription": "查看帳號電子郵件，變更功能尚未開放。", "saveChanges": "儲存變更", "profileReadOnly": "資料編輯尚未開放，目前僅可查看。",
     collapseNavigation: "收合側欄", expandNavigation: "展開側欄",
     brandDetail: '帳號、社群與創作', yourAccount: '你的帳號', identityDescription: '使用此帳號登入 Moetopia 與已接入的應用程式。',
     developerStart: '查看我的應用程式', developerDocs: '閱讀接入說明', developerIntro: '讓你的應用程式，接上 Moetopia。', developerIntroDescription: '讓使用者以同一個 Moetopia 帳號登入你的網站。先了解流程，再準備應用程式資訊與權限。',
@@ -42,6 +43,7 @@ export default {
     providerAccess: '第三方帳號綁定', providerAccessDescription: 'GitHub 與 Google 的登入和綁定尚未開放。', accessManagement: '應用程式授權', accessManagementDescription: '應用程式授權查詢與撤銷管理將於日後提供。',
   },
   authorization: {
+    "sharedInformation": "將讀取以下帳號資訊", "displayName": "暱稱", "emailAddress": "電子郵件地址", "subject": "帳號識別碼", "credentialNotice": "你的密碼與登入憑證不會共用。", "technicalDetails": "請求詳情", "returnNotice": "授權後將返回", "requestAccess": "正在要求存取你的帳號",
     title: '確認應用程式存取', description: '檢查應用程式要求的權限，再決定是否繼續。', loading: '正在讀取授權請求', application: '要求存取的應用程式', client: '應用程式識別碼', callback: '返回網址', audience: '存取的服務', expires: '請求到期時間',
     permissions: '要求的權限', openid: '確認你的帳號身分', profile: '讀取暱稱等基本資料', email: '讀取電子郵件地址', otherScope: '應用程式要求的其他權限', offlineAccess: '在你離線時繼續存取已授權的資訊，直到授權到期或遭撤銷。',
     account: '以此帳號繼續', approve: '允許存取', deny: '拒絕', switchAccount: '使用其他帳號', login: '請登入後繼續', reauthenticate: '請重新驗證帳號', loginDescription: '登入後會再次顯示授權詳情；登入本身不會核准應用程式存取。',

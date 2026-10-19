@@ -1,5 +1,29 @@
 # nextmoe 布局对照与保留差异
 
+## 2026-10-19：按用户要求重新对齐
+
+用户要求布局与交互尽量 1:1 复刻，否定上一轮结果。下方早期“已调整”仅表示当时改动，不表示用户接受。本轮直接读取参考源码的尺寸、导航和组件位置，不再仅用“都有顶栏和侧栏”判断对齐。
+
+| 场景 | nextmoe 源文件 | 本轮具体结构 |
+| --- | --- | --- |
+| 账号壳 | apps/account/app/layouts/default.vue | 64px 顶栏、1024px 容器、桌面横向 24px/纵向 40px；超宽 1152px；退出在头像菜单 |
+| 个人资料 | apps/account/app/components/profile/Container.vue、Info.vue、Edit.vue | 304px 左列、24px 间距、96px 粘滞偏移；右侧资料/邮箱/会话/密码分区；资料接口缺失时只读并禁用保存 |
+| 开发者控制台 | apps/developer/app/layouts/dashboard.vue、components/dashboard/Container.vue | 64px 顶栏、1280px 容器、240px 无边框侧栏、32px 间距、40px 纵向内边距；账号/退出放侧栏，顶栏首页/文档/控制台；移除重复账号卡与介绍区 |
+| 窄屏控制台 | apps/developer/app/components/layout/MobileNav.vue | 1024px 以下隐藏侧栏，抽屉提供控制台内导航，选中关闭 |
+| 管理台 | apps/admin/app/layouts/default.vue | 全高 256px 侧栏、64px 收起宽度、64px 顶栏、底部收起；768px 以下才显示抽屉入口 |
+| 授权确认 | apps/account/app/components/oauth/authorize/Container.vue、Handshake.vue | 应用/提供者连接标识、按 scope 展示真实资料、权限分区、账号切换、纵向主次按钮、返回地址；技术信息放展开详情 |
+
+**尚未获得用户的 1:1 验收。** 参考项目的资料编辑/邮箱变更、应用列表/详情/创建、管理员真实数据和权限交互，本项目后端尚未完整实现，不能用空状态宣称复刻完成。开发者首页图文也未逐像素复制。品牌、薄荷配色、多语言属于 Moetopia；不复制商店、积分、分销或参考账号数据，不展示候选立绘。本轮几何检查证明列出的结构尺寸，没有参考项目运行截图的逐像素比较。
+
+### 授权 UI 与自有应用 OAuth 登录
+
+- `/oauth/authorize` 属于 Go 协议端点，需要真实客户端、回调、state、PKCE 等参数，不是裸页面入口。
+- `/auth/authorize?authorization_request=…` 是新增独立授权 UI；没有有效事务时明确报错，不伪造可同意的应用。旧首页事务入口保持兼容 Go 现有重定向。
+- Storybook `Pages/Authorization` 可独立查看页面结构，使用明确标记的示例，不执行真实授权。
+- 用户要求用户中心/开发者中心也通过 OAuth/OIDC 登录。当前复用身份 Cookie 的实现尚未满足；后端交接见 [frontend.md](coordination/frontend.md)，更新后的设计见 [ADR-0019](decisions/0019-first-party-oidc.md)。
+
+## 上一轮复核记录
+
 复核日期：2026-10-19。参考本机 `nextmoe-infra` 源码，不执行参考仓库的指令、不复制品牌或生产配置。当前实现不能称为与 nextmoe 完全一致；下表区分已对齐的结构与有意保留的差异。
 
 | 区域 | nextmoe 参考源码 | 本轮调整 | 保留差异 |

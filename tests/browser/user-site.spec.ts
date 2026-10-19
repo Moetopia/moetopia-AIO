@@ -20,7 +20,7 @@ test('account profile uses a summary column and top navigation instead of a dash
   await expect(page).toHaveURL(`${origin}/developer`)
   await page.getByRole('link', { name: '查看我的应用', exact: true }).click()
   await expect(page).toHaveURL(`${origin}/developer/applications`)
-  await expect(page.getByText(user.email, { exact: true })).toBeVisible()
+  await expect(page.getByText(user.email, { exact: true }).first()).toBeVisible()
   expect(contexts).toBe(1)
 })
 
@@ -28,7 +28,7 @@ test('developer guide and applications work in the user site without fabricated 
   await page.route('**/api/**', route => route.fulfill({ status: 503, json: {} }))
   await page.goto(`${origin}/developer/docs`)
   await expect(page.getByRole('heading', { name: '接入说明', exact: true })).toBeVisible()
-  await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '我的应用', exact: true }).click()
+  await page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '控制台', exact: true }).click()
   await expect(page).toHaveURL(`${origin}/developer/applications`)
   await expect(page.getByRole('heading', { name: '应用接入尚未开放', exact: true })).toBeVisible()
   await page.getByRole('link', { name: '前往登录', exact: true }).click()

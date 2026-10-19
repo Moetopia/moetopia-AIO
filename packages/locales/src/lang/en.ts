@@ -72,6 +72,7 @@ export default {
     "loginLink": "Sign in"
   },
   "portal": {
+    "console": "Console", "createApplication": "Create application", "createUnavailable": "Application creation is not available yet.", "emailSettings": "Email address", "emailSettingsDescription": "View your account email. Email changes are not available yet.", "saveChanges": "Save changes", "profileReadOnly": "Profile editing is not available yet. These details are read-only.",
     "collapseNavigation": "Collapse sidebar",
     "expandNavigation": "Expand sidebar",
     "brandDetail": "Accounts, communities and creations",
@@ -164,6 +165,7 @@ export default {
     "accessManagementDescription": "Reviewing and revoking application access will be available with OAuth/OIDC integration."
   },
   "authorization": {
+    "sharedInformation": "Account information to be shared", "displayName": "Display name", "emailAddress": "Email address", "subject": "Account identifier", "credentialNotice": "Your password and login credentials will not be shared.", "technicalDetails": "Request details", "returnNotice": "After authorization, return to", "requestAccess": "is requesting access to your account",
     "title": "Review application access",
     "description": "Check the requested permissions before continuing.",
     "loading": "Loading authorization request",

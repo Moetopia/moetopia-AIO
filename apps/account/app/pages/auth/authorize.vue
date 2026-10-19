@@ -1,0 +1,1 @@
+<template><AuthorizationPanel /></template>

@@ -10,7 +10,7 @@ const mainId = useId()
     <div class="moe-page-body">
     <div class="moe-page-header"><div class="moe-page-header-inner"><slot name="header" /></div></div>
     <main :id="mainId" class="moe-page-main" tabindex="-1"><slot /></main>
-    <footer class="moe-page-footer"><slot name="footer" /></footer>
+    <footer v-if="$slots.footer" class="moe-page-footer"><slot name="footer" /></footer>
     </div>
   </div>
 </template>

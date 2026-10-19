@@ -8,7 +8,7 @@
 
 Go 统一管理自有 Web 服务端会话。建议会话使用随机不透明标识；浏览器仅保存 Host-only、HttpOnly、Secure 的会话 Cookie。Nuxt/Nitro 或入口只做固定目标的同源转发，不创建另一套可独立签发的登录态。具体入口选择在正式域名确定后落实。
 
-account 保有中央身份会话；admin、developer 作为各自注册的第一方 OIDC client，回调由 Go 处理并建立各 origin 的本地会话。每个 origin 的 Cookie 不共享父域。跨站 SSO 通过顶层跳转到中央登录站点完成，不依赖第三方 Cookie。
+原建议为 account 保有中央身份会话，admin/developer 为第一方 OIDC client。2026-10-19 用户进一步要求用户中心也走 OAuth/OIDC；最新设计见 [ADR-0019](0019-first-party-oidc.md)。身份提供者会话与自有用户站 RP 会话需区分，回调由 Go 处理；同源 developer 可与 account 共用受控 RP，不恢复第三个前端。每个 origin 的 Cookie 不共享父域。跨站 SSO 通过顶层跳转到中央登录站点完成，不依赖第三方 Cookie。
 
 浏览器不持有客户端秘密，不将 access/refresh token 存入 localStorage。第一方客户端的令牌如需保存，仅在服务端保存。第三方应用仍可使用标准 public/confidential client 流程，不强制其采用本项目的会话方式。
 

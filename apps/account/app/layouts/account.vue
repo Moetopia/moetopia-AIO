@@ -1,1 +1,1 @@
-<template><PortalHome kind="account"><slot /></PortalHome></template>
+<template><PortalHome kind="account"><template #account><AccountNavigation /></template><slot /></PortalHome></template>

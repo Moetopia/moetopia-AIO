@@ -5,18 +5,18 @@ import type { MoeNavItem } from '../types'
 import NavItem from './NavItem.vue'
 import Button from './Button.vue'
 import Icon from './Icon.vue'
-withDefaults(defineProps<{ label: string; brand: string; subtitle?: string; brandHref?: string; items: MoeNavItem[]; mobileItems?: MoeNavItem[]; active?: string; menuLabel?: string; closeLabel?: string }>(), { brandHref: '/', menuLabel: '打开导航', closeLabel: '关闭导航' })
+const props = withDefaults(defineProps<{ label: string; brand: string; subtitle?: string; brandHref?: string; items: MoeNavItem[]; mobileItems?: MoeNavItem[]; active?: string; menuLabel?: string; closeLabel?: string; breakpoint?: 'tablet' | 'desktop' }>(), { brandHref: '/', menuLabel: '打开导航', closeLabel: '关闭导航', breakpoint: 'desktop' })
 const open = defineModel<boolean>('open', { default: false })
 const emit = defineEmits<{ navigate: [event: MouseEvent, item: MoeNavItem] }>()
 const navigate = (event: MouseEvent, item: MoeNavItem) => { emit('navigate', event, item); open.value = false }
 let media: MediaQueryList | undefined
 const closeOnDesktop = () => { if (media?.matches) open.value = false }
-onMounted(() => { media = window.matchMedia('(min-width: 1024px)'); media.addEventListener('change', closeOnDesktop) })
+onMounted(() => { media = window.matchMedia(props.breakpoint === 'tablet' ? '(min-width: 768px)' : '(min-width: 1024px)'); media.addEventListener('change', closeOnDesktop) })
 onBeforeUnmount(() => media?.removeEventListener('change', closeOnDesktop))
 </script>
 
 <template>
-  <header class="moe-navbar">
+  <header class="moe-navbar" :data-breakpoint="breakpoint">
     <DialogRoot v-model:open="open">
       <DialogTrigger as-child><Button class="moe-navbar-toggle" variant="light" color="default" icon-only :aria-label="menuLabel"><Icon name="menu" /></Button></DialogTrigger>
       <DialogPortal>
@@ -28,7 +28,7 @@ onBeforeUnmount(() => media?.removeEventListener('change', closeOnDesktop))
         </DialogContent>
       </DialogPortal>
     </DialogRoot>
-    <a :href="brandHref" class="moe-navbar-brand moe-focus"><slot name="brand"><span>{{ brand }}</span><span v-if="subtitle" class="moe-navbar-subtitle">{{ subtitle }}</span></slot></a>
+    <a :href="brandHref" class="moe-navbar-brand moe-focus"><slot name="brand"><span class="moe-navbar-wordmark"><span>{{ brand }}</span><span v-if="subtitle" class="moe-navbar-subtitle">{{ subtitle }}</span></span></slot></a>
     <nav :aria-label="label" class="moe-navbar-links"><NavItem v-for="item in items" :key="item.id" :item="item" :active="active === item.id" @navigate="navigate" /></nav>
     <div class="moe-navbar-actions"><slot name="actions" /></div>
   </header>

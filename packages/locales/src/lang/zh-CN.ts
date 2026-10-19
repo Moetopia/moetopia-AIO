@@ -72,6 +72,7 @@ export default {
     "loginLink": "前往登录"
   },
   "portal": {
+    "console": "控制台", "createApplication": "创建应用", "createUnavailable": "应用创建接口尚未开放。", "emailSettings": "邮箱地址", "emailSettingsDescription": "查看账号邮箱，邮箱变更功能暂未开放。", "saveChanges": "保存修改", "profileReadOnly": "资料编辑暂未开放，当前仅可查看。",
     "collapseNavigation": "收起侧栏",
     "expandNavigation": "展开侧栏",
     "brandDetail": "账号、社区与创作",
@@ -164,6 +165,7 @@ export default {
     "accessManagementDescription": "应用授权查询与撤销将在 OAuth/OIDC 接入完成后提供。"
   },
   "authorization": {
+    "sharedInformation": "将读取以下账号信息", "displayName": "昵称", "emailAddress": "邮箱地址", "subject": "账号标识", "credentialNotice": "你的密码与登录凭证不会共享。", "technicalDetails": "请求详情", "returnNotice": "授权后将返回", "requestAccess": "正在请求访问你的账户",
     "title": "确认应用访问",
     "description": "检查应用请求的权限，再决定是否继续。",
     "loading": "正在读取授权请求",

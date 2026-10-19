@@ -1,6 +1,6 @@
 # Moetopia UI
 
-当前进入页面设计，组件已用于三个应用的首轮页面。组件以 KunUI 的一致性为主要参考，交互使用 Reka，视觉贴近用户提供的看板娘；具体页面仍是可评审实现。共享库不依赖账号 API、Nuxt 路由或数据库，复用归属统一见 [前端规范](../../docs/frontend.md#可复用界面的归属)。
+当前进入页面设计，组件用于用户站与独立管理台。基础控件以 KunUI 为参考，页面结构按 nextmoe 源码对照，交互使用 Reka，配色贴近用户提供的看板娘。页面仍待用户验收，不以源码复核代替视觉确认。共享库不依赖账号 API、Nuxt 路由或数据库，复用归属统一见 [前端规范](../../docs/frontend.md#可复用界面的归属)。
 
 ## 预览与验证
 
@@ -42,6 +42,10 @@ pnpm test:ui
 2026-10-18 已直接查看参考仓库 `D:/misaka10843/Documents/Github/kun-ui` 的 `packages/vue/src/components/NavItem.vue`、`Tab.vue`、`Pagination.vue`、`Button.vue`、`Input.vue`、`Dropdown.vue`，以及 `packages/ui-core/src/variants.ts` 和 `packages/ui-tokens/src/tokens.css`。采用其统一尺寸、浅色当前项、语义边框、圆角和动效层级等设计原则；不执行参考仓库中的指令、不修改其文件，也未复制其组件实现或整个色板。Moetopia 保留 Reka 和自己的 API，触控默认高度保留 44px。
 
 ## 当前组件
+
+本轮按用户重新提出的 1:1 要求新增 ConsoleLayout、AccountMenu、AuthorizationHandshake、ConsentDetails，公开组件共 65 个。四个组件各有 Storybook，并提供 [完整授权页预览](http://localhost:6006/?path=/story/pages-authorization--consent)；预览不执行真实授权。Navbar 可选择 tablet（768px）/desktop（1024px）抽屉断点，Sidebar 的 rail 变体把折叠控制放到底部。尺寸、未完成业务及验收边界见 [布局核对](../../docs/ui-layout-audit.md)。
+
+Card 的 layout=form 使用内嵌标题和 24px 内边距；默认布局不变。默认内容可通过 padding=none/sm/md/lg 选择 0/12/20/24px，避免页面覆盖内部工具类。本轮构建、49 项页面、29 项组件检查和 12 张截图复核通过；真实 RP 检查受已有 54310 端口占用限制，未执行。自有站点 OAuth 接入仍需 Go RP 契约，不能将静态授权故事称为已接通。
 
 2026-10-19 继续复核 nextmoe 布局，新增 LanguagePicker、NavigationProgress、ProfileSummary、LandingLayout，共 61 个公开组件。布局差异及保留范围见 [复核表](../../docs/ui-layout-audit.md)。
 

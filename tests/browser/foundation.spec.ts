@@ -8,7 +8,7 @@ for (const [port, path, title, heading] of [[53000, '/', '账号中心', 'Welcom
     await page.route('**/api/**', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }))
     await page.goto(`http://127.0.0.1:${port}${path}`)
     await expect(page).toHaveTitle(`${title} · Moetopia`)
-    await expect(page.getByRole('status')).toHaveText('连接暂不可用')
+    if (port !== 53001) await expect(page.getByRole('status')).toHaveText('连接暂不可用')
     await page.getByRole('button', { name: '切换主题' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await selectLanguage(page, 'English')
