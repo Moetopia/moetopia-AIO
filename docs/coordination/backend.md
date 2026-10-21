@@ -1,6 +1,6 @@
 # 后端进度与前端接入
 
-更新时间：2026-10-21。所有者：本后端对话。**当前接入状态优先读文末“内省、配置历史与应用通知”及上一批管理员交接**；前文保留历史轮次。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。本轮使用共享文档交接，不声称前端已收到自动通知。
+更新时间：2026-10-21。所有者：本后端对话。**按文末最新批次接线；本轮新增“注销、取消与清理”**，内省/历史/通知及管理员能力保留；前文仅作历史。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。共享文档交接，不声称前端已收到自动通知。
 
 ## 已完成
 
@@ -160,3 +160,15 @@ MFA 绑定开始需要当前密码，返回 seed/otpauth_uri 只在组件内存�
 验证：Go 全量单元测试/vet、真实随机专属 PostgreSQL/Valkey 集成、全工作区类型检查和 OpenAPI 漂移检查通过；4 项 Node 启动/端口配置测试通过。新增集成覆盖 Basic/认证混用拒绝、内省归属/消费/失效/旧主体回填/安全版本、机器凭据和单连接池、解密/身份/Valkey 故障，版本审核保留/多页/空页/权限，以及通知失败时审核/暂停/密钥/审计回滚和秘密不进入通知。测试夹具临时清空 grant 主体后显式恢复，不污染后续全库回填断言。管理员协议/MFA与普通 OIDC 各 1 项真实 Chromium 回归通过（API 临时端口 58500），保留正常用户站入口/代理/授权/刷新/撤销和独立管理员隔离；管理员浏览器端仍为协议探针，不是成品后台 UI。本批未新增依赖，也未重复漏洞/镜像扫描或生产性能测试。
 
 仍待后端：七天注销/取消/清理、GitHub/Google 登录绑定、中央/RP 标准退出、生产邮件和运行验收、统计趋势、完整角色与第二管理员、测试成员、站内通知/Webhook/所有权转移。历史列表和这批邮件通知不再是后端缺口；管理员和历史成品页面仍由前端接入。
+
+## 2026-10-21：注销、取消与清理
+
+用户要求继续完成首期剩余能力；本后端不会只等前端逐项提出。新增 POST `/api/v1/portal/deletion`（portal 保护，current_password/revision）、POST `/api/v1/account/deletion-cancellations`（匿名 account 保护，email/locale）及其 `/confirm`（challenge_id/code/current_password）。完整字段、错误与恢复顺序见 [生命周期契约](../run-account-lifecycle.md)。生成包新增 AccountDeletion/AccountDeletionRequest/DeletionCancellationRequest，AdminUsers 新增可选 deletion_due_at。
+
+申请返回 requested_at/due_at 后原身份/portal/admin 会话均已撤销，前端清空本地登录状态；取消页必须匿名可访问，使用 account CSRF，不走 portal 守卫。取消成功 204 后走正常密码登录及 Go RP，不自动恢复旧凭据。忘记密码可先恢复，再重新申请取消验证码；密码恢复本身不取消注销。不要让“登录成功”或管理员 enabled=true 自动清掉 pending；过期不允许取消。
+
+409 account_published_applications 要求先停用全部启用的已发布应用（平台 suspended 不算所有者停用）；403 admin_target_protected 禁止普通注销管理主体。取消不启用测试应用或恢复旧授权；剩余错误沿用账号契约。注册/恢复/取消用途隔离，成功发送反馈不披露账号存在或实际送达。
+
+迁移 10 已实际应用专属开发库，当前版本 10；没有给日常账号申请注销或清理数据。若自己的 TUI 中 API 因新 schema 退出，选 api 按 r；不重新初始化账号/密钥。真实随机数据库集成、Go test/vet、类型及生成契约检查通过，含取消限制、管理员/发布保护、单连接池和事务故障、旧快照及所有者资源清理；注销页面还需前端真实接入，不声称浏览器完成。
+
+注销/取消/清理已不属于服务端缺口。后端继续联邦、标准退出、生产邮件/密钥与运行准备，以及剩余首期管理能力；本轮仍未编辑前端、翻译或 frontend.md。

@@ -85,7 +85,7 @@ func (s *Service) updateProfile(ctx context.Context, id string, revision int, ac
 		return User{}, err
 	}
 	defer tx.Rollback()
-	update := tx.AccountUser.Update().Where(accountuser.ID(id), accountuser.Enabled(true), accountuser.Revision(revision)).AddRevision(1)
+	update := tx.AccountUser.Update().Where(accountuser.ID(id), accountuser.Enabled(true), accountuser.DeletionDueAtIsNil(), accountuser.Revision(revision)).AddRevision(1)
 	apply(update)
 	count, err := update.Save(ctx)
 	if err != nil {
@@ -107,7 +107,7 @@ func (s *Service) updateProfile(ctx context.Context, id string, revision int, ac
 	return public(row), nil
 }
 func (s *Service) Avatar(ctx context.Context, id string) ([]byte, error) {
-	row, err := s.store.db.AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true)).Select(accountuser.FieldAvatar).Only(ctx)
+	row, err := s.store.db.AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true), accountuser.DeletionDueAtIsNil()).Select(accountuser.FieldAvatar).Only(ctx)
 	if ent.IsNotFound(err) || err == nil && len(row.Avatar) == 0 {
 		return nil, ErrMissing
 	}

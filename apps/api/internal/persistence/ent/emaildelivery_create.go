@@ -26,6 +26,20 @@ func (_c *EmailDeliveryCreate) SetPayload(v []byte) *EmailDeliveryCreate {
 	return _c
 }
 
+// SetUserID sets the "user_id" field.
+func (_c *EmailDeliveryCreate) SetUserID(v string) *EmailDeliveryCreate {
+	_c.mutation.SetUserID(v)
+	return _c
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_c *EmailDeliveryCreate) SetNillableUserID(v *string) *EmailDeliveryCreate {
+	if v != nil {
+		_c.SetUserID(*v)
+	}
+	return _c
+}
+
 // SetAttempts sets the "attempts" field.
 func (_c *EmailDeliveryCreate) SetAttempts(v int) *EmailDeliveryCreate {
 	_c.mutation.SetAttempts(v)
@@ -99,6 +113,10 @@ func (_c *EmailDeliveryCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *EmailDeliveryCreate) defaults() {
+	if _, ok := _c.mutation.UserID(); !ok {
+		v := emaildelivery.DefaultUserID
+		_c.mutation.SetUserID(v)
+	}
 	if _, ok := _c.mutation.Attempts(); !ok {
 		v := emaildelivery.DefaultAttempts
 		_c.mutation.SetAttempts(v)
@@ -109,6 +127,9 @@ func (_c *EmailDeliveryCreate) defaults() {
 func (_c *EmailDeliveryCreate) check() error {
 	if _, ok := _c.mutation.Payload(); !ok {
 		return &ValidationError{Name: "payload", err: errors.New(`ent: missing required field "EmailDelivery.payload"`)}
+	}
+	if _, ok := _c.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "EmailDelivery.user_id"`)}
 	}
 	if _, ok := _c.mutation.Attempts(); !ok {
 		return &ValidationError{Name: "attempts", err: errors.New(`ent: missing required field "EmailDelivery.attempts"`)}
@@ -161,6 +182,10 @@ func (_c *EmailDeliveryCreate) createSpec() (*EmailDelivery, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.Payload(); ok {
 		_spec.SetField(emaildelivery.FieldPayload, field.TypeBytes, value)
 		_node.Payload = value
+	}
+	if value, ok := _c.mutation.UserID(); ok {
+		_spec.SetField(emaildelivery.FieldUserID, field.TypeString, value)
+		_node.UserID = value
 	}
 	if value, ok := _c.mutation.Attempts(); ok {
 		_spec.SetField(emaildelivery.FieldAttempts, field.TypeInt, value)

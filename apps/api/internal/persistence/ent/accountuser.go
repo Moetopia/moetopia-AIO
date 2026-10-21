@@ -37,6 +37,10 @@ type AccountUser struct {
 	Enabled bool `json:"enabled,omitempty"`
 	// DisabledReason holds the value of the "disabled_reason" field.
 	DisabledReason string `json:"disabled_reason,omitempty"`
+	// DeletionRequestedAt holds the value of the "deletion_requested_at" field.
+	DeletionRequestedAt *time.Time `json:"deletion_requested_at,omitempty"`
+	// DeletionDueAt holds the value of the "deletion_due_at" field.
+	DeletionDueAt *time.Time `json:"deletion_due_at,omitempty"`
 	// EmailVerifiedAt holds the value of the "email_verified_at" field.
 	EmailVerifiedAt time.Time `json:"email_verified_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -57,7 +61,7 @@ func (*AccountUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldPasswordHash, accountuser.FieldDisabledReason:
 			values[i] = new(sql.NullString)
-		case accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt:
+		case accountuser.FieldDeletionRequestedAt, accountuser.FieldDeletionDueAt, accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -140,6 +144,20 @@ func (_m *AccountUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DisabledReason = value.String
 			}
+		case accountuser.FieldDeletionRequestedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deletion_requested_at", values[i])
+			} else if value.Valid {
+				_m.DeletionRequestedAt = new(time.Time)
+				*_m.DeletionRequestedAt = value.Time
+			}
+		case accountuser.FieldDeletionDueAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deletion_due_at", values[i])
+			} else if value.Valid {
+				_m.DeletionDueAt = new(time.Time)
+				*_m.DeletionDueAt = value.Time
+			}
 		case accountuser.FieldEmailVerifiedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field email_verified_at", values[i])
@@ -216,6 +234,16 @@ func (_m *AccountUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("disabled_reason=")
 	builder.WriteString(_m.DisabledReason)
+	builder.WriteString(", ")
+	if v := _m.DeletionRequestedAt; v != nil {
+		builder.WriteString("deletion_requested_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.DeletionDueAt; v != nil {
+		builder.WriteString("deletion_due_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("email_verified_at=")
 	builder.WriteString(_m.EmailVerifiedAt.Format(time.ANSIC))

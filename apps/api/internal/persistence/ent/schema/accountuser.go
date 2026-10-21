@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"time"
 )
 
@@ -23,9 +24,15 @@ func (AccountUser) Fields() []ent.Field {
 		field.String("password_hash").Sensitive(),
 		field.Bool("enabled").Default(true),
 		field.String("disabled_reason").Default(""),
+		field.Time("deletion_requested_at").Optional().Nillable(),
+		field.Time("deletion_due_at").Optional().Nillable(),
 		field.Time("email_verified_at"),
 		field.Time("created_at").Default(time.Now).Immutable(),
 	}
+}
+
+func (AccountUser) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("deletion_due_at")}
 }
 
 func (AccountUser) Annotations() []schema.Annotation {

@@ -181,6 +181,46 @@ func (_u *AccountUserUpdate) SetNillableDisabledReason(v *string) *AccountUserUp
 	return _u
 }
 
+// SetDeletionRequestedAt sets the "deletion_requested_at" field.
+func (_u *AccountUserUpdate) SetDeletionRequestedAt(v time.Time) *AccountUserUpdate {
+	_u.mutation.SetDeletionRequestedAt(v)
+	return _u
+}
+
+// SetNillableDeletionRequestedAt sets the "deletion_requested_at" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableDeletionRequestedAt(v *time.Time) *AccountUserUpdate {
+	if v != nil {
+		_u.SetDeletionRequestedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletionRequestedAt clears the value of the "deletion_requested_at" field.
+func (_u *AccountUserUpdate) ClearDeletionRequestedAt() *AccountUserUpdate {
+	_u.mutation.ClearDeletionRequestedAt()
+	return _u
+}
+
+// SetDeletionDueAt sets the "deletion_due_at" field.
+func (_u *AccountUserUpdate) SetDeletionDueAt(v time.Time) *AccountUserUpdate {
+	_u.mutation.SetDeletionDueAt(v)
+	return _u
+}
+
+// SetNillableDeletionDueAt sets the "deletion_due_at" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableDeletionDueAt(v *time.Time) *AccountUserUpdate {
+	if v != nil {
+		_u.SetDeletionDueAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletionDueAt clears the value of the "deletion_due_at" field.
+func (_u *AccountUserUpdate) ClearDeletionDueAt() *AccountUserUpdate {
+	_u.mutation.ClearDeletionDueAt()
+	return _u
+}
+
 // SetEmailVerifiedAt sets the "email_verified_at" field.
 func (_u *AccountUserUpdate) SetEmailVerifiedAt(v time.Time) *AccountUserUpdate {
 	_u.mutation.SetEmailVerifiedAt(v)
@@ -287,6 +327,18 @@ func (_u *AccountUserUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	}
 	if value, ok := _u.mutation.DisabledReason(); ok {
 		_spec.SetField(accountuser.FieldDisabledReason, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DeletionRequestedAt(); ok {
+		_spec.SetField(accountuser.FieldDeletionRequestedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletionRequestedAtCleared() {
+		_spec.ClearField(accountuser.FieldDeletionRequestedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DeletionDueAt(); ok {
+		_spec.SetField(accountuser.FieldDeletionDueAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletionDueAtCleared() {
+		_spec.ClearField(accountuser.FieldDeletionDueAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EmailVerifiedAt(); ok {
 		_spec.SetField(accountuser.FieldEmailVerifiedAt, field.TypeTime, value)
@@ -465,6 +517,46 @@ func (_u *AccountUserUpdateOne) SetNillableDisabledReason(v *string) *AccountUse
 	return _u
 }
 
+// SetDeletionRequestedAt sets the "deletion_requested_at" field.
+func (_u *AccountUserUpdateOne) SetDeletionRequestedAt(v time.Time) *AccountUserUpdateOne {
+	_u.mutation.SetDeletionRequestedAt(v)
+	return _u
+}
+
+// SetNillableDeletionRequestedAt sets the "deletion_requested_at" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableDeletionRequestedAt(v *time.Time) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetDeletionRequestedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletionRequestedAt clears the value of the "deletion_requested_at" field.
+func (_u *AccountUserUpdateOne) ClearDeletionRequestedAt() *AccountUserUpdateOne {
+	_u.mutation.ClearDeletionRequestedAt()
+	return _u
+}
+
+// SetDeletionDueAt sets the "deletion_due_at" field.
+func (_u *AccountUserUpdateOne) SetDeletionDueAt(v time.Time) *AccountUserUpdateOne {
+	_u.mutation.SetDeletionDueAt(v)
+	return _u
+}
+
+// SetNillableDeletionDueAt sets the "deletion_due_at" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableDeletionDueAt(v *time.Time) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetDeletionDueAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletionDueAt clears the value of the "deletion_due_at" field.
+func (_u *AccountUserUpdateOne) ClearDeletionDueAt() *AccountUserUpdateOne {
+	_u.mutation.ClearDeletionDueAt()
+	return _u
+}
+
 // SetEmailVerifiedAt sets the "email_verified_at" field.
 func (_u *AccountUserUpdateOne) SetEmailVerifiedAt(v time.Time) *AccountUserUpdateOne {
 	_u.mutation.SetEmailVerifiedAt(v)
@@ -601,6 +693,18 @@ func (_u *AccountUserUpdateOne) sqlSave(ctx context.Context) (_node *AccountUser
 	}
 	if value, ok := _u.mutation.DisabledReason(); ok {
 		_spec.SetField(accountuser.FieldDisabledReason, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DeletionRequestedAt(); ok {
+		_spec.SetField(accountuser.FieldDeletionRequestedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletionRequestedAtCleared() {
+		_spec.ClearField(accountuser.FieldDeletionRequestedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DeletionDueAt(); ok {
+		_spec.SetField(accountuser.FieldDeletionDueAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletionDueAtCleared() {
+		_spec.ClearField(accountuser.FieldDeletionDueAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EmailVerifiedAt(); ok {
 		_spec.SetField(accountuser.FieldEmailVerifiedAt, field.TypeTime, value)

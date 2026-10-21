@@ -69,6 +69,11 @@ func Payload(v []byte) predicate.EmailDelivery {
 	return predicate.EmailDelivery(sql.FieldEQ(FieldPayload, v))
 }
 
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldEQ(FieldUserID, v))
+}
+
 // Attempts applies equality check predicate on the "attempts" field. It's identical to AttemptsEQ.
 func Attempts(v int) predicate.EmailDelivery {
 	return predicate.EmailDelivery(sql.FieldEQ(FieldAttempts, v))
@@ -127,6 +132,71 @@ func PayloadLT(v []byte) predicate.EmailDelivery {
 // PayloadLTE applies the LTE predicate on the "payload" field.
 func PayloadLTE(v []byte) predicate.EmailDelivery {
 	return predicate.EmailDelivery(sql.FieldLTE(FieldPayload, v))
+}
+
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldEQ(FieldUserID, v))
+}
+
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldNEQ(FieldUserID, v))
+}
+
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldIn(FieldUserID, vs...))
+}
+
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// UserIDGT applies the GT predicate on the "user_id" field.
+func UserIDGT(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldGT(FieldUserID, v))
+}
+
+// UserIDGTE applies the GTE predicate on the "user_id" field.
+func UserIDGTE(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldGTE(FieldUserID, v))
+}
+
+// UserIDLT applies the LT predicate on the "user_id" field.
+func UserIDLT(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldLT(FieldUserID, v))
+}
+
+// UserIDLTE applies the LTE predicate on the "user_id" field.
+func UserIDLTE(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldLTE(FieldUserID, v))
+}
+
+// UserIDContains applies the Contains predicate on the "user_id" field.
+func UserIDContains(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldContains(FieldUserID, v))
+}
+
+// UserIDHasPrefix applies the HasPrefix predicate on the "user_id" field.
+func UserIDHasPrefix(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldHasPrefix(FieldUserID, v))
+}
+
+// UserIDHasSuffix applies the HasSuffix predicate on the "user_id" field.
+func UserIDHasSuffix(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldHasSuffix(FieldUserID, v))
+}
+
+// UserIDEqualFold applies the EqualFold predicate on the "user_id" field.
+func UserIDEqualFold(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldEqualFold(FieldUserID, v))
+}
+
+// UserIDContainsFold applies the ContainsFold predicate on the "user_id" field.
+func UserIDContainsFold(v string) predicate.EmailDelivery {
+	return predicate.EmailDelivery(sql.FieldContainsFold(FieldUserID, v))
 }
 
 // AttemptsEQ applies the EQ predicate on the "attempts" field.

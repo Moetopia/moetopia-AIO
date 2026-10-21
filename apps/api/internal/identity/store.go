@@ -60,7 +60,7 @@ func (s *Store) Exists(ctx context.Context, email string) (bool, error) {
 	return s.db.AccountUser.Query().Where(accountuser.EmailEQ(email)).Exist(ctx)
 }
 func (s *Store) Credentials(ctx context.Context, email string) (User, string, error) {
-	user, err := s.db.AccountUser.Query().Where(accountuser.EmailEQ(email), accountuser.EnabledEQ(true)).Select(userColumns...).Only(ctx)
+	user, err := s.db.AccountUser.Query().Where(accountuser.EmailEQ(email), accountuser.EnabledEQ(true), accountuser.DeletionDueAtIsNil()).Select(userColumns...).Only(ctx)
 	if ent.IsNotFound(err) {
 		return User{}, "", ErrMissing
 	}
@@ -70,7 +70,7 @@ func (s *Store) Credentials(ctx context.Context, email string) (User, string, er
 	return public(user), user.PasswordHash, nil
 }
 func (s *Store) User(ctx context.Context, id string) (User, error) {
-	user, err := persistence.Client(ctx, s.db).AccountUser.Query().Where(accountuser.IDEQ(id), accountuser.EnabledEQ(true)).Select(userColumns...).Only(ctx)
+	user, err := persistence.Client(ctx, s.db).AccountUser.Query().Where(accountuser.IDEQ(id), accountuser.EnabledEQ(true), accountuser.DeletionDueAtIsNil()).Select(userColumns...).Only(ctx)
 	if ent.IsNotFound(err) {
 		return User{}, ErrMissing
 	}

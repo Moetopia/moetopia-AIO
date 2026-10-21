@@ -15,6 +15,7 @@ import (
 )
 
 type Message struct {
+	UserID     string
 	To         string
 	Subject    string
 	Text       string
@@ -41,7 +42,12 @@ func (o *Outbox) Enqueue(ctx context.Context, transaction *ent.Client, message M
 	if err != nil {
 		return err
 	}
-	return transaction.EmailDelivery.Create().SetID(id).SetPayload(payload).SetAvailableAt(time.Now()).SetLeaseUntil(time.Unix(0, 0)).SetExpiresAt(expires).Exec(ctx)
+	return transaction.EmailDelivery.Create().SetID(id).SetUserID(message.UserID).SetPayload(payload).SetAvailableAt(time.Now()).SetLeaseUntil(time.Unix(0, 0)).SetExpiresAt(expires).Exec(ctx)
+}
+
+func (o *Outbox) PurgeUser(ctx context.Context, db *ent.Client, userID string) error {
+	_, err := db.EmailDelivery.Delete().Where(emaildelivery.UserID(userID)).Exec(ctx)
+	return err
 }
 
 func (o *Outbox) Deliver(ctx context.Context) error {

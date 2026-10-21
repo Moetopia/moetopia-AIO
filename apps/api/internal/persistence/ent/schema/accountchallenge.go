@@ -14,7 +14,7 @@ type AccountChallenge struct{ ent.Schema }
 func (AccountChallenge) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").Immutable(),
-		field.Enum("purpose").Values("reset", "email").Immutable(),
+		field.Enum("purpose").Values("reset", "email", "deletion-cancel").Immutable(),
 		field.String("user_id").Immutable(),
 		field.String("email").Immutable(),
 		field.String("binding").Immutable(),

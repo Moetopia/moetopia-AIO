@@ -33,6 +33,10 @@ const (
 	FieldEnabled = "enabled"
 	// FieldDisabledReason holds the string denoting the disabled_reason field in the database.
 	FieldDisabledReason = "disabled_reason"
+	// FieldDeletionRequestedAt holds the string denoting the deletion_requested_at field in the database.
+	FieldDeletionRequestedAt = "deletion_requested_at"
+	// FieldDeletionDueAt holds the string denoting the deletion_due_at field in the database.
+	FieldDeletionDueAt = "deletion_due_at"
 	// FieldEmailVerifiedAt holds the string denoting the email_verified_at field in the database.
 	FieldEmailVerifiedAt = "email_verified_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -54,6 +58,8 @@ var Columns = []string{
 	FieldPasswordHash,
 	FieldEnabled,
 	FieldDisabledReason,
+	FieldDeletionRequestedAt,
+	FieldDeletionDueAt,
 	FieldEmailVerifiedAt,
 	FieldCreatedAt,
 }
@@ -140,6 +146,16 @@ func ByEnabled(opts ...sql.OrderTermOption) OrderOption {
 // ByDisabledReason orders the results by the disabled_reason field.
 func ByDisabledReason(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisabledReason, opts...).ToFunc()
+}
+
+// ByDeletionRequestedAt orders the results by the deletion_requested_at field.
+func ByDeletionRequestedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletionRequestedAt, opts...).ToFunc()
+}
+
+// ByDeletionDueAt orders the results by the deletion_due_at field.
+func ByDeletionDueAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletionDueAt, opts...).ToFunc()
 }
 
 // ByEmailVerifiedAt orders the results by the email_verified_at field.

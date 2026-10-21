@@ -35,6 +35,20 @@ func (_u *EmailDeliveryUpdate) SetPayload(v []byte) *EmailDeliveryUpdate {
 	return _u
 }
 
+// SetUserID sets the "user_id" field.
+func (_u *EmailDeliveryUpdate) SetUserID(v string) *EmailDeliveryUpdate {
+	_u.mutation.SetUserID(v)
+	return _u
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *EmailDeliveryUpdate) SetNillableUserID(v *string) *EmailDeliveryUpdate {
+	if v != nil {
+		_u.SetUserID(*v)
+	}
+	return _u
+}
+
 // SetAttempts sets the "attempts" field.
 func (_u *EmailDeliveryUpdate) SetAttempts(v int) *EmailDeliveryUpdate {
 	_u.mutation.ResetAttempts()
@@ -142,6 +156,9 @@ func (_u *EmailDeliveryUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(emaildelivery.FieldPayload, field.TypeBytes, value)
 	}
+	if value, ok := _u.mutation.UserID(); ok {
+		_spec.SetField(emaildelivery.FieldUserID, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Attempts(); ok {
 		_spec.SetField(emaildelivery.FieldAttempts, field.TypeInt, value)
 	}
@@ -182,6 +199,20 @@ type EmailDeliveryUpdateOne struct {
 // SetPayload sets the "payload" field.
 func (_u *EmailDeliveryUpdateOne) SetPayload(v []byte) *EmailDeliveryUpdateOne {
 	_u.mutation.SetPayload(v)
+	return _u
+}
+
+// SetUserID sets the "user_id" field.
+func (_u *EmailDeliveryUpdateOne) SetUserID(v string) *EmailDeliveryUpdateOne {
+	_u.mutation.SetUserID(v)
+	return _u
+}
+
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (_u *EmailDeliveryUpdateOne) SetNillableUserID(v *string) *EmailDeliveryUpdateOne {
+	if v != nil {
+		_u.SetUserID(*v)
+	}
 	return _u
 }
 
@@ -321,6 +352,9 @@ func (_u *EmailDeliveryUpdateOne) sqlSave(ctx context.Context) (_node *EmailDeli
 	}
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(emaildelivery.FieldPayload, field.TypeBytes, value)
+	}
+	if value, ok := _u.mutation.UserID(); ok {
+		_spec.SetField(emaildelivery.FieldUserID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Attempts(); ok {
 		_spec.SetField(emaildelivery.FieldAttempts, field.TypeInt, value)

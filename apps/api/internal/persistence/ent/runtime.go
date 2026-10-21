@@ -75,7 +75,7 @@ func init() {
 	// accountuser.DefaultDisabledReason holds the default value on creation for the disabled_reason field.
 	accountuser.DefaultDisabledReason = accountuserDescDisabledReason.Default.(string)
 	// accountuserDescCreatedAt is the schema descriptor for created_at field.
-	accountuserDescCreatedAt := accountuserFields[12].Descriptor()
+	accountuserDescCreatedAt := accountuserFields[14].Descriptor()
 	// accountuser.DefaultCreatedAt holds the default value on creation for the created_at field.
 	accountuser.DefaultCreatedAt = accountuserDescCreatedAt.Default.(func() time.Time)
 	// accountuserDescID is the schema descriptor for id field.
@@ -200,8 +200,12 @@ func init() {
 	developerapplication.DefaultCreatedAt = developerapplicationDescCreatedAt.Default.(func() time.Time)
 	emaildeliveryFields := schema.EmailDelivery{}.Fields()
 	_ = emaildeliveryFields
+	// emaildeliveryDescUserID is the schema descriptor for user_id field.
+	emaildeliveryDescUserID := emaildeliveryFields[2].Descriptor()
+	// emaildelivery.DefaultUserID holds the default value on creation for the user_id field.
+	emaildelivery.DefaultUserID = emaildeliveryDescUserID.Default.(string)
 	// emaildeliveryDescAttempts is the schema descriptor for attempts field.
-	emaildeliveryDescAttempts := emaildeliveryFields[2].Descriptor()
+	emaildeliveryDescAttempts := emaildeliveryFields[3].Descriptor()
 	// emaildelivery.DefaultAttempts holds the default value on creation for the attempts field.
 	emaildelivery.DefaultAttempts = emaildeliveryDescAttempts.Default.(int)
 	emailverificationFields := schema.EmailVerification{}.Fields()

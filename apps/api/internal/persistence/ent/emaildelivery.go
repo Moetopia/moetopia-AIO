@@ -19,6 +19,8 @@ type EmailDelivery struct {
 	ID string `json:"id,omitempty"`
 	// Payload holds the value of the "payload" field.
 	Payload []byte `json:"-"`
+	// UserID holds the value of the "user_id" field.
+	UserID string `json:"user_id,omitempty"`
 	// Attempts holds the value of the "attempts" field.
 	Attempts int `json:"attempts,omitempty"`
 	// AvailableAt holds the value of the "available_at" field.
@@ -39,7 +41,7 @@ func (*EmailDelivery) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case emaildelivery.FieldAttempts:
 			values[i] = new(sql.NullInt64)
-		case emaildelivery.FieldID:
+		case emaildelivery.FieldID, emaildelivery.FieldUserID:
 			values[i] = new(sql.NullString)
 		case emaildelivery.FieldAvailableAt, emaildelivery.FieldLeaseUntil, emaildelivery.FieldExpiresAt:
 			values[i] = new(sql.NullTime)
@@ -69,6 +71,12 @@ func (_m *EmailDelivery) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field payload", values[i])
 			} else if value != nil {
 				_m.Payload = *value
+			}
+		case emaildelivery.FieldUserID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+			} else if value.Valid {
+				_m.UserID = value.String
 			}
 		case emaildelivery.FieldAttempts:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -131,6 +139,9 @@ func (_m *EmailDelivery) String() string {
 	builder.WriteString("EmailDelivery(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("payload=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("user_id=")
+	builder.WriteString(_m.UserID)
 	builder.WriteString(", ")
 	builder.WriteString("attempts=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Attempts))

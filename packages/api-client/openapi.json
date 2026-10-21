@@ -928,6 +928,94 @@
         ],
         "type": "object"
       },
+      "Deletion": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/Deletion.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "due_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "requested_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_at",
+          "due_at"
+        ],
+        "type": "object"
+      },
+      "DeletionCancelInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/DeletionCancelInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "challenge_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 8,
+            "minLength": 8,
+            "type": "string"
+          },
+          "current_password": {
+            "maxLength": 256,
+            "type": "string"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "code",
+          "current_password"
+        ],
+        "type": "object"
+      },
+      "DeletionInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/DeletionInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "current_password": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "current_password",
+          "revision"
+        ],
+        "type": "object"
+      },
       "EmailChangeInputBody": {
         "additionalProperties": false,
         "properties": {
@@ -1202,6 +1290,10 @@
             "type": "string"
           },
           "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deletion_due_at": {
             "format": "date-time",
             "type": "string"
           },
@@ -2034,6 +2126,121 @@
           }
         },
         "summary": "Get API v1 account context"
+      }
+    },
+    "/api/v1/account/deletion-cancellations": {
+      "post": {
+        "operationId": "post-api-v1-account-deletion-cancellations",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificationInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationOutputBody"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 account deletion cancellations"
+      }
+    },
+    "/api/v1/account/deletion-cancellations/confirm": {
+      "post": {
+        "operationId": "post-api-v1-account-deletion-cancellations-confirm",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeletionCancelInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 account deletion cancellations confirm"
       }
     },
     "/api/v1/account/login": {
@@ -4479,6 +4686,67 @@
           }
         },
         "summary": "Get API v1 portal context"
+      }
+    },
+    "/api/v1/portal/deletion": {
+      "post": {
+        "operationId": "post-api-v1-portal-deletion",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeletionInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Deletion"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 portal deletion"
       }
     },
     "/api/v1/portal/email-changes": {

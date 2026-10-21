@@ -17,7 +17,7 @@ import (
 var userColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldSecurityVersion, accountuser.FieldPasswordHash, accountuser.FieldEnabled, accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt}
 
 func (s *Service) VerifyVersion(ctx context.Context, id string, version int) error {
-	row, err := persistence.Client(ctx, s.store.db).AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true)).Select(accountuser.FieldSecurityVersion).ForUpdate().Only(ctx)
+	row, err := persistence.Client(ctx, s.store.db).AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true), accountuser.DeletionDueAtIsNil()).Select(accountuser.FieldSecurityVersion).ForUpdate().Only(ctx)
 	if ent.IsNotFound(err) {
 		return ErrMissing
 	}
@@ -31,7 +31,7 @@ func (s *Service) VerifyVersion(ctx context.Context, id string, version int) err
 }
 
 func (s *Service) credentialsByID(ctx context.Context, id, current string) (*ent.AccountUser, error) {
-	row, err := s.store.db.AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true)).Select(userColumns...).Only(ctx)
+	row, err := s.store.db.AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true), accountuser.DeletionDueAtIsNil()).Select(userColumns...).Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, ErrMissing
 	}
@@ -80,6 +80,14 @@ func (s *Service) ChangePassword(ctx context.Context, id, current, next string) 
 	return tx.Commit()
 }
 func (s *Service) securityChanged(ctx context.Context, db *ent.Client, row *ent.AccountUser, action string) error {
+	if err := s.revokeSecurity(ctx, db, row, action); err != nil {
+		return err
+	}
+	message := notifications.Message{UserID: row.ID, To: row.Email, Subject: "Moetopia account security update", Text: "Your Moetopia account security settings changed (" + action + "). Sign in again. If this was not you, reset your password immediately.\n你的 Moetopia 账号安全信息已变更，请重新登录。如非本人操作，请立即找回密码。"}
+	return s.store.outbox.Enqueue(ctx, db, message, time.Now().Add(24*time.Hour))
+}
+
+func (s *Service) revokeSecurity(ctx context.Context, db *ent.Client, row *ent.AccountUser, action string) error {
 	if s.store.revoker == nil {
 		return errors.New("account session invalidation is not configured")
 	}
@@ -89,9 +97,5 @@ func (s *Service) securityChanged(ctx context.Context, db *ent.Client, row *ent.
 	if _, err := db.AccountChallenge.Update().Where(accountchallenge.UserID(row.ID)).SetConsumed(true).Save(ctx); err != nil {
 		return err
 	}
-	if err := audit.Record(ctx, db, row.ID, action); err != nil {
-		return err
-	}
-	message := notifications.Message{To: row.Email, Subject: "Moetopia account security update", Text: "Your Moetopia account security settings changed (" + action + "). Sign in again. If this was not you, reset your password immediately.\n你的 Moetopia 账号安全信息已变更，请重新登录。如非本人操作，请立即找回密码。"}
-	return s.store.outbox.Enqueue(ctx, db, message, time.Now().Add(24*time.Hour))
+	return audit.Record(ctx, db, row.ID, action)
 }

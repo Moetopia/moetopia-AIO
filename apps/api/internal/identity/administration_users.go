@@ -20,9 +20,10 @@ import (
 
 type ManagedUser struct {
 	User
-	Enabled        bool      `json:"enabled"`
-	DisabledReason string    `json:"disabled_reason"`
-	CreatedAt      time.Time `json:"created_at"`
+	Enabled        bool       `json:"enabled"`
+	DisabledReason string     `json:"disabled_reason"`
+	CreatedAt      time.Time  `json:"created_at"`
+	DeletionDueAt  *time.Time `json:"deletion_due_at,omitempty"`
 }
 type ManagedUsers struct {
 	Items      []ManagedUser `json:"items"`
@@ -33,10 +34,10 @@ type userCursor struct {
 	ID    string `json:"id"`
 }
 
-var managedColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldEnabled, accountuser.FieldDisabledReason, accountuser.FieldCreatedAt}
+var managedColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldEnabled, accountuser.FieldDisabledReason, accountuser.FieldCreatedAt, accountuser.FieldDeletionDueAt}
 
 func managedUser(row *ent.AccountUser) ManagedUser {
-	return ManagedUser{public(row), row.Enabled, row.DisabledReason, row.CreatedAt}
+	return ManagedUser{public(row), row.Enabled, row.DisabledReason, row.CreatedAt, row.DeletionDueAt}
 }
 func (s *Service) AdminUsers(ctx context.Context, search, cursor string) (ManagedUsers, error) {
 	result := ManagedUsers{Items: []ManagedUser{}}
@@ -121,7 +122,7 @@ func (s *Service) AdminSetEnabled(ctx context.Context, actor, id string, revisio
 	if err := audit.RecordTarget(ctx, unit.Client(), actor, action, id, "success"); err != nil {
 		return ManagedUser{}, err
 	}
-	if err := s.store.outbox.Enqueue(ctx, unit.Client(), notifications.Message{To: row.Email, Subject: "Moetopia account status updated", Text: "Your Moetopia account status changed (" + action + "). Contact the operator if you need assistance.\n你的 Moetopia 账号状态已由平台变更，如有疑问请联系维护者。"}, time.Now().Add(24*time.Hour)); err != nil {
+	if err := s.store.outbox.Enqueue(ctx, unit.Client(), notifications.Message{UserID: row.ID, To: row.Email, Subject: "Moetopia account status updated", Text: "Your Moetopia account status changed (" + action + "). Contact the operator if you need assistance.\n你的 Moetopia 账号状态已由平台变更，如有疑问请联系维护者。"}, time.Now().Add(24*time.Hour)); err != nil {
 		return ManagedUser{}, err
 	}
 	row.Enabled, row.DisabledReason, row.Revision = enabled, reason, row.Revision+1

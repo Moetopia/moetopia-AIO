@@ -35,6 +35,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/account/deletion-cancellations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 account deletion cancellations */
+        post: operations["post-api-v1-account-deletion-cancellations"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/deletion-cancellations/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 account deletion cancellations confirm */
+        post: operations["post-api-v1-account-deletion-cancellations-confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/account/login": {
         parameters: {
             query?: never;
@@ -702,6 +736,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/portal/deletion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 portal deletion */
+        post: operations["post-api-v1-portal-deletion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/portal/email-changes": {
         parameters: {
             query?: never;
@@ -1201,6 +1252,41 @@ export interface components {
             application: components["schemas"]["Application"];
             client_secret?: string;
         };
+        Deletion: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Deletion.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            due_at: string;
+            /** Format: date-time */
+            requested_at: string;
+        };
+        DeletionCancelInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/DeletionCancelInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: uuid */
+            challenge_id: string;
+            code: string;
+            current_password: string;
+        };
+        DeletionInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/DeletionInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+            /** Format: int64 */
+            revision: number;
+        };
         EmailChangeInputBody: {
             /**
              * Format: uri
@@ -1302,6 +1388,8 @@ export interface components {
             bio?: string;
             /** Format: date-time */
             created_at: string;
+            /** Format: date-time */
+            deletion_due_at?: string;
             disabled_reason: string;
             display_name: string;
             email: string;
@@ -1623,6 +1711,78 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AccountContextBody"];
                 };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-account-deletion-cancellations": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerificationInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-account-deletion-cancellations-confirm": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeletionCancelInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error */
             default: {
@@ -3143,6 +3303,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortalContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-portal-deletion": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeletionInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Deletion"];
                 };
             };
             /** @description Error */

@@ -953,27 +953,29 @@ func (m *AccountChallengeMutation) ResetEdge(name string) error {
 // AccountUserMutation represents an operation that mutates the AccountUser nodes in the graph.
 type AccountUserMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *string
-	email               *string
-	display_name        *string
-	bio                 *string
-	avatar              *[]byte
-	avatar_digest       *string
-	revision            *int
-	addrevision         *int
-	security_version    *int
-	addsecurity_version *int
-	password_hash       *string
-	enabled             *bool
-	disabled_reason     *string
-	email_verified_at   *time.Time
-	created_at          *time.Time
-	clearedFields       map[string]struct{}
-	done                bool
-	oldValue            func(context.Context) (*AccountUser, error)
-	predicates          []predicate.AccountUser
+	op                    Op
+	typ                   string
+	id                    *string
+	email                 *string
+	display_name          *string
+	bio                   *string
+	avatar                *[]byte
+	avatar_digest         *string
+	revision              *int
+	addrevision           *int
+	security_version      *int
+	addsecurity_version   *int
+	password_hash         *string
+	enabled               *bool
+	disabled_reason       *string
+	deletion_requested_at *time.Time
+	deletion_due_at       *time.Time
+	email_verified_at     *time.Time
+	created_at            *time.Time
+	clearedFields         map[string]struct{}
+	done                  bool
+	oldValue              func(context.Context) (*AccountUser, error)
+	predicates            []predicate.AccountUser
 }
 
 var _ ent.Mutation = (*AccountUserMutation)(nil)
@@ -1493,6 +1495,104 @@ func (m *AccountUserMutation) ResetDisabledReason() {
 	m.disabled_reason = nil
 }
 
+// SetDeletionRequestedAt sets the "deletion_requested_at" field.
+func (m *AccountUserMutation) SetDeletionRequestedAt(t time.Time) {
+	m.deletion_requested_at = &t
+}
+
+// DeletionRequestedAt returns the value of the "deletion_requested_at" field in the mutation.
+func (m *AccountUserMutation) DeletionRequestedAt() (r time.Time, exists bool) {
+	v := m.deletion_requested_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletionRequestedAt returns the old "deletion_requested_at" field's value of the AccountUser entity.
+// If the AccountUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountUserMutation) OldDeletionRequestedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletionRequestedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletionRequestedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletionRequestedAt: %w", err)
+	}
+	return oldValue.DeletionRequestedAt, nil
+}
+
+// ClearDeletionRequestedAt clears the value of the "deletion_requested_at" field.
+func (m *AccountUserMutation) ClearDeletionRequestedAt() {
+	m.deletion_requested_at = nil
+	m.clearedFields[accountuser.FieldDeletionRequestedAt] = struct{}{}
+}
+
+// DeletionRequestedAtCleared returns if the "deletion_requested_at" field was cleared in this mutation.
+func (m *AccountUserMutation) DeletionRequestedAtCleared() bool {
+	_, ok := m.clearedFields[accountuser.FieldDeletionRequestedAt]
+	return ok
+}
+
+// ResetDeletionRequestedAt resets all changes to the "deletion_requested_at" field.
+func (m *AccountUserMutation) ResetDeletionRequestedAt() {
+	m.deletion_requested_at = nil
+	delete(m.clearedFields, accountuser.FieldDeletionRequestedAt)
+}
+
+// SetDeletionDueAt sets the "deletion_due_at" field.
+func (m *AccountUserMutation) SetDeletionDueAt(t time.Time) {
+	m.deletion_due_at = &t
+}
+
+// DeletionDueAt returns the value of the "deletion_due_at" field in the mutation.
+func (m *AccountUserMutation) DeletionDueAt() (r time.Time, exists bool) {
+	v := m.deletion_due_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletionDueAt returns the old "deletion_due_at" field's value of the AccountUser entity.
+// If the AccountUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountUserMutation) OldDeletionDueAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletionDueAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletionDueAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletionDueAt: %w", err)
+	}
+	return oldValue.DeletionDueAt, nil
+}
+
+// ClearDeletionDueAt clears the value of the "deletion_due_at" field.
+func (m *AccountUserMutation) ClearDeletionDueAt() {
+	m.deletion_due_at = nil
+	m.clearedFields[accountuser.FieldDeletionDueAt] = struct{}{}
+}
+
+// DeletionDueAtCleared returns if the "deletion_due_at" field was cleared in this mutation.
+func (m *AccountUserMutation) DeletionDueAtCleared() bool {
+	_, ok := m.clearedFields[accountuser.FieldDeletionDueAt]
+	return ok
+}
+
+// ResetDeletionDueAt resets all changes to the "deletion_due_at" field.
+func (m *AccountUserMutation) ResetDeletionDueAt() {
+	m.deletion_due_at = nil
+	delete(m.clearedFields, accountuser.FieldDeletionDueAt)
+}
+
 // SetEmailVerifiedAt sets the "email_verified_at" field.
 func (m *AccountUserMutation) SetEmailVerifiedAt(t time.Time) {
 	m.email_verified_at = &t
@@ -1599,7 +1699,7 @@ func (m *AccountUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccountUserMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 14)
 	if m.email != nil {
 		fields = append(fields, accountuser.FieldEmail)
 	}
@@ -1629,6 +1729,12 @@ func (m *AccountUserMutation) Fields() []string {
 	}
 	if m.disabled_reason != nil {
 		fields = append(fields, accountuser.FieldDisabledReason)
+	}
+	if m.deletion_requested_at != nil {
+		fields = append(fields, accountuser.FieldDeletionRequestedAt)
+	}
+	if m.deletion_due_at != nil {
+		fields = append(fields, accountuser.FieldDeletionDueAt)
 	}
 	if m.email_verified_at != nil {
 		fields = append(fields, accountuser.FieldEmailVerifiedAt)
@@ -1664,6 +1770,10 @@ func (m *AccountUserMutation) Field(name string) (ent.Value, bool) {
 		return m.Enabled()
 	case accountuser.FieldDisabledReason:
 		return m.DisabledReason()
+	case accountuser.FieldDeletionRequestedAt:
+		return m.DeletionRequestedAt()
+	case accountuser.FieldDeletionDueAt:
+		return m.DeletionDueAt()
 	case accountuser.FieldEmailVerifiedAt:
 		return m.EmailVerifiedAt()
 	case accountuser.FieldCreatedAt:
@@ -1697,6 +1807,10 @@ func (m *AccountUserMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldEnabled(ctx)
 	case accountuser.FieldDisabledReason:
 		return m.OldDisabledReason(ctx)
+	case accountuser.FieldDeletionRequestedAt:
+		return m.OldDeletionRequestedAt(ctx)
+	case accountuser.FieldDeletionDueAt:
+		return m.OldDeletionDueAt(ctx)
 	case accountuser.FieldEmailVerifiedAt:
 		return m.OldEmailVerifiedAt(ctx)
 	case accountuser.FieldCreatedAt:
@@ -1780,6 +1894,20 @@ func (m *AccountUserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDisabledReason(v)
 		return nil
+	case accountuser.FieldDeletionRequestedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletionRequestedAt(v)
+		return nil
+	case accountuser.FieldDeletionDueAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletionDueAt(v)
+		return nil
 	case accountuser.FieldEmailVerifiedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -1854,6 +1982,12 @@ func (m *AccountUserMutation) ClearedFields() []string {
 	if m.FieldCleared(accountuser.FieldAvatar) {
 		fields = append(fields, accountuser.FieldAvatar)
 	}
+	if m.FieldCleared(accountuser.FieldDeletionRequestedAt) {
+		fields = append(fields, accountuser.FieldDeletionRequestedAt)
+	}
+	if m.FieldCleared(accountuser.FieldDeletionDueAt) {
+		fields = append(fields, accountuser.FieldDeletionDueAt)
+	}
 	return fields
 }
 
@@ -1870,6 +2004,12 @@ func (m *AccountUserMutation) ClearField(name string) error {
 	switch name {
 	case accountuser.FieldAvatar:
 		m.ClearAvatar()
+		return nil
+	case accountuser.FieldDeletionRequestedAt:
+		m.ClearDeletionRequestedAt()
+		return nil
+	case accountuser.FieldDeletionDueAt:
+		m.ClearDeletionDueAt()
 		return nil
 	}
 	return fmt.Errorf("unknown AccountUser nullable field %s", name)
@@ -1908,6 +2048,12 @@ func (m *AccountUserMutation) ResetField(name string) error {
 		return nil
 	case accountuser.FieldDisabledReason:
 		m.ResetDisabledReason()
+		return nil
+	case accountuser.FieldDeletionRequestedAt:
+		m.ResetDeletionRequestedAt()
+		return nil
+	case accountuser.FieldDeletionDueAt:
+		m.ResetDeletionDueAt()
 		return nil
 	case accountuser.FieldEmailVerifiedAt:
 		m.ResetEmailVerifiedAt()
@@ -6791,6 +6937,7 @@ type EmailDeliveryMutation struct {
 	typ           string
 	id            *string
 	payload       *[]byte
+	user_id       *string
 	attempts      *int
 	addattempts   *int
 	available_at  *time.Time
@@ -6940,6 +7087,42 @@ func (m *EmailDeliveryMutation) OldPayload(ctx context.Context) (v []byte, err e
 // ResetPayload resets all changes to the "payload" field.
 func (m *EmailDeliveryMutation) ResetPayload() {
 	m.payload = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *EmailDeliveryMutation) SetUserID(s string) {
+	m.user_id = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *EmailDeliveryMutation) UserID() (r string, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the EmailDelivery entity.
+// If the EmailDelivery object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EmailDeliveryMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *EmailDeliveryMutation) ResetUserID() {
+	m.user_id = nil
 }
 
 // SetAttempts sets the "attempts" field.
@@ -7140,9 +7323,12 @@ func (m *EmailDeliveryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EmailDeliveryMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.payload != nil {
 		fields = append(fields, emaildelivery.FieldPayload)
+	}
+	if m.user_id != nil {
+		fields = append(fields, emaildelivery.FieldUserID)
 	}
 	if m.attempts != nil {
 		fields = append(fields, emaildelivery.FieldAttempts)
@@ -7166,6 +7352,8 @@ func (m *EmailDeliveryMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case emaildelivery.FieldPayload:
 		return m.Payload()
+	case emaildelivery.FieldUserID:
+		return m.UserID()
 	case emaildelivery.FieldAttempts:
 		return m.Attempts()
 	case emaildelivery.FieldAvailableAt:
@@ -7185,6 +7373,8 @@ func (m *EmailDeliveryMutation) OldField(ctx context.Context, name string) (ent.
 	switch name {
 	case emaildelivery.FieldPayload:
 		return m.OldPayload(ctx)
+	case emaildelivery.FieldUserID:
+		return m.OldUserID(ctx)
 	case emaildelivery.FieldAttempts:
 		return m.OldAttempts(ctx)
 	case emaildelivery.FieldAvailableAt:
@@ -7208,6 +7398,13 @@ func (m *EmailDeliveryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPayload(v)
+		return nil
+	case emaildelivery.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
 		return nil
 	case emaildelivery.FieldAttempts:
 		v, ok := value.(int)
@@ -7303,6 +7500,9 @@ func (m *EmailDeliveryMutation) ResetField(name string) error {
 	switch name {
 	case emaildelivery.FieldPayload:
 		m.ResetPayload()
+		return nil
+	case emaildelivery.FieldUserID:
+		m.ResetUserID()
 		return nil
 	case emaildelivery.FieldAttempts:
 		m.ResetAttempts()

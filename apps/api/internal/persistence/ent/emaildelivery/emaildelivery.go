@@ -13,6 +13,8 @@ const (
 	FieldID = "id"
 	// FieldPayload holds the string denoting the payload field in the database.
 	FieldPayload = "payload"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// FieldAttempts holds the string denoting the attempts field in the database.
 	FieldAttempts = "attempts"
 	// FieldAvailableAt holds the string denoting the available_at field in the database.
@@ -29,6 +31,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldPayload,
+	FieldUserID,
 	FieldAttempts,
 	FieldAvailableAt,
 	FieldLeaseUntil,
@@ -46,6 +49,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultUserID holds the default value on creation for the "user_id" field.
+	DefaultUserID string
 	// DefaultAttempts holds the default value on creation for the "attempts" field.
 	DefaultAttempts int
 )
@@ -56,6 +61,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // ByAttempts orders the results by the attempts field.

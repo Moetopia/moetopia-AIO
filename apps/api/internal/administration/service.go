@@ -123,7 +123,7 @@ func (s *Service) Run(ctx context.Context, user identity.User, web sessions.Sess
 	return unit.Commit()
 }
 func (s *Service) notify(ctx context.Context, db *ent.Client, user identity.User, action string) error {
-	return s.outbox.Enqueue(ctx, db, notifications.Message{To: user.Email, Subject: "Moetopia administrator security update", Text: "Your administrator security settings changed (" + action + "). If this was not you, contact the operator immediately.\n你的管理员安全设置已变更，如非本人操作，请立即联系维护者。"}, time.Now().Add(24*time.Hour))
+	return s.outbox.Enqueue(ctx, db, notifications.Message{UserID: user.ID, To: user.Email, Subject: "Moetopia administrator security update", Text: "Your administrator security settings changed (" + action + "). If this was not you, contact the operator immediately.\n你的管理员安全设置已变更，如非本人操作，请立即联系维护者。"}, time.Now().Add(24*time.Hour))
 }
 func (s *Service) Cleanup(ctx context.Context) error {
 	if _, err := s.db.AdminElevation.Delete().Where(adminelevation.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
@@ -133,7 +133,11 @@ func (s *Service) Cleanup(ctx context.Context) error {
 }
 
 func (s *Service) OrdinaryTarget(ctx context.Context, id string) error {
-	exists, err := persistence.Client(ctx, s.db).AdminPrincipal.Query().Where(adminprincipal.ID(id)).Exist(ctx)
+	return OrdinaryTarget(ctx, s.db, id)
+}
+
+func OrdinaryTarget(ctx context.Context, db *ent.Client, id string) error {
+	exists, err := persistence.Client(ctx, db).AdminPrincipal.Query().Where(adminprincipal.ID(id)).Exist(ctx)
 	if err != nil {
 		return err
 	}

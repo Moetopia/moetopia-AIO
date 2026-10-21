@@ -114,6 +114,16 @@ func DisabledReason(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldDisabledReason, v))
 }
 
+// DeletionRequestedAt applies equality check predicate on the "deletion_requested_at" field. It's identical to DeletionRequestedAtEQ.
+func DeletionRequestedAt(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldDeletionRequestedAt, v))
+}
+
+// DeletionDueAt applies equality check predicate on the "deletion_due_at" field. It's identical to DeletionDueAtEQ.
+func DeletionDueAt(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldDeletionDueAt, v))
+}
+
 // EmailVerifiedAt applies equality check predicate on the "email_verified_at" field. It's identical to EmailVerifiedAtEQ.
 func EmailVerifiedAt(v time.Time) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldEmailVerifiedAt, v))
@@ -652,6 +662,106 @@ func DisabledReasonEqualFold(v string) predicate.AccountUser {
 // DisabledReasonContainsFold applies the ContainsFold predicate on the "disabled_reason" field.
 func DisabledReasonContainsFold(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldContainsFold(FieldDisabledReason, v))
+}
+
+// DeletionRequestedAtEQ applies the EQ predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtEQ(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldDeletionRequestedAt, v))
+}
+
+// DeletionRequestedAtNEQ applies the NEQ predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtNEQ(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldDeletionRequestedAt, v))
+}
+
+// DeletionRequestedAtIn applies the In predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtIn(vs ...time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldDeletionRequestedAt, vs...))
+}
+
+// DeletionRequestedAtNotIn applies the NotIn predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtNotIn(vs ...time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldDeletionRequestedAt, vs...))
+}
+
+// DeletionRequestedAtGT applies the GT predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtGT(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldDeletionRequestedAt, v))
+}
+
+// DeletionRequestedAtGTE applies the GTE predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtGTE(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldDeletionRequestedAt, v))
+}
+
+// DeletionRequestedAtLT applies the LT predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtLT(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldDeletionRequestedAt, v))
+}
+
+// DeletionRequestedAtLTE applies the LTE predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtLTE(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldDeletionRequestedAt, v))
+}
+
+// DeletionRequestedAtIsNil applies the IsNil predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtIsNil() predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIsNull(FieldDeletionRequestedAt))
+}
+
+// DeletionRequestedAtNotNil applies the NotNil predicate on the "deletion_requested_at" field.
+func DeletionRequestedAtNotNil() predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotNull(FieldDeletionRequestedAt))
+}
+
+// DeletionDueAtEQ applies the EQ predicate on the "deletion_due_at" field.
+func DeletionDueAtEQ(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldDeletionDueAt, v))
+}
+
+// DeletionDueAtNEQ applies the NEQ predicate on the "deletion_due_at" field.
+func DeletionDueAtNEQ(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldDeletionDueAt, v))
+}
+
+// DeletionDueAtIn applies the In predicate on the "deletion_due_at" field.
+func DeletionDueAtIn(vs ...time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIn(FieldDeletionDueAt, vs...))
+}
+
+// DeletionDueAtNotIn applies the NotIn predicate on the "deletion_due_at" field.
+func DeletionDueAtNotIn(vs ...time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotIn(FieldDeletionDueAt, vs...))
+}
+
+// DeletionDueAtGT applies the GT predicate on the "deletion_due_at" field.
+func DeletionDueAtGT(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGT(FieldDeletionDueAt, v))
+}
+
+// DeletionDueAtGTE applies the GTE predicate on the "deletion_due_at" field.
+func DeletionDueAtGTE(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldGTE(FieldDeletionDueAt, v))
+}
+
+// DeletionDueAtLT applies the LT predicate on the "deletion_due_at" field.
+func DeletionDueAtLT(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLT(FieldDeletionDueAt, v))
+}
+
+// DeletionDueAtLTE applies the LTE predicate on the "deletion_due_at" field.
+func DeletionDueAtLTE(v time.Time) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldLTE(FieldDeletionDueAt, v))
+}
+
+// DeletionDueAtIsNil applies the IsNil predicate on the "deletion_due_at" field.
+func DeletionDueAtIsNil() predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldIsNull(FieldDeletionDueAt))
+}
+
+// DeletionDueAtNotNil applies the NotNil predicate on the "deletion_due_at" field.
+func DeletionDueAtNotNil() predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNotNull(FieldDeletionDueAt))
 }
 
 // EmailVerifiedAtEQ applies the EQ predicate on the "email_verified_at" field.

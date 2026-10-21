@@ -21,6 +21,7 @@ import (
 	"moetopia.local/aio/api/internal/developer"
 	"moetopia.local/aio/api/internal/httpserver"
 	"moetopia.local/aio/api/internal/identity"
+	"moetopia.local/aio/api/internal/lifecycle"
 	"moetopia.local/aio/api/internal/notifications"
 	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/relyingparty"
@@ -106,18 +107,20 @@ func run() error {
 			return err
 		}
 	}
+	applications := developer.New(db.Ent, provider, accounts, cfg.Issuer, outbox)
+	accountLifecycle := lifecycle.New(db.Ent, accounts, applications, provider)
 	go func() {
 		defer close(workerDone)
-		runWorkers(ctx, outbox, accounts, webSessions, provider, portal, admin.Service)
+		runWorkers(ctx, outbox, accounts, webSessions, provider, portal, admin.Service, accountLifecycle)
 	}()
 	defer func() { stop(); <-workerDone }()
 	handler := httpserver.New(httpserver.Dependencies{
 		RateNamespace: cfg.RateNamespace(), DatabaseReady: db.Ready,
 		CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() },
 		Tokens:     provider, Valkey: cache, Portal: httpserver.PortalEndpoints{Service: portal},
-		Developers: developer.New(db.Ent, provider, accounts, cfg.Issuer, outbox),
-		Admin:      admin,
-		Accounts:   httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider},
+		Developers: applications, Lifecycle: accountLifecycle,
+		Admin:    admin,
+		Accounts: httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider},
 	})
 	server := &http.Server{Addr: cfg.Listen, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second}
 	errorsCh := make(chan error, 1)

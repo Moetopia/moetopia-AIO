@@ -71,9 +71,9 @@ func (s *Service) beginChallenge(ctx context.Context, purpose string, row *ent.A
 	if err := tx.AccountChallenge.Create().SetID(id).SetPurpose(accountchallenge.Purpose(purpose)).SetUserID(row.ID).SetEmail(email).SetBinding(binding).SetSecurityVersion(row.SecurityVersion).SetCodeHash(s.challengeHash(id, purpose, row.ID, email, code)).SetExpiresAt(expires).Exec(ctx); err != nil {
 		return "", err
 	}
-	message := notifications.Message{To: email, Subject: "Moetopia account verification", Text: "Your Moetopia " + purpose + " code is: " + code + "\nChallenge: " + id + "\nExpires in 10 minutes. If you did not request this, ignore this message.", Suppressed: suppressed}
+	message := notifications.Message{UserID: row.ID, To: email, Subject: "Moetopia account verification", Text: "Your Moetopia " + purpose + " code is: " + code + "\nChallenge: " + id + "\nExpires in 10 minutes. If you did not request this, ignore this message.", Suppressed: suppressed}
 	if locale != "en" {
-		message.Text = "你的 Moetopia " + map[string]string{"reset": "密码恢复", "email": "邮箱变更"}[purpose] + "验证码是：" + code + "\n验证事务：" + id + "\n10 分钟内有效。如非本人操作，请忽略。"
+		message.Text = "你的 Moetopia " + map[string]string{"reset": "密码恢复", "email": "邮箱变更", "deletion-cancel": "取消注销"}[purpose] + "验证码是：" + code + "\n验证事务：" + id + "\n10 分钟内有效。如非本人操作，请忽略。"
 	}
 	if err := s.store.outbox.Enqueue(ctx, tx.Client(), message, expires); err != nil {
 		return "", err
@@ -171,7 +171,7 @@ func (s *Service) finishChallenge(ctx context.Context, id, code, purpose, userID
 		return err
 	}
 	if purpose == "email" {
-		if err := s.store.outbox.Enqueue(ctx, tx.Client(), notifications.Message{To: row.Email, Subject: "Moetopia email updated", Text: "Your Moetopia email has been updated. Sign in using this address.\n你的 Moetopia 邮箱已更新，请使用此邮箱重新登录。"}, time.Now().Add(24*time.Hour)); err != nil {
+		if err := s.store.outbox.Enqueue(ctx, tx.Client(), notifications.Message{UserID: user.ID, To: row.Email, Subject: "Moetopia email updated", Text: "Your Moetopia email has been updated. Sign in using this address.\n你的 Moetopia 邮箱已更新，请使用此邮箱重新登录。"}, time.Now().Add(24*time.Hour)); err != nil {
 			return err
 		}
 	}

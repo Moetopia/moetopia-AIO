@@ -15,6 +15,7 @@ import (
 	"moetopia.local/aio/api/internal/audit"
 	"moetopia.local/aio/api/internal/authorization"
 	"moetopia.local/aio/api/internal/developer"
+	"moetopia.local/aio/api/internal/lifecycle"
 )
 
 type Dependencies struct {
@@ -27,6 +28,7 @@ type Dependencies struct {
 	RateNamespace string
 	Developers    *developer.Service
 	Admin         AdminEndpoints
+	Lifecycle     *lifecycle.Service
 }
 
 type Status struct {
@@ -90,6 +92,7 @@ func New(deps Dependencies) http.Handler {
 	deps.Admin.Register(api)
 	deps.Portal.registerManagement(api, deps.Accounts)
 	deps.Accounts.registerRecovery(api)
+	registerDeletion(api, deps.Portal, deps.Accounts, deps.Lifecycle)
 	DeveloperEndpoints{Portal: deps.Portal, Service: deps.Developers, Accounts: deps.Accounts}.Register(api)
 	r.Get("/api/v1/avatars/{id}", deps.Accounts.avatar)
 	deps.Accounts.Register(api)

@@ -128,6 +128,34 @@ func (_c *AccountUserCreate) SetNillableDisabledReason(v *string) *AccountUserCr
 	return _c
 }
 
+// SetDeletionRequestedAt sets the "deletion_requested_at" field.
+func (_c *AccountUserCreate) SetDeletionRequestedAt(v time.Time) *AccountUserCreate {
+	_c.mutation.SetDeletionRequestedAt(v)
+	return _c
+}
+
+// SetNillableDeletionRequestedAt sets the "deletion_requested_at" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableDeletionRequestedAt(v *time.Time) *AccountUserCreate {
+	if v != nil {
+		_c.SetDeletionRequestedAt(*v)
+	}
+	return _c
+}
+
+// SetDeletionDueAt sets the "deletion_due_at" field.
+func (_c *AccountUserCreate) SetDeletionDueAt(v time.Time) *AccountUserCreate {
+	_c.mutation.SetDeletionDueAt(v)
+	return _c
+}
+
+// SetNillableDeletionDueAt sets the "deletion_due_at" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableDeletionDueAt(v *time.Time) *AccountUserCreate {
+	if v != nil {
+		_c.SetDeletionDueAt(*v)
+	}
+	return _c
+}
+
 // SetEmailVerifiedAt sets the "email_verified_at" field.
 func (_c *AccountUserCreate) SetEmailVerifiedAt(v time.Time) *AccountUserCreate {
 	_c.mutation.SetEmailVerifiedAt(v)
@@ -339,6 +367,14 @@ func (_c *AccountUserCreate) createSpec() (*AccountUser, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DisabledReason(); ok {
 		_spec.SetField(accountuser.FieldDisabledReason, field.TypeString, value)
 		_node.DisabledReason = value
+	}
+	if value, ok := _c.mutation.DeletionRequestedAt(); ok {
+		_spec.SetField(accountuser.FieldDeletionRequestedAt, field.TypeTime, value)
+		_node.DeletionRequestedAt = &value
+	}
+	if value, ok := _c.mutation.DeletionDueAt(); ok {
+		_spec.SetField(accountuser.FieldDeletionDueAt, field.TypeTime, value)
+		_node.DeletionDueAt = &value
 	}
 	if value, ok := _c.mutation.EmailVerifiedAt(); ok {
 		_spec.SetField(accountuser.FieldEmailVerifiedAt, field.TypeTime, value)

@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 type OAuthClient struct{ ent.Schema }
@@ -31,4 +32,8 @@ func (OAuthClient) Fields() []ent.Field {
 
 func (OAuthClient) Annotations() []schema.Annotation {
 	return []schema.Annotation{entsql.Annotation{Schema: "authorization", Table: "clients"}}
+}
+
+func (OAuthClient) Indexes() []ent.Index {
+	return []ent.Index{index.Fields("owner_id")}
 }

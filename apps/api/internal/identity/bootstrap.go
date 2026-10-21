@@ -12,7 +12,7 @@ func (s *Service) VerifiedEmailUser(ctx context.Context, email string) (User, er
 	if err != nil {
 		return User{}, ErrMissing
 	}
-	row, err := persistence.Client(ctx, s.store.db).AccountUser.Query().Where(accountuser.Email(email), accountuser.Enabled(true)).Select(userColumns...).Only(ctx)
+	row, err := persistence.Client(ctx, s.store.db).AccountUser.Query().Where(accountuser.Email(email), accountuser.Enabled(true), accountuser.DeletionDueAtIsNil()).Select(userColumns...).Only(ctx)
 	if ent.IsNotFound(err) {
 		return User{}, ErrMissing
 	}

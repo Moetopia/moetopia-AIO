@@ -14,6 +14,7 @@ func (EmailDelivery) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").Immutable(),
 		field.Bytes("payload").Sensitive(),
+		field.String("user_id").Default(""),
 		field.Int("attempts").Default(0),
 		field.Time("available_at"),
 		field.Time("lease_until"),
@@ -21,7 +22,7 @@ func (EmailDelivery) Fields() []ent.Field {
 	}
 }
 func (EmailDelivery) Indexes() []ent.Index {
-	return []ent.Index{index.Fields("available_at", "lease_until")}
+	return []ent.Index{index.Fields("available_at", "lease_until"), index.Fields("user_id")}
 }
 func (EmailDelivery) Annotations() []schema.Annotation {
 	return []schema.Annotation{entsql.Annotation{Schema: "notifications", Table: "email_deliveries"}}

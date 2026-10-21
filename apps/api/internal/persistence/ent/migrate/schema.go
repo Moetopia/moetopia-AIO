@@ -12,7 +12,7 @@ var (
 	// AccountChallengesColumns holds the columns for the "account_challenges" table.
 	AccountChallengesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
-		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"reset", "email"}},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"reset", "email", "deletion-cancel"}},
 		{Name: "user_id", Type: field.TypeString},
 		{Name: "email", Type: field.TypeString},
 		{Name: "binding", Type: field.TypeString},
@@ -54,6 +54,8 @@ var (
 		{Name: "password_hash", Type: field.TypeString},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "disabled_reason", Type: field.TypeString, Default: ""},
+		{Name: "deletion_requested_at", Type: field.TypeTime, Nullable: true},
+		{Name: "deletion_due_at", Type: field.TypeTime, Nullable: true},
 		{Name: "email_verified_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 	}
@@ -62,6 +64,13 @@ var (
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "accountuser_deletion_due_at",
+				Unique:  false,
+				Columns: []*schema.Column{UsersColumns[12]},
+			},
+		},
 	}
 	// BootstrapColumns holds the columns for the "bootstrap" table.
 	BootstrapColumns = []*schema.Column{
@@ -238,6 +247,7 @@ var (
 	EmailDeliveriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
 		{Name: "payload", Type: field.TypeBytes},
+		{Name: "user_id", Type: field.TypeString, Default: ""},
 		{Name: "attempts", Type: field.TypeInt, Default: 0},
 		{Name: "available_at", Type: field.TypeTime},
 		{Name: "lease_until", Type: field.TypeTime},
@@ -252,7 +262,12 @@ var (
 			{
 				Name:    "emaildelivery_available_at_lease_until",
 				Unique:  false,
-				Columns: []*schema.Column{EmailDeliveriesColumns[3], EmailDeliveriesColumns[4]},
+				Columns: []*schema.Column{EmailDeliveriesColumns[4], EmailDeliveriesColumns[5]},
+			},
+			{
+				Name:    "emaildelivery_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{EmailDeliveriesColumns[2]},
 			},
 		},
 	}
@@ -313,6 +328,13 @@ var (
 		Name:       "clients",
 		Columns:    ClientsColumns,
 		PrimaryKey: []*schema.Column{ClientsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "oauthclient_owner_id",
+				Unique:  false,
+				Columns: []*schema.Column{ClientsColumns[3]},
+			},
+		},
 	}
 	// ProtocolSessionsColumns holds the columns for the "protocol_sessions" table.
 	ProtocolSessionsColumns = []*schema.Column{
