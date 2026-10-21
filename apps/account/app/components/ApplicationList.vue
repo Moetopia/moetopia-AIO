@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DeveloperApplication, DeveloperApplications } from '@moetopia/api-client'
-import { MoeCard, MoeButton, MoeBadge, MoeEmptyState, MoeSpinner, MoeAlert, MoeSettingRow, MoeLink } from '@moetopia/ui'
+import { MoeCard, MoeButton, MoeBadge, MoeEmptyState, MoeSpinner, MoeAlert, MoeResourceCard } from '@moetopia/ui'
 import { accountMessages } from '@moetopia/locales'
 const { locale } = usePortalPreferences()
 const a = computed(() => accountMessages[locale.value])
@@ -16,6 +16,23 @@ const load = (more = false) => run(async () => {
 const created = (app: DeveloperApplication) => { items.value = [app, ...items.value]; ready.value = true }
 defineExpose({ created })
 const status = (value: string) => ['draft', 'pending', 'approved', 'rejected'].includes(value) ? text.value[value as 'draft' | 'pending' | 'approved' | 'rejected'] : value
+const navigate = (event: MouseEvent, id: string) => {
+  if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+  event.preventDefault(); void navigateTo(`/developer/applications/${id}`)
+}
 onMounted(() => { void load() })
 </script>
-<template><div class="grid gap-4"><MoeAlert v-if="error" :title="error" color="danger" announce><template #actions><MoeButton :disabled="busy" @click="load()">{{ a.retry }}</MoeButton></template></MoeAlert><MoeSpinner v-if="busy && !ready" :label="a.checking" /><MoeCard v-if="items.length" padding="none"><MoeSettingRow v-for="app in items" :key="app.id" :title="app.latest.config.name" :description="app.latest.config.description" icon="grid"><div class="flex flex-wrap gap-2"><MoeBadge>{{ status(app.latest.status) }}</MoeBadge><MoeBadge :color="app.enabled ? 'success' : 'default'">{{ app.enabled ? text.enabled : text.disabled }}</MoeBadge></div><template #actions><MoeLink as-child><NuxtLink :to="`/developer/applications/${app.id}`">{{ text.details }}</NuxtLink></MoeLink></template></MoeSettingRow></MoeCard><MoeCard v-else-if="ready" class="moe-console-empty" padding="none"><MoeEmptyState :title="text.empty" :description="text.testOnly" icon="grid"><slot /></MoeEmptyState></MoeCard><MoeButton v-if="cursor" :loading="busy" variant="bordered" @click="load(true)">{{ text.more }}</MoeButton></div></template>
+<template>
+  <div class="grid gap-4">
+    <MoeAlert v-if="error" :title="error" color="danger" announce><template #actions><MoeButton :disabled="busy" @click="load()">{{ a.retry }}</MoeButton></template></MoeAlert>
+    <MoeSpinner v-if="busy && !ready" :label="a.checking" />
+    <div v-if="items.length" class="moe-resource-grid">
+      <MoeResourceCard v-for="app in items" :key="app.id" :title="app.latest.config.name" :description="app.latest.config.description" :identifier="app.client_id" :href="`/developer/applications/${app.id}`" :link-label="`${text.details}: ${app.latest.config.name}`" @navigate="navigate($event, app.id)">
+        <template #badges><MoeBadge :color="app.suspended ? 'danger' : 'default'">{{ app.suspended ? text.suspended : status(app.latest.status) }}</MoeBadge></template>
+        <span>{{ app.enabled ? text.enabled : text.disabled }}</span><span>{{ text.version }} {{ app.latest.version }}</span>
+      </MoeResourceCard>
+    </div>
+    <MoeCard v-else-if="ready" class="moe-console-empty" padding="none"><MoeEmptyState :title="text.empty" :description="text.testOnly" icon="grid"><slot /></MoeEmptyState></MoeCard>
+    <MoeButton v-if="cursor" :loading="busy" variant="bordered" @click="load(true)">{{ text.more }}</MoeButton>
+  </div>
+</template>

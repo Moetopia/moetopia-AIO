@@ -1,5 +1,5 @@
 @layer components {
-  .moe-page-frame[data-portal] .moe-page-header-inner, .moe-page-frame[data-portal] .moe-page-main, .moe-page-frame[data-portal] .moe-page-footer { max-width: 1280px; }
+  .moe-page-frame[data-portal] .moe-page-header-inner, .moe-page-frame[data-portal] .moe-page-main, .moe-page-frame[data-portal] .moe-page-footer { width: 100%; max-width: 1280px; }
   .moe-page-frame[data-portal] .moe-page-header-inner .moe-navbar { min-height: 64px; height: 64px; gap: 16px; padding: 0 24px; }
   .moe-page-frame[data-portal] .moe-navbar-brand { display: flex; align-items: center; gap: 10px; font-size: 16px; color: var(--moe-foreground); letter-spacing: 0; }
   .moe-page-frame[data-portal] .moe-navbar-brand::before { content: 'M'; display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border: 1px solid var(--moe-line); border-radius: 8px; background: var(--moe-accent); color: var(--moe-primary-ink); font-size: 16px; }

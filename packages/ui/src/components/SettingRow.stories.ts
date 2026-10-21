@@ -5,4 +5,5 @@ const meta = { title: 'Layouts/SettingRow', component: Component, tags: ['autodo
 export default meta
 type Story = StoryObj<typeof meta>
 export const Default: Story = {}
+export const Inset: Story = { args: { inset: true } }
 

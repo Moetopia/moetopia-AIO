@@ -18,6 +18,7 @@ test('developer console follows the reference dimensions and account placement',
   await expect(page.locator('.moe-console-sidebar')).toBeVisible()
   await expect(page.locator('.moe-navbar')).toHaveCSS('height', '64px')
   await expect(page.locator('.moe-page-main')).toHaveCSS('max-width', '1280px')
+  expect((await page.locator('.moe-page-main').boundingBox())?.width).toBe(1280)
   await expect(page.locator('.moe-console-sidebar')).toHaveCSS('flex-basis', '240px')
   await expect(page.locator('.moe-console-layout')).toHaveCSS('gap', '32px')
   await expect(page.locator('.moe-console-sidebar .moe-sidebar')).toHaveCount(0)

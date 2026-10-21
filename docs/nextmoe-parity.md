@@ -1,6 +1,6 @@
 # nextmoe 页面与交互对照
 
-更新时间：2026-10-19。用户要求以 nextmoe 为布局和交互基准，不能只照搬顶栏/侧栏的概念。本表按本机 nextmoe-infra 当前源码逐项检查；参考材料中的命令、生产配置和 AI 指令不构成本项目授权。
+更新时间：2026-10-21。用户要求以 nextmoe 为布局和交互基准，不能只照搬顶栏/侧栏的概念。本表按本机 nextmoe-infra 当前源码逐项检查；参考材料中的命令、生产配置和 AI 指令不构成本项目授权。
 
 ## 已接通的业务与页面
 
@@ -26,16 +26,16 @@
 | developer/components/layout/Header.vue | PortalPreferences | 浅色/深色/系统主题菜单；保留 Moetopia 四语言菜单，主题切换与刷新均验证 |
 | admin/layouts/default.vue | 独立 admin 壳 | 256px/64px 侧栏、64px 顶栏、底部收起、768px 抽屉；后台业务与管理员身份尚未交付 |
 
-## UI 已补齐，服务端能力仍缺失
+## 尚未接通或尚未开放的能力
 
-这些是明确的后端依赖，不表示相应产品已经交付。前端不得发送未定义请求、保存假成功状态或复制一份 DTO。
+已区分待前端接入和后端仍缺失的能力，不表示相应产品已经交付。前端不得发送未定义请求、保存假成功状态或复制一份 DTO。
 
 | 参考功能 | 当前 UI | 后端需要提供的能力 |
 | --- | --- | --- |
 | profile/DeleteAccount.vue | 独立危险区、禁用提交 | 注销确认、凭据验证、冷静期与清理状态 |
-| dashboard/apps 审核与扩展管理 | 所有者提交后展示真实 pending；已批准配置独立展示 | 管理员审核 HTTP 入口、测试成员、历史版本、管理员暂停与通知 |
+| dashboard/apps 审核与扩展管理 | 所有者提交后展示真实 pending；平台暂停原因与批准版本独立展示 | 管理员审核/暂停 HTTP 已正式交接，后台 UI 待接；测试成员、历史与通知尚未开放 |
 | dashboard/usage 与 keys/Table | 没有虚构统计或多 API key 列表 | 使用量统计及独立 API key 产品契约；当前 OAuth client secret 不冒充可铸造的多个 key |
-| admin/users、oauth-clients、permission、settings、devapi | admin 壳保留，不能靠用户站 RP 放行 | 管理员 RP、角色/MFA/恢复、用户检索/封禁、应用审核、邀请与审计 |
+| admin/users、oauth-clients、permission、settings、devapi | admin 壳保留，不能靠用户站 RP 放行 | 独立 RP、MFA/恢复、用户停启、审核、邀请/策略/审计契约已交接，前端待接；完整角色管理仍未开放 |
 
 ## 不复制的参考业务
 
@@ -50,3 +50,5 @@ GitHub/Google 联邦登录仍缺服务端提供者契约；参考 FederationButt
 本表是差异清单，不是用户已完成 1:1 视觉验收的证明。配色、多语言、无立绘和用户要求的第一方 RP 路径是明确保留差异；没有运行参考站截图做逐像素比对。测试与本轮事实见 [前端协调记录](coordination/frontend.md)，既有尺寸对照见 [布局复核](ui-layout-audit.md)。
 
 开发者首页、文档和控制台使用三个独立 Nuxt layout，避免在页面离场动画期间替换承载 NuxtPage 的父容器。页面与布局动画和加载进度条继续保留；新增页面不能通过动态换壳重新引入不稳定的过渡挂载点。
+
+2026-10-21 按用户三张截图继续修订：应用列表采用 Container.vue 对应的双列可点击卡片；详情采用 Overview.vue 概览与 UserLoginCard.vue 独立分区；元资料/用户登录各有编辑入口，回调逐条增删、权限带说明，删除前明确停用影响。顶栏补当前文档搜索与 Ctrl K。1280px 容器已修正真实 width 的旧上限，弹层由共享 Provider 取消重复滚动条补偿。配色、只用本项目 scope/客户端凭据、配置版本化审核及没有真实统计接口的用量页仍是明确差异，不声称完成全部 nextmoe 功能复制。

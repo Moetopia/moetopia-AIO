@@ -64,7 +64,7 @@ onMounted(async () => {
     <template v-if="kind === 'admin'" #sidebar><MoeSidebar v-bind="sidebar" layout="rail" :title="`Moetopia · ${text.admin}`" :footer-text="undefined" @navigate="navigate" /></template>
     <template #header>
       <MoeNavbar :brand="kind === 'developer' ? `Moetopia ${text.developer}` : kind === 'admin' ? text.admin : 'Moetopia'" :subtitle="kind === 'account' ? text.account : undefined" :brand-href="kind === 'developer' ? '/developer' : kind === 'account' ? '/profile' : '/'" :label="pageText.navigation" :items="navigation" :mobile-items="mobileItems" :active="workspace ? 'console' : activeSection" :menu-label="pageText.openNavigation" :close-label="pageText.closeNavigation" :breakpoint="kind === 'admin' ? 'tablet' : 'desktop'" @navigate="navigate">
-        <template #actions><PortalPreferences /><slot name="account" /></template>
+        <template #actions><PortalDocSearch v-if="kind === 'developer'" /><PortalPreferences /><slot name="account" /></template>
       </MoeNavbar>
     </template>
     <MoeConsoleLayout v-if="workspace" :label="pageText.console" :groups="consoleGroups" :active="activeSection" @navigate="navigate">

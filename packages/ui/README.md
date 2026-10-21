@@ -43,6 +43,10 @@ pnpm test:ui
 
 ## 当前组件
 
+2026-10-21 截图对照轮次新增 Provider、ResourceSummary、ResourceCard、SectionPanel、RepeatableInput、SearchPalette，共 78 个公开组件，均有 Storybook。应用根节点使用 MoeProvider，并加载共享 styles.css；Provider 与全局稳定滚动条槽配合，避免弹窗二次补偿 body 宽度，同时保留 Reka 的滚动锁和焦点管理。不要在单个页面用 !important 清理 body 样式。
+
+ResourceSummary 组合概览、标识复制、操作和资料网格；ResourceCard 只展示通用资源内容，通过 href/navigate 适配路由；SectionPanel 保持标题/操作在卡片外。RepeatableInput 接受字符串数组、增删标签与数量上限；SearchPalette 接收页面选项并通过 select 返回值，支持 Ctrl K 和键盘选择，不依赖 Nuxt 或业务接口。CheckboxGroup 新增 cards，SettingRow 新增 inset，Dialog 支持 sm/md/lg 及右上关闭入口，PageHeading 提供 leading 插槽。业务范围、测试与截图见 [最新前端交接](../../docs/coordination/frontend.md)。
+
 2026-10-19 全面对照轮次新增 DocsLayout、CodeBlock、CopyButton、FeatureGrid、DangerZone、ThemePicker、StatGrid，公开组件共 72 个，每项有故事。补足文档侧栏、代码复制反馈、首页结构、危险区、三选主题与未知统计展示；AuthShell 增加 mobile-brand 插槽，Link 的 appearance 提供主次链接按钮，PageHeading 可选择 h1/h2/h3，Dialog 可关闭默认底部关闭操作以组合真实表单操作栏。
 
 本轮应用/Storybook 构建、类型、55 项页面和 31 项组件检查通过；21 张响应式截图及两个真实集成场景的范围见 [前端交接](../../docs/coordination/frontend.md)。界面、未完成后端能力和参考差异统一见 [完整对照](../../docs/nextmoe-parity.md)，不把未连接的表单/统计说成产品交付。
