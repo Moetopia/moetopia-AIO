@@ -37,6 +37,13 @@ func Open(ctx context.Context, dsn string) (*Database, error) {
 }
 
 func (d *Database) Ready(ctx context.Context) error {
+	var logoutTables bool
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('authorization.logout_interactions') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='authorization' AND table_name='clients' AND column_name='post_logout_redirect_uris')").Scan(&logoutTables); err != nil {
+		return err
+	}
+	if !logoutTables {
+		return errors.New("database migration required")
+	}
 	var externalTables bool
 	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('identity.external_identities') IS NOT NULL AND to_regclass('identity.external_logins') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='identity' AND table_name='users' AND column_name='has_password')").Scan(&externalTables); err != nil {
 		return err

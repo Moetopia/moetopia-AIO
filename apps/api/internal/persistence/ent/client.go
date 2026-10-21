@@ -28,6 +28,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/externalidentity"
 	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
+	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
@@ -72,6 +73,8 @@ type Client struct {
 	ExternalLogin *ExternalLoginClient
 	// Invitation is the client for interacting with the Invitation builders.
 	Invitation *InvitationClient
+	// LogoutInteraction is the client for interacting with the LogoutInteraction builders.
+	LogoutInteraction *LogoutInteractionClient
 	// OAuthClient is the client for interacting with the OAuthClient builders.
 	OAuthClient *OAuthClientClient
 	// ProtocolSession is the client for interacting with the ProtocolSession builders.
@@ -111,6 +114,7 @@ func (c *Client) init() {
 	c.ExternalIdentity = NewExternalIdentityClient(c.config)
 	c.ExternalLogin = NewExternalLoginClient(c.config)
 	c.Invitation = NewInvitationClient(c.config)
+	c.LogoutInteraction = NewLogoutInteractionClient(c.config)
 	c.OAuthClient = NewOAuthClientClient(c.config)
 	c.ProtocolSession = NewProtocolSessionClient(c.config)
 	c.RPLogin = NewRPLoginClient(c.config)
@@ -227,6 +231,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ExternalIdentity:         NewExternalIdentityClient(cfg),
 		ExternalLogin:            NewExternalLoginClient(cfg),
 		Invitation:               NewInvitationClient(cfg),
+		LogoutInteraction:        NewLogoutInteractionClient(cfg),
 		OAuthClient:              NewOAuthClientClient(cfg),
 		ProtocolSession:          NewProtocolSessionClient(cfg),
 		RPLogin:                  NewRPLoginClient(cfg),
@@ -267,6 +272,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ExternalIdentity:         NewExternalIdentityClient(cfg),
 		ExternalLogin:            NewExternalLoginClient(cfg),
 		Invitation:               NewInvitationClient(cfg),
+		LogoutInteraction:        NewLogoutInteractionClient(cfg),
 		OAuthClient:              NewOAuthClientClient(cfg),
 		ProtocolSession:          NewProtocolSessionClient(cfg),
 		RPLogin:                  NewRPLoginClient(cfg),
@@ -307,8 +313,8 @@ func (c *Client) Use(hooks ...Hook) {
 		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
 		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
 		c.EmailVerification, c.ExternalIdentity, c.ExternalLogin, c.Invitation,
-		c.OAuthClient, c.ProtocolSession, c.RPLogin, c.RegistrationPolicy,
-		c.SecurityEvent, c.SigningKey, c.WebSession,
+		c.LogoutInteraction, c.OAuthClient, c.ProtocolSession, c.RPLogin,
+		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
 	} {
 		n.Use(hooks...)
 	}
@@ -322,8 +328,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
 		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
 		c.EmailVerification, c.ExternalIdentity, c.ExternalLogin, c.Invitation,
-		c.OAuthClient, c.ProtocolSession, c.RPLogin, c.RegistrationPolicy,
-		c.SecurityEvent, c.SigningKey, c.WebSession,
+		c.LogoutInteraction, c.OAuthClient, c.ProtocolSession, c.RPLogin,
+		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -360,6 +366,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ExternalLogin.mutate(ctx, m)
 	case *InvitationMutation:
 		return c.Invitation.mutate(ctx, m)
+	case *LogoutInteractionMutation:
+		return c.LogoutInteraction.mutate(ctx, m)
 	case *OAuthClientMutation:
 		return c.OAuthClient.mutate(ctx, m)
 	case *ProtocolSessionMutation:
@@ -2241,6 +2249,139 @@ func (c *InvitationClient) mutate(ctx context.Context, m *InvitationMutation) (V
 	}
 }
 
+// LogoutInteractionClient is a client for the LogoutInteraction schema.
+type LogoutInteractionClient struct {
+	config
+}
+
+// NewLogoutInteractionClient returns a client for the LogoutInteraction from the given config.
+func NewLogoutInteractionClient(c config) *LogoutInteractionClient {
+	return &LogoutInteractionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `logoutinteraction.Hooks(f(g(h())))`.
+func (c *LogoutInteractionClient) Use(hooks ...Hook) {
+	c.hooks.LogoutInteraction = append(c.hooks.LogoutInteraction, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `logoutinteraction.Intercept(f(g(h())))`.
+func (c *LogoutInteractionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.LogoutInteraction = append(c.inters.LogoutInteraction, interceptors...)
+}
+
+// Create returns a builder for creating a LogoutInteraction entity.
+func (c *LogoutInteractionClient) Create() *LogoutInteractionCreate {
+	mutation := newLogoutInteractionMutation(c.config, OpCreate)
+	return &LogoutInteractionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of LogoutInteraction entities.
+func (c *LogoutInteractionClient) CreateBulk(builders ...*LogoutInteractionCreate) *LogoutInteractionCreateBulk {
+	return &LogoutInteractionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LogoutInteractionClient) MapCreateBulk(slice any, setFunc func(*LogoutInteractionCreate, int)) *LogoutInteractionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LogoutInteractionCreateBulk{err: fmt.Errorf("calling to LogoutInteractionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LogoutInteractionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &LogoutInteractionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for LogoutInteraction.
+func (c *LogoutInteractionClient) Update() *LogoutInteractionUpdate {
+	mutation := newLogoutInteractionMutation(c.config, OpUpdate)
+	return &LogoutInteractionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *LogoutInteractionClient) UpdateOne(_m *LogoutInteraction) *LogoutInteractionUpdateOne {
+	mutation := newLogoutInteractionMutation(c.config, OpUpdateOne, withLogoutInteraction(_m))
+	return &LogoutInteractionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *LogoutInteractionClient) UpdateOneID(id string) *LogoutInteractionUpdateOne {
+	mutation := newLogoutInteractionMutation(c.config, OpUpdateOne, withLogoutInteractionID(id))
+	return &LogoutInteractionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for LogoutInteraction.
+func (c *LogoutInteractionClient) Delete() *LogoutInteractionDelete {
+	mutation := newLogoutInteractionMutation(c.config, OpDelete)
+	return &LogoutInteractionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *LogoutInteractionClient) DeleteOne(_m *LogoutInteraction) *LogoutInteractionDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *LogoutInteractionClient) DeleteOneID(id string) *LogoutInteractionDeleteOne {
+	builder := c.Delete().Where(logoutinteraction.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &LogoutInteractionDeleteOne{builder}
+}
+
+// Query returns a query builder for LogoutInteraction.
+func (c *LogoutInteractionClient) Query() *LogoutInteractionQuery {
+	return &LogoutInteractionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeLogoutInteraction},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a LogoutInteraction entity by its id.
+func (c *LogoutInteractionClient) Get(ctx context.Context, id string) (*LogoutInteraction, error) {
+	return c.Query().Where(logoutinteraction.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *LogoutInteractionClient) GetX(ctx context.Context, id string) *LogoutInteraction {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *LogoutInteractionClient) Hooks() []Hook {
+	return c.hooks.LogoutInteraction
+}
+
+// Interceptors returns the client interceptors.
+func (c *LogoutInteractionClient) Interceptors() []Interceptor {
+	return c.inters.LogoutInteraction
+}
+
+func (c *LogoutInteractionClient) mutate(ctx context.Context, m *LogoutInteractionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&LogoutInteractionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&LogoutInteractionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&LogoutInteractionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&LogoutInteractionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown LogoutInteraction mutation op: %q", m.Op())
+	}
+}
+
 // OAuthClientClient is a client for the OAuthClient schema.
 type OAuthClientClient struct {
 	config
@@ -3178,15 +3319,16 @@ type (
 		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
 		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
 		DeveloperApplication, EmailDelivery, EmailVerification, ExternalIdentity,
-		ExternalLogin, Invitation, OAuthClient, ProtocolSession, RPLogin,
-		RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Hook
+		ExternalLogin, Invitation, LogoutInteraction, OAuthClient, ProtocolSession,
+		RPLogin, RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Hook
 	}
 	inters struct {
 		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
 		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
 		DeveloperApplication, EmailDelivery, EmailVerification, ExternalIdentity,
-		ExternalLogin, Invitation, OAuthClient, ProtocolSession, RPLogin,
-		RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Interceptor
+		ExternalLogin, Invitation, LogoutInteraction, OAuthClient, ProtocolSession,
+		RPLogin, RegistrationPolicy, SecurityEvent, SigningKey,
+		WebSession []ent.Interceptor
 	}
 )
 
@@ -3207,6 +3349,7 @@ var (
 		ExternalIdentity:         tableSchemas[4],
 		ExternalLogin:            tableSchemas[4],
 		Invitation:               tableSchemas[4],
+		LogoutInteraction:        tableSchemas[2],
 		OAuthClient:              tableSchemas[2],
 		ProtocolSession:          tableSchemas[2],
 		RPLogin:                  tableSchemas[6],

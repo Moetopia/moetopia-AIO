@@ -25,11 +25,12 @@ var ErrInvalid = errors.New("invalid application configuration")
 var ErrQuota = errors.New("application quota reached")
 
 type Config struct {
-	Name         string   `json:"name" minLength:"1" maxLength:"80"`
-	Description  string   `json:"description" maxLength:"500"`
-	HomepageURL  string   `json:"homepage_url" maxLength:"2048"`
-	RedirectURIs []string `json:"redirect_uris" minItems:"1" maxItems:"10"`
-	Scopes       []string `json:"scopes" minItems:"1" maxItems:"4"`
+	Name                   string   `json:"name" minLength:"1" maxLength:"80"`
+	Description            string   `json:"description" maxLength:"500"`
+	HomepageURL            string   `json:"homepage_url" maxLength:"2048"`
+	RedirectURIs           []string `json:"redirect_uris" minItems:"1" maxItems:"10"`
+	PostLogoutRedirectURIs []string `json:"post_logout_redirect_uris" maxItems:"10" required:"false"`
+	Scopes                 []string `json:"scopes" minItems:"1" maxItems:"4"`
 }
 type Version struct {
 	Version      int    `json:"version"`
@@ -77,6 +78,19 @@ func (s *Service) validate(config Config) (Config, error) {
 		}
 		seen[value] = true
 	}
+	if config.PostLogoutRedirectURIs == nil {
+		config.PostLogoutRedirectURIs = []string{}
+	}
+	if len(config.PostLogoutRedirectURIs) > 10 {
+		return config, ErrInvalid
+	}
+	seen = map[string]bool{}
+	for _, value := range config.PostLogoutRedirectURIs {
+		if seen[value] || !s.validURL(value) {
+			return config, ErrInvalid
+		}
+		seen[value] = true
+	}
 	if config.HomepageURL != "" && !s.validURL(config.HomepageURL) {
 		return config, ErrInvalid
 	}
@@ -114,6 +128,9 @@ func publicVersion(row *ent.ApplicationVersion) (Version, error) {
 	var config Config
 	if err := json.Unmarshal(raw, &config); err != nil {
 		return Version{}, err
+	}
+	if config.PostLogoutRedirectURIs == nil {
+		config.PostLogoutRedirectURIs = []string{}
 	}
 	return Version{row.Version, config, string(row.Status), row.ReviewReason}, nil
 }
@@ -193,5 +210,5 @@ func (s *Service) begin(ctx context.Context, user identity.User, id string, revi
 	return ctx, tx, row, nil
 }
 func (s *Service) spec(row *ent.DeveloperApplication, config Config, testOnly bool) authorization.ManagedClient {
-	return authorization.ManagedClient{ID: row.ClientID, OwnerID: row.OwnerID, Name: config.Name, Public: row.Public, Enabled: row.Enabled && !row.Suspended, TestOnly: testOnly, RedirectURIs: config.RedirectURIs, Scopes: config.Scopes}
+	return authorization.ManagedClient{ID: row.ClientID, OwnerID: row.OwnerID, Name: config.Name, Public: row.Public, Enabled: row.Enabled && !row.Suspended, TestOnly: testOnly, RedirectURIs: config.RedirectURIs, PostLogoutRedirectURIs: config.PostLogoutRedirectURIs, Scopes: config.Scopes}
 }

@@ -16,6 +16,8 @@ const ClientID = "moetopia-user-site"
 const CallbackPath = "/api/v1/portal/callback"
 const AdminClientID = "moetopia-admin"
 const AdminCallbackPath = "/api/v1/admin/callback"
+const LogoutCallbackPath = "/api/v1/portal/logout/callback"
+const AdminLogoutCallbackPath = "/api/v1/admin/logout/callback"
 
 func clientSecret(encodedKey string) (string, error) {
 	return profileSecret(encodedKey, false)
@@ -85,7 +87,11 @@ func initializeProfile(ctx context.Context, db *ent.Client, issuer, origin, key 
 	if err != nil {
 		return err
 	}
-	_, err = db.OAuthClient.Create().SetID(id).SetName(name).SetPublic(false).SetEnabled(true).SetSecretHash(hash).SetRedirectUris([]string{origin + callback}).SetGrantTypes([]string{"authorization_code"}).SetResponseTypes([]string{"code"}).SetScopes([]string{"openid", "profile", "email"}).SetAudiences([]string{issuer + "/api"}).Save(ctx)
+	logoutCallback := LogoutCallbackPath
+	if admin {
+		logoutCallback = AdminLogoutCallbackPath
+	}
+	_, err = db.OAuthClient.Create().SetID(id).SetName(name).SetPublic(false).SetEnabled(true).SetSecretHash(hash).SetRedirectUris([]string{origin + callback}).SetPostLogoutRedirectUris([]string{origin + logoutCallback}).SetGrantTypes([]string{"authorization_code"}).SetResponseTypes([]string{"code"}).SetScopes([]string{"openid", "profile", "email"}).SetAudiences([]string{issuer + "/api"}).Save(ctx)
 	if ent.IsConstraintError(err) {
 		return checkProfile(ctx, db, issuer, origin, key, admin)
 	}

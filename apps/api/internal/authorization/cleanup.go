@@ -8,11 +8,15 @@ import (
 	"github.com/ory/fosite"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/signingkey"
 )
 
 func (p *Provider) Cleanup(ctx context.Context) error {
+	if _, err := p.store.client.LogoutInteraction.Delete().Where(logoutinteraction.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
+		return err
+	}
 	if _, err := p.store.client.SigningKey.Update().Where(signingkey.Active(false), signingkey.RetireAfterLTE(time.Now()), signingkey.PrivateKeyNEQ([]byte{})).SetPrivateKey([]byte{}).Save(ctx); err != nil {
 		return err
 	}

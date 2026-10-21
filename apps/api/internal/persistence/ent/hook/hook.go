@@ -177,6 +177,18 @@ func (f InvitationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InvitationMutation", m)
 }
 
+// The LogoutInteractionFunc type is an adapter to allow the use of ordinary
+// function as LogoutInteraction mutator.
+type LogoutInteractionFunc func(context.Context, *ent.LogoutInteractionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LogoutInteractionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.LogoutInteractionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.LogoutInteractionMutation", m)
+}
+
 // The OAuthClientFunc type is an adapter to allow the use of ordinary
 // function as OAuthClient mutator.
 type OAuthClientFunc func(context.Context, *ent.OAuthClientMutation) (ent.Value, error)

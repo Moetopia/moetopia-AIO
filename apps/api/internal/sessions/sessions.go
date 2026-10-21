@@ -173,6 +173,17 @@ func (s *Service) Revoke(ctx context.Context, userID, id string) error {
 	_, err := persistence.Client(ctx, s.db).WebSession.Delete().Where(websession.IDEQ(id), websession.UserIDEQ(userID), websession.ApplicationEQ(s.application)).Exec(ctx)
 	return err
 }
+
+func (s *Service) RevokeLive(ctx context.Context, userID, id string) error {
+	count, err := persistence.Client(ctx, s.db).WebSession.Delete().Where(websession.ID(id), websession.UserID(userID), websession.Application(s.application), websession.ExpiresAtGT(time.Now())).Exec(ctx)
+	if err != nil {
+		return err
+	}
+	if count != 1 {
+		return ErrMissing
+	}
+	return nil
+}
 func (s *Service) Cleanup(ctx context.Context) error {
 	_, err := s.db.WebSession.Delete().Where(websession.ExpiresAtLTE(time.Now())).Exec(ctx)
 	return err

@@ -26,6 +26,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/externalidentity"
 	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
+	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
@@ -107,6 +108,7 @@ func checkColumn(t, c string) error {
 			externalidentity.Table:         externalidentity.ValidColumn,
 			externallogin.Table:            externallogin.ValidColumn,
 			invitation.Table:               invitation.ValidColumn,
+			logoutinteraction.Table:        logoutinteraction.ValidColumn,
 			oauthclient.Table:              oauthclient.ValidColumn,
 			protocolsession.Table:          protocolsession.ValidColumn,
 			rplogin.Table:                  rplogin.ValidColumn,

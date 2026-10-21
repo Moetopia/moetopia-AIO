@@ -27,6 +27,8 @@ const (
 	FieldEnabled = "enabled"
 	// FieldRedirectUris holds the string denoting the redirect_uris field in the database.
 	FieldRedirectUris = "redirect_uris"
+	// FieldPostLogoutRedirectUris holds the string denoting the post_logout_redirect_uris field in the database.
+	FieldPostLogoutRedirectUris = "post_logout_redirect_uris"
 	// FieldGrantTypes holds the string denoting the grant_types field in the database.
 	FieldGrantTypes = "grant_types"
 	// FieldResponseTypes holds the string denoting the response_types field in the database.
@@ -51,6 +53,7 @@ var Columns = []string{
 	FieldPublic,
 	FieldEnabled,
 	FieldRedirectUris,
+	FieldPostLogoutRedirectUris,
 	FieldGrantTypes,
 	FieldResponseTypes,
 	FieldScopes,
@@ -81,6 +84,8 @@ var (
 	DefaultEnabled bool
 	// DefaultRedirectUris holds the default value on creation for the "redirect_uris" field.
 	DefaultRedirectUris []string
+	// DefaultPostLogoutRedirectUris holds the default value on creation for the "post_logout_redirect_uris" field.
+	DefaultPostLogoutRedirectUris []string
 	// DefaultGrantTypes holds the default value on creation for the "grant_types" field.
 	DefaultGrantTypes []string
 	// DefaultResponseTypes holds the default value on creation for the "response_types" field.

@@ -32,6 +32,8 @@ type OAuthClient struct {
 	Enabled bool `json:"enabled,omitempty"`
 	// RedirectUris holds the value of the "redirect_uris" field.
 	RedirectUris []string `json:"redirect_uris,omitempty"`
+	// PostLogoutRedirectUris holds the value of the "post_logout_redirect_uris" field.
+	PostLogoutRedirectUris []string `json:"post_logout_redirect_uris,omitempty"`
 	// GrantTypes holds the value of the "grant_types" field.
 	GrantTypes []string `json:"grant_types,omitempty"`
 	// ResponseTypes holds the value of the "response_types" field.
@@ -50,7 +52,7 @@ func (*OAuthClient) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case oauthclient.FieldSecretHash, oauthclient.FieldRedirectUris, oauthclient.FieldGrantTypes, oauthclient.FieldResponseTypes, oauthclient.FieldScopes, oauthclient.FieldAudiences:
+		case oauthclient.FieldSecretHash, oauthclient.FieldRedirectUris, oauthclient.FieldPostLogoutRedirectUris, oauthclient.FieldGrantTypes, oauthclient.FieldResponseTypes, oauthclient.FieldScopes, oauthclient.FieldAudiences:
 			values[i] = new([]byte)
 		case oauthclient.FieldTestOnly, oauthclient.FieldPublic, oauthclient.FieldEnabled:
 			values[i] = new(sql.NullBool)
@@ -121,6 +123,14 @@ func (_m *OAuthClient) assignValues(columns []string, values []any) error {
 			} else if value != nil && len(*value) > 0 {
 				if err := json.Unmarshal(*value, &_m.RedirectUris); err != nil {
 					return fmt.Errorf("unmarshal field redirect_uris: %w", err)
+				}
+			}
+		case oauthclient.FieldPostLogoutRedirectUris:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field post_logout_redirect_uris", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.PostLogoutRedirectUris); err != nil {
+					return fmt.Errorf("unmarshal field post_logout_redirect_uris: %w", err)
 				}
 			}
 		case oauthclient.FieldGrantTypes:
@@ -216,6 +226,9 @@ func (_m *OAuthClient) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("redirect_uris=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RedirectUris))
+	builder.WriteString(", ")
+	builder.WriteString("post_logout_redirect_uris=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PostLogoutRedirectUris))
 	builder.WriteString(", ")
 	builder.WriteString("grant_types=")
 	builder.WriteString(fmt.Sprintf("%v", _m.GrantTypes))

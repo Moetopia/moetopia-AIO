@@ -22,6 +22,7 @@ func (OAuthClient) Fields() []ent.Field {
 		field.Bool("public").Default(false),
 		field.Bool("enabled").Default(false),
 		field.Strings("redirect_uris").Default([]string{}),
+		field.Strings("post_logout_redirect_uris").Default([]string{}),
 		field.Strings("grant_types").Default([]string{}),
 		field.Strings("response_types").Default([]string{}),
 		field.Strings("scopes").Default([]string{}),

@@ -40,6 +40,8 @@ type Tx struct {
 	ExternalLogin *ExternalLoginClient
 	// Invitation is the client for interacting with the Invitation builders.
 	Invitation *InvitationClient
+	// LogoutInteraction is the client for interacting with the LogoutInteraction builders.
+	LogoutInteraction *LogoutInteractionClient
 	// OAuthClient is the client for interacting with the OAuthClient builders.
 	OAuthClient *OAuthClientClient
 	// ProtocolSession is the client for interacting with the ProtocolSession builders.
@@ -199,6 +201,7 @@ func (tx *Tx) init() {
 	tx.ExternalIdentity = NewExternalIdentityClient(tx.config)
 	tx.ExternalLogin = NewExternalLoginClient(tx.config)
 	tx.Invitation = NewInvitationClient(tx.config)
+	tx.LogoutInteraction = NewLogoutInteractionClient(tx.config)
 	tx.OAuthClient = NewOAuthClientClient(tx.config)
 	tx.ProtocolSession = NewProtocolSessionClient(tx.config)
 	tx.RPLogin = NewRPLoginClient(tx.config)

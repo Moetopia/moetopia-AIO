@@ -21,6 +21,7 @@ type SchemaConfig struct {
 	ExternalIdentity         string // ExternalIdentity table.
 	ExternalLogin            string // ExternalLogin table.
 	Invitation               string // Invitation table.
+	LogoutInteraction        string // LogoutInteraction table.
 	OAuthClient              string // OAuthClient table.
 	ProtocolSession          string // ProtocolSession table.
 	RPLogin                  string // RPLogin table.

@@ -123,6 +123,18 @@ func (_u *OAuthClientUpdate) AppendRedirectUris(v []string) *OAuthClientUpdate {
 	return _u
 }
 
+// SetPostLogoutRedirectUris sets the "post_logout_redirect_uris" field.
+func (_u *OAuthClientUpdate) SetPostLogoutRedirectUris(v []string) *OAuthClientUpdate {
+	_u.mutation.SetPostLogoutRedirectUris(v)
+	return _u
+}
+
+// AppendPostLogoutRedirectUris appends value to the "post_logout_redirect_uris" field.
+func (_u *OAuthClientUpdate) AppendPostLogoutRedirectUris(v []string) *OAuthClientUpdate {
+	_u.mutation.AppendPostLogoutRedirectUris(v)
+	return _u
+}
+
 // SetGrantTypes sets the "grant_types" field.
 func (_u *OAuthClientUpdate) SetGrantTypes(v []string) *OAuthClientUpdate {
 	_u.mutation.SetGrantTypes(v)
@@ -252,6 +264,14 @@ func (_u *OAuthClientUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.AppendedRedirectUris(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, oauthclient.FieldRedirectUris, value)
+		})
+	}
+	if value, ok := _u.mutation.PostLogoutRedirectUris(); ok {
+		_spec.SetField(oauthclient.FieldPostLogoutRedirectUris, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPostLogoutRedirectUris(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, oauthclient.FieldPostLogoutRedirectUris, value)
 		})
 	}
 	if value, ok := _u.mutation.GrantTypes(); ok {
@@ -399,6 +419,18 @@ func (_u *OAuthClientUpdateOne) SetRedirectUris(v []string) *OAuthClientUpdateOn
 // AppendRedirectUris appends value to the "redirect_uris" field.
 func (_u *OAuthClientUpdateOne) AppendRedirectUris(v []string) *OAuthClientUpdateOne {
 	_u.mutation.AppendRedirectUris(v)
+	return _u
+}
+
+// SetPostLogoutRedirectUris sets the "post_logout_redirect_uris" field.
+func (_u *OAuthClientUpdateOne) SetPostLogoutRedirectUris(v []string) *OAuthClientUpdateOne {
+	_u.mutation.SetPostLogoutRedirectUris(v)
+	return _u
+}
+
+// AppendPostLogoutRedirectUris appends value to the "post_logout_redirect_uris" field.
+func (_u *OAuthClientUpdateOne) AppendPostLogoutRedirectUris(v []string) *OAuthClientUpdateOne {
+	_u.mutation.AppendPostLogoutRedirectUris(v)
 	return _u
 }
 
@@ -561,6 +593,14 @@ func (_u *OAuthClientUpdateOne) sqlSave(ctx context.Context) (_node *OAuthClient
 	if value, ok := _u.mutation.AppendedRedirectUris(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, oauthclient.FieldRedirectUris, value)
+		})
+	}
+	if value, ok := _u.mutation.PostLogoutRedirectUris(); ok {
+		_spec.SetField(oauthclient.FieldPostLogoutRedirectUris, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedPostLogoutRedirectUris(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, oauthclient.FieldPostLogoutRedirectUris, value)
 		})
 	}
 	if value, ok := _u.mutation.GrantTypes(); ok {

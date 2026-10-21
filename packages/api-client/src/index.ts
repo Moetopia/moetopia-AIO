@@ -47,3 +47,7 @@ export type FederationRegistration = paths['/api/v1/account/federation/registrat
 export type FederationRegistrationRequest = paths['/api/v1/account/federation/registration']['post']['requestBody']['content']['application/json']
 export type ExternalIdentities = paths['/api/v1/portal/identities']['get']['responses'][200]['content']['application/json']
 export type ExternalIdentityRequest = paths['/api/v1/portal/identities/{provider}']['post']['requestBody']['content']['application/json']
+export type LogoutDetails = paths['/api/v1/account/logout-requests/{id}']['get']['responses'][200]['content']['application/json']
+export type LogoutDecisionRequest = paths['/api/v1/account/logout-requests/{id}']['post']['requestBody']['content']['application/json']
+export type LogoutDecisionResponse = paths['/api/v1/account/logout-requests/{id}']['post']['responses'][200]['content']['application/json']
+export type CentralLogoutResponse = paths['/api/v1/portal/central-logout']['post']['responses'][200]['content']['application/json']

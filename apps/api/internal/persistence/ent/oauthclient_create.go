@@ -94,6 +94,12 @@ func (_c *OAuthClientCreate) SetRedirectUris(v []string) *OAuthClientCreate {
 	return _c
 }
 
+// SetPostLogoutRedirectUris sets the "post_logout_redirect_uris" field.
+func (_c *OAuthClientCreate) SetPostLogoutRedirectUris(v []string) *OAuthClientCreate {
+	_c.mutation.SetPostLogoutRedirectUris(v)
+	return _c
+}
+
 // SetGrantTypes sets the "grant_types" field.
 func (_c *OAuthClientCreate) SetGrantTypes(v []string) *OAuthClientCreate {
 	_c.mutation.SetGrantTypes(v)
@@ -193,6 +199,10 @@ func (_c *OAuthClientCreate) defaults() {
 		v := oauthclient.DefaultRedirectUris
 		_c.mutation.SetRedirectUris(v)
 	}
+	if _, ok := _c.mutation.PostLogoutRedirectUris(); !ok {
+		v := oauthclient.DefaultPostLogoutRedirectUris
+		_c.mutation.SetPostLogoutRedirectUris(v)
+	}
 	if _, ok := _c.mutation.GrantTypes(); !ok {
 		v := oauthclient.DefaultGrantTypes
 		_c.mutation.SetGrantTypes(v)
@@ -239,6 +249,9 @@ func (_c *OAuthClientCreate) check() error {
 	}
 	if _, ok := _c.mutation.RedirectUris(); !ok {
 		return &ValidationError{Name: "redirect_uris", err: errors.New(`ent: missing required field "OAuthClient.redirect_uris"`)}
+	}
+	if _, ok := _c.mutation.PostLogoutRedirectUris(); !ok {
+		return &ValidationError{Name: "post_logout_redirect_uris", err: errors.New(`ent: missing required field "OAuthClient.post_logout_redirect_uris"`)}
 	}
 	if _, ok := _c.mutation.GrantTypes(); !ok {
 		return &ValidationError{Name: "grant_types", err: errors.New(`ent: missing required field "OAuthClient.grant_types"`)}
@@ -323,6 +336,10 @@ func (_c *OAuthClientCreate) createSpec() (*OAuthClient, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.RedirectUris(); ok {
 		_spec.SetField(oauthclient.FieldRedirectUris, field.TypeJSON, value)
 		_node.RedirectUris = value
+	}
+	if value, ok := _c.mutation.PostLogoutRedirectUris(); ok {
+		_spec.SetField(oauthclient.FieldPostLogoutRedirectUris, field.TypeJSON, value)
+		_node.PostLogoutRedirectUris = value
 	}
 	if value, ok := _c.mutation.GrantTypes(); ok {
 		_spec.SetField(oauthclient.FieldGrantTypes, field.TypeJSON, value)

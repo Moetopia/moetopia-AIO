@@ -155,6 +155,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/account/logout-requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 account logout requests by ID */
+        get: operations["get-api-v1-account-logout-requests-by-id"];
+        put?: never;
+        /** Post API v1 account logout requests by ID */
+        post: operations["post-api-v1-account-logout-requests-by-id"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/account/password-resets": {
         parameters: {
             query?: never;
@@ -353,6 +371,23 @@ export interface paths {
         get: operations["get-api-v1-admin-audit-events"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/central-logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin central logout */
+        post: operations["post-api-v1-admin-central-logout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -765,6 +800,23 @@ export interface paths {
         /** Put API v1 portal avatar */
         put: operations["put-api-v1-portal-avatar"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/central-logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 portal central logout */
+        post: operations["post-api-v1-portal-central-logout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1326,6 +1378,7 @@ export interface components {
             description: string;
             homepage_url: string;
             name: string;
+            post_logout_redirect_uris?: string[] | null;
             redirect_uris: string[] | null;
             scopes: string[] | null;
         };
@@ -1510,6 +1563,32 @@ export interface components {
             email: string;
             password: string;
         };
+        LogoutDecisionInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/LogoutDecisionInputBody.json
+             */
+            readonly $schema?: string;
+            /** @enum {string} */
+            decision: "approve" | "deny";
+            subject_id: string;
+        };
+        LogoutDetailsOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/LogoutDetailsOutputBody.json
+             */
+            readonly $schema?: string;
+            client_id: string;
+            client_name: string;
+            /** Format: date-time */
+            expires_at: string;
+            post_logout_redirect_uri: string;
+            requires_confirmation: boolean;
+            user?: components["schemas"]["User"];
+        };
         ManagedInvitation: {
             consumed: boolean;
             /** Format: date-time */
@@ -1607,6 +1686,15 @@ export interface components {
             display_name: string;
             /** Format: int64 */
             revision: number;
+        };
+        RPLogoutOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/RPLogoutOutputBody.json
+             */
+            readonly $schema?: string;
+            redirect_to: string;
         };
         RegisterInputBody: {
             /**
@@ -2174,6 +2262,78 @@ export interface operations {
             };
         };
     };
+    "get-api-v1-account-logout-requests-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LogoutDetailsOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-account-logout-requests-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogoutDecisionInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthorizationDecisionOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
     "post-api-v1-account-password-resets": {
         parameters: {
             query?: never;
@@ -2582,6 +2742,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminEvents"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-central-logout": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RPLogoutOutputBody"];
                 };
             };
             /** @description Error */
@@ -3578,6 +3772,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-portal-central-logout": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RPLogoutOutputBody"];
                 };
             };
             /** @description Error */

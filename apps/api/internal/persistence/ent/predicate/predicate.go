@@ -48,6 +48,9 @@ type ExternalLogin func(*sql.Selector)
 // Invitation is the predicate function for invitation builders.
 type Invitation func(*sql.Selector)
 
+// LogoutInteraction is the predicate function for logoutinteraction builders.
+type LogoutInteraction func(*sql.Selector)
+
 // OAuthClient is the predicate function for oauthclient builders.
 type OAuthClient func(*sql.Selector)
 

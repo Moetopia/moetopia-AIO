@@ -25,6 +25,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/externalidentity"
 	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
+	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/predicate"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
@@ -58,6 +59,7 @@ const (
 	TypeExternalIdentity         = "ExternalIdentity"
 	TypeExternalLogin            = "ExternalLogin"
 	TypeInvitation               = "Invitation"
+	TypeLogoutInteraction        = "LogoutInteraction"
 	TypeOAuthClient              = "OAuthClient"
 	TypeProtocolSession          = "ProtocolSession"
 	TypeRPLogin                  = "RPLogin"
@@ -9908,33 +9910,583 @@ func (m *InvitationMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Invitation edge %s", name)
 }
 
+// LogoutInteractionMutation represents an operation that mutates the LogoutInteraction nodes in the graph.
+type LogoutInteractionMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	client_id     *string
+	browser_hash  *string
+	payload       *[]byte
+	consumed      *bool
+	expires_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*LogoutInteraction, error)
+	predicates    []predicate.LogoutInteraction
+}
+
+var _ ent.Mutation = (*LogoutInteractionMutation)(nil)
+
+// logoutinteractionOption allows management of the mutation configuration using functional options.
+type logoutinteractionOption func(*LogoutInteractionMutation)
+
+// newLogoutInteractionMutation creates new mutation for the LogoutInteraction entity.
+func newLogoutInteractionMutation(c config, op Op, opts ...logoutinteractionOption) *LogoutInteractionMutation {
+	m := &LogoutInteractionMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeLogoutInteraction,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withLogoutInteractionID sets the ID field of the mutation.
+func withLogoutInteractionID(id string) logoutinteractionOption {
+	return func(m *LogoutInteractionMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *LogoutInteraction
+		)
+		m.oldValue = func(ctx context.Context) (*LogoutInteraction, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().LogoutInteraction.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withLogoutInteraction sets the old LogoutInteraction of the mutation.
+func withLogoutInteraction(node *LogoutInteraction) logoutinteractionOption {
+	return func(m *LogoutInteractionMutation) {
+		m.oldValue = func(context.Context) (*LogoutInteraction, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m LogoutInteractionMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m LogoutInteractionMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of LogoutInteraction entities.
+func (m *LogoutInteractionMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *LogoutInteractionMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *LogoutInteractionMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().LogoutInteraction.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetClientID sets the "client_id" field.
+func (m *LogoutInteractionMutation) SetClientID(s string) {
+	m.client_id = &s
+}
+
+// ClientID returns the value of the "client_id" field in the mutation.
+func (m *LogoutInteractionMutation) ClientID() (r string, exists bool) {
+	v := m.client_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientID returns the old "client_id" field's value of the LogoutInteraction entity.
+// If the LogoutInteraction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LogoutInteractionMutation) OldClientID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientID: %w", err)
+	}
+	return oldValue.ClientID, nil
+}
+
+// ResetClientID resets all changes to the "client_id" field.
+func (m *LogoutInteractionMutation) ResetClientID() {
+	m.client_id = nil
+}
+
+// SetBrowserHash sets the "browser_hash" field.
+func (m *LogoutInteractionMutation) SetBrowserHash(s string) {
+	m.browser_hash = &s
+}
+
+// BrowserHash returns the value of the "browser_hash" field in the mutation.
+func (m *LogoutInteractionMutation) BrowserHash() (r string, exists bool) {
+	v := m.browser_hash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBrowserHash returns the old "browser_hash" field's value of the LogoutInteraction entity.
+// If the LogoutInteraction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LogoutInteractionMutation) OldBrowserHash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBrowserHash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBrowserHash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBrowserHash: %w", err)
+	}
+	return oldValue.BrowserHash, nil
+}
+
+// ResetBrowserHash resets all changes to the "browser_hash" field.
+func (m *LogoutInteractionMutation) ResetBrowserHash() {
+	m.browser_hash = nil
+}
+
+// SetPayload sets the "payload" field.
+func (m *LogoutInteractionMutation) SetPayload(b []byte) {
+	m.payload = &b
+}
+
+// Payload returns the value of the "payload" field in the mutation.
+func (m *LogoutInteractionMutation) Payload() (r []byte, exists bool) {
+	v := m.payload
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPayload returns the old "payload" field's value of the LogoutInteraction entity.
+// If the LogoutInteraction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LogoutInteractionMutation) OldPayload(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPayload is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPayload requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPayload: %w", err)
+	}
+	return oldValue.Payload, nil
+}
+
+// ResetPayload resets all changes to the "payload" field.
+func (m *LogoutInteractionMutation) ResetPayload() {
+	m.payload = nil
+}
+
+// SetConsumed sets the "consumed" field.
+func (m *LogoutInteractionMutation) SetConsumed(b bool) {
+	m.consumed = &b
+}
+
+// Consumed returns the value of the "consumed" field in the mutation.
+func (m *LogoutInteractionMutation) Consumed() (r bool, exists bool) {
+	v := m.consumed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConsumed returns the old "consumed" field's value of the LogoutInteraction entity.
+// If the LogoutInteraction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LogoutInteractionMutation) OldConsumed(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConsumed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConsumed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConsumed: %w", err)
+	}
+	return oldValue.Consumed, nil
+}
+
+// ResetConsumed resets all changes to the "consumed" field.
+func (m *LogoutInteractionMutation) ResetConsumed() {
+	m.consumed = nil
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (m *LogoutInteractionMutation) SetExpiresAt(t time.Time) {
+	m.expires_at = &t
+}
+
+// ExpiresAt returns the value of the "expires_at" field in the mutation.
+func (m *LogoutInteractionMutation) ExpiresAt() (r time.Time, exists bool) {
+	v := m.expires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpiresAt returns the old "expires_at" field's value of the LogoutInteraction entity.
+// If the LogoutInteraction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LogoutInteractionMutation) OldExpiresAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
+	}
+	return oldValue.ExpiresAt, nil
+}
+
+// ResetExpiresAt resets all changes to the "expires_at" field.
+func (m *LogoutInteractionMutation) ResetExpiresAt() {
+	m.expires_at = nil
+}
+
+// Where appends a list predicates to the LogoutInteractionMutation builder.
+func (m *LogoutInteractionMutation) Where(ps ...predicate.LogoutInteraction) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the LogoutInteractionMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *LogoutInteractionMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.LogoutInteraction, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *LogoutInteractionMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *LogoutInteractionMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (LogoutInteraction).
+func (m *LogoutInteractionMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *LogoutInteractionMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.client_id != nil {
+		fields = append(fields, logoutinteraction.FieldClientID)
+	}
+	if m.browser_hash != nil {
+		fields = append(fields, logoutinteraction.FieldBrowserHash)
+	}
+	if m.payload != nil {
+		fields = append(fields, logoutinteraction.FieldPayload)
+	}
+	if m.consumed != nil {
+		fields = append(fields, logoutinteraction.FieldConsumed)
+	}
+	if m.expires_at != nil {
+		fields = append(fields, logoutinteraction.FieldExpiresAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *LogoutInteractionMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case logoutinteraction.FieldClientID:
+		return m.ClientID()
+	case logoutinteraction.FieldBrowserHash:
+		return m.BrowserHash()
+	case logoutinteraction.FieldPayload:
+		return m.Payload()
+	case logoutinteraction.FieldConsumed:
+		return m.Consumed()
+	case logoutinteraction.FieldExpiresAt:
+		return m.ExpiresAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *LogoutInteractionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case logoutinteraction.FieldClientID:
+		return m.OldClientID(ctx)
+	case logoutinteraction.FieldBrowserHash:
+		return m.OldBrowserHash(ctx)
+	case logoutinteraction.FieldPayload:
+		return m.OldPayload(ctx)
+	case logoutinteraction.FieldConsumed:
+		return m.OldConsumed(ctx)
+	case logoutinteraction.FieldExpiresAt:
+		return m.OldExpiresAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown LogoutInteraction field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LogoutInteractionMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case logoutinteraction.FieldClientID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientID(v)
+		return nil
+	case logoutinteraction.FieldBrowserHash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBrowserHash(v)
+		return nil
+	case logoutinteraction.FieldPayload:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPayload(v)
+		return nil
+	case logoutinteraction.FieldConsumed:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConsumed(v)
+		return nil
+	case logoutinteraction.FieldExpiresAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpiresAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown LogoutInteraction field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *LogoutInteractionMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *LogoutInteractionMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LogoutInteractionMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown LogoutInteraction numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *LogoutInteractionMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *LogoutInteractionMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *LogoutInteractionMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown LogoutInteraction nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *LogoutInteractionMutation) ResetField(name string) error {
+	switch name {
+	case logoutinteraction.FieldClientID:
+		m.ResetClientID()
+		return nil
+	case logoutinteraction.FieldBrowserHash:
+		m.ResetBrowserHash()
+		return nil
+	case logoutinteraction.FieldPayload:
+		m.ResetPayload()
+		return nil
+	case logoutinteraction.FieldConsumed:
+		m.ResetConsumed()
+		return nil
+	case logoutinteraction.FieldExpiresAt:
+		m.ResetExpiresAt()
+		return nil
+	}
+	return fmt.Errorf("unknown LogoutInteraction field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *LogoutInteractionMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *LogoutInteractionMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *LogoutInteractionMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *LogoutInteractionMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *LogoutInteractionMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *LogoutInteractionMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *LogoutInteractionMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown LogoutInteraction unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *LogoutInteractionMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown LogoutInteraction edge %s", name)
+}
+
 // OAuthClientMutation represents an operation that mutates the OAuthClient nodes in the graph.
 type OAuthClientMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *string
-	secret_hash          *[]byte
-	name                 *string
-	owner_id             *string
-	test_only            *bool
-	public               *bool
-	enabled              *bool
-	redirect_uris        *[]string
-	appendredirect_uris  []string
-	grant_types          *[]string
-	appendgrant_types    []string
-	response_types       *[]string
-	appendresponse_types []string
-	scopes               *[]string
-	appendscopes         []string
-	audiences            *[]string
-	appendaudiences      []string
-	created_at           *time.Time
-	clearedFields        map[string]struct{}
-	done                 bool
-	oldValue             func(context.Context) (*OAuthClient, error)
-	predicates           []predicate.OAuthClient
+	op                              Op
+	typ                             string
+	id                              *string
+	secret_hash                     *[]byte
+	name                            *string
+	owner_id                        *string
+	test_only                       *bool
+	public                          *bool
+	enabled                         *bool
+	redirect_uris                   *[]string
+	appendredirect_uris             []string
+	post_logout_redirect_uris       *[]string
+	appendpost_logout_redirect_uris []string
+	grant_types                     *[]string
+	appendgrant_types               []string
+	response_types                  *[]string
+	appendresponse_types            []string
+	scopes                          *[]string
+	appendscopes                    []string
+	audiences                       *[]string
+	appendaudiences                 []string
+	created_at                      *time.Time
+	clearedFields                   map[string]struct{}
+	done                            bool
+	oldValue                        func(context.Context) (*OAuthClient, error)
+	predicates                      []predicate.OAuthClient
 }
 
 var _ ent.Mutation = (*OAuthClientMutation)(nil)
@@ -10321,6 +10873,57 @@ func (m *OAuthClientMutation) ResetRedirectUris() {
 	m.appendredirect_uris = nil
 }
 
+// SetPostLogoutRedirectUris sets the "post_logout_redirect_uris" field.
+func (m *OAuthClientMutation) SetPostLogoutRedirectUris(s []string) {
+	m.post_logout_redirect_uris = &s
+	m.appendpost_logout_redirect_uris = nil
+}
+
+// PostLogoutRedirectUris returns the value of the "post_logout_redirect_uris" field in the mutation.
+func (m *OAuthClientMutation) PostLogoutRedirectUris() (r []string, exists bool) {
+	v := m.post_logout_redirect_uris
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPostLogoutRedirectUris returns the old "post_logout_redirect_uris" field's value of the OAuthClient entity.
+// If the OAuthClient object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthClientMutation) OldPostLogoutRedirectUris(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPostLogoutRedirectUris is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPostLogoutRedirectUris requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPostLogoutRedirectUris: %w", err)
+	}
+	return oldValue.PostLogoutRedirectUris, nil
+}
+
+// AppendPostLogoutRedirectUris adds s to the "post_logout_redirect_uris" field.
+func (m *OAuthClientMutation) AppendPostLogoutRedirectUris(s []string) {
+	m.appendpost_logout_redirect_uris = append(m.appendpost_logout_redirect_uris, s...)
+}
+
+// AppendedPostLogoutRedirectUris returns the list of values that were appended to the "post_logout_redirect_uris" field in this mutation.
+func (m *OAuthClientMutation) AppendedPostLogoutRedirectUris() ([]string, bool) {
+	if len(m.appendpost_logout_redirect_uris) == 0 {
+		return nil, false
+	}
+	return m.appendpost_logout_redirect_uris, true
+}
+
+// ResetPostLogoutRedirectUris resets all changes to the "post_logout_redirect_uris" field.
+func (m *OAuthClientMutation) ResetPostLogoutRedirectUris() {
+	m.post_logout_redirect_uris = nil
+	m.appendpost_logout_redirect_uris = nil
+}
+
 // SetGrantTypes sets the "grant_types" field.
 func (m *OAuthClientMutation) SetGrantTypes(s []string) {
 	m.grant_types = &s
@@ -10595,7 +11198,7 @@ func (m *OAuthClientMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OAuthClientMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.secret_hash != nil {
 		fields = append(fields, oauthclient.FieldSecretHash)
 	}
@@ -10616,6 +11219,9 @@ func (m *OAuthClientMutation) Fields() []string {
 	}
 	if m.redirect_uris != nil {
 		fields = append(fields, oauthclient.FieldRedirectUris)
+	}
+	if m.post_logout_redirect_uris != nil {
+		fields = append(fields, oauthclient.FieldPostLogoutRedirectUris)
 	}
 	if m.grant_types != nil {
 		fields = append(fields, oauthclient.FieldGrantTypes)
@@ -10654,6 +11260,8 @@ func (m *OAuthClientMutation) Field(name string) (ent.Value, bool) {
 		return m.Enabled()
 	case oauthclient.FieldRedirectUris:
 		return m.RedirectUris()
+	case oauthclient.FieldPostLogoutRedirectUris:
+		return m.PostLogoutRedirectUris()
 	case oauthclient.FieldGrantTypes:
 		return m.GrantTypes()
 	case oauthclient.FieldResponseTypes:
@@ -10687,6 +11295,8 @@ func (m *OAuthClientMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldEnabled(ctx)
 	case oauthclient.FieldRedirectUris:
 		return m.OldRedirectUris(ctx)
+	case oauthclient.FieldPostLogoutRedirectUris:
+		return m.OldPostLogoutRedirectUris(ctx)
 	case oauthclient.FieldGrantTypes:
 		return m.OldGrantTypes(ctx)
 	case oauthclient.FieldResponseTypes:
@@ -10754,6 +11364,13 @@ func (m *OAuthClientMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRedirectUris(v)
+		return nil
+	case oauthclient.FieldPostLogoutRedirectUris:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPostLogoutRedirectUris(v)
 		return nil
 	case oauthclient.FieldGrantTypes:
 		v, ok := value.([]string)
@@ -10868,6 +11485,9 @@ func (m *OAuthClientMutation) ResetField(name string) error {
 		return nil
 	case oauthclient.FieldRedirectUris:
 		m.ResetRedirectUris()
+		return nil
+	case oauthclient.FieldPostLogoutRedirectUris:
+		m.ResetPostLogoutRedirectUris()
 		return nil
 	case oauthclient.FieldGrantTypes:
 		m.ResetGrantTypes()

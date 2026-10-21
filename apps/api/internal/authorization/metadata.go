@@ -13,6 +13,7 @@ func (p *Provider) Metadata() any {
 	return map[string]any{
 		"issuer": p.issuer, "authorization_endpoint": p.issuer + "/oauth/authorize",
 		"token_endpoint": p.issuer + "/oauth/token", "userinfo_endpoint": p.issuer + "/oauth/userinfo", "jwks_uri": p.issuer + "/oauth/jwks",
+		"end_session_endpoint":     p.issuer + "/oauth/logout",
 		"response_types_supported": []string{"code"}, "response_modes_supported": []string{"query"},
 		"grant_types_supported":                         []string{"authorization_code", "client_credentials", "refresh_token"},
 		"revocation_endpoint":                           p.issuer + "/oauth/revoke",

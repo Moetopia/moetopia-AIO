@@ -18,6 +18,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/externalidentity"
 	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
+	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
@@ -254,6 +255,12 @@ func init() {
 	invitationDescCreatedAt := invitationFields[4].Descriptor()
 	// invitation.DefaultCreatedAt holds the default value on creation for the created_at field.
 	invitation.DefaultCreatedAt = invitationDescCreatedAt.Default.(func() time.Time)
+	logoutinteractionFields := schema.LogoutInteraction{}.Fields()
+	_ = logoutinteractionFields
+	// logoutinteractionDescConsumed is the schema descriptor for consumed field.
+	logoutinteractionDescConsumed := logoutinteractionFields[4].Descriptor()
+	// logoutinteraction.DefaultConsumed holds the default value on creation for the consumed field.
+	logoutinteraction.DefaultConsumed = logoutinteractionDescConsumed.Default.(bool)
 	oauthclientFields := schema.OAuthClient{}.Fields()
 	_ = oauthclientFields
 	// oauthclientDescName is the schema descriptor for name field.
@@ -280,24 +287,28 @@ func init() {
 	oauthclientDescRedirectUris := oauthclientFields[7].Descriptor()
 	// oauthclient.DefaultRedirectUris holds the default value on creation for the redirect_uris field.
 	oauthclient.DefaultRedirectUris = oauthclientDescRedirectUris.Default.([]string)
+	// oauthclientDescPostLogoutRedirectUris is the schema descriptor for post_logout_redirect_uris field.
+	oauthclientDescPostLogoutRedirectUris := oauthclientFields[8].Descriptor()
+	// oauthclient.DefaultPostLogoutRedirectUris holds the default value on creation for the post_logout_redirect_uris field.
+	oauthclient.DefaultPostLogoutRedirectUris = oauthclientDescPostLogoutRedirectUris.Default.([]string)
 	// oauthclientDescGrantTypes is the schema descriptor for grant_types field.
-	oauthclientDescGrantTypes := oauthclientFields[8].Descriptor()
+	oauthclientDescGrantTypes := oauthclientFields[9].Descriptor()
 	// oauthclient.DefaultGrantTypes holds the default value on creation for the grant_types field.
 	oauthclient.DefaultGrantTypes = oauthclientDescGrantTypes.Default.([]string)
 	// oauthclientDescResponseTypes is the schema descriptor for response_types field.
-	oauthclientDescResponseTypes := oauthclientFields[9].Descriptor()
+	oauthclientDescResponseTypes := oauthclientFields[10].Descriptor()
 	// oauthclient.DefaultResponseTypes holds the default value on creation for the response_types field.
 	oauthclient.DefaultResponseTypes = oauthclientDescResponseTypes.Default.([]string)
 	// oauthclientDescScopes is the schema descriptor for scopes field.
-	oauthclientDescScopes := oauthclientFields[10].Descriptor()
+	oauthclientDescScopes := oauthclientFields[11].Descriptor()
 	// oauthclient.DefaultScopes holds the default value on creation for the scopes field.
 	oauthclient.DefaultScopes = oauthclientDescScopes.Default.([]string)
 	// oauthclientDescAudiences is the schema descriptor for audiences field.
-	oauthclientDescAudiences := oauthclientFields[11].Descriptor()
+	oauthclientDescAudiences := oauthclientFields[12].Descriptor()
 	// oauthclient.DefaultAudiences holds the default value on creation for the audiences field.
 	oauthclient.DefaultAudiences = oauthclientDescAudiences.Default.([]string)
 	// oauthclientDescCreatedAt is the schema descriptor for created_at field.
-	oauthclientDescCreatedAt := oauthclientFields[12].Descriptor()
+	oauthclientDescCreatedAt := oauthclientFields[13].Descriptor()
 	// oauthclient.DefaultCreatedAt holds the default value on creation for the created_at field.
 	oauthclient.DefaultCreatedAt = oauthclientDescCreatedAt.Default.(func() time.Time)
 	// oauthclientDescID is the schema descriptor for id field.

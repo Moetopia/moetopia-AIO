@@ -14,6 +14,7 @@ import (
 	"golang.org/x/oauth2"
 	"moetopia.local/aio/api/internal/cryptobox"
 	"moetopia.local/aio/api/internal/identity"
+	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/persistence/ent"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
 	"moetopia.local/aio/api/internal/sessions"
@@ -119,7 +120,7 @@ func (s *Service) Cleanup(ctx context.Context) error {
 	return err
 }
 func (s *Service) currentClient(ctx context.Context) error {
-	row, err := s.db.OAuthClient.Get(ctx, s.clientID)
+	row, err := persistence.Client(ctx, s.db).OAuthClient.Get(ctx, s.clientID)
 	if err != nil {
 		return err
 	}

@@ -19,6 +19,7 @@ type ManagedClient struct {
 	ID, OwnerID, Name         string
 	Public, Enabled, TestOnly bool
 	RedirectURIs, Scopes      []string
+	PostLogoutRedirectURIs    []string
 }
 
 func NewClientSecret() (string, []byte, error) {
@@ -31,6 +32,9 @@ func NewClientSecret() (string, []byte, error) {
 	return secret, hash, err
 }
 func (p *Provider) InstallManagedClient(ctx context.Context, spec ManagedClient, hash []byte) error {
+	if spec.PostLogoutRedirectURIs == nil {
+		spec.PostLogoutRedirectURIs = []string{}
+	}
 	if !strings.HasPrefix(spec.ID, "mt_app_") || spec.OwnerID == "" || spec.Name == "" || len(spec.RedirectURIs) == 0 {
 		return errors.New("invalid managed client")
 	}
@@ -46,7 +50,7 @@ func (p *Provider) InstallManagedClient(ctx context.Context, spec ManagedClient,
 		if !spec.Public && len(hash) == 0 {
 			return errors.New("confidential client credentials required")
 		}
-		return db.OAuthClient.Create().SetID(spec.ID).SetOwnerID(spec.OwnerID).SetName(spec.Name).SetPublic(spec.Public).SetEnabled(spec.Enabled).SetTestOnly(spec.TestOnly).SetRedirectUris(spec.RedirectURIs).SetGrantTypes(grants).SetResponseTypes([]string{"code"}).SetScopes(spec.Scopes).SetAudiences([]string{p.issuer + "/api"}).SetSecretHash(hash).Exec(ctx)
+		return db.OAuthClient.Create().SetID(spec.ID).SetOwnerID(spec.OwnerID).SetName(spec.Name).SetPublic(spec.Public).SetEnabled(spec.Enabled).SetTestOnly(spec.TestOnly).SetRedirectUris(spec.RedirectURIs).SetPostLogoutRedirectUris(spec.PostLogoutRedirectURIs).SetGrantTypes(grants).SetResponseTypes([]string{"code"}).SetScopes(spec.Scopes).SetAudiences([]string{p.issuer + "/api"}).SetSecretHash(hash).Exec(ctx)
 	}
 	if err != nil {
 		return err
@@ -54,7 +58,7 @@ func (p *Provider) InstallManagedClient(ctx context.Context, spec ManagedClient,
 	if row.OwnerID != spec.OwnerID || row.OwnerID == "" || row.Public != spec.Public || len(hash) > 0 {
 		return errors.New("managed client ownership mismatch")
 	}
-	return db.OAuthClient.UpdateOneID(spec.ID).SetName(spec.Name).SetEnabled(spec.Enabled).SetTestOnly(spec.TestOnly).SetRedirectUris(spec.RedirectURIs).SetGrantTypes(grants).SetResponseTypes([]string{"code"}).SetScopes(spec.Scopes).SetAudiences([]string{p.issuer + "/api"}).Exec(ctx)
+	return db.OAuthClient.UpdateOneID(spec.ID).SetName(spec.Name).SetEnabled(spec.Enabled).SetTestOnly(spec.TestOnly).SetRedirectUris(spec.RedirectURIs).SetPostLogoutRedirectUris(spec.PostLogoutRedirectURIs).SetGrantTypes(grants).SetResponseTypes([]string{"code"}).SetScopes(spec.Scopes).SetAudiences([]string{p.issuer + "/api"}).Exec(ctx)
 }
 func (p *Provider) SetManagedClientEnabled(ctx context.Context, id, owner string, enabled bool) error {
 	db := persistence.Client(ctx, p.store.client)

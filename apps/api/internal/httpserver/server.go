@@ -79,6 +79,8 @@ func New(deps Dependencies) http.Handler {
 		r.Post("/oauth/token", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Token), deps.RateNamespace))
 		r.Post("/oauth/revoke", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Revoke), deps.RateNamespace))
 		r.Post("/oauth/introspect", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Introspect), deps.RateNamespace))
+		r.Get("/oauth/logout", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Logout), deps.RateNamespace))
+		r.Post("/oauth/logout", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Logout), deps.RateNamespace))
 	}
 	api := humachi.New(r, huma.DefaultConfig("Moetopia API", "0.1.0"))
 	deps.Federation.Accounts, deps.Federation.Portal = deps.Accounts, deps.Portal
@@ -89,11 +91,13 @@ func New(deps Dependencies) http.Handler {
 	if deps.Portal.Service != nil {
 		r.Get("/api/v1/portal/login", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.Login), deps.RateNamespace))
 		r.Get("/api/v1/portal/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.Callback), deps.RateNamespace))
+		r.Get("/api/v1/portal/logout/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.LogoutCallback), deps.RateNamespace))
 	}
 	deps.Portal.Register(api)
 	if deps.Admin.RP != nil {
 		r.Get("/api/v1/admin/login", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Admin.RP.Login), deps.RateNamespace))
 		r.Get("/api/v1/admin/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Admin.RP.Callback), deps.RateNamespace))
+		r.Get("/api/v1/admin/logout/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Admin.RP.LogoutCallback), deps.RateNamespace))
 	}
 	deps.Admin.Register(api)
 	deps.Portal.registerManagement(api, deps.Accounts)
@@ -103,6 +107,9 @@ func New(deps Dependencies) http.Handler {
 	r.Get("/api/v1/avatars/{id}", deps.Accounts.avatar)
 	deps.Accounts.Register(api)
 	deps.Accounts.registerAuthorization(api)
+	deps.Accounts.registerLogout(api)
+	registerRPLogout(api, "/api/v1/portal/central-logout", deps.Portal.Service)
+	registerRPLogout(api, "/api/v1/admin/central-logout", deps.Admin.RP)
 	huma.Get(api, "/api/v1/status", func(context.Context, *struct{}) (*Status, error) {
 		result := &Status{}
 		result.Body.Service, result.Body.Phase = "moetopia", "foundation"

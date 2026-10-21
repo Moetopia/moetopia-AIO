@@ -71,6 +71,7 @@ func (s *Service) Create(ctx context.Context, user identity.User, public bool, c
 	return Created{view, secret}, nil
 }
 func (s *Service) UpdateDraft(ctx context.Context, user identity.User, id string, revision int, config Config) (Application, error) {
+	omittedLogout := config.PostLogoutRedirectURIs == nil
 	config, err := s.validate(config)
 	if err != nil {
 		return Application{}, err
@@ -86,6 +87,13 @@ func (s *Service) UpdateDraft(ctx context.Context, user identity.User, id string
 	}
 	if latest.Status == applicationversion.StatusPending {
 		return Application{}, ErrConflict
+	}
+	if omittedLogout {
+		previous, err := publicVersion(latest)
+		if err != nil {
+			return Application{}, err
+		}
+		config.PostLogoutRedirectURIs = previous.Config.PostLogoutRedirectURIs
 	}
 	if latest.Status != applicationversion.StatusDraft {
 		row.LatestVersion++

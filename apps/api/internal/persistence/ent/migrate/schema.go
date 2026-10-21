@@ -364,6 +364,28 @@ var (
 		Columns:    InvitationsColumns,
 		PrimaryKey: []*schema.Column{InvitationsColumns[0]},
 	}
+	// LogoutInteractionsColumns holds the columns for the "logout_interactions" table.
+	LogoutInteractionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "client_id", Type: field.TypeString},
+		{Name: "browser_hash", Type: field.TypeString},
+		{Name: "payload", Type: field.TypeBytes},
+		{Name: "consumed", Type: field.TypeBool, Default: false},
+		{Name: "expires_at", Type: field.TypeTime},
+	}
+	// LogoutInteractionsTable holds the schema information for the "logout_interactions" table.
+	LogoutInteractionsTable = &schema.Table{
+		Name:       "logout_interactions",
+		Columns:    LogoutInteractionsColumns,
+		PrimaryKey: []*schema.Column{LogoutInteractionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "logoutinteraction_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{LogoutInteractionsColumns[5]},
+			},
+		},
+	}
 	// ClientsColumns holds the columns for the "clients" table.
 	ClientsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -374,6 +396,7 @@ var (
 		{Name: "public", Type: field.TypeBool, Default: false},
 		{Name: "enabled", Type: field.TypeBool, Default: false},
 		{Name: "redirect_uris", Type: field.TypeJSON},
+		{Name: "post_logout_redirect_uris", Type: field.TypeJSON},
 		{Name: "grant_types", Type: field.TypeJSON},
 		{Name: "response_types", Type: field.TypeJSON},
 		{Name: "scopes", Type: field.TypeJSON},
@@ -542,6 +565,7 @@ var (
 		ExternalIdentitiesTable,
 		ExternalLoginsTable,
 		InvitationsTable,
+		LogoutInteractionsTable,
 		ClientsTable,
 		ProtocolSessionsTable,
 		RpLoginsTable,
@@ -594,6 +618,9 @@ func init() {
 	}
 	InvitationsTable.Annotation = &entsql.Annotation{
 		Table: "invitations",
+	}
+	LogoutInteractionsTable.Annotation = &entsql.Annotation{
+		Table: "logout_interactions",
 	}
 	ClientsTable.Annotation = &entsql.Annotation{
 		Table: "clients",
