@@ -18,6 +18,8 @@ type SchemaConfig struct {
 	DeveloperApplication     string // DeveloperApplication table.
 	EmailDelivery            string // EmailDelivery table.
 	EmailVerification        string // EmailVerification table.
+	ExternalIdentity         string // ExternalIdentity table.
+	ExternalLogin            string // ExternalLogin table.
 	Invitation               string // Invitation table.
 	OAuthClient              string // OAuthClient table.
 	ProtocolSession          string // ProtocolSession table.

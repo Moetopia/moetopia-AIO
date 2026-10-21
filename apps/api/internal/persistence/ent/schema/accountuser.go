@@ -22,6 +22,7 @@ func (AccountUser) Fields() []ent.Field {
 		field.Int("revision").Default(0),
 		field.Int("security_version").Default(0),
 		field.String("password_hash").Sensitive(),
+		field.Bool("has_password").Default(true),
 		field.Bool("enabled").Default(true),
 		field.String("disabled_reason").Default(""),
 		field.Time("deletion_requested_at").Optional().Nillable(),

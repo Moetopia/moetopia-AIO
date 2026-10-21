@@ -1153,6 +1153,192 @@
         ],
         "type": "object"
       },
+      "ExternalBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "FederationBindingInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/FederationBindingInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "current_password": {
+            "maxLength": 256,
+            "type": "string"
+          }
+        },
+        "required": [
+          "current_password"
+        ],
+        "type": "object"
+      },
+      "FederationBindingsBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/FederationBindingsBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalBinding"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "FederationCompleteInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/FederationCompleteInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "challenge_id": {
+            "maxLength": 36,
+            "minLength": 36,
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 8,
+            "minLength": 8,
+            "type": "string"
+          },
+          "completion": {
+            "maxLength": 43,
+            "minLength": 43,
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "invitation": {
+            "maxLength": 128,
+            "type": "string"
+          }
+        },
+        "required": [
+          "completion",
+          "challenge_id",
+          "code",
+          "invitation",
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "FederationProvidersBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/FederationProvidersBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "FederationRedirectBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/FederationRedirectBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "redirect_to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "redirect_to"
+        ],
+        "type": "object"
+      },
+      "FederationStartInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/FederationStartInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "authorization_request": {
+            "maxLength": 43,
+            "type": "string"
+          },
+          "continue": {
+            "enum": [
+              "",
+              "developer-applications"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "IssuedInvitation": {
         "additionalProperties": false,
         "properties": {
@@ -1309,6 +1495,9 @@
           "enabled": {
             "type": "boolean"
           },
+          "has_password": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -1323,7 +1512,8 @@
           "created_at",
           "id",
           "email",
-          "display_name"
+          "display_name",
+          "has_password"
         ],
         "type": "object"
       },
@@ -1536,6 +1726,40 @@
         ],
         "type": "object"
       },
+      "RegistrationDetails": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/RegistrationDetails.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "email_hint": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "display_name",
+          "email_hint",
+          "expires_at"
+        ],
+        "type": "object"
+      },
       "RegistrationPolicy": {
         "additionalProperties": false,
         "properties": {
@@ -1716,6 +1940,9 @@
           "email": {
             "type": "string"
           },
+          "has_password": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -1727,7 +1954,8 @@
         "required": [
           "id",
           "email",
-          "display_name"
+          "display_name",
+          "has_password"
         ],
         "type": "object"
       },
@@ -2241,6 +2469,227 @@
           }
         },
         "summary": "Post API v1 account deletion cancellations confirm"
+      }
+    },
+    "/api/v1/account/federation/providers": {
+      "get": {
+        "operationId": "get-api-v1-account-federation-providers",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederationProvidersBody"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 account federation providers"
+      }
+    },
+    "/api/v1/account/federation/registration": {
+      "get": {
+        "operationId": "get-api-v1-account-federation-registration",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "completion",
+            "schema": {
+              "maxLength": 43,
+              "minLength": 43,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationDetails"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 account federation registration"
+      },
+      "post": {
+        "operationId": "post-api-v1-account-federation-registration",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederationCompleteInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederationRedirectBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 account federation registration"
+      }
+    },
+    "/api/v1/account/federation/{provider}": {
+      "post": {
+        "operationId": "post-api-v1-account-federation-by-provider",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "enum": [
+                "github",
+                "google"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederationStartInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederationRedirectBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 account federation by provider"
       }
     },
     "/api/v1/account/login": {
@@ -4862,6 +5311,187 @@
           }
         },
         "summary": "Post API v1 portal email changes confirm"
+      }
+    },
+    "/api/v1/portal/identities": {
+      "get": {
+        "operationId": "get-api-v1-portal-identities",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederationBindingsBody"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 portal identities"
+      }
+    },
+    "/api/v1/portal/identities/{provider}": {
+      "delete": {
+        "operationId": "delete-api-v1-portal-identities-by-provider",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "enum": [
+                "github",
+                "google"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederationBindingInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Delete API v1 portal identities by provider"
+      },
+      "post": {
+        "operationId": "post-api-v1-portal-identities-by-provider",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "enum": [
+                "github",
+                "google"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FederationBindingInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FederationRedirectBody"
+                }
+              }
+            },
+            "description": "OK",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 portal identities by provider"
       }
     },
     "/api/v1/portal/logout": {

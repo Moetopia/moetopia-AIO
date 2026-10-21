@@ -32,6 +32,7 @@ type User struct {
 	AvatarURL       string `json:"avatar_url" required:"false"`
 	Revision        int    `json:"revision" required:"false"`
 	SecurityVersion int    `json:"-"`
+	HasPassword     bool   `json:"has_password"`
 }
 type Service struct {
 	store  *Store
@@ -94,28 +95,40 @@ func (s *Service) Begin(ctx context.Context, inputEmail, locale string) (string,
 }
 
 func (s *Service) Register(ctx context.Context, id, code, invite, name, value string) error {
-	name = strings.TrimSpace(name)
-	if len(code) != 8 || utf8.RuneCountInString(name) < 1 || utf8.RuneCountInString(name) > 80 || !password.Valid(value) {
+	if !password.Valid(value) {
 		return ErrInvalid
 	}
-	verification, err := s.store.Verification(ctx, id)
+	verification, name, err := s.registration(ctx, id, code, name)
 	if err != nil {
 		return err
-	}
-	if verification.Consumed || verification.Attempts >= 5 || !verification.ExpiresAt.After(time.Now()) {
-		return ErrInvalid
-	}
-	if subtle.ConstantTimeCompare(verification.Hash, s.codeHash(id, verification.Email, code)) != 1 {
-		if err := s.store.FailedAttempt(ctx, id); err != nil {
-			return err
-		}
-		return ErrInvalid
 	}
 	hash, err := password.Hash(ctx, value)
 	if err != nil {
 		return err
 	}
-	return s.store.Register(ctx, id, verification.Email, name, hash, invitationHash(strings.TrimSpace(invite)))
+	_, err = s.store.register(ctx, id, verification.Email, name, hash, invitationHash(strings.TrimSpace(invite)), true)
+	return err
+}
+
+func (s *Service) registration(ctx context.Context, id, code, name string) (Verification, string, error) {
+	name = strings.TrimSpace(name)
+	if len(code) != 8 || !utf8.ValidString(name) || utf8.RuneCountInString(name) < 1 || utf8.RuneCountInString(name) > 80 {
+		return Verification{}, "", ErrInvalid
+	}
+	verification, err := s.store.Verification(ctx, id)
+	if err != nil {
+		return Verification{}, "", err
+	}
+	if verification.Consumed || verification.Attempts >= 5 || !verification.ExpiresAt.After(time.Now()) {
+		return Verification{}, "", ErrInvalid
+	}
+	if subtle.ConstantTimeCompare(verification.Hash, s.codeHash(id, verification.Email, code)) != 1 {
+		if err := s.store.FailedAttempt(ctx, id); err != nil {
+			return Verification{}, "", err
+		}
+		return Verification{}, "", ErrInvalid
+	}
+	return verification, name, nil
 }
 
 func (s *Service) Login(ctx context.Context, email, value string) (User, error) {
@@ -127,11 +140,11 @@ func (s *Service) Login(ctx context.Context, email, value string) (User, error) 
 	if err != nil && !errors.Is(err, ErrMissing) {
 		return User{}, err
 	}
-	if errors.Is(err, ErrMissing) {
+	if errors.Is(err, ErrMissing) || !user.HasPassword {
 		hash = s.dummy
 	}
 	valid := password.Verify(ctx, value, hash)
-	if !valid || err != nil {
+	if !valid || err != nil || !user.HasPassword {
 		return User{}, ErrCredentials
 	}
 	return user, nil

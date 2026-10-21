@@ -104,6 +104,11 @@ func PasswordHash(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldPasswordHash, v))
 }
 
+// HasPassword applies equality check predicate on the "has_password" field. It's identical to HasPasswordEQ.
+func HasPassword(v bool) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldHasPassword, v))
+}
+
 // Enabled applies equality check predicate on the "enabled" field. It's identical to EnabledEQ.
 func Enabled(v bool) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldEnabled, v))
@@ -587,6 +592,16 @@ func PasswordHashEqualFold(v string) predicate.AccountUser {
 // PasswordHashContainsFold applies the ContainsFold predicate on the "password_hash" field.
 func PasswordHashContainsFold(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldContainsFold(FieldPasswordHash, v))
+}
+
+// HasPasswordEQ applies the EQ predicate on the "has_password" field.
+func HasPasswordEQ(v bool) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldHasPassword, v))
+}
+
+// HasPasswordNEQ applies the NEQ predicate on the "has_password" field.
+func HasPasswordNEQ(v bool) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldHasPassword, v))
 }
 
 // EnabledEQ applies the EQ predicate on the "enabled" field.

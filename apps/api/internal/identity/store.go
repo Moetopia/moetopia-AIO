@@ -14,6 +14,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
+	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
 )
@@ -40,6 +41,9 @@ func NewStore(db *ent.Client, outbox *notifications.Outbox) *Store {
 }
 func (s *Store) WithSessions(revoker SessionRevoker) *Store { s.revoker = revoker; return s }
 func (s *Store) Cleanup(ctx context.Context) error {
+	if _, err := s.db.ExternalLogin.Delete().Where(externallogin.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
+		return err
+	}
 	if _, err := s.db.AccountChallenge.Delete().Where(accountchallenge.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
 		return err
 	}
@@ -54,7 +58,7 @@ func public(user *ent.AccountUser) User {
 	if user.AvatarDigest != "" {
 		avatar = "/api/v1/avatars/" + user.ID + "?v=" + fmt.Sprint(user.Revision)
 	}
-	return User{ID: user.ID, Email: user.Email, DisplayName: user.DisplayName, Bio: user.Bio, AvatarURL: avatar, Revision: user.Revision, SecurityVersion: user.SecurityVersion}
+	return User{ID: user.ID, Email: user.Email, DisplayName: user.DisplayName, Bio: user.Bio, AvatarURL: avatar, Revision: user.Revision, SecurityVersion: user.SecurityVersion, HasPassword: user.HasPassword}
 }
 func (s *Store) Exists(ctx context.Context, email string) (bool, error) {
 	return s.db.AccountUser.Query().Where(accountuser.EmailEQ(email)).Exist(ctx)
@@ -119,39 +123,45 @@ func (s *Store) FailedAttempt(ctx context.Context, id string) error {
 	return err
 }
 func (s *Store) Register(ctx context.Context, id, email, name, hash, invite string) error {
-	tx, err := s.db.Tx(ctx)
+	_, err := s.register(ctx, id, email, name, hash, invite, true)
+	return err
+}
+
+func (s *Store) register(ctx context.Context, id, email, name, hash, invite string, hasPassword bool) (string, error) {
+	tx, err := persistence.Begin(ctx, s.db)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer tx.Rollback()
 	now := time.Now()
 	count, err := tx.EmailVerification.Update().Where(emailverification.IDEQ(id), emailverification.ConsumedEQ(false), emailverification.AttemptsLT(5), emailverification.ExpiresAtGT(now)).SetConsumed(true).Save(ctx)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if count != 1 {
-		return ErrInvalid
+		return "", ErrInvalid
 	}
 	policy, err := tx.RegistrationPolicy.Query().Where(registrationpolicy.ID("registration")).ForShare().Only(ctx)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if policy.Mode == "invite" {
 		count, err = tx.Invitation.Update().Where(invitation.IDEQ(invite), invitation.ConsumedEQ(false), invitation.Revoked(false), invitation.ExpiresAtGT(now)).SetConsumed(true).Save(ctx)
 		if err != nil {
-			return err
+			return "", err
 		}
 		if count != 1 {
-			return ErrInvalid
+			return "", ErrInvalid
 		}
 	}
-	if err := tx.AccountUser.Create().SetID(uuid.NewString()).SetEmail(email).SetDisplayName(name).SetPasswordHash(hash).SetEmailVerifiedAt(now).Exec(ctx); err != nil {
+	userID := uuid.NewString()
+	if err := tx.AccountUser.Create().SetID(userID).SetEmail(email).SetDisplayName(name).SetPasswordHash(hash).SetHasPassword(hasPassword).SetEmailVerifiedAt(now).Exec(ctx); err != nil {
 		if ent.IsConstraintError(err) {
-			return ErrInvalid
+			return "", ErrInvalid
 		}
-		return err
+		return "", err
 	}
-	return tx.Commit()
+	return userID, tx.Commit()
 }
 func (s *Store) IssueInvitation(ctx context.Context, id string, expires time.Time) error {
 	if !expires.After(time.Now()) || expires.After(time.Now().Add(30*24*time.Hour)) {

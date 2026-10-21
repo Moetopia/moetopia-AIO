@@ -100,6 +100,20 @@ func (_c *AccountUserCreate) SetPasswordHash(v string) *AccountUserCreate {
 	return _c
 }
 
+// SetHasPassword sets the "has_password" field.
+func (_c *AccountUserCreate) SetHasPassword(v bool) *AccountUserCreate {
+	_c.mutation.SetHasPassword(v)
+	return _c
+}
+
+// SetNillableHasPassword sets the "has_password" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableHasPassword(v *bool) *AccountUserCreate {
+	if v != nil {
+		_c.SetHasPassword(*v)
+	}
+	return _c
+}
+
 // SetEnabled sets the "enabled" field.
 func (_c *AccountUserCreate) SetEnabled(v bool) *AccountUserCreate {
 	_c.mutation.SetEnabled(v)
@@ -233,6 +247,10 @@ func (_c *AccountUserCreate) defaults() {
 		v := accountuser.DefaultSecurityVersion
 		_c.mutation.SetSecurityVersion(v)
 	}
+	if _, ok := _c.mutation.HasPassword(); !ok {
+		v := accountuser.DefaultHasPassword
+		_c.mutation.SetHasPassword(v)
+	}
 	if _, ok := _c.mutation.Enabled(); !ok {
 		v := accountuser.DefaultEnabled
 		_c.mutation.SetEnabled(v)
@@ -274,6 +292,9 @@ func (_c *AccountUserCreate) check() error {
 	}
 	if _, ok := _c.mutation.PasswordHash(); !ok {
 		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "AccountUser.password_hash"`)}
+	}
+	if _, ok := _c.mutation.HasPassword(); !ok {
+		return &ValidationError{Name: "has_password", err: errors.New(`ent: missing required field "AccountUser.has_password"`)}
 	}
 	if _, ok := _c.mutation.Enabled(); !ok {
 		return &ValidationError{Name: "enabled", err: errors.New(`ent: missing required field "AccountUser.enabled"`)}
@@ -359,6 +380,10 @@ func (_c *AccountUserCreate) createSpec() (*AccountUser, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.PasswordHash(); ok {
 		_spec.SetField(accountuser.FieldPasswordHash, field.TypeString, value)
 		_node.PasswordHash = value
+	}
+	if value, ok := _c.mutation.HasPassword(); ok {
+		_spec.SetField(accountuser.FieldHasPassword, field.TypeBool, value)
+		_node.HasPassword = value
 	}
 	if value, ok := _c.mutation.Enabled(); ok {
 		_spec.SetField(accountuser.FieldEnabled, field.TypeBool, value)

@@ -14,7 +14,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 )
 
-var userColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldSecurityVersion, accountuser.FieldPasswordHash, accountuser.FieldEnabled, accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt}
+var userColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldSecurityVersion, accountuser.FieldPasswordHash, accountuser.FieldHasPassword, accountuser.FieldEnabled, accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt}
 
 func (s *Service) VerifyVersion(ctx context.Context, id string, version int) error {
 	row, err := persistence.Client(ctx, s.store.db).AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true), accountuser.DeletionDueAtIsNil()).Select(accountuser.FieldSecurityVersion).ForUpdate().Only(ctx)
@@ -38,7 +38,11 @@ func (s *Service) credentialsByID(ctx context.Context, id, current string) (*ent
 	if err != nil {
 		return nil, err
 	}
-	if !password.Verify(ctx, current, row.PasswordHash) {
+	hash := row.PasswordHash
+	if !row.HasPassword {
+		hash = s.dummy
+	}
+	if !password.Verify(ctx, current, hash) || !row.HasPassword {
 		return nil, ErrCredentials
 	}
 	return row, nil
@@ -71,7 +75,7 @@ func (s *Service) ChangePassword(ctx context.Context, id, current, next string) 
 	if row.SecurityVersion != before.SecurityVersion || row.PasswordHash != before.PasswordHash {
 		return ErrCredentials
 	}
-	if err := tx.AccountUser.UpdateOneID(id).SetPasswordHash(hash).AddSecurityVersion(1).AddRevision(1).Exec(ctx); err != nil {
+	if err := tx.AccountUser.UpdateOneID(id).SetPasswordHash(hash).SetHasPassword(true).AddSecurityVersion(1).AddRevision(1).Exec(ctx); err != nil {
 		return err
 	}
 	if err := s.securityChanged(ctx, tx.Client(), row, "password.changed"); err != nil {

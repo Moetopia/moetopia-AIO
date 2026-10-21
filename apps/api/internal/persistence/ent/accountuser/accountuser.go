@@ -29,6 +29,8 @@ const (
 	FieldSecurityVersion = "security_version"
 	// FieldPasswordHash holds the string denoting the password_hash field in the database.
 	FieldPasswordHash = "password_hash"
+	// FieldHasPassword holds the string denoting the has_password field in the database.
+	FieldHasPassword = "has_password"
 	// FieldEnabled holds the string denoting the enabled field in the database.
 	FieldEnabled = "enabled"
 	// FieldDisabledReason holds the string denoting the disabled_reason field in the database.
@@ -56,6 +58,7 @@ var Columns = []string{
 	FieldRevision,
 	FieldSecurityVersion,
 	FieldPasswordHash,
+	FieldHasPassword,
 	FieldEnabled,
 	FieldDisabledReason,
 	FieldDeletionRequestedAt,
@@ -85,6 +88,8 @@ var (
 	DefaultRevision int
 	// DefaultSecurityVersion holds the default value on creation for the "security_version" field.
 	DefaultSecurityVersion int
+	// DefaultHasPassword holds the default value on creation for the "has_password" field.
+	DefaultHasPassword bool
 	// DefaultEnabled holds the default value on creation for the "enabled" field.
 	DefaultEnabled bool
 	// DefaultDisabledReason holds the default value on creation for the "disabled_reason" field.
@@ -136,6 +141,11 @@ func BySecurityVersion(opts ...sql.OrderTermOption) OrderOption {
 // ByPasswordHash orders the results by the password_hash field.
 func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPasswordHash, opts...).ToFunc()
+}
+
+// ByHasPassword orders the results by the has_password field.
+func ByHasPassword(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHasPassword, opts...).ToFunc()
 }
 
 // ByEnabled orders the results by the enabled field.

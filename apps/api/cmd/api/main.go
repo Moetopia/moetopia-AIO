@@ -19,6 +19,7 @@ import (
 	"moetopia.local/aio/api/internal/config"
 	"moetopia.local/aio/api/internal/cryptobox"
 	"moetopia.local/aio/api/internal/developer"
+	"moetopia.local/aio/api/internal/federation"
 	"moetopia.local/aio/api/internal/httpserver"
 	"moetopia.local/aio/api/internal/identity"
 	"moetopia.local/aio/api/internal/lifecycle"
@@ -106,6 +107,21 @@ func run() error {
 		}
 	}
 	applications := developer.New(db.Ent, provider, accounts, cfg.Issuer, outbox)
+	externalProviders := make(map[string]*federation.Provider)
+	for name, credentials := range map[string]federation.Credentials{
+		"github": {ClientID: cfg.GitHubClientID, ClientSecret: cfg.GitHubClientSecret},
+		"google": {ClientID: cfg.GoogleClientID, ClientSecret: cfg.GoogleClientSecret},
+	} {
+		if credentials.ClientID == "" {
+			continue
+		}
+		upstream, err := federation.New(name, cfg.Issuer+"/api/v1/account/federation/"+name+"/callback", credentials)
+		if err != nil {
+			return err
+		}
+		externalProviders[name] = upstream
+	}
+	external := federation.NewService(db.Ent, box, accounts, externalProviders, portal.Sessions)
 	accountLifecycle := lifecycle.New(db.Ent, accounts, applications, provider)
 	go func() {
 		defer close(workerDone)
@@ -117,8 +133,9 @@ func run() error {
 		CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() },
 		Tokens:     provider, Valkey: cache, Portal: httpserver.PortalEndpoints{Service: portal},
 		Developers: applications, Lifecycle: accountLifecycle,
-		Admin:    admin,
-		Accounts: httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider},
+		Federation: httpserver.FederationEndpoints{Service: external, Origin: cfg.AccountOrigin},
+		Admin:      admin,
+		Accounts:   httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider},
 	})
 	server := &http.Server{Addr: cfg.Listen, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 15 * time.Second, IdleTimeout: 60 * time.Second}
 	errorsCh := make(chan error, 1)

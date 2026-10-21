@@ -10,20 +10,24 @@ import (
 )
 
 type Config struct {
-	Environment    string
-	Listen         string
-	Issuer         string
-	DatabaseURL    string
-	ValkeyAddress  string
-	ValkeyPassword string
-	EncryptionKey  string
-	AccountOrigin  string
-	AdminOrigin    string
-	SMTPAddress    string
-	SMTPFrom       string
-	SMTPSecurity   string
-	SMTPUsername   string
-	SMTPPassword   string
+	Environment        string
+	Listen             string
+	Issuer             string
+	DatabaseURL        string
+	ValkeyAddress      string
+	ValkeyPassword     string
+	EncryptionKey      string
+	AccountOrigin      string
+	AdminOrigin        string
+	SMTPAddress        string
+	SMTPFrom           string
+	SMTPSecurity       string
+	SMTPUsername       string
+	SMTPPassword       string
+	GitHubClientID     string
+	GitHubClientSecret string
+	GoogleClientID     string
+	GoogleClientSecret string
 }
 
 func Load() (Config, error) {
@@ -36,25 +40,34 @@ func (c Config) RateNamespace() string {
 
 func Read(get func(string) string) (Config, error) {
 	c := Config{
-		Environment:    value(get, "MOETOPIA_ENV", "development"),
-		Listen:         value(get, "MOETOPIA_LISTEN", "127.0.0.1:8080"),
-		Issuer:         strings.TrimRight(get("MOETOPIA_ISSUER"), "/"),
-		DatabaseURL:    get("MOETOPIA_DATABASE_URL"),
-		ValkeyAddress:  get("MOETOPIA_VALKEY_ADDRESS"),
-		ValkeyPassword: get("MOETOPIA_VALKEY_PASSWORD"),
-		EncryptionKey:  get("MOETOPIA_ENCRYPTION_KEY"),
-		AccountOrigin:  value(get, "MOETOPIA_ACCOUNT_ORIGIN", strings.TrimRight(get("MOETOPIA_ISSUER"), "/")),
-		AdminOrigin:    strings.TrimRight(get("MOETOPIA_ADMIN_ORIGIN"), "/"),
-		SMTPAddress:    get("MOETOPIA_SMTP_ADDRESS"),
-		SMTPFrom:       get("MOETOPIA_SMTP_FROM"),
-		SMTPSecurity:   get("MOETOPIA_SMTP_SECURITY"),
-		SMTPUsername:   get("MOETOPIA_SMTP_USERNAME"),
-		SMTPPassword:   get("MOETOPIA_SMTP_PASSWORD"),
+		Environment:        value(get, "MOETOPIA_ENV", "development"),
+		Listen:             value(get, "MOETOPIA_LISTEN", "127.0.0.1:8080"),
+		Issuer:             strings.TrimRight(get("MOETOPIA_ISSUER"), "/"),
+		DatabaseURL:        get("MOETOPIA_DATABASE_URL"),
+		ValkeyAddress:      get("MOETOPIA_VALKEY_ADDRESS"),
+		ValkeyPassword:     get("MOETOPIA_VALKEY_PASSWORD"),
+		EncryptionKey:      get("MOETOPIA_ENCRYPTION_KEY"),
+		AccountOrigin:      value(get, "MOETOPIA_ACCOUNT_ORIGIN", strings.TrimRight(get("MOETOPIA_ISSUER"), "/")),
+		AdminOrigin:        strings.TrimRight(get("MOETOPIA_ADMIN_ORIGIN"), "/"),
+		SMTPAddress:        get("MOETOPIA_SMTP_ADDRESS"),
+		SMTPFrom:           get("MOETOPIA_SMTP_FROM"),
+		SMTPSecurity:       get("MOETOPIA_SMTP_SECURITY"),
+		SMTPUsername:       get("MOETOPIA_SMTP_USERNAME"),
+		SMTPPassword:       get("MOETOPIA_SMTP_PASSWORD"),
+		GitHubClientID:     get("MOETOPIA_GITHUB_CLIENT_ID"),
+		GitHubClientSecret: get("MOETOPIA_GITHUB_CLIENT_SECRET"),
+		GoogleClientID:     get("MOETOPIA_GOOGLE_CLIENT_ID"),
+		GoogleClientSecret: get("MOETOPIA_GOOGLE_CLIENT_SECRET"),
 	}
 	if c.SMTPSecurity == "" {
 		c.SMTPSecurity = "none"
 		if c.Environment == "production" {
 			c.SMTPSecurity = "starttls"
+		}
+	}
+	for _, provider := range []struct{ name, id, secret string }{{"GITHUB", c.GitHubClientID, c.GitHubClientSecret}, {"GOOGLE", c.GoogleClientID, c.GoogleClientSecret}} {
+		if (strings.TrimSpace(provider.id) == "") != (strings.TrimSpace(provider.secret) == "") {
+			return c, errors.New("MOETOPIA_" + provider.name + " client ID and secret must be configured together")
 		}
 	}
 	if c.Environment != "development" && c.Environment != "production" && c.Environment != "test" {

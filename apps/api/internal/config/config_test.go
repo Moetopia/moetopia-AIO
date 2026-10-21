@@ -49,3 +49,18 @@ func TestAdministratorOriginIsolation(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestExternalProviderCredentialPairs(t *testing.T) {
+	for _, provider := range []string{"GITHUB", "GOOGLE"} {
+		values := map[string]string{"MOETOPIA_DATABASE_URL": "dsn", "MOETOPIA_VALKEY_ADDRESS": "localhost:6379", "MOETOPIA_ENCRYPTION_KEY": "key", "MOETOPIA_ISSUER": "https://account.example.test"}
+		get := func(k string) string { return values[k] }
+		values["MOETOPIA_"+provider+"_CLIENT_SECRET"] = "private-secret"
+		if _, err := Read(get); err == nil || strings.Contains(err.Error(), "private-secret") {
+			t.Fatal("incomplete provider configuration accepted or exposed")
+		}
+		values["MOETOPIA_"+provider+"_CLIENT_ID"] = "client"
+		if _, err := Read(get); err != nil {
+			t.Fatal(err)
+		}
+	}
+}

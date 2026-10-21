@@ -153,7 +153,7 @@ func (s *Service) finishChallenge(ctx context.Context, id, code, purpose, userID
 		if newHash == "" {
 			return ErrInvalid
 		}
-		update.SetPasswordHash(newHash)
+		update.SetPasswordHash(newHash).SetHasPassword(true)
 	} else {
 		if user.PasswordHash != currentHash {
 			return ErrCredentials

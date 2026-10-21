@@ -17,7 +17,7 @@ const execute = (command, args, extra = {}) => {
 execute('go', ['-C', 'apps/api', 'run', './cmd/testdb', 'create'], { env })
 try {
   dsn.pathname = `/${name}`
-  execute('go', ['-C', 'apps/api', 'test', '-tags', 'integration', '-count=1', '-p', '1', './internal/authorization', './internal/httpserver'], { env: { ...env, TEST_DATABASE_DSN: dsn.href, TEST_VALKEY_ADDRESS: process.env.MOETOPIA_VALKEY_ADDRESS, TEST_VALKEY_PASSWORD: process.env.MOETOPIA_VALKEY_PASSWORD } })
+  execute('go', ['-C', 'apps/api', 'test', '-tags', 'integration', '-count=1', '-p', '1', './internal/authorization', './internal/federation', './internal/httpserver'], { env: { ...env, TEST_DATABASE_DSN: dsn.href, TEST_VALKEY_ADDRESS: process.env.MOETOPIA_VALKEY_ADDRESS, TEST_VALKEY_PASSWORD: process.env.MOETOPIA_VALKEY_PASSWORD } })
 } finally {
   if (!/^moetopia_test_[a-f0-9]{16}$/.test(name)) throw new Error('Refusing to clean up an unexpected database')
   execute('go', ['-C', 'apps/api', 'run', './cmd/testdb', 'drop'], { env })

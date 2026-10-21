@@ -29,6 +29,7 @@ type Dependencies struct {
 	Developers    *developer.Service
 	Admin         AdminEndpoints
 	Lifecycle     *lifecycle.Service
+	Federation    FederationEndpoints
 }
 
 type Status struct {
@@ -80,6 +81,11 @@ func New(deps Dependencies) http.Handler {
 		r.Post("/oauth/introspect", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Introspect), deps.RateNamespace))
 	}
 	api := humachi.New(r, huma.DefaultConfig("Moetopia API", "0.1.0"))
+	deps.Federation.Accounts, deps.Federation.Portal = deps.Accounts, deps.Portal
+	if deps.Federation.Service != nil {
+		r.Get("/api/v1/account/federation/{provider}/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Federation.callback), deps.RateNamespace))
+	}
+	deps.Federation.Register(api)
 	if deps.Portal.Service != nil {
 		r.Get("/api/v1/portal/login", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.Login), deps.RateNamespace))
 		r.Get("/api/v1/portal/callback", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Portal.Service.Callback), deps.RateNamespace))

@@ -23,6 +23,8 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
+	"moetopia.local/aio/api/internal/persistence/ent/externalidentity"
+	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
@@ -102,6 +104,8 @@ func checkColumn(t, c string) error {
 			developerapplication.Table:     developerapplication.ValidColumn,
 			emaildelivery.Table:            emaildelivery.ValidColumn,
 			emailverification.Table:        emailverification.ValidColumn,
+			externalidentity.Table:         externalidentity.ValidColumn,
+			externallogin.Table:            externallogin.ValidColumn,
 			invitation.Table:               invitation.ValidColumn,
 			oauthclient.Table:              oauthclient.ValidColumn,
 			protocolsession.Table:          protocolsession.ValidColumn,

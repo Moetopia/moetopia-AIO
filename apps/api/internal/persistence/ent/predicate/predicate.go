@@ -39,6 +39,12 @@ type EmailDelivery func(*sql.Selector)
 // EmailVerification is the predicate function for emailverification builders.
 type EmailVerification func(*sql.Selector)
 
+// ExternalIdentity is the predicate function for externalidentity builders.
+type ExternalIdentity func(*sql.Selector)
+
+// ExternalLogin is the predicate function for externallogin builders.
+type ExternalLogin func(*sql.Selector)
+
 // Invitation is the predicate function for invitation builders.
 type Invitation func(*sql.Selector)
 

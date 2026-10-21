@@ -34,6 +34,10 @@ type Tx struct {
 	EmailDelivery *EmailDeliveryClient
 	// EmailVerification is the client for interacting with the EmailVerification builders.
 	EmailVerification *EmailVerificationClient
+	// ExternalIdentity is the client for interacting with the ExternalIdentity builders.
+	ExternalIdentity *ExternalIdentityClient
+	// ExternalLogin is the client for interacting with the ExternalLogin builders.
+	ExternalLogin *ExternalLoginClient
 	// Invitation is the client for interacting with the Invitation builders.
 	Invitation *InvitationClient
 	// OAuthClient is the client for interacting with the OAuthClient builders.
@@ -192,6 +196,8 @@ func (tx *Tx) init() {
 	tx.DeveloperApplication = NewDeveloperApplicationClient(tx.config)
 	tx.EmailDelivery = NewEmailDeliveryClient(tx.config)
 	tx.EmailVerification = NewEmailVerificationClient(tx.config)
+	tx.ExternalIdentity = NewExternalIdentityClient(tx.config)
+	tx.ExternalLogin = NewExternalLoginClient(tx.config)
 	tx.Invitation = NewInvitationClient(tx.config)
 	tx.OAuthClient = NewOAuthClientClient(tx.config)
 	tx.ProtocolSession = NewProtocolSessionClient(tx.config)

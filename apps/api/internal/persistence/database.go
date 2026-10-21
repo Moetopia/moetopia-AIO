@@ -37,6 +37,13 @@ func Open(ctx context.Context, dsn string) (*Database, error) {
 }
 
 func (d *Database) Ready(ctx context.Context) error {
+	var externalTables bool
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('identity.external_identities') IS NOT NULL AND to_regclass('identity.external_logins') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='identity' AND table_name='users' AND column_name='has_password')").Scan(&externalTables); err != nil {
+		return err
+	}
+	if !externalTables {
+		return errors.New("database migration required")
+	}
 	var lifecycleColumns bool
 	if err := d.SQL.QueryRowContext(ctx, "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='identity' AND table_name='users' AND column_name='deletion_due_at') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='notifications' AND table_name='email_deliveries' AND column_name='user_id')").Scan(&lifecycleColumns); err != nil {
 		return err

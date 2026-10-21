@@ -15,6 +15,8 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
+	"moetopia.local/aio/api/internal/persistence/ent/externalidentity"
+	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
@@ -66,16 +68,20 @@ func init() {
 	accountuserDescSecurityVersion := accountuserFields[7].Descriptor()
 	// accountuser.DefaultSecurityVersion holds the default value on creation for the security_version field.
 	accountuser.DefaultSecurityVersion = accountuserDescSecurityVersion.Default.(int)
+	// accountuserDescHasPassword is the schema descriptor for has_password field.
+	accountuserDescHasPassword := accountuserFields[9].Descriptor()
+	// accountuser.DefaultHasPassword holds the default value on creation for the has_password field.
+	accountuser.DefaultHasPassword = accountuserDescHasPassword.Default.(bool)
 	// accountuserDescEnabled is the schema descriptor for enabled field.
-	accountuserDescEnabled := accountuserFields[9].Descriptor()
+	accountuserDescEnabled := accountuserFields[10].Descriptor()
 	// accountuser.DefaultEnabled holds the default value on creation for the enabled field.
 	accountuser.DefaultEnabled = accountuserDescEnabled.Default.(bool)
 	// accountuserDescDisabledReason is the schema descriptor for disabled_reason field.
-	accountuserDescDisabledReason := accountuserFields[10].Descriptor()
+	accountuserDescDisabledReason := accountuserFields[11].Descriptor()
 	// accountuser.DefaultDisabledReason holds the default value on creation for the disabled_reason field.
 	accountuser.DefaultDisabledReason = accountuserDescDisabledReason.Default.(string)
 	// accountuserDescCreatedAt is the schema descriptor for created_at field.
-	accountuserDescCreatedAt := accountuserFields[14].Descriptor()
+	accountuserDescCreatedAt := accountuserFields[15].Descriptor()
 	// accountuser.DefaultCreatedAt holds the default value on creation for the created_at field.
 	accountuser.DefaultCreatedAt = accountuserDescCreatedAt.Default.(func() time.Time)
 	// accountuserDescID is the schema descriptor for id field.
@@ -218,6 +224,22 @@ func init() {
 	emailverificationDescConsumed := emailverificationFields[4].Descriptor()
 	// emailverification.DefaultConsumed holds the default value on creation for the consumed field.
 	emailverification.DefaultConsumed = emailverificationDescConsumed.Default.(bool)
+	externalidentityFields := schema.ExternalIdentity{}.Fields()
+	_ = externalidentityFields
+	// externalidentityDescCreatedAt is the schema descriptor for created_at field.
+	externalidentityDescCreatedAt := externalidentityFields[5].Descriptor()
+	// externalidentity.DefaultCreatedAt holds the default value on creation for the created_at field.
+	externalidentity.DefaultCreatedAt = externalidentityDescCreatedAt.Default.(func() time.Time)
+	externalloginFields := schema.ExternalLogin{}.Fields()
+	_ = externalloginFields
+	// externalloginDescUserID is the schema descriptor for user_id field.
+	externalloginDescUserID := externalloginFields[4].Descriptor()
+	// externallogin.DefaultUserID holds the default value on creation for the user_id field.
+	externallogin.DefaultUserID = externalloginDescUserID.Default.(string)
+	// externalloginDescConsumed is the schema descriptor for consumed field.
+	externalloginDescConsumed := externalloginFields[6].Descriptor()
+	// externallogin.DefaultConsumed holds the default value on creation for the consumed field.
+	externallogin.DefaultConsumed = externalloginDescConsumed.Default.(bool)
 	invitationFields := schema.Invitation{}.Fields()
 	_ = invitationFields
 	// invitationDescConsumed is the schema descriptor for consumed field.

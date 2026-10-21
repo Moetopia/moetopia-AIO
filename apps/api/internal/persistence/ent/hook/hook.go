@@ -141,6 +141,30 @@ func (f EmailVerificationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EmailVerificationMutation", m)
 }
 
+// The ExternalIdentityFunc type is an adapter to allow the use of ordinary
+// function as ExternalIdentity mutator.
+type ExternalIdentityFunc func(context.Context, *ent.ExternalIdentityMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ExternalIdentityFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ExternalIdentityMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExternalIdentityMutation", m)
+}
+
+// The ExternalLoginFunc type is an adapter to allow the use of ordinary
+// function as ExternalLogin mutator.
+type ExternalLoginFunc func(context.Context, *ent.ExternalLoginMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ExternalLoginFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ExternalLoginMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExternalLoginMutation", m)
+}
+
 // The InvitationFunc type is an adapter to allow the use of ordinary
 // function as Invitation mutator.
 type InvitationFunc func(context.Context, *ent.InvitationMutation) (ent.Value, error)

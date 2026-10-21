@@ -69,6 +69,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/account/federation/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 account federation providers */
+        get: operations["get-api-v1-account-federation-providers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/federation/registration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 account federation registration */
+        get: operations["get-api-v1-account-federation-registration"];
+        put?: never;
+        /** Post API v1 account federation registration */
+        post: operations["post-api-v1-account-federation-registration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/account/federation/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 account federation by provider */
+        post: operations["post-api-v1-account-federation-by-provider"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/account/login": {
         parameters: {
             query?: never;
@@ -787,6 +839,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/portal/identities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 portal identities */
+        get: operations["get-api-v1-portal-identities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/identities/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 portal identities by provider */
+        post: operations["post-api-v1-portal-identities-by-provider"];
+        /** Delete API v1 portal identities by provider */
+        delete: operations["delete-api-v1-portal-identities-by-provider"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/portal/logout": {
         parameters: {
             query?: never;
@@ -1336,6 +1423,71 @@ export interface components {
             created_at: string;
             id: string;
         };
+        ExternalBinding: {
+            /** Format: date-time */
+            created_at: string;
+            provider: string;
+        };
+        FederationBindingInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FederationBindingInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+        };
+        FederationBindingsBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FederationBindingsBody.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["ExternalBinding"][] | null;
+        };
+        FederationCompleteInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FederationCompleteInputBody.json
+             */
+            readonly $schema?: string;
+            challenge_id: string;
+            code: string;
+            completion: string;
+            display_name: string;
+            invitation: string;
+        };
+        FederationProvidersBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FederationProvidersBody.json
+             */
+            readonly $schema?: string;
+            items: string[] | null;
+        };
+        FederationRedirectBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FederationRedirectBody.json
+             */
+            readonly $schema?: string;
+            redirect_to: string;
+        };
+        FederationStartInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FederationStartInputBody.json
+             */
+            readonly $schema?: string;
+            authorization_request?: string;
+            /** @enum {string} */
+            continue?: "" | "developer-applications";
+        };
         IssuedInvitation: {
             /**
              * Format: uri
@@ -1394,6 +1546,7 @@ export interface components {
             display_name: string;
             email: string;
             enabled: boolean;
+            has_password: boolean;
             id: string;
             /** Format: int64 */
             revision?: number;
@@ -1468,6 +1621,19 @@ export interface components {
             invitation: string;
             password: string;
         };
+        RegistrationDetails: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/RegistrationDetails.json
+             */
+            readonly $schema?: string;
+            display_name: string;
+            email_hint: string;
+            /** Format: date-time */
+            expires_at: string;
+            provider: string;
+        };
         RegistrationPolicy: {
             /**
              * Format: uri
@@ -1534,6 +1700,7 @@ export interface components {
             bio?: string;
             display_name: string;
             email: string;
+            has_password: boolean;
             id: string;
             /** Format: int64 */
             revision?: number;
@@ -1783,6 +1950,146 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-account-federation-providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FederationProvidersBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-account-federation-registration": {
+        parameters: {
+            query?: {
+                completion?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationDetails"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-account-federation-registration": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FederationCompleteInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FederationRedirectBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-account-federation-by-provider": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                provider: "github" | "google";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FederationStartInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FederationRedirectBody"];
+                };
             };
             /** @description Error */
             default: {
@@ -3404,6 +3711,114 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["EmailConfirmInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-portal-identities": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FederationBindingsBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-portal-identities-by-provider": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                provider: "github" | "google";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FederationBindingInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FederationRedirectBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-portal-identities-by-provider": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                provider: "github" | "google";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FederationBindingInputBody"];
             };
         };
         responses: {

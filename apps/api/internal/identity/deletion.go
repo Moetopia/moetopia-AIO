@@ -13,6 +13,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
+	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 )
 
 const deletionCooldown = 7 * 24 * time.Hour
@@ -83,6 +84,9 @@ func (s *Service) PurgeDeletion(ctx context.Context, id string) error {
 		return err
 	}
 	if _, err := db.EmailVerification.Delete().Where(emailverification.Email(row.Email)).Exec(ctx); err != nil {
+		return err
+	}
+	if _, err := db.ExternalLogin.Delete().Where(externallogin.UserID(id)).Exec(ctx); err != nil {
 		return err
 	}
 	if err := s.store.outbox.PurgeUser(ctx, db, id); err != nil {

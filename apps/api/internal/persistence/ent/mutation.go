@@ -22,6 +22,8 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
+	"moetopia.local/aio/api/internal/persistence/ent/externalidentity"
+	"moetopia.local/aio/api/internal/persistence/ent/externallogin"
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/predicate"
@@ -53,6 +55,8 @@ const (
 	TypeDeveloperApplication     = "DeveloperApplication"
 	TypeEmailDelivery            = "EmailDelivery"
 	TypeEmailVerification        = "EmailVerification"
+	TypeExternalIdentity         = "ExternalIdentity"
+	TypeExternalLogin            = "ExternalLogin"
 	TypeInvitation               = "Invitation"
 	TypeOAuthClient              = "OAuthClient"
 	TypeProtocolSession          = "ProtocolSession"
@@ -966,6 +970,7 @@ type AccountUserMutation struct {
 	security_version      *int
 	addsecurity_version   *int
 	password_hash         *string
+	has_password          *bool
 	enabled               *bool
 	disabled_reason       *string
 	deletion_requested_at *time.Time
@@ -1423,6 +1428,42 @@ func (m *AccountUserMutation) ResetPasswordHash() {
 	m.password_hash = nil
 }
 
+// SetHasPassword sets the "has_password" field.
+func (m *AccountUserMutation) SetHasPassword(b bool) {
+	m.has_password = &b
+}
+
+// HasPassword returns the value of the "has_password" field in the mutation.
+func (m *AccountUserMutation) HasPassword() (r bool, exists bool) {
+	v := m.has_password
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHasPassword returns the old "has_password" field's value of the AccountUser entity.
+// If the AccountUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountUserMutation) OldHasPassword(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHasPassword is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHasPassword requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHasPassword: %w", err)
+	}
+	return oldValue.HasPassword, nil
+}
+
+// ResetHasPassword resets all changes to the "has_password" field.
+func (m *AccountUserMutation) ResetHasPassword() {
+	m.has_password = nil
+}
+
 // SetEnabled sets the "enabled" field.
 func (m *AccountUserMutation) SetEnabled(b bool) {
 	m.enabled = &b
@@ -1699,7 +1740,7 @@ func (m *AccountUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccountUserMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 15)
 	if m.email != nil {
 		fields = append(fields, accountuser.FieldEmail)
 	}
@@ -1723,6 +1764,9 @@ func (m *AccountUserMutation) Fields() []string {
 	}
 	if m.password_hash != nil {
 		fields = append(fields, accountuser.FieldPasswordHash)
+	}
+	if m.has_password != nil {
+		fields = append(fields, accountuser.FieldHasPassword)
 	}
 	if m.enabled != nil {
 		fields = append(fields, accountuser.FieldEnabled)
@@ -1766,6 +1810,8 @@ func (m *AccountUserMutation) Field(name string) (ent.Value, bool) {
 		return m.SecurityVersion()
 	case accountuser.FieldPasswordHash:
 		return m.PasswordHash()
+	case accountuser.FieldHasPassword:
+		return m.HasPassword()
 	case accountuser.FieldEnabled:
 		return m.Enabled()
 	case accountuser.FieldDisabledReason:
@@ -1803,6 +1849,8 @@ func (m *AccountUserMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldSecurityVersion(ctx)
 	case accountuser.FieldPasswordHash:
 		return m.OldPasswordHash(ctx)
+	case accountuser.FieldHasPassword:
+		return m.OldHasPassword(ctx)
 	case accountuser.FieldEnabled:
 		return m.OldEnabled(ctx)
 	case accountuser.FieldDisabledReason:
@@ -1879,6 +1927,13 @@ func (m *AccountUserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPasswordHash(v)
+		return nil
+	case accountuser.FieldHasPassword:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHasPassword(v)
 		return nil
 	case accountuser.FieldEnabled:
 		v, ok := value.(bool)
@@ -2042,6 +2097,9 @@ func (m *AccountUserMutation) ResetField(name string) error {
 		return nil
 	case accountuser.FieldPasswordHash:
 		m.ResetPasswordHash()
+		return nil
+	case accountuser.FieldHasPassword:
+		m.ResetHasPassword()
 		return nil
 	case accountuser.FieldEnabled:
 		m.ResetEnabled()
@@ -8150,6 +8208,1210 @@ func (m *EmailVerificationMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *EmailVerificationMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown EmailVerification edge %s", name)
+}
+
+// ExternalIdentityMutation represents an operation that mutates the ExternalIdentity nodes in the graph.
+type ExternalIdentityMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	user_id       *string
+	provider      *externalidentity.Provider
+	issuer        *string
+	subject       *string
+	created_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*ExternalIdentity, error)
+	predicates    []predicate.ExternalIdentity
+}
+
+var _ ent.Mutation = (*ExternalIdentityMutation)(nil)
+
+// externalidentityOption allows management of the mutation configuration using functional options.
+type externalidentityOption func(*ExternalIdentityMutation)
+
+// newExternalIdentityMutation creates new mutation for the ExternalIdentity entity.
+func newExternalIdentityMutation(c config, op Op, opts ...externalidentityOption) *ExternalIdentityMutation {
+	m := &ExternalIdentityMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeExternalIdentity,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withExternalIdentityID sets the ID field of the mutation.
+func withExternalIdentityID(id string) externalidentityOption {
+	return func(m *ExternalIdentityMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ExternalIdentity
+		)
+		m.oldValue = func(ctx context.Context) (*ExternalIdentity, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ExternalIdentity.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withExternalIdentity sets the old ExternalIdentity of the mutation.
+func withExternalIdentity(node *ExternalIdentity) externalidentityOption {
+	return func(m *ExternalIdentityMutation) {
+		m.oldValue = func(context.Context) (*ExternalIdentity, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ExternalIdentityMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ExternalIdentityMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ExternalIdentity entities.
+func (m *ExternalIdentityMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ExternalIdentityMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ExternalIdentityMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ExternalIdentity.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUserID sets the "user_id" field.
+func (m *ExternalIdentityMutation) SetUserID(s string) {
+	m.user_id = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *ExternalIdentityMutation) UserID() (r string, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the ExternalIdentity entity.
+// If the ExternalIdentity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalIdentityMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *ExternalIdentityMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetProvider sets the "provider" field.
+func (m *ExternalIdentityMutation) SetProvider(e externalidentity.Provider) {
+	m.provider = &e
+}
+
+// Provider returns the value of the "provider" field in the mutation.
+func (m *ExternalIdentityMutation) Provider() (r externalidentity.Provider, exists bool) {
+	v := m.provider
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProvider returns the old "provider" field's value of the ExternalIdentity entity.
+// If the ExternalIdentity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalIdentityMutation) OldProvider(ctx context.Context) (v externalidentity.Provider, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProvider is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProvider requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProvider: %w", err)
+	}
+	return oldValue.Provider, nil
+}
+
+// ResetProvider resets all changes to the "provider" field.
+func (m *ExternalIdentityMutation) ResetProvider() {
+	m.provider = nil
+}
+
+// SetIssuer sets the "issuer" field.
+func (m *ExternalIdentityMutation) SetIssuer(s string) {
+	m.issuer = &s
+}
+
+// Issuer returns the value of the "issuer" field in the mutation.
+func (m *ExternalIdentityMutation) Issuer() (r string, exists bool) {
+	v := m.issuer
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIssuer returns the old "issuer" field's value of the ExternalIdentity entity.
+// If the ExternalIdentity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalIdentityMutation) OldIssuer(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIssuer is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIssuer requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIssuer: %w", err)
+	}
+	return oldValue.Issuer, nil
+}
+
+// ResetIssuer resets all changes to the "issuer" field.
+func (m *ExternalIdentityMutation) ResetIssuer() {
+	m.issuer = nil
+}
+
+// SetSubject sets the "subject" field.
+func (m *ExternalIdentityMutation) SetSubject(s string) {
+	m.subject = &s
+}
+
+// Subject returns the value of the "subject" field in the mutation.
+func (m *ExternalIdentityMutation) Subject() (r string, exists bool) {
+	v := m.subject
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubject returns the old "subject" field's value of the ExternalIdentity entity.
+// If the ExternalIdentity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalIdentityMutation) OldSubject(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubject is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubject requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubject: %w", err)
+	}
+	return oldValue.Subject, nil
+}
+
+// ResetSubject resets all changes to the "subject" field.
+func (m *ExternalIdentityMutation) ResetSubject() {
+	m.subject = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ExternalIdentityMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ExternalIdentityMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the ExternalIdentity entity.
+// If the ExternalIdentity object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalIdentityMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ExternalIdentityMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// Where appends a list predicates to the ExternalIdentityMutation builder.
+func (m *ExternalIdentityMutation) Where(ps ...predicate.ExternalIdentity) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ExternalIdentityMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ExternalIdentityMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ExternalIdentity, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ExternalIdentityMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ExternalIdentityMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ExternalIdentity).
+func (m *ExternalIdentityMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ExternalIdentityMutation) Fields() []string {
+	fields := make([]string, 0, 5)
+	if m.user_id != nil {
+		fields = append(fields, externalidentity.FieldUserID)
+	}
+	if m.provider != nil {
+		fields = append(fields, externalidentity.FieldProvider)
+	}
+	if m.issuer != nil {
+		fields = append(fields, externalidentity.FieldIssuer)
+	}
+	if m.subject != nil {
+		fields = append(fields, externalidentity.FieldSubject)
+	}
+	if m.created_at != nil {
+		fields = append(fields, externalidentity.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ExternalIdentityMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case externalidentity.FieldUserID:
+		return m.UserID()
+	case externalidentity.FieldProvider:
+		return m.Provider()
+	case externalidentity.FieldIssuer:
+		return m.Issuer()
+	case externalidentity.FieldSubject:
+		return m.Subject()
+	case externalidentity.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ExternalIdentityMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case externalidentity.FieldUserID:
+		return m.OldUserID(ctx)
+	case externalidentity.FieldProvider:
+		return m.OldProvider(ctx)
+	case externalidentity.FieldIssuer:
+		return m.OldIssuer(ctx)
+	case externalidentity.FieldSubject:
+		return m.OldSubject(ctx)
+	case externalidentity.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown ExternalIdentity field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExternalIdentityMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case externalidentity.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case externalidentity.FieldProvider:
+		v, ok := value.(externalidentity.Provider)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProvider(v)
+		return nil
+	case externalidentity.FieldIssuer:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIssuer(v)
+		return nil
+	case externalidentity.FieldSubject:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubject(v)
+		return nil
+	case externalidentity.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ExternalIdentity field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ExternalIdentityMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ExternalIdentityMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExternalIdentityMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ExternalIdentity numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ExternalIdentityMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ExternalIdentityMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ExternalIdentityMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ExternalIdentity nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ExternalIdentityMutation) ResetField(name string) error {
+	switch name {
+	case externalidentity.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case externalidentity.FieldProvider:
+		m.ResetProvider()
+		return nil
+	case externalidentity.FieldIssuer:
+		m.ResetIssuer()
+		return nil
+	case externalidentity.FieldSubject:
+		m.ResetSubject()
+		return nil
+	case externalidentity.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown ExternalIdentity field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ExternalIdentityMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ExternalIdentityMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ExternalIdentityMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ExternalIdentityMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ExternalIdentityMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ExternalIdentityMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ExternalIdentityMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ExternalIdentity unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ExternalIdentityMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ExternalIdentity edge %s", name)
+}
+
+// ExternalLoginMutation represents an operation that mutates the ExternalLogin nodes in the graph.
+type ExternalLoginMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	browser_hash  *string
+	provider      *externallogin.Provider
+	purpose       *externallogin.Purpose
+	user_id       *string
+	payload       *[]byte
+	consumed      *bool
+	expires_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*ExternalLogin, error)
+	predicates    []predicate.ExternalLogin
+}
+
+var _ ent.Mutation = (*ExternalLoginMutation)(nil)
+
+// externalloginOption allows management of the mutation configuration using functional options.
+type externalloginOption func(*ExternalLoginMutation)
+
+// newExternalLoginMutation creates new mutation for the ExternalLogin entity.
+func newExternalLoginMutation(c config, op Op, opts ...externalloginOption) *ExternalLoginMutation {
+	m := &ExternalLoginMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeExternalLogin,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withExternalLoginID sets the ID field of the mutation.
+func withExternalLoginID(id string) externalloginOption {
+	return func(m *ExternalLoginMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ExternalLogin
+		)
+		m.oldValue = func(ctx context.Context) (*ExternalLogin, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ExternalLogin.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withExternalLogin sets the old ExternalLogin of the mutation.
+func withExternalLogin(node *ExternalLogin) externalloginOption {
+	return func(m *ExternalLoginMutation) {
+		m.oldValue = func(context.Context) (*ExternalLogin, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ExternalLoginMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ExternalLoginMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ExternalLogin entities.
+func (m *ExternalLoginMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ExternalLoginMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ExternalLoginMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ExternalLogin.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetBrowserHash sets the "browser_hash" field.
+func (m *ExternalLoginMutation) SetBrowserHash(s string) {
+	m.browser_hash = &s
+}
+
+// BrowserHash returns the value of the "browser_hash" field in the mutation.
+func (m *ExternalLoginMutation) BrowserHash() (r string, exists bool) {
+	v := m.browser_hash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBrowserHash returns the old "browser_hash" field's value of the ExternalLogin entity.
+// If the ExternalLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalLoginMutation) OldBrowserHash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBrowserHash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBrowserHash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBrowserHash: %w", err)
+	}
+	return oldValue.BrowserHash, nil
+}
+
+// ResetBrowserHash resets all changes to the "browser_hash" field.
+func (m *ExternalLoginMutation) ResetBrowserHash() {
+	m.browser_hash = nil
+}
+
+// SetProvider sets the "provider" field.
+func (m *ExternalLoginMutation) SetProvider(e externallogin.Provider) {
+	m.provider = &e
+}
+
+// Provider returns the value of the "provider" field in the mutation.
+func (m *ExternalLoginMutation) Provider() (r externallogin.Provider, exists bool) {
+	v := m.provider
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProvider returns the old "provider" field's value of the ExternalLogin entity.
+// If the ExternalLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalLoginMutation) OldProvider(ctx context.Context) (v externallogin.Provider, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProvider is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProvider requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProvider: %w", err)
+	}
+	return oldValue.Provider, nil
+}
+
+// ResetProvider resets all changes to the "provider" field.
+func (m *ExternalLoginMutation) ResetProvider() {
+	m.provider = nil
+}
+
+// SetPurpose sets the "purpose" field.
+func (m *ExternalLoginMutation) SetPurpose(e externallogin.Purpose) {
+	m.purpose = &e
+}
+
+// Purpose returns the value of the "purpose" field in the mutation.
+func (m *ExternalLoginMutation) Purpose() (r externallogin.Purpose, exists bool) {
+	v := m.purpose
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPurpose returns the old "purpose" field's value of the ExternalLogin entity.
+// If the ExternalLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalLoginMutation) OldPurpose(ctx context.Context) (v externallogin.Purpose, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPurpose is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPurpose requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPurpose: %w", err)
+	}
+	return oldValue.Purpose, nil
+}
+
+// ResetPurpose resets all changes to the "purpose" field.
+func (m *ExternalLoginMutation) ResetPurpose() {
+	m.purpose = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *ExternalLoginMutation) SetUserID(s string) {
+	m.user_id = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *ExternalLoginMutation) UserID() (r string, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the ExternalLogin entity.
+// If the ExternalLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalLoginMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *ExternalLoginMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetPayload sets the "payload" field.
+func (m *ExternalLoginMutation) SetPayload(b []byte) {
+	m.payload = &b
+}
+
+// Payload returns the value of the "payload" field in the mutation.
+func (m *ExternalLoginMutation) Payload() (r []byte, exists bool) {
+	v := m.payload
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPayload returns the old "payload" field's value of the ExternalLogin entity.
+// If the ExternalLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalLoginMutation) OldPayload(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPayload is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPayload requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPayload: %w", err)
+	}
+	return oldValue.Payload, nil
+}
+
+// ResetPayload resets all changes to the "payload" field.
+func (m *ExternalLoginMutation) ResetPayload() {
+	m.payload = nil
+}
+
+// SetConsumed sets the "consumed" field.
+func (m *ExternalLoginMutation) SetConsumed(b bool) {
+	m.consumed = &b
+}
+
+// Consumed returns the value of the "consumed" field in the mutation.
+func (m *ExternalLoginMutation) Consumed() (r bool, exists bool) {
+	v := m.consumed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConsumed returns the old "consumed" field's value of the ExternalLogin entity.
+// If the ExternalLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalLoginMutation) OldConsumed(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConsumed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConsumed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConsumed: %w", err)
+	}
+	return oldValue.Consumed, nil
+}
+
+// ResetConsumed resets all changes to the "consumed" field.
+func (m *ExternalLoginMutation) ResetConsumed() {
+	m.consumed = nil
+}
+
+// SetExpiresAt sets the "expires_at" field.
+func (m *ExternalLoginMutation) SetExpiresAt(t time.Time) {
+	m.expires_at = &t
+}
+
+// ExpiresAt returns the value of the "expires_at" field in the mutation.
+func (m *ExternalLoginMutation) ExpiresAt() (r time.Time, exists bool) {
+	v := m.expires_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpiresAt returns the old "expires_at" field's value of the ExternalLogin entity.
+// If the ExternalLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExternalLoginMutation) OldExpiresAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpiresAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpiresAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpiresAt: %w", err)
+	}
+	return oldValue.ExpiresAt, nil
+}
+
+// ResetExpiresAt resets all changes to the "expires_at" field.
+func (m *ExternalLoginMutation) ResetExpiresAt() {
+	m.expires_at = nil
+}
+
+// Where appends a list predicates to the ExternalLoginMutation builder.
+func (m *ExternalLoginMutation) Where(ps ...predicate.ExternalLogin) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ExternalLoginMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ExternalLoginMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ExternalLogin, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ExternalLoginMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ExternalLoginMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ExternalLogin).
+func (m *ExternalLoginMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ExternalLoginMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.browser_hash != nil {
+		fields = append(fields, externallogin.FieldBrowserHash)
+	}
+	if m.provider != nil {
+		fields = append(fields, externallogin.FieldProvider)
+	}
+	if m.purpose != nil {
+		fields = append(fields, externallogin.FieldPurpose)
+	}
+	if m.user_id != nil {
+		fields = append(fields, externallogin.FieldUserID)
+	}
+	if m.payload != nil {
+		fields = append(fields, externallogin.FieldPayload)
+	}
+	if m.consumed != nil {
+		fields = append(fields, externallogin.FieldConsumed)
+	}
+	if m.expires_at != nil {
+		fields = append(fields, externallogin.FieldExpiresAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ExternalLoginMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case externallogin.FieldBrowserHash:
+		return m.BrowserHash()
+	case externallogin.FieldProvider:
+		return m.Provider()
+	case externallogin.FieldPurpose:
+		return m.Purpose()
+	case externallogin.FieldUserID:
+		return m.UserID()
+	case externallogin.FieldPayload:
+		return m.Payload()
+	case externallogin.FieldConsumed:
+		return m.Consumed()
+	case externallogin.FieldExpiresAt:
+		return m.ExpiresAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ExternalLoginMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case externallogin.FieldBrowserHash:
+		return m.OldBrowserHash(ctx)
+	case externallogin.FieldProvider:
+		return m.OldProvider(ctx)
+	case externallogin.FieldPurpose:
+		return m.OldPurpose(ctx)
+	case externallogin.FieldUserID:
+		return m.OldUserID(ctx)
+	case externallogin.FieldPayload:
+		return m.OldPayload(ctx)
+	case externallogin.FieldConsumed:
+		return m.OldConsumed(ctx)
+	case externallogin.FieldExpiresAt:
+		return m.OldExpiresAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown ExternalLogin field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExternalLoginMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case externallogin.FieldBrowserHash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBrowserHash(v)
+		return nil
+	case externallogin.FieldProvider:
+		v, ok := value.(externallogin.Provider)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProvider(v)
+		return nil
+	case externallogin.FieldPurpose:
+		v, ok := value.(externallogin.Purpose)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPurpose(v)
+		return nil
+	case externallogin.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case externallogin.FieldPayload:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPayload(v)
+		return nil
+	case externallogin.FieldConsumed:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConsumed(v)
+		return nil
+	case externallogin.FieldExpiresAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpiresAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ExternalLogin field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ExternalLoginMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ExternalLoginMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExternalLoginMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ExternalLogin numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ExternalLoginMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ExternalLoginMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ExternalLoginMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ExternalLogin nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ExternalLoginMutation) ResetField(name string) error {
+	switch name {
+	case externallogin.FieldBrowserHash:
+		m.ResetBrowserHash()
+		return nil
+	case externallogin.FieldProvider:
+		m.ResetProvider()
+		return nil
+	case externallogin.FieldPurpose:
+		m.ResetPurpose()
+		return nil
+	case externallogin.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case externallogin.FieldPayload:
+		m.ResetPayload()
+		return nil
+	case externallogin.FieldConsumed:
+		m.ResetConsumed()
+		return nil
+	case externallogin.FieldExpiresAt:
+		m.ResetExpiresAt()
+		return nil
+	}
+	return fmt.Errorf("unknown ExternalLogin field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ExternalLoginMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ExternalLoginMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ExternalLoginMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ExternalLoginMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ExternalLoginMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ExternalLoginMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ExternalLoginMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ExternalLogin unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ExternalLoginMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ExternalLogin edge %s", name)
 }
 
 // InvitationMutation represents an operation that mutates the Invitation nodes in the graph.

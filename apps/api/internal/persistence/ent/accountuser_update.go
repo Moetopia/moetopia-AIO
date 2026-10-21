@@ -153,6 +153,20 @@ func (_u *AccountUserUpdate) SetNillablePasswordHash(v *string) *AccountUserUpda
 	return _u
 }
 
+// SetHasPassword sets the "has_password" field.
+func (_u *AccountUserUpdate) SetHasPassword(v bool) *AccountUserUpdate {
+	_u.mutation.SetHasPassword(v)
+	return _u
+}
+
+// SetNillableHasPassword sets the "has_password" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableHasPassword(v *bool) *AccountUserUpdate {
+	if v != nil {
+		_u.SetHasPassword(*v)
+	}
+	return _u
+}
+
 // SetEnabled sets the "enabled" field.
 func (_u *AccountUserUpdate) SetEnabled(v bool) *AccountUserUpdate {
 	_u.mutation.SetEnabled(v)
@@ -322,6 +336,9 @@ func (_u *AccountUserUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(accountuser.FieldPasswordHash, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.HasPassword(); ok {
+		_spec.SetField(accountuser.FieldHasPassword, field.TypeBool, value)
+	}
 	if value, ok := _u.mutation.Enabled(); ok {
 		_spec.SetField(accountuser.FieldEnabled, field.TypeBool, value)
 	}
@@ -485,6 +502,20 @@ func (_u *AccountUserUpdateOne) SetPasswordHash(v string) *AccountUserUpdateOne 
 func (_u *AccountUserUpdateOne) SetNillablePasswordHash(v *string) *AccountUserUpdateOne {
 	if v != nil {
 		_u.SetPasswordHash(*v)
+	}
+	return _u
+}
+
+// SetHasPassword sets the "has_password" field.
+func (_u *AccountUserUpdateOne) SetHasPassword(v bool) *AccountUserUpdateOne {
+	_u.mutation.SetHasPassword(v)
+	return _u
+}
+
+// SetNillableHasPassword sets the "has_password" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableHasPassword(v *bool) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetHasPassword(*v)
 	}
 	return _u
 }
@@ -687,6 +718,9 @@ func (_u *AccountUserUpdateOne) sqlSave(ctx context.Context) (_node *AccountUser
 	}
 	if value, ok := _u.mutation.PasswordHash(); ok {
 		_spec.SetField(accountuser.FieldPasswordHash, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.HasPassword(); ok {
+		_spec.SetField(accountuser.FieldHasPassword, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Enabled(); ok {
 		_spec.SetField(accountuser.FieldEnabled, field.TypeBool, value)

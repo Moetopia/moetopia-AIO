@@ -34,7 +34,7 @@ type userCursor struct {
 	ID    string `json:"id"`
 }
 
-var managedColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldEnabled, accountuser.FieldDisabledReason, accountuser.FieldCreatedAt, accountuser.FieldDeletionDueAt}
+var managedColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldHasPassword, accountuser.FieldEnabled, accountuser.FieldDisabledReason, accountuser.FieldCreatedAt, accountuser.FieldDeletionDueAt}
 
 func managedUser(row *ent.AccountUser) ManagedUser {
 	return ManagedUser{public(row), row.Enabled, row.DisabledReason, row.CreatedAt, row.DeletionDueAt}

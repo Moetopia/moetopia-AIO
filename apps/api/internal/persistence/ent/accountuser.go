@@ -33,6 +33,8 @@ type AccountUser struct {
 	SecurityVersion int `json:"security_version,omitempty"`
 	// PasswordHash holds the value of the "password_hash" field.
 	PasswordHash string `json:"-"`
+	// HasPassword holds the value of the "has_password" field.
+	HasPassword bool `json:"has_password,omitempty"`
 	// Enabled holds the value of the "enabled" field.
 	Enabled bool `json:"enabled,omitempty"`
 	// DisabledReason holds the value of the "disabled_reason" field.
@@ -55,7 +57,7 @@ func (*AccountUser) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case accountuser.FieldAvatar:
 			values[i] = new([]byte)
-		case accountuser.FieldEnabled:
+		case accountuser.FieldHasPassword, accountuser.FieldEnabled:
 			values[i] = new(sql.NullBool)
 		case accountuser.FieldRevision, accountuser.FieldSecurityVersion:
 			values[i] = new(sql.NullInt64)
@@ -131,6 +133,12 @@ func (_m *AccountUser) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
 			} else if value.Valid {
 				_m.PasswordHash = value.String
+			}
+		case accountuser.FieldHasPassword:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field has_password", values[i])
+			} else if value.Valid {
+				_m.HasPassword = value.Bool
 			}
 		case accountuser.FieldEnabled:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -228,6 +236,9 @@ func (_m *AccountUser) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.SecurityVersion))
 	builder.WriteString(", ")
 	builder.WriteString("password_hash=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("has_password=")
+	builder.WriteString(fmt.Sprintf("%v", _m.HasPassword))
 	builder.WriteString(", ")
 	builder.WriteString("enabled=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Enabled))

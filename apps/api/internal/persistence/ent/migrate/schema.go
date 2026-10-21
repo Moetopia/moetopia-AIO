@@ -52,6 +52,7 @@ var (
 		{Name: "revision", Type: field.TypeInt, Default: 0},
 		{Name: "security_version", Type: field.TypeInt, Default: 0},
 		{Name: "password_hash", Type: field.TypeString},
+		{Name: "has_password", Type: field.TypeBool, Default: true},
 		{Name: "enabled", Type: field.TypeBool, Default: true},
 		{Name: "disabled_reason", Type: field.TypeString, Default: ""},
 		{Name: "deletion_requested_at", Type: field.TypeTime, Nullable: true},
@@ -68,7 +69,7 @@ var (
 			{
 				Name:    "accountuser_deletion_due_at",
 				Unique:  false,
-				Columns: []*schema.Column{UsersColumns[12]},
+				Columns: []*schema.Column{UsersColumns[13]},
 			},
 		},
 	}
@@ -293,6 +294,62 @@ var (
 			},
 		},
 	}
+	// ExternalIdentitiesColumns holds the columns for the "external_identities" table.
+	ExternalIdentitiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"github", "google"}},
+		{Name: "issuer", Type: field.TypeString},
+		{Name: "subject", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// ExternalIdentitiesTable holds the schema information for the "external_identities" table.
+	ExternalIdentitiesTable = &schema.Table{
+		Name:       "external_identities",
+		Columns:    ExternalIdentitiesColumns,
+		PrimaryKey: []*schema.Column{ExternalIdentitiesColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "externalidentity_provider_issuer_subject",
+				Unique:  true,
+				Columns: []*schema.Column{ExternalIdentitiesColumns[2], ExternalIdentitiesColumns[3], ExternalIdentitiesColumns[4]},
+			},
+			{
+				Name:    "externalidentity_user_id_provider",
+				Unique:  true,
+				Columns: []*schema.Column{ExternalIdentitiesColumns[1], ExternalIdentitiesColumns[2]},
+			},
+		},
+	}
+	// ExternalLoginsColumns holds the columns for the "external_logins" table.
+	ExternalLoginsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "browser_hash", Type: field.TypeString},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"github", "google"}},
+		{Name: "purpose", Type: field.TypeEnum, Enums: []string{"login", "bind", "register"}},
+		{Name: "user_id", Type: field.TypeString, Default: ""},
+		{Name: "payload", Type: field.TypeBytes},
+		{Name: "consumed", Type: field.TypeBool, Default: false},
+		{Name: "expires_at", Type: field.TypeTime},
+	}
+	// ExternalLoginsTable holds the schema information for the "external_logins" table.
+	ExternalLoginsTable = &schema.Table{
+		Name:       "external_logins",
+		Columns:    ExternalLoginsColumns,
+		PrimaryKey: []*schema.Column{ExternalLoginsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "externallogin_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{ExternalLoginsColumns[7]},
+			},
+			{
+				Name:    "externallogin_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ExternalLoginsColumns[4]},
+			},
+		},
+	}
 	// InvitationsColumns holds the columns for the "invitations" table.
 	InvitationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -482,6 +539,8 @@ var (
 		ApplicationsTable,
 		EmailDeliveriesTable,
 		EmailVerificationsTable,
+		ExternalIdentitiesTable,
+		ExternalLoginsTable,
 		InvitationsTable,
 		ClientsTable,
 		ProtocolSessionsTable,
@@ -526,6 +585,12 @@ func init() {
 	}
 	EmailVerificationsTable.Annotation = &entsql.Annotation{
 		Table: "email_verifications",
+	}
+	ExternalIdentitiesTable.Annotation = &entsql.Annotation{
+		Table: "external_identities",
+	}
+	ExternalLoginsTable.Annotation = &entsql.Annotation{
+		Table: "external_logins",
 	}
 	InvitationsTable.Annotation = &entsql.Annotation{
 		Table: "invitations",
