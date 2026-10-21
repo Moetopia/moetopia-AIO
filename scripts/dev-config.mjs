@@ -25,7 +25,9 @@ export const servicePort = (name, env = process.env) => {
 
 export const checkPort = (name, port) => new Promise((resolvePort, reject) => {
   const probe = createServer()
-  probe.once('error', () => reject(new Error(`${name}: port ${port} is occupied. Stop your own previous instance in its original terminal; no process was stopped.`)))
+  probe.once('error', (error) => reject(new Error(error.code === 'EADDRINUSE'
+    ? `${name}: port ${port} is occupied. Stop your own previous instance in its original terminal; no process was stopped.`
+    : `${name}: cannot listen on port ${port} (${error.code ?? 'unknown error'}). Check OS access restrictions or select another port; no process was stopped.`)))
   probe.listen(port, '127.0.0.1', () => probe.close(resolvePort))
 })
 

@@ -39,7 +39,16 @@
 pnpm test:oidc
 ```
 
-测试固定使用 account 54305、RP 54310、Go API 58490；启动前检查，端口被占用时拒绝运行，不接管已有服务。可与 3000/3001/8080 的日常开发实例并行；本测试不修改 .env、开发库或签名密钥。
+测试使用 account 54305、RP 54310、Go API 默认 58490；admin 批次另用 54311。启动前检查，端口被占用或系统拒绝监听时拒绝运行，不接管已有服务。API 可通过 MOETOPIA_TEST_API_PORT 选择 50001–65535 的专属端口，不能与 54305/54310/54311 重合；始终只监听 127.0.0.1。测试代理、readyz 与协议检查共同使用该端口，不改变 issuer、浏览器回调或开发配置。可与 3000/3001/8080 的日常开发实例并行；本测试不修改 .env、开发库或签名密钥。
+
+2026-10-21 本机默认 58490 返回 EACCES，未发现该端口监听进程；未改系统防火墙或虚拟化设置。改用 58500 完成测试。遇到同样的系统限制可在 PowerShell 临时设置：
+
+```powershell
+$env:MOETOPIA_TEST_API_PORT = '58500'
+try { pnpm test:oidc } finally { Remove-Item Env:\MOETOPIA_TEST_API_PORT }
+```
+
+管理员批次同样使用该变量，命令替换为 pnpm test:admin。EADDRINUSE 才表示占用，其他监听错误输出实际错误码，不提示用户盲目终止进程。
 
 运行器新建随机 moetopia_test 数据库、合成账号/邀请/公开客户端和临时密钥。Go fixture 仅接受 test 环境和与显式测试名一致的数据库，不创建默认开发/生产客户端。独立测试构建位于 `.data/oidc-<pid>-<random>`，不覆盖应用 .nuxt/.output；Nitro 构建钩子先核对源代理路径，再仅替换上游端口，保留其余代理选项。
 

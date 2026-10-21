@@ -1,4 +1,5 @@
 import { createServer } from 'node:http'
+import { oidcAPIOrigin } from './oidc-test-config.mjs'
 
 if (process.env.MOETOPIA_ENV !== 'test' || process.env.MOETOPIA_TEST_OIDC_SUITE !== 'admin' || process.env.MOETOPIA_ADMIN_ORIGIN !== 'http://admin.localhost:54311') throw new Error('The isolated administrator browser environment is required')
 const server = createServer(async (req, res) => {
@@ -19,7 +20,7 @@ const server = createServer(async (req, res) => {
     }
     const headers = {}
     for (const name of ['cookie', 'origin', 'content-type', 'x-moetopia-csrf']) if (req.headers[name]) headers[name] = req.headers[name]
-    const upstream = await fetch('http://127.0.0.1:58490' + url.pathname + url.search, { method: req.method, headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : body, redirect: 'manual', signal: AbortSignal.timeout(15000) })
+    const upstream = await fetch(oidcAPIOrigin() + url.pathname + url.search, { method: req.method, headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : body, redirect: 'manual', signal: AbortSignal.timeout(15000) })
     for (const name of ['content-type', 'location', 'retry-after']) if (upstream.headers.has(name)) res.setHeader(name, upstream.headers.get(name))
     const cookies = upstream.headers.getSetCookie()
     if (cookies.length) res.setHeader('set-cookie', cookies)

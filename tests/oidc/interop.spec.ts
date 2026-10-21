@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { verifyPortalUI } from './portal-ui'
+import { oidcAPIOrigin } from '../../scripts/oidc-test-config.mjs'
 
 test('real account proxy and independent RP validate the browser authorization lifecycle', async ({ page, request }) => {
   const email = process.env.MOETOPIA_TEST_OIDC_EMAIL
@@ -19,7 +20,7 @@ test('real account proxy and independent RP validate the browser authorization l
   }
   try {
     const proxied = await request.get('/.well-known/openid-configuration')
-    const direct = await request.get('http://127.0.0.1:58490/.well-known/openid-configuration')
+    const direct = await request.get(oidcAPIOrigin() + '/.well-known/openid-configuration')
     expect(proxied.status()).toBe(200)
     expect(await proxied.json()).toEqual(await direct.json())
     const detailsRequest = page.waitForResponse(response => new URL(response.url()).pathname.startsWith('/api/v1/account/authorizations/') && response.request().method() === 'GET')
@@ -29,7 +30,7 @@ test('real account proxy and independent RP validate the browser authorization l
     const detailsBody = await detailsResponse.json() as { code?: string }
     const cookieCheck = (await page.context().cookies()).some(cookie => cookie.name === 'moetopia_authorization')
     const sentCookie = (await detailsResponse.request().allHeaders()).cookie?.includes('moetopia_authorization=') ?? false
-    const directDetails = await page.context().request.get('http://127.0.0.1:58490' + new URL(detailsResponse.url()).pathname)
+    const directDetails = await page.context().request.get(oidcAPIOrigin() + new URL(detailsResponse.url()).pathname)
     expect({ status: detailsResponse.status(), directStatus: directDetails.status(), cookiePresent: cookieCheck, cookieSent: sentCookie, error: detailsBody.code ?? '', scriptErrors: pageErrors }).toEqual({ status: 200, directStatus: 200, cookiePresent: true, cookieSent: true, error: '', scriptErrors: [] })
     await expect(page.getByRole('heading', { name: 'Independent OIDC test RP', exact: true })).toBeVisible()
     const initial = await page.context().cookies()
