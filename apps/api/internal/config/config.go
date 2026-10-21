@@ -21,6 +21,9 @@ type Config struct {
 	AdminOrigin    string
 	SMTPAddress    string
 	SMTPFrom       string
+	SMTPSecurity   string
+	SMTPUsername   string
+	SMTPPassword   string
 }
 
 func Load() (Config, error) {
@@ -44,6 +47,15 @@ func Read(get func(string) string) (Config, error) {
 		AdminOrigin:    strings.TrimRight(get("MOETOPIA_ADMIN_ORIGIN"), "/"),
 		SMTPAddress:    get("MOETOPIA_SMTP_ADDRESS"),
 		SMTPFrom:       get("MOETOPIA_SMTP_FROM"),
+		SMTPSecurity:   get("MOETOPIA_SMTP_SECURITY"),
+		SMTPUsername:   get("MOETOPIA_SMTP_USERNAME"),
+		SMTPPassword:   get("MOETOPIA_SMTP_PASSWORD"),
+	}
+	if c.SMTPSecurity == "" {
+		c.SMTPSecurity = "none"
+		if c.Environment == "production" {
+			c.SMTPSecurity = "starttls"
+		}
 	}
 	if c.Environment != "development" && c.Environment != "production" && c.Environment != "test" {
 		return c, errors.New("MOETOPIA_ENV must be development, test or production")

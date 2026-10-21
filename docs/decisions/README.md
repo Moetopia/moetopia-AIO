@@ -39,6 +39,7 @@
 | [0022](0022-administrator-security-and-review.md) | 独立管理员 RP/MFA、恢复与后台事务 | 管理安全、审核/暂停和用户/邀请/审计后端已验证；成品后台接线及生产验收待完成 |
 | [0023](0023-introspection-and-application-history.md) | 受限令牌内省、应用版本历史与邮件通知 | 后端已实现，验证与运行边界见实施进度；生产资源服务器/邮件及前端历史页面待验收 |
 | [0024](0024-account-deletion-lifecycle.md) | 七天注销、取消与模块清理 | 后端已实现；接口、迁移 10 与真实验证边界见运行契约和实施进度 |
+| [0025](0025-smtp-transport.md) | 校验 TLS 的 SMTP 通知传输 | STARTTLS/隐式 TLS 与本地协议测试已有；真实外部供应商投递待验收 |
 
 ## 第一轮已确认
 

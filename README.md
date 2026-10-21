@@ -40,6 +40,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [自有用户站 OAuth 接入](docs/run-first-party-oidc.md) | Go RP 登录/回调、独立会话、前端接线与迁移 5 |
 | [账号管理接入](docs/run-account-management.md) | 资料/头像、密码/邮箱/恢复、授权/审计与迁移 6 |
 | [账号注销与清理](docs/run-account-lifecycle.md) | 七天冷静期、取消验证、模块清理与迁移 10 |
+| [邮件传输](docs/run-email.md) | SMTP TLS、开发 Mailpit、队列与生产配置边界 |
 | [开发者应用接入](docs/run-developer-applications.md) | 创建、版本、测试、凭据、接口边界与迁移 7 |
 | [管理员与后台接入](docs/run-administration.md) | 独立 RP、TOTP/恢复、审核/暂停、用户/邀请/审计与迁移 8/9 |
 | [独立客户端验证](docs/oidc-interop.md) | 真实浏览器互操作、代理修复和 test:oidc 的隔离运行 |

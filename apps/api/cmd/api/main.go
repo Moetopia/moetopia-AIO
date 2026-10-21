@@ -65,13 +65,11 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	if cfg.Environment == "production" {
-		return errors.New("production account email transport is not implemented")
+	mailer, err := notifications.NewSMTP(notifications.SMTPConfig{Address: cfg.SMTPAddress, From: cfg.SMTPFrom, Security: cfg.SMTPSecurity, Username: cfg.SMTPUsername, Password: cfg.SMTPPassword, AllowPlain: cfg.Environment != "production"})
+	if err != nil {
+		return err
 	}
-	if cfg.SMTPAddress == "" || cfg.SMTPFrom == "" {
-		return errors.New("MOETOPIA_SMTP_ADDRESS and MOETOPIA_SMTP_FROM are required")
-	}
-	outbox := notifications.New(db.Ent, box, notifications.DevelopmentSMTP{Address: cfg.SMTPAddress, From: cfg.SMTPFrom})
+	outbox := notifications.New(db.Ent, box, mailer)
 	webSessions, err := sessions.New(db.Ent, cfg.EncryptionKey, cfg.AccountOrigin, cfg.Environment == "production")
 	if err != nil {
 		return err

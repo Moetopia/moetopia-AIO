@@ -15,6 +15,7 @@ import (
 )
 
 type Message struct {
+	DeliveryID string
 	UserID     string
 	To         string
 	Subject    string
@@ -34,6 +35,7 @@ func New(db *ent.Client, box *cryptobox.Box, sender Sender) *Outbox { return &Ou
 
 func (o *Outbox) Enqueue(ctx context.Context, transaction *ent.Client, message Message, expires time.Time) error {
 	id := uuid.NewString()
+	message.DeliveryID = id
 	plain, err := json.Marshal(message)
 	if err != nil {
 		return err
