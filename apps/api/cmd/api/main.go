@@ -115,7 +115,7 @@ func run() error {
 		RateNamespace: cfg.RateNamespace(), DatabaseReady: db.Ready,
 		CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() },
 		Tokens:     provider, Valkey: cache, Portal: httpserver.PortalEndpoints{Service: portal},
-		Developers: developer.New(db.Ent, provider, accounts, cfg.Issuer),
+		Developers: developer.New(db.Ent, provider, accounts, cfg.Issuer, outbox),
 		Admin:      admin,
 		Accounts:   httpserver.AccountEndpoints{Identity: accounts, Sessions: webSessions, Cache: cache, Authorization: provider},
 	})

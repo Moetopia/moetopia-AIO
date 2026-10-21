@@ -31,6 +31,9 @@ func TestAdminReviewSuspensionAndAudit(t *testing.T) {
 	if got := f.request("POST", path+"/review", cookie, csrf, adminOrigin, map[string]any{"revision": app.Revision, "approve": true, "reason": ""}).Code; got != 403 {
 		t.Fatal("review bypassed MFA")
 	}
+	if f.request("GET", path+"/versions", cookie, "", "", nil).Code != 403 {
+		t.Fatal("application history bypassed MFA")
+	}
 	cookie, csrf, _, _ = f.enroll(t, cookie, csrf)
 	list := decodeAccount[developer.Applications](t, f.request("GET", "/api/v1/admin/applications?status=pending", cookie, "", "", nil), 200)
 	found := false
@@ -45,6 +48,10 @@ func TestAdminReviewSuspensionAndAudit(t *testing.T) {
 	app = decodeAccount[developer.Application](t, f.request("POST", path+"/review", cookie, csrf, adminOrigin, map[string]any{"revision": app.Revision, "approve": true, "reason": "Reviewed"}), 200)
 	if app.ActiveVersion != 1 || app.Latest.Status != "approved" {
 		t.Fatal("authenticated review did not publish application")
+	}
+	history := decodeAccount[developer.VersionHistory](t, f.request("GET", path+"/versions", cookie, "", "", nil), 200)
+	if len(history.Items) != 1 || history.Items[0].Status != "approved" || history.ActiveVersion != 1 {
+		t.Fatal("administrator history omitted approved configuration")
 	}
 	access := f.applicationAccess(t, app.ClientID, "", applicationConfig().RedirectURIs[0])
 	app = decodeAccount[developer.Application](t, f.request("POST", path+"/suspension", cookie, csrf, adminOrigin, map[string]any{"revision": app.Revision, "suspended": true, "reason": "Investigating application behavior"}), 200)
@@ -72,6 +79,9 @@ func TestAdminReviewSuspensionAndAudit(t *testing.T) {
 	}
 	if got := f.request("GET", path, cookie, "", "", nil).Code; got != 403 {
 		t.Fatal("expired MFA still permits review data")
+	}
+	if f.request("GET", path+"/versions", cookie, "", "", nil).Code != 403 {
+		t.Fatal("expired MFA still permits application history")
 	}
 }
 func TestAdminReviewAndGateShareOneTransaction(t *testing.T) {
@@ -111,5 +121,30 @@ func TestAdminReviewAndGateShareOneTransaction(t *testing.T) {
 	client, err := f.db.Ent.OAuthClient.Get(t.Context(), app.ClientID)
 	if err != nil || !client.TestOnly {
 		t.Fatal("failed admin command committed protocol client update")
+	}
+}
+
+func TestAdminCanSuspendApplicationWithDisabledOwner(t *testing.T) {
+	f := newAdminFixture(t)
+	cookie, csrf := f.login(t)
+	cookie, csrf, _, _ = f.enroll(t, cookie, csrf)
+	other, _, _ := managementFixture(t)
+	owner, err := other.identity.User(t.Context(), other.userID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	created, err := f.applications.Create(t.Context(), owner, true, applicationConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := f.db.Ent.AccountUser.UpdateOneID(owner.ID).SetEnabled(false).Exec(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	app := decodeAccount[developer.Application](t, f.request("POST", "/api/v1/admin/applications/"+created.Application.ID+"/suspension", cookie, csrf, adminOrigin, map[string]any{"revision": created.Application.Revision, "suspended": true, "reason": "Reviewing owner security"}), 200)
+	if !app.Suspended {
+		t.Fatal("disabled owner prevented platform suspension")
+	}
+	if email, err := f.identity.VerifiedEmail(t.Context(), owner.ID); err != nil || email != owner.Email {
+		t.Fatal("disabled owner cannot receive a security notice")
 	}
 }

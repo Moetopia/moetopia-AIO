@@ -239,6 +239,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/applications/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin applications by ID versions */
+        get: operations["get-api-v1-admin-applications-by-id-versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/audit-events": {
         parameters: {
             query?: never;
@@ -594,6 +611,23 @@ export interface paths {
         put?: never;
         /** Post API v1 developer applications by ID submit */
         post: operations["post-api-v1-developer-applications-by-id-submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 developer applications by ID versions */
+        get: operations["get-api-v1-developer-applications-by-id-versions"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1464,6 +1498,30 @@ export interface components {
             /** Format: int64 */
             version: number;
         };
+        VersionHistory: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/VersionHistory.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            active_version: number;
+            items: components["schemas"]["VersionRecord"][] | null;
+            /** Format: int64 */
+            latest_version: number;
+            /** Format: int64 */
+            next_before: number;
+        };
+        VersionRecord: {
+            config: components["schemas"]["Config"];
+            /** Format: date-time */
+            created_at: string;
+            review_reason: string;
+            status: string;
+            /** Format: int64 */
+            version: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -1989,6 +2047,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-applications-by-id-versions": {
+        parameters: {
+            query?: {
+                before?: number;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionHistory"];
                 };
             };
             /** @description Error */
@@ -2880,6 +2973,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-developer-applications-by-id-versions": {
+        parameters: {
+            query?: {
+                before?: number;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionHistory"];
                 };
             };
             /** @description Error */

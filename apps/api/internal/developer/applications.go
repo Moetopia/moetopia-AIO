@@ -189,6 +189,9 @@ func (s *Service) RotateSecret(ctx context.Context, user identity.User, id strin
 	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.secret.rotated", id, "success"); err != nil {
 		return "", err
 	}
+	if err := s.notify(ctx, user.ID, id, "application.secret.rotated", "If this was not you, disable the application and secure your account. 如非本人操作，请立即停用应用并保护账号。"); err != nil {
+		return "", err
+	}
 	return secret, tx.Commit()
 }
 func (s *Service) Delete(ctx context.Context, user identity.User, id string, revision int) error {

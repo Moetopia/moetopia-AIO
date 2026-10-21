@@ -1,6 +1,6 @@
 # 身份、授权与安全约束
 
-状态：目标安全约束；不代表通过合规或生产安全验收。已实现账号基础、授权码/OIDC、刷新轮换和协议撤销，选型和参数见 [ADR-0013](decisions/0013-implementation-baseline.md)、[ADR-0014](decisions/0014-account-preview.md)、[ADR-0015](decisions/0015-authorization-code-oidc.md) 及 [ADR-0018](decisions/0018-refresh-token-rotation.md)。授权页和独立 RP 的真实 Chromium 闭环已验证，退出/公开内省等仍待完成，不能把下述目标全部当作已实现。协议依据初次核对：2026-10-17；授权码、刷新和撤销源码及协议复核：2026-10-18。
+状态：目标安全约束；不代表通过合规或生产安全验收。已实现账号基础、授权码/OIDC、刷新轮换和协议撤销，选型和参数见 [ADR-0013](decisions/0013-implementation-baseline.md)、[ADR-0014](decisions/0014-account-preview.md)、[ADR-0015](decisions/0015-authorization-code-oidc.md) 及 [ADR-0018](decisions/0018-refresh-token-rotation.md)。授权页和独立 RP 的真实 Chromium 闭环已验证；2026-10-21 新增受限令牌内省，见 [ADR-0023](decisions/0023-introspection-and-application-history.md)，标准退出仍待完成，不能把下述目标全部当作已实现。协议依据初次核对：2026-10-17；授权码、刷新和撤销复核：2026-10-18；RFC 7662/8414 与锁定 Fosite 内省源码复核：2026-10-21。
 
 ## 规范依据与项目策略
 

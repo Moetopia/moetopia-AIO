@@ -1795,6 +1795,78 @@
           "review_reason"
         ],
         "type": "object"
+      },
+      "VersionHistory": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/VersionHistory.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "active_version": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VersionRecord"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "latest_version": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "next_before": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "next_before",
+          "active_version",
+          "latest_version"
+        ],
+        "type": "object"
+      },
+      "VersionRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/Config"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "review_reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "version": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "created_at",
+          "version",
+          "config",
+          "status",
+          "review_reason"
+        ],
+        "type": "object"
       }
     }
   },
@@ -2653,6 +2725,63 @@
           }
         },
         "summary": "Post API v1 admin applications by ID suspension"
+      }
+    },
+    "/api/v1/admin/applications/{id}/versions": {
+      "get": {
+        "operationId": "get-api-v1-admin-applications-by-id-versions",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "format": "int64",
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionHistory"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 admin applications by ID versions"
       }
     },
     "/api/v1/admin/audit-events": {
@@ -4089,6 +4218,63 @@
           }
         },
         "summary": "Post API v1 developer applications by ID submit"
+      }
+    },
+    "/api/v1/developer/applications/{id}/versions": {
+      "get": {
+        "operationId": "get-api-v1-developer-applications-by-id-versions",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "format": "int64",
+              "maximum": 2147483647,
+              "minimum": 0,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionHistory"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 developer applications by ID versions"
       }
     },
     "/api/v1/portal/authorizations": {

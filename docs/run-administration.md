@@ -65,6 +65,7 @@ MFA 状态包括 enrolled、verified、verified_until（有效时才提供）、
 | --- | --- | --- |
 | GET `/applications` | status=pending（默认）或 all，可选 cursor | 应用列表，每页 20 |
 | GET `/applications/{id}` | 应用 UUID | latest、approved、生效和暂停状态 |
+| GET `/applications/{id}/versions` | 可选 before，非负整数 | 配置历史每页 20；字段和分页语义见 [应用管理](run-developer-applications.md#配置版本与应用通知) |
 | POST `/applications/{id}/review` | revision、approve、reason | 更新后的应用；拒绝必须说明理由 |
 | POST `/applications/{id}/suspension` | revision、suspended、reason | 更新后的应用；暂停必须说明理由 |
 | GET `/users` | 可选 query、cursor | 普通及管理账号资料，每页 50，不含密码/hash |
@@ -78,7 +79,7 @@ MFA 状态包括 enrolled、verified、verified_until（有效时才提供）、
 
 列表 next_cursor 为空字符串表示结束。用户 query 为邮箱/昵称前缀（最少 2 字符）或完整 ID，游标绑定原 query；变更筛选后丢弃旧游标。当前不提供统计趋势/汇总接口，不用列表长度伪造全站统计。小规模前缀检索的生产索引/容量仍需实测。
 
-平台 suspended 与所有者 enabled 分开：有效可用条件为 enabled 且未 suspended。所有者自行启用、改草稿均不能绕过暂停；解除暂停不会复活旧授权。发布版 pending/rejected 仍使用旧批准配置；通过审核按既有保守策略撤销旧授权族并切换版本，详细语义见 [应用管理](run-developer-applications.md)。
+平台 suspended 与所有者 enabled 分开：有效可用条件为 enabled 且未 suspended。所有者自行启用、改草稿均不能绕过暂停；解除暂停不会复活旧授权。发布版 pending/rejected 仍使用旧批准配置；通过审核按既有保守策略撤销旧授权族并切换版本，详细语义见 [应用管理](run-developer-applications.md)。2026-10-21 新增版本历史读取和批准/拒绝、暂停/解除的所有者邮件通知；队列失败整笔回滚，账号冻结不妨碍管理员暂停其应用。通知投递和保留策略由应用文档唯一定义。
 
 普通账号停用/重启都递增 security_version，撤销全部自有会话并消费未完成挑战；重启不恢复旧会话、授权码或刷新凭据。离线 JWT 仍有到期残留窗口。**该接口禁止操作任何管理员主体，包括自己**，以免普通用户控制误封最后管理员；角色授予/撤回和受控管理员冻结另行设计，不提供伪装成普通账号停用的后门。
 

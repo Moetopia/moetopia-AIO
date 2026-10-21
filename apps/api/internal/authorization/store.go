@@ -26,7 +26,8 @@ type Store struct {
 
 func NewStore(client *ent.Client, box *cryptobox.Box) *Store { return &Store{client: client, box: box} }
 
-func (s *Store) GetClient(ctx context.Context, id string) (fosite.Client, error) {
+func (s *Store) GetClient(ctx context.Context, id string) (_ fosite.Client, resultErr error) {
+	defer func() { observeIntrospectionRead(ctx, resultErr) }()
 	query := s.database(ctx).OAuthClient.Query().Where(oauthclient.ID(id))
 	if state, ok := ctx.Value(transactionKey{}).(transaction); ok && !*state.clientRead {
 		// Pin the incoming client's configuration before grant locks; foreign snapshots must not invert this order.
@@ -107,7 +108,8 @@ func (s *Store) GetAccessTokenSession(ctx context.Context, signature string, ses
 	return s.load(ctx, "access", signature, session)
 }
 
-func (s *Store) load(ctx context.Context, kind, signature string, session fosite.Session) (fosite.Requester, error) {
+func (s *Store) load(ctx context.Context, kind, signature string, session fosite.Session) (_ fosite.Requester, resultErr error) {
+	defer func() { observeIntrospectionRead(ctx, resultErr) }()
 	id := signatureID(kind, signature)
 	query := s.database(ctx).ProtocolSession.Query().Where(protocolsession.ID(id))
 	row, err := query.Only(ctx)

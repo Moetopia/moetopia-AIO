@@ -178,6 +178,7 @@ func TestPersistentClientCredentialsAndRestart(t *testing.T) {
 		}
 	}
 	t.Run("authorization_code_oidc", func(t *testing.T) { testCodeFlow(t, db, box, key, encoded) })
+	t.Run("token_introspection", func(t *testing.T) { testIntrospection(t, db, box, key, encoded) })
 	t.Run("refresh_rotation_and_revocation", func(t *testing.T) { testRefreshFlow(t, db, box, key, encoded) })
 	t.Run("user_grants_and_security_versions", func(t *testing.T) { testUserGrants(t, db, box, key, encoded) })
 }

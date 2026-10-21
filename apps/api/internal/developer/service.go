@@ -12,6 +12,7 @@ import (
 
 	"moetopia.local/aio/api/internal/authorization"
 	"moetopia.local/aio/api/internal/identity"
+	"moetopia.local/aio/api/internal/notifications"
 	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/persistence/ent"
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
@@ -58,10 +59,11 @@ type Service struct {
 	protocol *authorization.Provider
 	users    *identity.Service
 	issuer   string
+	outbox   *notifications.Outbox
 }
 
-func New(db *ent.Client, protocol *authorization.Provider, users *identity.Service, issuer string) *Service {
-	return &Service{db, protocol, users, issuer}
+func New(db *ent.Client, protocol *authorization.Provider, users *identity.Service, issuer string, outbox *notifications.Outbox) *Service {
+	return &Service{db, protocol, users, issuer, outbox}
 }
 func (s *Service) validate(config Config) (Config, error) {
 	config.Name, config.Description = strings.TrimSpace(config.Name), strings.TrimSpace(config.Description)

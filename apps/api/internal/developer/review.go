@@ -69,6 +69,9 @@ func (s *Service) Review(ctx context.Context, reviewer, id string, revision int,
 	if err := audit.RecordTarget(ctx, tx.Client(), reviewer, action, id, "success"); err != nil {
 		return Application{}, err
 	}
+	if err := s.notify(ctx, row.OwnerID, id, action, strings.TrimSpace(reason)); err != nil {
+		return Application{}, err
+	}
 	view, err := s.view(ctx, tx.Client(), row)
 	if err != nil {
 		return Application{}, err

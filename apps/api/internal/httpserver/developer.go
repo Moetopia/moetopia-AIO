@@ -95,6 +95,7 @@ func (a DeveloperEndpoints) actor(ctx context.Context, input AccountWrite, write
 	return user, nil
 }
 func (a DeveloperEndpoints) Register(api huma.API) {
+	a.registerHistory(api)
 	huma.Get(api, "/api/v1/developer/applications", func(ctx context.Context, input *GrantListInput) (*ApplicationsOutput, error) {
 		user, err := a.actor(ctx, AccountWrite{Cookie: input.Cookie}, false)
 		if err != nil {

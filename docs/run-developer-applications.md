@@ -1,6 +1,6 @@
 # 开发者应用管理接入
 
-更新时间：2026-10-19。所有者管理接口及协议接线已有实现和真实数据库测试，前端已完成本批接入。独立管理员 RP/角色/MFA 及受保护的审核/平台暂停路由也已实现，完整契约见 [管理员接入](run-administration.md)；成品后台页面仍需前端接线，不以领域测试替代页面验收。
+更新时间：2026-10-21。所有者管理接口及协议接线已有实现和真实数据库测试，前端已完成原批次接入。本批新增配置版本历史和应用邮件通知。独立管理员 RP/角色/MFA 及受保护的审核/平台暂停路由也已实现，完整契约见 [管理员接入](run-administration.md)；成品后台及历史页面仍需前端接线，不以领域测试替代页面验收。
 
 ## 前端可一次接入的接口
 
@@ -11,6 +11,7 @@
 | GET `/api/v1/developer/applications` | 可选 cursor | items、next_cursor；每页 20 |
 | POST `/api/v1/developer/applications` | public、config | 200 application；confidential 额外返回一次 client_secret |
 | GET `/api/v1/developer/applications/{id}` | 无 | 当前应用、latest 及可选 approved |
+| GET `/api/v1/developer/applications/{id}/versions` | 可选 before，非负整数 | 配置版本逆序分页；items、next_before、active_version、latest_version |
 | PUT `/api/v1/developer/applications/{id}/draft` | revision、config | 更新后应用 |
 | POST `/api/v1/developer/applications/{id}/submit` | revision | 待审应用 |
 | POST `/api/v1/developer/applications/{id}/availability` | revision、enabled | 更新后应用 |
@@ -31,7 +32,17 @@ config 包含 name、description、homepage_url、redirect_uris、scopes。创�
 
 secret 轮换立即使旧 secret 无法通过后续客户端认证，不提供重叠宽限；本次之前已经成功认证的事务可先完成。轮换本身不结束既有 access token，必要时先停用应用。公开客户端不能轮换 secret。
 
-这些业务管理接口不等于 RFC 动态客户端注册。固定自有 RP 客户端不归开发者管理，不能通过用户站修改其凭据或注册配置。管理员暂停独立使用 suspended/suspension_reason；有效可用条件为 enabled 且未 suspended，所有者重新启用或更新草稿不能绕过。暂停期间不能提交/批准，解除暂停不恢复旧凭据。历史版本列表、测试成员、统计、应用通知和所有权转移尚未实现。
+这些业务管理接口不等于 RFC 动态客户端注册。固定自有 RP 客户端不归开发者管理，不能通过用户站修改其凭据或注册配置。管理员暂停独立使用 suspended/suspension_reason；有效可用条件为 enabled 且未 suspended，所有者重新启用或更新草稿不能绕过。暂停期间不能提交/批准，解除暂停不恢复旧凭据。测试成员、统计、站内通知/Webhook 和所有权转移尚未实现。
+
+## 配置版本与应用通知
+
+版本路径用应用 UUID，使用 portal Cookie；管理员另用 `/api/v1/admin/applications/{id}/versions`，必须有效管理会话、角色和 MFA。每页最多 20 项，版本号降序；首请求省略 before 或传 0，后续将 next_before 原值传入，next_before=0 表示结束。before 是排他的版本上界，不是页码。空页 items=[]；没有其他所有者或已删除应用的可见入口。
+
+每项是原有 Version（version/config/status/review_reason）加 created_at，即版本创建时间；不返回审核人的用户 ID，也没有 reviewed_at。active_version 标记当前协议使用版本，latest_version 标记最新保存版本；旧批准记录即使不再生效，status 仍为 approved。draft 可以继续修改，pending 会变成 approved/rejected，因此这里只是已保存配置版本列表，不是每次编辑的审计历史。跨页不持有快照，审核或新增版本后从首页重读；没有直接恢复旧版的写入口，仍须提交新草稿并审核。
+
+批准、拒绝、平台暂停/解除以及 confidential secret 轮换将给所有者的已验证邮箱排队通知。当前只发中英邮件到开发 Mailpit，没有站内通知箱、WebSocket 或 Webhook；应用 ID/事件/审核或暂停理由可出现在通知，密码和 secret 不进入邮件。队列写入与业务/协议配置/审计同事务；队列失败返回 503 并回滚，提交后 SMTP 失败由 worker 重试，不回滚已生效配置。通知至少一次投递、24 小时过期，是开发参数，不承诺恰好一次或真实外部邮件送达。账号冻结不阻止管理员暂停其应用或通知该邮箱。
+
+这批能力无需新迁移、初始化或依赖，现有版本 9 即可运行。取舍见 [ADR-0023](decisions/0023-introspection-and-application-history.md)，生成包新增 DeveloperApplicationHistory/AdminApplicationHistory 别名。
 
 ## 校验和错误
 

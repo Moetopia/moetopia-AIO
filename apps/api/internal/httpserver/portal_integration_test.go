@@ -133,7 +133,7 @@ func newPortalFixture(t *testing.T) *portalFixture {
 	}
 	f.portal = portal
 	f.protocol, f.backchannel = provider, backchannel
-	f.applications = developer.New(f.db.Ent, provider, f.identity, portalOrigin)
+	f.applications = developer.New(f.db.Ent, provider, f.identity, portalOrigin, f.outbox)
 	f.handler = New(Dependencies{Tokens: provider, Valkey: f.cache, Portal: PortalEndpoints{Service: portal}, Developers: f.applications, Accounts: AccountEndpoints{Identity: f.identity, Sessions: f.sessions, Cache: f.cache, Authorization: provider}})
 	f.userID = uuid.NewString()
 	if err := f.db.Ent.AccountUser.Create().SetID(f.userID).SetEmail(f.userID + "@example.test").SetDisplayName("RP user").SetPasswordHash("unusable-test-credential").SetEmailVerifiedAt(time.Now()).Exec(t.Context()); err != nil {

@@ -54,6 +54,7 @@ func (s *Service) Suspend(ctx context.Context, actor, id string, revision int, s
 	if row.Revision != revision {
 		return Application{}, ErrConflict
 	}
+	changed := row.Suspended != suspended || suspended && row.SuspensionReason != reason
 	if err := s.protocol.SetManagedClientEnabled(ctx, row.ClientID, row.OwnerID, row.Enabled && !suspended); err != nil {
 		return Application{}, err
 	}
@@ -66,6 +67,15 @@ func (s *Service) Suspend(ctx context.Context, actor, id string, revision int, s
 	row.Suspended, row.SuspensionReason, row.Revision = suspended, reason, row.Revision+1
 	if err := audit.RecordTarget(ctx, unit.Client(), actor, "application.suspension.changed", id, "success"); err != nil {
 		return Application{}, err
+	}
+	event := "application.resumed"
+	if suspended {
+		event = "application.suspended"
+	}
+	if changed {
+		if err := s.notify(ctx, row.OwnerID, id, event, reason); err != nil {
+			return Application{}, err
+		}
 	}
 	result, err := s.view(ctx, unit.Client(), row)
 	if err != nil {

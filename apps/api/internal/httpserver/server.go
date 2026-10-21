@@ -75,6 +75,7 @@ func New(deps Dependencies) http.Handler {
 		r.Get("/oauth/jwks", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, http.StatusOK, deps.Tokens.JWKS()) })
 		r.Post("/oauth/token", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Token), deps.RateNamespace))
 		r.Post("/oauth/revoke", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Revoke), deps.RateNamespace))
+		r.Post("/oauth/introspect", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Introspect), deps.RateNamespace))
 	}
 	api := humachi.New(r, huma.DefaultConfig("Moetopia API", "0.1.0"))
 	if deps.Portal.Service != nil {

@@ -152,6 +152,10 @@ func TestDeveloperApplicationLifecycleAndProtocol(t *testing.T) {
 	if app.ActiveVersion != 3 {
 		t.Fatal("new reviewed version was not activated")
 	}
+	history := decodeAccount[developer.VersionHistory](t, f.request("GET", "/api/v1/developer/applications/"+app.ID+"/versions", cookie, "", "", nil), 200)
+	if len(history.Items) != 3 || history.ActiveVersion != 3 || history.Items[0].Status != "approved" || history.Items[1].Status != "rejected" || history.Items[1].ReviewReason != "Keep the approved callback" || history.Items[2].Config.RedirectURIs[0] != "https://client.moetopia.test/callback" {
+		t.Fatal("version history did not preserve reviewed configurations and reasons")
+	}
 	access := f.applicationAccess(t, app.ClientID, secret, config.RedirectURIs[0])
 	if f.checkApplicationToken(access) != 200 {
 		t.Fatal("approved client cannot authorize")
