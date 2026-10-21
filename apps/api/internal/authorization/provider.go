@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"time"
@@ -17,7 +18,7 @@ import (
 
 type Provider struct {
 	oauth  fosite.OAuth2Provider
-	key    *Key
+	keys   keySource
 	issuer string
 	store  *Store
 	users  SubjectSource
@@ -28,6 +29,21 @@ type SubjectSource interface {
 }
 
 func NewProvider(store *Store, key *Key, issuer, encryptionKey string, users SubjectSource) (*Provider, error) {
+	return newProvider(store, fixedKey{key}, issuer, encryptionKey, users)
+}
+
+func NewPersistentProvider(store *Store, issuer, encryptionKey string, users SubjectSource) (*Provider, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	keys := persistentKeys{store}
+	_, err := keys.Signing(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return newProvider(store, keys, issuer, encryptionKey, users)
+}
+
+func newProvider(store *Store, keys keySource, issuer, encryptionKey string, users SubjectSource) (*Provider, error) {
 	root, err := base64.StdEncoding.DecodeString(encryptionKey)
 	if err != nil {
 		return nil, err
@@ -35,11 +51,22 @@ func NewProvider(store *Store, key *Key, issuer, encryptionKey string, users Sub
 	mac := hmac.New(sha256.New, root)
 	_, _ = mac.Write([]byte("moetopia:oauth:opaque-token:v1"))
 	cfg := &fosite.Config{AccessTokenLifespan: 10 * time.Minute, RefreshTokenLifespan: refreshIdleLifetime, AuthorizeCodeLifespan: 5 * time.Minute, IDTokenLifespan: 10 * time.Minute, IDTokenIssuer: issuer, AccessTokenIssuer: issuer, GlobalSecret: mac.Sum(nil), ScopeStrategy: fosite.ExactScopeStrategy, EnforcePKCE: true, RefreshTokenScopes: []string{"offline_access"}, SendDebugMessagesToClients: false, JWTScopeClaimKey: jwt.JWTScopeFieldString}
-	strategy := compose.NewOAuth2JWTStrategy(func(context.Context) (interface{}, error) { return key.Private, nil }, compose.NewOAuth2HMACStrategy(cfg), cfg)
-	common := &compose.CommonStrategy{CoreStrategy: strategy, OpenIDConnectTokenStrategy: compose.NewOpenIDConnectStrategy(func(context.Context) (interface{}, error) { return key.Private, nil }, cfg), Signer: strategy.Signer}
+	getter := func(ctx context.Context) (interface{}, error) {
+		key, err := pinnedKey(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return key.Private, nil
+	}
+	signer := &rotatingSigner{DefaultSigner: &jwt.DefaultSigner{GetPrivateKey: getter}, keys: keys}
+	strategy := compose.NewOAuth2JWTStrategy(getter, compose.NewOAuth2HMACStrategy(cfg), cfg)
+	strategy.Signer = signer
+	openid := compose.NewOpenIDConnectStrategy(getter, cfg)
+	openid.Signer = signer
+	common := &compose.CommonStrategy{CoreStrategy: strategy, OpenIDConnectTokenStrategy: openid, Signer: signer}
 	store.strategy = strategy
 	provider := compose.Compose(cfg, store, common, compose.OAuth2AuthorizeExplicitFactory, compose.OAuth2RefreshTokenGrantFactory, compose.OAuth2ClientCredentialsGrantFactory, compose.OpenIDConnectExplicitFactory, compose.OpenIDConnectRefreshFactory, compose.OAuth2PKCEFactory, compose.OAuth2TokenIntrospectionFactory, compose.OAuth2TokenRevocationFactory)
-	return &Provider{oauth: provider, key: key, issuer: issuer, store: store, users: users}, nil
+	return &Provider{oauth: provider, keys: keys, issuer: issuer, store: store, users: users}, nil
 }
 
 func (p *Provider) Token(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +76,13 @@ func (p *Provider) Token(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer p.store.Rollback(ctx)
-	session := newSession(p.key.ID)
+	key, err := p.keys.Signing(ctx)
+	if err != nil {
+		p.oauth.WriteAccessError(ctx, w, nil, fosite.ErrTemporarilyUnavailable)
+		return
+	}
+	ctx = context.WithValue(ctx, signingKeyContext{}, key)
+	session := newSession(key.ID)
 	request, err := p.oauth.NewAccessRequest(ctx, r, session)
 	if err != nil {
 		if _, _, basic := r.BasicAuth(); basic && errors.Is(err, fosite.ErrInvalidClient) {
@@ -79,4 +112,19 @@ func (p *Provider) Token(w http.ResponseWriter, r *http.Request) {
 	p.oauth.WriteAccessResponse(ctx, w, request, response)
 }
 
-func (p *Provider) JWKS() any { return map[string]any{"keys": []map[string]string{p.key.PublicJWK()}} }
+func (p *Provider) JWKS(ctx context.Context) (any, error) {
+	keys, err := p.keys.List(ctx)
+	return map[string]any{"keys": keys}, err
+}
+
+func (p *Provider) WriteJWKS(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
+	keys, err := p.JWKS(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		_ = json.NewEncoder(w).Encode(map[string]string{"error": "temporarily_unavailable"})
+		return
+	}
+	_ = json.NewEncoder(w).Encode(keys)
+}

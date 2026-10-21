@@ -41,6 +41,7 @@
 | [0024](0024-account-deletion-lifecycle.md) | 七天注销、取消与模块清理 | 后端已实现；接口、迁移 10 与真实验证边界见运行契约和实施进度 |
 | [0025](0025-smtp-transport.md) | 校验 TLS 的 SMTP 通知传输 | STARTTLS/隐式 TLS 与本地协议测试已有；真实外部供应商投递待验收 |
 | [0026](0026-external-identity.md) | GitHub/Google 与无密码首登 | 用户确认不强制密码；后端实现，真实供应商和页面验收待完成 |
+| [0027](0027-signing-key-rotation.md) | 持久化签名密钥与常规轮换 | 后端实施；生产多实例、下游刷新及泄露应急待验收 |
 
 ## 第一轮已确认
 

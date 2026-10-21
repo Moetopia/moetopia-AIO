@@ -181,4 +181,5 @@ func TestPersistentClientCredentialsAndRestart(t *testing.T) {
 	t.Run("token_introspection", func(t *testing.T) { testIntrospection(t, db, box, key, encoded) })
 	t.Run("refresh_rotation_and_revocation", func(t *testing.T) { testRefreshFlow(t, db, box, key, encoded) })
 	t.Run("user_grants_and_security_versions", func(t *testing.T) { testUserGrants(t, db, box, key, encoded) })
+	t.Run("signing_key_rotation", func(t *testing.T) { testSigningKeyRotation(t, db, box, key, encoded) })
 }

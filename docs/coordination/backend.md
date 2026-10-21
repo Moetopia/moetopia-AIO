@@ -192,3 +192,11 @@ MFA 绑定开始需要当前密码，返回 seed/otpauth_uri 只在组件内存�
 Go test/vet、全工作区类型与 API 漂移检查、真实随机库集成通过。模拟协议覆盖 GitHub PKCE/稳定 ID/已验证邮箱提示和重定向拒绝，Google JWKS/签名/issuer/audience/azp/nonce/时效/at_hash。数据库覆盖准入、本地邮箱、错误次数、同邮箱不合并、一次消费/浏览器/供应商隔离、会话中途撤销、通知失败回滚、无密码恢复、单连接池、冻结/注销及级联清理；HTTP 覆盖实际 start/callback/Cookie/CSRF/重复参数和未配置供应商。没有真实供应商登录或新页面浏览器验收，未修改前端文件和 frontend.md。
 
 标准退出、签名密钥轮换及其他首期运行工作继续；后置的 Webhook/所有权转移等不能因历史“剩余”列表而自动升级为首期范围。
+
+## 2026-10-21：签名密钥常规轮换
+
+API 改用持久化密钥 source，Token 事务固定 active 私钥和最终 kid；新增 `pnpm api:keys:rotate`，旧公钥保留十五分钟，UserInfo/内省继续验旧 token，刷新/待兑授权码签出新 key，worker 清理到期旧私钥。操作说明和性能代价见 [签名密钥](../run-signing-keys.md)。没有新增 Huma 字段、迁移、依赖或前端工作。
+
+原始回归发现 Fosite 恢复的 OIDC 会话会带旧 header，已在最终 signer 修复，不能仅依赖 prepareToken 改头。Go test/vet 和真实随机数据库集成通过；覆盖新旧公钥、实时签发与验签、刷新和旧授权码、重开 provider、过期私钥清理、审计失败回滚及单连接池。普通 OIDC 真实 Chromium 回归 1 项通过，使用 API 58500；首轮失败已修复后重跑，不能忽略旧失败证据。实际外部 RP、多实例及泄露应急仍待验收。
+
+未对日常开发库轮换、删除密钥或改变根秘密，开发库仍为版本 11。运行轮换前所有 API 实例必须升级，旧的固定启动密钥实例不能继续混跑；该命令不等于全网立即撤销旧 key。

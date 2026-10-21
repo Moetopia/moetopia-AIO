@@ -75,7 +75,7 @@ func New(deps Dependencies) http.Handler {
 		r.Get("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, http.StatusOK, deps.Tokens.Metadata()) })
 		r.Get("/oauth/authorize", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Authorize), deps.RateNamespace))
 		r.Get("/oauth/userinfo", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.UserInfo), deps.RateNamespace))
-		r.Get("/oauth/jwks", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, http.StatusOK, deps.Tokens.JWKS()) })
+		r.Get("/oauth/jwks", deps.Tokens.WriteJWKS)
 		r.Post("/oauth/token", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Token), deps.RateNamespace))
 		r.Post("/oauth/revoke", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Revoke), deps.RateNamespace))
 		r.Post("/oauth/introspect", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Introspect), deps.RateNamespace))

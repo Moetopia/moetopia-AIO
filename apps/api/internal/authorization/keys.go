@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"moetopia.local/aio/api/internal/cryptobox"
 	"moetopia.local/aio/api/internal/persistence"
+	"moetopia.local/aio/api/internal/persistence/ent"
 	"moetopia.local/aio/api/internal/persistence/ent/signingkey"
 )
 
@@ -65,6 +66,10 @@ func LoadActiveKey(ctx context.Context, db *persistence.Database, box *cryptobox
 	if err != nil {
 		return nil, errors.New("signing key is unavailable; run the keys initialization command after migrations")
 	}
+	return decryptKey(box, row)
+}
+
+func decryptKey(box *cryptobox.Box, row *ent.SigningKey) (*Key, error) {
 	private, err := box.Open(row.PrivateKey, "signing-key:"+row.ID)
 	if err != nil {
 		return nil, errors.New("signing key could not be decrypted")
@@ -74,12 +79,20 @@ func LoadActiveKey(ctx context.Context, db *persistence.Database, box *cryptobox
 		return nil, errors.New("signing key is invalid")
 	}
 	key, ok := parsed.(*rsa.PrivateKey)
-	if !ok || row.Algorithm != "RS256" || key.N.BitLen() < 3072 {
+	if !ok || row.Algorithm != "RS256" || key.N.BitLen() < 3072 || key.Validate() != nil {
 		return nil, errors.New("signing key does not meet the configured algorithm and size")
+	}
+	public, err := parsePublic(row.Algorithm, row.PublicKey)
+	if err != nil || public.N.Cmp(key.N) != 0 || public.E != key.E {
+		return nil, errors.New("signing key pair is inconsistent")
 	}
 	return &Key{ID: row.ID, Private: key}, nil
 }
 
 func (k *Key) PublicJWK() map[string]string {
-	return map[string]string{"kty": "RSA", "use": "sig", "alg": "RS256", "kid": k.ID, "n": base64.RawURLEncoding.EncodeToString(k.Private.N.Bytes()), "e": base64.RawURLEncoding.EncodeToString(big.NewInt(int64(k.Private.E)).Bytes())}
+	return publicJWK(k.ID, &k.Private.PublicKey)
+}
+
+func publicJWK(id string, key *rsa.PublicKey) map[string]string {
+	return map[string]string{"kty": "RSA", "use": "sig", "alg": "RS256", "kid": id, "n": base64.RawURLEncoding.EncodeToString(key.N.Bytes()), "e": base64.RawURLEncoding.EncodeToString(big.NewInt(int64(key.E)).Bytes())}
 }

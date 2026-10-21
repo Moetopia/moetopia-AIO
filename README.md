@@ -42,6 +42,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [账号注销与清理](docs/run-account-lifecycle.md) | 七天冷静期、取消验证、模块清理与迁移 10 |
 | [邮件传输](docs/run-email.md) | SMTP TLS、开发 Mailpit、队列与生产配置边界 |
 | [第三方登录与绑定](docs/run-federation.md) | GitHub/Google、无密码首登、注册补全与迁移 11 |
+| [签名密钥轮换](docs/run-signing-keys.md) | 事务固定密钥、旧公钥窗口与常规运维命令 |
 | [开发者应用接入](docs/run-developer-applications.md) | 创建、版本、测试、凭据、接口边界与迁移 7 |
 | [管理员与后台接入](docs/run-administration.md) | 独立 RP、TOTP/恢复、审核/暂停、用户/邀请/审计与迁移 8/9 |
 | [独立客户端验证](docs/oidc-interop.md) | 真实浏览器互操作、代理修复和 test:oidc 的隔离运行 |

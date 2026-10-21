@@ -25,6 +25,7 @@
     "api:check:client": "node scripts/generate-api.mjs --check",
     "api:migrate": "node --env-file=.env scripts/api.mjs migrate",
     "api:keys:init": "node --env-file=.env scripts/api.mjs keys-init",
+    "api:keys:rotate": "node --env-file=.env scripts/api.mjs keys-rotate",
     "dev:invite": "node --env-file=.env scripts/api.mjs dev-invite",
     "api:first-party:init": "node --env-file=.env scripts/api.mjs first-party-init",
     "api:grants:backfill": "node --env-file=.env scripts/api.mjs grants-backfill",

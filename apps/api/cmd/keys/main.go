@@ -15,14 +15,14 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		slog.Error("key initialization failed", "error", err)
+		slog.Error("signing key command failed", "error", err)
 		os.Exit(1)
 	}
 }
 
 func run() error {
-	if len(os.Args) != 2 || os.Args[1] != "init" {
-		return errors.New("usage: keys init")
+	if len(os.Args) != 2 || os.Args[1] != "init" && os.Args[1] != "rotate" {
+		return errors.New("usage: keys init|rotate")
 	}
 	cfg, err := config.Load()
 	if err != nil {
@@ -39,6 +39,13 @@ func run() error {
 		return err
 	}
 	defer db.Close()
+	if os.Args[1] == "rotate" {
+		if err := authorization.RotateKey(ctx, db, box); err != nil {
+			return err
+		}
+		slog.Info("signing key rotated; old public key retained for overlap; private key was not displayed")
+		return nil
+	}
 	if err := authorization.InitializeKey(ctx, db, box); err != nil {
 		return err
 	}

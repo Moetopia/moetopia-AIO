@@ -133,7 +133,7 @@ func (p *Provider) Decide(ctx context.Context, id, token string, user identity.U
 		for _, audience := range ar.GetRequestedAudience() {
 			ar.GrantAudience(audience)
 		}
-		session := newSession(p.key.ID)
+		session := newSession("")
 		session.Subject, session.JWTClaims.Subject = user.ID, user.ID
 		session.SecurityVersion = user.SecurityVersion
 		session.JWTClaims.Extra = map[string]interface{}{"client_id": ar.GetClient().GetID()}

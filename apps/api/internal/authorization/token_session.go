@@ -15,8 +15,12 @@ func (p *Provider) prepareToken(ctx context.Context, request fosite.AccessReques
 	if !ok {
 		return fosite.ErrServerError
 	}
-	session.JWTHeader.Extra = map[string]interface{}{"typ": "at+jwt", "kid": p.key.ID}
-	session.IdentityHeaders.Extra = map[string]interface{}{"typ": "JWT", "kid": p.key.ID}
+	key, err := pinnedKey(ctx)
+	if err != nil {
+		return fosite.ErrTemporarilyUnavailable
+	}
+	session.JWTHeader.Extra = map[string]interface{}{"typ": "at+jwt", "kid": key.ID}
+	session.IdentityHeaders.Extra = map[string]interface{}{"typ": "JWT", "kid": key.ID}
 	if request.GetGrantTypes().ExactOne("client_credentials") {
 		for _, scope := range []string{"openid", "profile", "email", "offline_access"} {
 			if request.GetRequestedScopes().Has(scope) {

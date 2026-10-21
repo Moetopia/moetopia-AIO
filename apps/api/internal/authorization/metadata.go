@@ -51,7 +51,7 @@ func (p *Provider) UserInfo(w http.ResponseWriter, r *http.Request) {
 		fail()
 		return
 	}
-	_, request, err := p.oauth.IntrospectToken(r.Context(), parts[1], fosite.AccessToken, newSession(p.key.ID), "openid")
+	_, request, err := p.oauth.IntrospectToken(r.Context(), parts[1], fosite.AccessToken, newSession(""), "openid")
 	if err != nil || !request.GetGrantedScopes().Has("openid") {
 		fail()
 		return

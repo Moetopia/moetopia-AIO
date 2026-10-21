@@ -61,7 +61,7 @@ func (p *Provider) Introspect(w http.ResponseWriter, r *http.Request) {
 	}
 	failed := false
 	ctx = context.WithValue(ctx, introspectionReadKey{}, &failed)
-	result, err := p.oauth.NewIntrospectionRequest(ctx, r, newSession(p.key.ID))
+	result, err := p.oauth.NewIntrospectionRequest(ctx, r, newSession(""))
 	if failed {
 		fail(fosite.ErrTemporarilyUnavailable)
 		return

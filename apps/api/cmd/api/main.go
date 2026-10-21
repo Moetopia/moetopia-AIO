@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
 	"net"
@@ -62,10 +61,6 @@ func run() error {
 		return errors.New("Valkey connection failed; check MOETOPIA_VALKEY_ADDRESS")
 	}
 	defer cache.Close()
-	key, err := authorization.LoadActiveKey(startup, db, box)
-	if err != nil {
-		return err
-	}
 	mailer, err := notifications.NewSMTP(notifications.SMTPConfig{Address: cfg.SMTPAddress, From: cfg.SMTPFrom, Security: cfg.SMTPSecurity, Username: cfg.SMTPUsername, Password: cfg.SMTPPassword, AllowPlain: cfg.Environment != "production"})
 	if err != nil {
 		return err
@@ -79,17 +74,14 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	provider, err := authorization.NewProvider(authorization.NewStore(db.Ent, box), key, cfg.Issuer, cfg.EncryptionKey, accounts)
+	provider, err := authorization.NewPersistentProvider(authorization.NewStore(db.Ent, box), cfg.Issuer, cfg.EncryptionKey, accounts)
 	if err != nil {
 		return err
 	}
 	workerDone := make(chan struct{})
 	protocol := http.NewServeMux()
 	protocol.HandleFunc("POST /oauth/token", provider.Token)
-	protocol.HandleFunc("GET /oauth/jwks", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(provider.JWKS())
-	})
+	protocol.HandleFunc("GET /oauth/jwks", provider.WriteJWKS)
 	portal, err := relyingparty.New(db.Ent, box, accounts, cfg.Issuer, cfg.EncryptionKey, cfg.Environment == "production", protocol)
 	if err != nil {
 		return err

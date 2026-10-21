@@ -4,6 +4,7 @@ const commands = {
   dev: ['run', './cmd/api'],
   migrate: ['run', './cmd/migrate'],
   'keys-init': ['run', './cmd/keys', 'init'],
+  'keys-rotate': ['run', './cmd/keys', 'rotate'],
   'dev-invite': ['run', './cmd/devinvite'],
   'first-party-init': ['run', './cmd/firstparty'],
   'grants-backfill': ['run', './cmd/backfillgrants'],

@@ -58,7 +58,7 @@ func newPortalFixture(t *testing.T) *portalFixture {
 	f := &portalFixture{accountFixture: base}
 	backchannel := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/oauth/jwks" {
-			writeJSON(w, 200, provider.JWKS())
+			provider.WriteJWKS(w, r)
 			return
 		}
 		if f.mutation == "server_error" {
@@ -107,7 +107,11 @@ func newPortalFixture(t *testing.T) *portalFixture {
 			claims["security_version"] = 99
 		}
 		changed := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-		changed.Header["kid"] = provider.JWKS().(map[string]any)["keys"].([]map[string]string)[0]["kid"]
+		keys, err := provider.JWKS(t.Context())
+		if err != nil {
+			t.Fatal(err)
+		}
+		changed.Header["kid"] = keys.(map[string]any)["keys"].([]map[string]string)[0]["kid"]
 		encoded, err := changed.SignedString(private)
 		if err != nil {
 			t.Error("could not sign fixture")
