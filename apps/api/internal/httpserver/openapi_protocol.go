@@ -93,7 +93,7 @@ func documentProtocolAPI(doc *huma.OpenAPI) {
 		"code":          protocolString("authorization_code 必填，单次授权码"), "redirect_uri": protocolString("authorization_code 必填，与授权请求相同"),
 		"code_verifier": protocolString("authorization_code 必填，原始 PKCE verifier"),
 		"refresh_token": {Type: "string", WriteOnly: true, Description: "refresh_token grant 必填；成功后换用新凭据，旧值重用将撤销整族"},
-		"scope":         protocolString("空格分隔；刷新只能缩小权限"), "audience": protocolString("已注册的资源 audience"),
+		"scope":         protocolString("空格分隔；刷新时省略以沿用原授权，或传入与原授权相同的 scope 集合；不支持缩减"), "audience": protocolString("已注册的资源 audience；刷新时省略或与原授权相同，不可更换"),
 	}, "grant_type")
 	tokenForm.OneOf = []*huma.Schema{
 		{Properties: map[string]*huma.Schema{"grant_type": {Const: "authorization_code"}}, Required: []string{"code", "redirect_uri", "code_verifier"}},

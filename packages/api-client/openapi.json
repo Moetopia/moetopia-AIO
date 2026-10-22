@@ -8854,7 +8854,7 @@
                 ],
                 "properties": {
                   "audience": {
-                    "description": "已注册的资源 audience",
+                    "description": "已注册的资源 audience；刷新时省略或与原授权相同，不可更换",
                     "type": "string"
                   },
                   "client_id": {
@@ -8893,7 +8893,7 @@
                     "writeOnly": true
                   },
                   "scope": {
-                    "description": "空格分隔；刷新只能缩小权限",
+                    "description": "空格分隔；刷新时省略以沿用原授权，或传入与原授权相同的 scope 集合；不支持缩减",
                     "type": "string"
                   }
                 },

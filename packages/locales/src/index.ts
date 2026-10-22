@@ -1,4 +1,12 @@
 import zhCN from './lang/zh-CN'
+import documentationCN from './documentation/zh-CN'
+import documentationTW from './documentation/zh-TW'
+import documentationEN from './documentation/en'
+import documentationJA from './documentation/ja'
+import type { DocumentationMessages } from './documentation/types'
+export { guideIds } from './documentation/types'
+export type { GuideId } from './documentation/types'
+export const documentationMessages: Record<Locale, DocumentationMessages> = { 'zh-CN': documentationCN, 'zh-TW': documentationTW, en: documentationEN, ja: documentationJA }
 import zhTW from './lang/zh-TW'
 import en from './lang/en'
 import ja from './lang/ja'

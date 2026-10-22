@@ -1,34 +1,29 @@
 <script setup lang="ts">
-import { MoePageHeading, MoeCodeBlock, MoeTable, MoeCopyButton, MoeBadge } from '@moetopia/ui'
-import { portalMessages, managementMessages } from '@moetopia/locales'
+import { MoePageHeading, MoeCodeBlock, MoeCopyButton, MoeDocumentLayout, MoeLink, MoeAlert } from '@moetopia/ui'
+import { guideIds, type GuideId } from '@moetopia/locales'
+import { documentationExamples, documentationSources } from '../utils/documentation-examples'
 const props = defineProps<{ section?: string }>()
-const { locale } = usePortalPreferences()
-const text = computed(() => portalMessages[locale.value])
-const management = computed(() => managementMessages[locale.value])
-const { text: integration } = useIntegrationMessages()
-const title = computed(() => props.section === 'authentication' ? text.value.docsAuthentication : props.section === 'credentials' ? text.value.docsCredentials : props.section === 'endpoints' ? text.value.endpointTitle : props.section === 'errors' ? text.value.docsErrors : text.value.docsTitle)
-const code = 'GET /.well-known/openid-configuration\n\nresponse_type=code\nscope=openid profile email\ncode_challenge_method=S256'
-const endpoints = [
-  { id: 'discovery', method: 'GET', path: '/.well-known/openid-configuration', purpose: 'Discovery' },
-  { id: 'authorize', method: 'GET', path: '/oauth/authorize', purpose: 'Authorization' },
-  { id: 'token', method: 'POST', path: '/oauth/token', purpose: 'Token' },
-  { id: 'userinfo', method: 'GET', path: '/oauth/userinfo', purpose: 'UserInfo' },
-  { id: 'jwks', method: 'GET', path: '/oauth/jwks', purpose: 'JWKS' },
-  { id: 'revoke', method: 'POST', path: '/oauth/revoke', purpose: 'Revocation' },
-  { id: 'introspect', method: 'POST', path: '/oauth/introspect', purpose: 'Introspection (server only)' },
-  { id: 'logout', method: 'GET', path: '/oauth/logout', purpose: 'RP-Initiated Logout' },
-]
-const documentText = computed(() => [text.value.docsTitle, text.value.docsAuthenticationBody, management.value.testOnly, management.value.configHint, management.value.clientTypeHint, management.value.reviewUnavailable, text.value.docsErrorsBody, ...endpoints.map(endpoint => `${endpoint.method} ${endpoint.path}`)].join('\n\n'))
+const { docs, common } = useDocumentation()
+const id = computed(() => guideIds.includes(props.section as GuideId) ? props.section as GuideId : 'overview')
+const guide = computed(() => docs.value.guides[id.value])
+const position = computed(() => guideIds.indexOf(id.value))
+const adjacent = computed(() => [guideIds[position.value - 1], guideIds[position.value + 1]].filter((value): value is GuideId => !!value))
+const href = (value: string) => value === 'overview' ? '/developer/docs' : `/developer/docs/${value}`
+const documentText = computed(() => [guide.value.title, guide.value.description, ...guide.value.sections.flatMap(section => [section.title, ...section.paragraphs, section.code ? documentationExamples[section.code] : ''])].filter(Boolean).join('\n\n'))
+useHead(() => ({ title: `${guide.value.title} · Moetopia` }))
 </script>
 <template>
-  <article class="moe-document">
-    <div class="flex justify-end"><MoeCopyButton :value="documentText" :label="text.copy" :copied-label="text.copied" :error-label="text.copyFailed" /></div>
-    <MoePageHeading :title="title" :description="text.docsDescription" />
-    <section v-if="!section" id="overview"><p>{{ text.docsAuthenticationBody }}</p><MoeBadge class="justify-self-start">{{ text.protocolBadge }}</MoeBadge><DeveloperGuide /></section>
-    <section v-if="!section || section === 'authentication'" id="authentication"><h2 v-if="!section">{{ text.docsAuthentication }}</h2><p>{{ text.docsAuthenticationBody }}</p><MoeCodeBlock :title="text.docsExample" :code="code" :copy-label="text.copy" :copied-label="text.copied" :error-label="text.copyFailed" /></section>
-    <section v-if="!section || section === 'credentials'" id="credentials"><h2 v-if="!section">{{ text.docsCredentials }}</h2><p>{{ management.testOnly }}</p><p>{{ management.configHint }}</p><p>{{ management.clientTypeHint }}</p><p>{{ management.reviewUnavailable }}</p></section>
-    <section v-if="!section || section === 'endpoints'" id="endpoints"><h2 v-if="!section">{{ text.endpointTitle }}</h2><p>{{ text.endpointDescription }}</p><MoeTable :caption="text.endpointTitle" :columns="[{ key: 'method', label: 'HTTP' }, { key: 'path', label: 'Endpoint' }, { key: 'purpose', label: 'Protocol' }]" :rows="endpoints" row-key="id" /></section>
-    <section v-if="!section || section === 'errors'" id="errors"><h2 v-if="!section">{{ text.docsErrors }}</h2><p>{{ text.docsErrorsBody }}</p></section>
-    <p v-if="!section || section === 'endpoints'">{{ integration.protocolNote }}</p>
-  </article>
+  <ApiDocumentation v-if="section === 'endpoints'" />
+  <MoeDocumentLayout v-else :label="docs.labels.outline" :items="guide.sections.map(section => ({ id: section.id, label: section.title }))">
+    <div class="flex flex-wrap items-center justify-between gap-3"><MoeLink as-child><NuxtLink to="/developer/docs/endpoints">{{ docs.labels.reference }}</NuxtLink></MoeLink><MoeCopyButton :value="documentText" :label="common.copy" :copied-label="common.copied" :error-label="common.copyFailed" /></div>
+    <MoePageHeading :title="guide.title" :description="guide.description" />
+    <MoeAlert v-if="id === 'authentication'" :title="docs.labels.sdk" />
+    <section v-for="section in guide.sections" :id="section.id" :key="section.id">
+      <h2>{{ section.title }}</h2><p v-for="paragraph in section.paragraphs" :key="paragraph">{{ paragraph }}</p>
+      <template v-if="section.code"><MoeCodeBlock :title="docs.labels.requestExample" :code="documentationExamples[section.code] ?? ''" :copy-label="common.copy" :copied-label="common.copied" :error-label="common.copyFailed" /><p class="text-xs text-muted">{{ docs.labels.exampleNote }}</p></template>
+      <div v-if="section.operations" class="moe-doc-links"><NuxtLink v-for="operation in section.operations" :key="operation" :to="`/developer/docs/api/${operation}`" class="moe-focus">{{ docs.labels.contract }} · {{ operation }}</NuxtLink></div>
+    </section>
+    <section id="resources"><h2>{{ docs.labels.related }}</h2><div class="moe-doc-links"><a v-for="source in documentationSources" :key="source.href" :href="source.href" class="moe-focus" target="_blank" rel="noopener noreferrer">{{ source.label }}</a></div></section>
+    <nav class="moe-doc-links border-t border-line pt-5" :aria-label="docs.labels.guides"><NuxtLink v-for="value in adjacent" :key="value" :to="href(value)" class="moe-focus">{{ guideIds.indexOf(value) < position ? docs.labels.previous : docs.labels.next }} · {{ docs.guides[value].title }}</NuxtLink></nav>
+  </MoeDocumentLayout>
 </template>

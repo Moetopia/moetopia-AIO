@@ -27,14 +27,14 @@ test('public developer documentation keeps its reference sidebar and real protoc
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.route('**/api/**', route => route.fulfill({ status: 503, json: {} }))
   await page.goto(`${origin}/developer/docs`)
-  await expect(page.getByRole('heading', { name: '接入说明', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '快速开始', exact: true })).toBeVisible()
   await expect(page.locator('.moe-docs-sidebar')).toBeVisible()
-  await page.getByRole('navigation', { name: '文档导航' }).getByRole('link', { name: '协议端点' }).click()
+  await page.getByRole('navigation', { name: '文档导航' }).getByRole('link', { name: 'API 参考' }).click()
   await expect(page).toHaveURL(`${origin}/developer/docs/endpoints`)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('端点参考')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('API 参考')
   await expect(page.getByRole('navigation', { name: '主导航' }).getByRole('link', { name: '接入准备', exact: true })).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('heading', { name: '接入前准备', exact: true })).toHaveCount(0)
-  await expect(page.getByRole('table')).toContainText('/oauth/token')
+  await expect(page.locator('.moe-endpoint-link').filter({ hasText: '/oauth/token' })).toBeVisible()
 })
 
 test('developer login opens a modal and starts OAuth with a fixed destination', async ({ page }) => {

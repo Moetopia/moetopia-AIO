@@ -95,11 +95,11 @@ test('developer document search supports Ctrl K, filtering and keyboard navigati
   await expect(search).toBeFocused()
   await search.fill('no match')
   await expect(dialog.getByRole('status')).toHaveText('没有匹配的页面')
-  await search.fill('端点')
+  await search.fill('API 参考')
   await search.press('ArrowDown')
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(`${origin}/developer/docs/endpoints`)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('端点参考')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('API 参考')
   await expect(dialog).toHaveCount(0)
 })
 

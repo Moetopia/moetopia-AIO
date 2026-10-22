@@ -9,3 +9,4 @@ export interface MoeBreadcrumbItem { label: string; href?: string }
 export interface MoeMenuItem { id: string; label: string; icon?: MoeIconName; description?: string; shortcut?: string; disabled?: boolean; danger?: boolean; separatorBefore?: boolean }
 export interface MoeTableColumn { key: string; label: string; align?: 'start' | 'end'; sortable?: boolean }
 export interface MoeAccordionItem { value: string; title: string; description?: string; disabled?: boolean }
+export interface MoeSchemaField { name: string; type: string; required: boolean; description?: string; constraints?: string[]; children?: MoeSchemaField[] }

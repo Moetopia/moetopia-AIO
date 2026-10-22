@@ -10,7 +10,7 @@ test('developer navigation keeps stable transition containers across all layouts
   page.on('pageerror', error => errors.push(error.message))
   await page.goto(`${origin}/developer`)
   const steps = [
-    ['/developer/docs', '接入说明'], ['/developer/docs/endpoints', '端点参考'], ['/developer/applications', '我的应用'], ['/developer', '让你的应用，连接 Moetopia。'],
+    ['/developer/docs', '快速开始'], ['/developer/docs/endpoints', 'API 参考'], ['/developer/applications', '我的应用'], ['/developer', '让你的应用，连接 Moetopia。'],
   ]
   for (let repeat = 0; repeat < 3; repeat++) for (const [path, heading] of steps) {
     await page.locator(`a[href="${path}"]`).first().click()

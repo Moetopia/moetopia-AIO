@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { MoeNavbar, MoePageFrame, MoeAuthShell, MoeConsoleLayout, MoeDocsLayout, MoeSidebar, MoeStatusIndicator } from '@moetopia/ui'
 import type { MoeNavEntry } from '@moetopia/ui'
-import { portalMessages, adminMessages, integrationMessages, type Portal } from '@moetopia/locales'
+import { portalMessages, adminMessages, integrationMessages, documentationMessages, guideIds, type Portal } from '@moetopia/locales'
 import type { StatusResponse } from '@moetopia/api-client'
 
 const props = defineProps<{ kind: Portal; workspace?: boolean; documentation?: boolean; auth?: boolean }>()
@@ -29,14 +29,8 @@ const navigate = (event: MouseEvent, item: MoeNavEntry) => {
 const navigation = computed<MoeNavEntry[]>(() => props.kind === 'admin' ? [] : props.kind === 'account' ? [sectionItems.value[0]!, { id: 'developer', label: text.value.developer, href: '/developer' }] : [sectionItems.value[0]!, sectionItems.value[2]!, { id: 'console', label: pageText.value.console, href: '/developer/applications' }])
 const consoleGroups = computed(() => [{ label: pageText.value.console, items: [sectionItems.value[1]!, { id: 'usage', label: integrationMessages[locale.value].usage, href: '/developer/usage', icon: 'grid' as const }, sectionItems.value[2]!] }])
 const documentation = computed(() => props.kind === 'developer' && props.documentation)
-const docsGroups = computed(() => [{ label: pageText.value.docsNavigation, items: [
-  { id: 'overview', label: pageText.value.docsOverview, href: '/developer/docs' },
-  { id: 'authentication', label: pageText.value.docsAuthentication, href: '/developer/docs/authentication' },
-  { id: 'credentials', label: pageText.value.docsCredentials, href: '/developer/docs/credentials' },
-  { id: 'endpoints', label: pageText.value.docsEndpoints, href: '/developer/docs/endpoints' },
-  { id: 'errors', label: pageText.value.docsErrors, href: '/developer/docs/errors' },
-] }])
-const mobileItems = computed(() => props.kind === 'admin' ? sectionItems.value : workspace.value ? [navigation.value[0]!, ...consoleGroups.value[0]!.items] : documentation.value ? [...navigation.value, ...docsGroups.value[0]!.items] : navigation.value)
+const docsGroups = computed(() => [{ label: documentationMessages[locale.value].labels.guides, items: guideIds.map(id => ({ id, label: documentationMessages[locale.value].guides[id].title, href: id === 'overview' ? '/developer/docs' : `/developer/docs/${id}` })) }, { label: documentationMessages[locale.value].labels.reference, items: [{ id: 'endpoints', label: documentationMessages[locale.value].labels.reference, href: '/developer/docs/endpoints' }] }])
+const mobileItems = computed(() => props.kind === 'admin' ? sectionItems.value : workspace.value ? [navigation.value[0]!, ...consoleGroups.value[0]!.items] : documentation.value ? [...navigation.value, ...docsGroups.value.flatMap(group => group.items)] : navigation.value)
 const sidebar = computed(() => ({ label: pageText.value.workspace, groups: [{ label: text.value[props.kind], items: sectionItems.value }], active: activeSection.value, collapsible: true, title: props.kind === 'admin' ? 'Moetopia' : pageText.value.workspace, footerText: `Moetopia · ${pageText.value.identity}`, collapseLabel: pageText.value.collapseNavigation, expandLabel: pageText.value.expandNavigation }))
 const status = ref<'checking' | 'connected' | 'disconnected'>('checking')
 
@@ -69,7 +63,7 @@ onMounted(async () => {
       <template #account><slot name="workspace-account" /></template>
       <slot :locale="locale"><PortalPreparation :kind="kind" :locale="locale" /></slot>
     </MoeConsoleLayout>
-    <MoeDocsLayout v-else-if="documentation" :label="pageText.docsNavigation" :groups="docsGroups" :active="route.path === '/developer/docs' ? 'overview' : route.path.split('/').at(-1)" @navigate="navigate"><slot :locale="locale" /></MoeDocsLayout>
+    <MoeDocsLayout v-else-if="documentation" :label="pageText.docsNavigation" :groups="docsGroups" :active="route.path === '/developer/docs' ? 'overview' : route.path.includes('/docs/api/') ? 'endpoints' : route.path.split('/').at(-1)" @navigate="navigate"><slot :locale="locale" /></MoeDocsLayout>
     <slot v-else :locale="locale"><PortalPreparation :kind="kind" :locale="locale" /></slot>
     <template v-if="kind === 'developer' && !workspace" #footer><span>© 2026 Moetopia</span><MoeStatusIndicator :label="text[status]" :state="status === 'connected' ? 'positive' : status === 'disconnected' ? 'negative' : 'pending'" announce /></template>
   </MoePageFrame>

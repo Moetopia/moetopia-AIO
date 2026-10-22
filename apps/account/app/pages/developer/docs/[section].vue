@@ -1,5 +1,6 @@
 <script setup lang="ts">
-definePageMeta({ validate: route => typeof route.params.section === 'string' && ['authentication', 'credentials', 'endpoints', 'errors'].includes(route.params.section) })
+import { guideIds } from '@moetopia/locales'
+definePageMeta({ validate: route => typeof route.params.section === 'string' && [...guideIds, 'endpoints'].includes(route.params.section) })
 const route = useRoute()
 </script>
 <template><DeveloperDocumentation :section="String(route.params.section)" /></template>

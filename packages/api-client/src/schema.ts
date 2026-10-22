@@ -5814,7 +5814,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/x-www-form-urlencoded": {
-                    /** @description 已注册的资源 audience */
+                    /** @description 已注册的资源 audience；刷新时省略或与原授权相同，不可更换 */
                     audience?: string;
                     /** @description public client 或 client_secret_post 使用的 ID；Basic 认证不要混用表单凭据 */
                     client_id?: string;
@@ -5833,7 +5833,7 @@ export interface operations {
                     redirect_uri?: string;
                     /** @description refresh_token grant 必填；成功后换用新凭据，旧值重用将撤销整族 */
                     refresh_token?: string;
-                    /** @description 空格分隔；刷新只能缩小权限 */
+                    /** @description 空格分隔；刷新时省略以沿用原授权，或传入与原授权相同的 scope 集合；不支持缩减 */
                     scope?: string;
                 } & ({
                     /** @constant */

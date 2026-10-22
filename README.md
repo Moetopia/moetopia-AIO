@@ -45,6 +45,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [签名密钥轮换](docs/run-signing-keys.md) | 事务固定密钥、旧公钥窗口与常规运维命令 |
 | [中央与 RP 退出](docs/run-logout.md) | 显式确认、受审退出地址、会话范围与迁移 12 |
 | [开发者应用接入](docs/run-developer-applications.md) | 创建、版本、测试、凭据、接口边界与迁移 7 |
+| [站内开发者文档](docs/developer-documentation.md) | 接入指南、API 目录与详情、契约来源及维护方式 |
 | [应用测试成员](docs/run-test-members.md) | 显式资格、在线撤销、通知与迁移 13 |
 | [应用协议统计](docs/run-statistics.md) | 真实事件、30 个 UTC 日期、采集边界与迁移 14 |
 | [管理员与后台接入](docs/run-administration.md) | 独立 RP、TOTP/恢复、审核/暂停、用户/邀请/审计与迁移 8/9 |
