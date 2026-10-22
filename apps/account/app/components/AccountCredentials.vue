@@ -27,7 +27,7 @@ const finishEmail = () => run(async () => {
   password.value = ''; code.value = ''; challenge.value = ''; await signedOut()
 })
 const changePassword = () => {
-  if (nextPassword.value !== confirm.value) { error.value = text.value.passwordMismatch; return }
+  if (nextPassword.value !== confirm.value) { error.value = ''; return }
   return run(async () => {
     const body: PasswordChangeRequest = { current_password: password.value, new_password: nextPassword.value }
     await $fetch('/api/v1/portal/password', { method: 'POST', headers: headers.value, body })
@@ -41,7 +41,7 @@ const changePassword = () => {
       <MoeInput v-if="mode === 'email'" :model-value="context?.user?.email" :label="a.email" type="email" readonly />
       <MoePasswordInput v-model="password" :label="p.currentPassword" autocomplete="current-password" :show-label="a.showPassword" :hide-label="a.hidePassword" required :disabled="busy" />
       <template v-if="mode === 'email'"><MoeInput v-model="email" :label="p.newEmail" type="email" required :disabled="busy" /><MoeInput v-if="challenge" v-model="code" :label="a.code" inputmode="numeric" autocomplete="one-time-code" :maxlength="8" required :disabled="busy" /><p v-if="challenge" role="status" class="text-sm text-muted">{{ text.challengeSent }}</p></template>
-      <template v-else><MoePasswordInput v-model="nextPassword" :label="p.newPassword" :show-label="a.showPassword" :hide-label="a.hidePassword" autocomplete="new-password" :minlength="15" required :disabled="busy" /><MoePasswordInput v-model="confirm" :label="p.confirmPassword" :show-label="a.showPassword" :hide-label="a.hidePassword" autocomplete="new-password" required :disabled="busy" /></template>
+      <template v-else><AccountNewPassword v-model="nextPassword" :label="p.newPassword" :show-label="a.showPassword" :hide-label="a.hidePassword" autocomplete="new-password" :minlength="15" required :disabled="busy" /><MoePasswordInput v-model="confirm" :label="p.confirmPassword" :error="confirm && confirm !== nextPassword ? text.passwordMismatch : undefined" :show-label="a.showPassword" :hide-label="a.hidePassword" autocomplete="new-password" required :disabled="busy" /></template>
       <MoeAlert v-if="error" :title="error" color="danger" announce />
       <MoeButton type="submit" class="w-full" :loading="busy">{{ mode === 'password' ? p.changePassword : challenge ? text.confirmEmail : a.sendCode }}</MoeButton>
       <MoeButton v-if="mode === 'email' && challenge" type="button" variant="light" :disabled="busy" @click="send">{{ a.resend }}</MoeButton>

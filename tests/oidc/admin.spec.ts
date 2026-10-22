@@ -33,7 +33,7 @@ test('administrator RP requires fresh login and MFA, rotates sessions and recove
   const before = (await page.context().cookies(origin)).find(c => c.name === 'moetopia_admin')
   expect(Boolean(before?.httpOnly && before.domain === 'admin.localhost')).toBe(true)
   expect((await call(page, '/api/v1/admin/applications')).status).toBe(403)
-  await page.getByLabel('当前密码', { exact: true }).fill(password)
+  await page.getByLabel('当前 Moetopia 登录密码', { exact: true }).fill(password)
   await page.getByRole('button', { name: '确认', exact: true }).click()
   const secret = await page.locator('pre').innerText()
   const code = totp(secret)

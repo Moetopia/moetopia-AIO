@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { mockPortal, previewUser } from './helpers/portal'
+import jsQR from 'jsqr'
 
 const admin = 'http://127.0.0.1:53001'
 const account = 'http://127.0.0.1:53000'
@@ -39,11 +40,23 @@ const adminSetup = async (page: Page, verified = true, enrolled = true, emergenc
 test('administrator enrollment withholds protected pages until one-time codes are acknowledged', async ({ page }) => {
   const state = await adminSetup(page, false, false)
   await page.goto(admin + '/users')
-  await expect(page.getByText('设置验证器', { exact: true })).toBeVisible()
+  await expect(page.getByText('绑定验证器', { exact: true })).toBeVisible()
   await expect(page.getByRole('table')).toHaveCount(0)
-  await page.getByLabel('当前密码', { exact: true }).fill('example-only-password')
+  await page.getByLabel('当前 Moetopia 登录密码', { exact: true }).fill('example-only-password')
   await page.getByRole('button', { name: '确认', exact: true }).click()
   await expect(page.locator('pre')).toHaveText('EXAMPLE-ONLY-SETUP-KEY')
+  const qr = page.getByRole('img', { name: '使用验证器扫描二维码', exact: true })
+  await expect(qr).toBeVisible()
+  await expect(qr).toHaveJSProperty('naturalWidth', 256)
+  const pixels = await qr.evaluate(image => {
+    const canvas = document.createElement('canvas')
+    const img = image as HTMLImageElement
+    canvas.width = img.naturalWidth; canvas.height = img.naturalHeight
+    const context = canvas.getContext('2d')!
+    context.drawImage(img, 0, 0)
+    return { data: Array.from(context.getImageData(0, 0, canvas.width, canvas.height).data), width: canvas.width, height: canvas.height }
+  })
+  expect(jsQR(new Uint8ClampedArray(pixels.data), pixels.width, pixels.height)?.data).toBe('otpauth://example')
   await page.getByLabel('验证器验证码', { exact: true }).fill('123456')
   await page.getByRole('button', { name: '确认', exact: true }).click()
   await expect(page.locator('pre')).toHaveText('EXAMPLE-ONLY-RECOVERY')
@@ -51,6 +64,7 @@ test('administrator enrollment withholds protected pages until one-time codes ar
   await page.getByRole('button', { name: '我已安全保存', exact: true }).click()
   await expect(page.getByRole('table')).toBeVisible()
   await expect(page.locator('body')).not.toContainText('EXAMPLE-ONLY-RECOVERY')
+  await expect(qr).toHaveCount(0)
   expect(state.writes.map(write => write.csrf)).toEqual(['admin-example-csrf', 'admin-example-csrf'])
   await page.getByRole('button', { name: '停用', exact: true }).click()
   await page.getByLabel('操作原因').fill('测试停用')
@@ -61,12 +75,27 @@ test('administrator enrollment withholds protected pages until one-time codes ar
 test('administrator emergency and recovery return to enrollment without verified access', async ({ page }) => {
   const state = await adminSetup(page, false, true, true)
   await page.goto(admin + '/')
-  await page.getByLabel('当前密码', { exact: true }).fill('example-only-password')
+  await page.getByLabel('当前 Moetopia 登录密码', { exact: true }).fill('example-only-password')
   await page.getByLabel('运维提供的一次性恢复令牌').fill('EXAMPLE-ONLY-TOKEN')
   await page.getByRole('button', { name: '确认', exact: true }).click()
-  await expect(page.getByText('设置验证器', { exact: true })).toBeVisible()
+  await expect(page.getByText('绑定验证器', { exact: true })).toBeVisible()
   expect(state.writes[0]?.path).toBe('/api/v1/admin/mfa/emergency')
   await expect(page.locator('body')).not.toContainText('EXAMPLE-ONLY-TOKEN')
+})
+
+test('expired authenticator setup clears both QR and manual key before restarting', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-22T00:00:00Z') })
+  await adminSetup(page, false, false)
+  await page.route('**/api/v1/admin/mfa/enrollment', route => route.fulfill({ json: { secret: 'EXAMPLE-ONLY-SETUP-KEY', otpauth_uri: 'otpauth://example', expires_at: '2026-10-22T00:05:00Z' } }))
+  await page.goto(admin + '/')
+  await page.getByLabel('当前 Moetopia 登录密码', { exact: true }).fill('example-only-password')
+  await page.getByRole('button', { name: '确认', exact: true }).click()
+  await expect(page.getByRole('img', { name: '使用验证器扫描二维码' })).toBeVisible()
+  await page.clock.fastForward(301000)
+  await expect(page.locator('pre')).toHaveCount(0)
+  await expect(page.getByRole('img', { name: '使用验证器扫描二维码' })).toHaveCount(0)
+  await expect(page.getByLabel('当前 Moetopia 登录密码', { exact: true })).toBeVisible()
+  await expect(page.getByRole('alert')).toContainText('设置请求已到期')
 })
 
 test('administrator review, histories, invitations, principals, notifications and settings use real contracts', async ({ page }) => {
@@ -106,6 +135,8 @@ test('administrator review, histories, invitations, principals, notifications an
   await page.goto(admin + '/audit')
   await expect(page.getByRole('table')).toContainText('测试审核')
   await page.goto(admin + '/')
+  await page.getByRole('button', { name: '7 天', exact: true }).click()
+  await expect(page.getByRole('button', { name: '7 天', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await page.getByText('每日注册（UTC）', { exact: true }).last().click()
   await expect(page.getByRole('table')).toContainText('未开始记录')
 })

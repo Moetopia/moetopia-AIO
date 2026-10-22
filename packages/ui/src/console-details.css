@@ -1,4 +1,8 @@
 @layer components {
+  .moe-action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .moe-action-link { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 16px; border: 1px solid var(--moe-line); border-radius: var(--moe-radius-control); transition: background-color var(--moe-motion-fast); font-size: 14px; overflow-wrap: anywhere; }
+  .moe-action-link:hover { background: var(--moe-surface-raised); }
+  @media (min-width: 1024px) { .moe-action-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .moe-dialog { width: min(512px, calc(100% - 32px)); }
   .moe-search-trigger { display: none; width: 240px; min-height: 36px; height: 36px; color: var(--moe-muted); border-color: var(--moe-line); font-size: 13px; }
   .moe-search-trigger > span { flex: 1; text-align: left; }
@@ -40,5 +44,5 @@
   .moe-detail-fields dt { margin-bottom: 8px; color: var(--moe-muted); font-size: 12px; }
   .moe-detail-fields dd { min-width: 0; overflow-wrap: anywhere; font-size: 14px; }
   @media (min-width: 640px) { .moe-resource-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); } .moe-resource-grid, .moe-checkbox-group[data-variant='cards'] .moe-checkbox-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (prefers-reduced-motion: reduce) { .moe-resource-card, .moe-checkbox-group[data-variant='cards'] .moe-choice { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .moe-resource-card, .moe-action-link, .moe-checkbox-group[data-variant='cards'] .moe-choice { transition: none; } }
 }

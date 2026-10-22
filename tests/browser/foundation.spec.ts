@@ -55,7 +55,7 @@ test('password trailing control works and policy is described', async ({ page })
   await page.getByRole('button', { name: '隐藏密码', exact: true }).click()
   await expect(password).toHaveAttribute('type', 'password')
   await page.getByRole('link', { name: '立即注册', exact: true }).click()
-  await expect(password).toHaveAccessibleDescription('至少 15 个字符，可以使用空格。')
+  await expect(password).toHaveAccessibleDescription(/至少 15 个字符/)
 })
 
 test('dialog supports Escape and restores focus', async ({ page }) => {

@@ -19,7 +19,8 @@ const alternative = computed(() => ({ path: view.value === 'login' ? '/auth/regi
       <MoeInput v-if="view === 'register'" id="account-name" v-model="displayName" :label="text.name" :placeholder="text.namePlaceholder" autocomplete="nickname" :maxlength="80" size="lg" required :disabled="busy || loading" />
       <MoeInput v-if="view === 'register' && account?.registration_mode !== 'open'" id="account-invitation" v-model="invitation" :label="text.invitation" :placeholder="text.invitationPlaceholder" autocomplete="off" :maxlength="128" size="lg" required :disabled="busy || loading" />
       <div class="grid gap-2">
-        <MoePasswordInput id="account-password" v-model="password" :label="text.password" :placeholder="text.passwordPlaceholder" :description="view === 'register' ? text.passwordHint : undefined" :autocomplete="view === 'login' ? 'current-password' : 'new-password'" :minlength="view === 'register' ? 15 : undefined" :maxlength="256" size="lg" required :disabled="busy || loading" :show-label="text.showPassword" :hide-label="text.hidePassword" />
+        <AccountNewPassword v-if="view === 'register'" id="account-password" v-model="password" :label="text.password" :placeholder="text.passwordPlaceholder" size="lg" required :disabled="busy || loading" />
+        <MoePasswordInput v-else id="account-password" v-model="password" :label="text.password" :placeholder="text.passwordPlaceholder" autocomplete="current-password" :maxlength="256" size="lg" required :disabled="busy || loading" :show-label="text.showPassword" :hide-label="text.hidePassword" />
         <MoeLink v-if="view === 'login'" as-child class="justify-self-end text-xs"><NuxtLink :to="{ path: '/auth/forgot-password', query: typeof route.query.authorization_request === 'string' ? { authorization_request: route.query.authorization_request } : {} }">{{ text.forgotPassword }}</NuxtLink></MoeLink>
       </div>
       <div v-if="view === 'register'" class="grid gap-1.5">

@@ -1,9 +1,13 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { mockPortal } from './helpers/portal'
 const origin = 'http://127.0.0.1:53000'
 test.use({ launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] } })
 const id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
 const fixture = () => ({ id, client_id: 'example-client', public: false, enabled: true, suspended: false, revision: 1, active_version: 0, created_at: '2026-10-19T00:00:00Z', latest: { version: 1, status: 'draft', review_reason: '', config: { name: 'Community app', description: 'Community identity', homepage_url: 'https://example.com', redirect_uris: ['https://example.com/callback'], scopes: ['openid', 'profile'] } } })
+const mockApplicationReads = async (page: Page, application: () => ReturnType<typeof fixture>) => {
+  await page.route(`**/api/v1/developer/applications/${id}/versions**`, route => route.fulfill({ json: { items: [{ ...application().latest, created_at: application().created_at }], active_version: application().active_version, latest_version: application().latest.version, next_before: 0 } }))
+  await page.route(`**/api/v1/developer/applications/${id}/test-members`, route => route.fulfill({ json: { items: [], revision: application().revision, limit: 20 } }))
+}
 
 test('dialog locking preserves the page geometry without a second scrollbar compensation', async ({ page }) => {
   await mockPortal(page)
@@ -46,6 +50,7 @@ test('application cards have real padding and switch from two columns to one on 
 test('reference detail composition keeps identity and user-login editing separate', async ({ page }) => {
   await mockPortal(page)
   let application = fixture()
+  await mockApplicationReads(page, () => application)
   await page.route(`**/api/v1/developer/applications/${id}`, route => route.fulfill({ json: application }))
   await page.route(`**/api/v1/developer/applications/${id}/draft`, route => {
     const body = route.request().postDataJSON()
@@ -101,6 +106,7 @@ test('developer document search supports Ctrl K, filtering and keyboard navigati
 test('deleting an enabled app explicitly confirms suspension and uses its resulting revision', async ({ page }) => {
   await mockPortal(page)
   let application = fixture()
+  await mockApplicationReads(page, () => application)
   const operations: string[] = []
   await page.route(`**/api/v1/developer/applications/${id}`, route => {
     if (route.request().method() === 'DELETE') { expect(route.request().postDataJSON().revision).toBe(2); operations.push('delete'); return route.fulfill({ status: 204 }) }

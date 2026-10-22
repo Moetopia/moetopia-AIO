@@ -8,6 +8,7 @@
 @import './reference-layouts.css';
 @import './parity.css';
 @import './console-details.css';
+@import './security-patterns.css';
 @source './';
 @source '../../portal/app';
 @source '../../../apps/account/app';

@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-export const previewUser = { id: 'preview-user', display_name: '预览用户', email: 'preview@example.com', bio: '', revision: 1 }
+export const previewUser = { id: 'preview-user', display_name: '预览用户', email: 'preview@example.com', bio: '', revision: 1, has_password: true }
 export const previewSession = { id: 'current', created_at: '2026-10-18T02:00:00Z', expires_at: '2030-11-18T02:00:00Z' }
 export const mockPortal = async (page: Page, authenticated = true) => {
   const state = { authenticated, reads: 0, writes: [] as string[], items: [previewSession, { ...previewSession, id: 'other' }] }
@@ -8,6 +8,8 @@ export const mockPortal = async (page: Page, authenticated = true) => {
   await page.route('**/api/v1/developer/applications', route => route.fulfill({ json: { items: [], next_cursor: '' } }))
   await page.route('**/api/v1/portal/authorizations', route => route.fulfill({ json: { items: [], next_cursor: '' } }))
   await page.route('**/api/v1/portal/security-events', route => route.fulfill({ json: { items: [] } }))
+  await page.route('**/api/v1/account/federation/providers', route => route.fulfill({ json: { items: [] } }))
+  await page.route('**/api/v1/portal/identities', route => route.fulfill({ json: { items: [] } }))
   await page.route('**/api/v1/portal/context', route => { state.reads++; return route.fulfill({ json: context() }) })
   await page.route('**/api/v1/portal/sessions', route => route.fulfill({ json: { current_id: 'current', items: state.items } }))
   await page.route('**/api/v1/portal/sessions/*', route => {

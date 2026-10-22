@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
+    "jsqr": "1.4.0",
     "mprocs": "0.9.6",
     "openapi-typescript": "7.13.0",
     "openid-client": "6.8.8"
