@@ -242,6 +242,14 @@ Go test/vet、全工作区类型、API 生成/漂移和文档链接检查通过�
 
 接线与运行文档：[管理员控制](run-admin-controls.md)、[全局统计](run-admin-statistics.md)、[发布](run-production.md)、[备份恢复](run-backup-recovery.md)、[观测](run-observability.md)。API 契约与类型已更新，前端接入集中列于[后端交接](coordination/backend.md)。
 
+## 2026-10-22：OpenAPI 与 MFA 说明修正
+
+业务接口替换 Huma 自动路径标题，明确中文语义和分组，保留既有 operationId。运行时 `/openapi.json` 与仓库生成物同时补齐全部已注册 `/oauth/*` 方法及 Discovery，包含表单、Basic/Bearer、浏览器重定向、空撤销响应和协议错误格式；只修改文档适配，不替换 Fosite handler 或协议验证。新增契约测试检查完整路由覆盖、标题、ID、认证与内容格式及跨实例生成稳定性。
+
+管理员 enrollment 的接口/字段说明和运行指南明确：填写当前 Moetopia 本地登录密码，扫码后使用验证器六位动态码确认；不是独立后台密码、SSH 密码或邮箱验证码。页面用语和接线提示同步到后端交接。
+
+Go test/vet、生成契约漂移和工作区类型检查通过。无迁移、密钥轮换、角色/MFA 变更或外部发送；未重复运行数据库/浏览器完整流程，本批不改变鉴权业务。前端现有 app.vue 改动保留，不作为后端提交的一部分。
+
 ## 当前剩余与验收边界
 
 已约定的首期后端功能和运行工具不再按逐项等待继续的方式推进。尚需实际输入/环境的工作：真实 GitHub/Google 应用、外部 SMTP、正式域名/证书、生产机器混合负载及告警阈值、异地备份/调度/保留策略和事故对账。没有将测试依赖主机改为正式生产。

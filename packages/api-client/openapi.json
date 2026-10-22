@@ -116,6 +116,7 @@
             "type": "string"
           },
           "code": {
+            "description": "验证器当前生成的六位 TOTP 动态码；不是邮箱验证码。",
             "maxLength": 6,
             "minLength": 6,
             "type": "string"
@@ -340,6 +341,7 @@
             "type": "string"
           },
           "current_password": {
+            "description": "当前 Moetopia 账号的本地登录密码；不是单独的后台密码、邮箱验证码或验证器动态码。",
             "maxLength": 256,
             "minLength": 1,
             "type": "string"
@@ -2863,14 +2865,179 @@
         ],
         "type": "object"
       }
+    },
+    "securitySchemes": {
+      "OAuthAccessToken": {
+        "bearerFormat": "JWT",
+        "description": "获准 openid scope 的用户 access token；不是 ID Token。",
+        "scheme": "bearer",
+        "type": "http"
+      },
+      "OAuthClientBasic": {
+        "description": "confidential client 的 client_id/client_secret；仅供应用后端，禁止向前端分发 secret。",
+        "scheme": "basic",
+        "type": "http"
+      }
     }
   },
   "info": {
+    "description": "Moetopia 业务 API 与 OAuth/OIDC 协议。协议端点由 Fosite/原生 HTTP handler 处理，此处仅描述契约，不改变运行时处理器。部署地址与支持能力以实际 issuer 的 /.well-known/openid-configuration 为准。浏览器业务接口仍使用各自 Cookie、Origin 与 CSRF；不能用 OAuth Bearer 代替管理员 MFA。",
     "title": "Moetopia API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/.well-known/openid-configuration": {
+      "get": {
+        "description": "固定 issuer 的实际端点、scope、认证方式和算法；客户端应从此发现能力。",
+        "operationId": "oidc-discovery",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "authorization_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "claims_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "code_challenge_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "end_session_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "grant_types_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "id_token_signing_alg_values_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "introspection_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "introspection_endpoint_auth_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "issuer": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "jwks_uri": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "request_parameter_supported": {
+                      "type": "boolean"
+                    },
+                    "request_uri_parameter_supported": {
+                      "type": "boolean"
+                    },
+                    "response_modes_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "response_types_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "revocation_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "revocation_endpoint_auth_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "scopes_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "subject_types_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "token_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "token_endpoint_auth_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "userinfo_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "authorization_endpoint",
+                    "claims_supported",
+                    "code_challenge_methods_supported",
+                    "end_session_endpoint",
+                    "grant_types_supported",
+                    "id_token_signing_alg_values_supported",
+                    "introspection_endpoint",
+                    "introspection_endpoint_auth_methods_supported",
+                    "issuer",
+                    "jwks_uri",
+                    "request_parameter_supported",
+                    "request_uri_parameter_supported",
+                    "response_modes_supported",
+                    "response_types_supported",
+                    "revocation_endpoint",
+                    "revocation_endpoint_auth_methods_supported",
+                    "scopes_supported",
+                    "subject_types_supported",
+                    "token_endpoint",
+                    "token_endpoint_auth_methods_supported",
+                    "userinfo_endpoint"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OIDC discovery metadata"
+          }
+        },
+        "summary": "查询 OIDC 服务发现信息",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
     "/api/v1/account/authorizations/{id}": {
       "get": {
         "operationId": "get-api-v1-account-authorizations-by-id",
@@ -2915,7 +3082,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 account authorizations by ID"
+        "summary": "获取授权确认详情",
+        "tags": [
+          "身份与注册"
+        ]
       },
       "post": {
         "operationId": "post-api-v1-account-authorizations-by-id",
@@ -2984,7 +3154,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account authorizations by ID"
+        "summary": "批准或拒绝授权",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/context": {
@@ -3028,7 +3201,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 account context"
+        "summary": "获取身份站登录上下文",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/deletion-cancellations": {
@@ -3089,7 +3265,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account deletion cancellations"
+        "summary": "发送注销取消验证码",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/deletion-cancellations/confirm": {
@@ -3143,7 +3322,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account deletion cancellations confirm"
+        "summary": "验证并取消账号注销",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/federation/providers": {
@@ -3171,7 +3353,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 account federation providers"
+        "summary": "列出可用的第三方登录方式",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/federation/registration": {
@@ -3218,7 +3403,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 account federation registration"
+        "summary": "获取第三方注册补全信息",
+        "tags": [
+          "身份与注册"
+        ]
       },
       "post": {
         "operationId": "post-api-v1-account-federation-registration",
@@ -3284,7 +3472,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account federation registration"
+        "summary": "完成第三方账号注册",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/federation/{provider}": {
@@ -3364,7 +3555,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account federation by provider"
+        "summary": "发起第三方登录",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/login": {
@@ -3432,7 +3626,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account login"
+        "summary": "使用邮箱和密码登录",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/logout": {
@@ -3490,7 +3687,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account logout"
+        "summary": "退出身份站当前会话",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/logout-requests/{id}": {
@@ -3537,7 +3737,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 account logout requests by ID"
+        "summary": "获取中央退出确认详情",
+        "tags": [
+          "身份与注册"
+        ]
       },
       "post": {
         "operationId": "post-api-v1-account-logout-requests-by-id",
@@ -3606,7 +3809,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account logout requests by ID"
+        "summary": "确认或取消中央退出",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/password-resets": {
@@ -3667,7 +3873,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account password resets"
+        "summary": "发送密码恢复邮件",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/password-resets/confirm": {
@@ -3721,7 +3930,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account password resets confirm"
+        "summary": "验证邮件并设置新密码",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/register": {
@@ -3775,7 +3987,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account register"
+        "summary": "注册账号",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/sessions": {
@@ -3812,7 +4027,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 account sessions"
+        "summary": "列出身份站会话",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/sessions/{id}": {
@@ -3865,7 +4083,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 account sessions by ID"
+        "summary": "撤销身份站会话",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/account/verification": {
@@ -3926,7 +4147,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 account verification"
+        "summary": "发送注册邮箱验证码",
+        "tags": [
+          "身份与注册"
+        ]
       }
     },
     "/api/v1/admin/applications": {
@@ -3985,7 +4209,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin applications"
+        "summary": "查询平台应用列表",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/applications/{id}": {
@@ -4031,7 +4258,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin applications by ID"
+        "summary": "获取平台应用详情",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/applications/{id}/review": {
@@ -4101,7 +4331,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin applications by ID review"
+        "summary": "批准或拒绝应用配置",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/applications/{id}/suspension": {
@@ -4171,7 +4404,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin applications by ID suspension"
+        "summary": "暂停或解除暂停应用",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/applications/{id}/versions": {
@@ -4228,7 +4464,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin applications by ID versions"
+        "summary": "查询平台应用配置历史",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/audit-events": {
@@ -4274,7 +4513,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin audit events"
+        "summary": "查询平台安全审计",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/central-logout": {
@@ -4332,7 +4574,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin central logout"
+        "summary": "发起管理台中央退出",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/context": {
@@ -4376,7 +4621,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin context"
+        "summary": "获取管理员登录与 MFA 状态",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/invitations": {
@@ -4422,7 +4670,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin invitations"
+        "summary": "查询邀请码记录",
+        "tags": [
+          "管理控制台"
+        ]
       },
       "post": {
         "operationId": "post-api-v1-admin-invitations",
@@ -4481,7 +4732,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin invitations"
+        "summary": "发行单次邀请码",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/invitations/{id}": {
@@ -4535,7 +4789,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 admin invitations by ID"
+        "summary": "撤销邀请码",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/logout": {
@@ -4593,7 +4850,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin logout"
+        "summary": "退出管理台当前会话",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/mfa/emergency": {
@@ -4661,11 +4921,15 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin mfa emergency"
+        "summary": "消费操作员应急凭据",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/mfa/enrollment": {
       "post": {
+        "description": "开始绑定管理员 TOTP 验证器。current_password 是当前 Moetopia 账号的本地登录密码，不是独立后台密码、邮箱验证码或验证器动态码。先完成管理员登录；提交后使用验证器扫描返回的 otpauth_uri 对应二维码（或手动输入 secret），再向 /api/v1/admin/mfa/enrollment/confirm 提交验证器生成的六位 code。只有确认成功才完成 MFA 并返回单次恢复码。纯第三方账号须先经邮箱密码恢复设置本地密码。需要独立管理会话、Origin 与 CSRF；此阶段不要求已验证 MFA。秘密仅用于本次绑定，禁止日志或持久化到浏览器存储。",
         "operationId": "post-api-v1-admin-mfa-enrollment",
         "parameters": [
           {
@@ -4722,7 +4986,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin mfa enrollment"
+        "summary": "使用当前账号密码开始绑定验证器",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/mfa/enrollment/confirm": {
@@ -4790,7 +5057,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin mfa enrollment confirm"
+        "summary": "使用验证器动态码完成绑定",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/mfa/recover": {
@@ -4858,7 +5128,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin mfa recover"
+        "summary": "使用单次恢复码重新绑定验证器",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/mfa/recovery-codes": {
@@ -4919,7 +5192,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin mfa recovery codes"
+        "summary": "重新生成管理员恢复码",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/mfa/verify": {
@@ -4987,7 +5263,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin mfa verify"
+        "summary": "验证管理员动态码",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/notifications/failed": {
@@ -5033,7 +5312,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin notifications failed"
+        "summary": "查询可重投的失败邮件",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/notifications/{id}/retry": {
@@ -5096,7 +5378,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin notifications by ID retry"
+        "summary": "将失败邮件重新排队",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/principals": {
@@ -5142,7 +5427,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin principals"
+        "summary": "列出管理员主体",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/principals/{id}/availability": {
@@ -5212,7 +5500,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin principals by ID availability"
+        "summary": "授予或撤回管理员角色",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/registration-policy": {
@@ -5249,7 +5540,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin registration policy"
+        "summary": "获取注册准入策略",
+        "tags": [
+          "管理控制台"
+        ]
       },
       "put": {
         "operationId": "put-api-v1-admin-registration-policy",
@@ -5308,7 +5602,10 @@
             "description": "Error"
           }
         },
-        "summary": "Put API v1 admin registration policy"
+        "summary": "切换开放或邀请注册",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/sessions": {
@@ -5345,7 +5642,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin sessions"
+        "summary": "列出管理台会话",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/sessions/{id}": {
@@ -5398,7 +5698,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 admin sessions by ID"
+        "summary": "撤销管理台会话",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/statistics": {
@@ -5435,7 +5738,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin statistics"
+        "summary": "查询平台概览与注册趋势",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/users": {
@@ -5490,7 +5796,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 admin users"
+        "summary": "检索平台用户",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/admin/users/{id}/availability": {
@@ -5560,7 +5869,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 admin users by ID availability"
+        "summary": "停用或恢复普通用户",
+        "tags": [
+          "管理控制台"
+        ]
       }
     },
     "/api/v1/developer/applications": {
@@ -5606,7 +5918,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 developer applications"
+        "summary": "列出自己的应用",
+        "tags": [
+          "开发者应用"
+        ]
       },
       "post": {
         "operationId": "post-api-v1-developer-applications",
@@ -5665,7 +5980,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 developer applications"
+        "summary": "创建测试应用",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}": {
@@ -5728,7 +6046,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 developer applications by ID"
+        "summary": "删除自己的应用",
+        "tags": [
+          "开发者应用"
+        ]
       },
       "get": {
         "operationId": "get-api-v1-developer-applications-by-id",
@@ -5772,7 +6093,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 developer applications by ID"
+        "summary": "获取自己的应用详情",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/availability": {
@@ -5842,7 +6166,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 developer applications by ID availability"
+        "summary": "启用或停用自己的应用",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/draft": {
@@ -5912,7 +6239,10 @@
             "description": "Error"
           }
         },
-        "summary": "Put API v1 developer applications by ID draft"
+        "summary": "保存应用配置草稿",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/secret": {
@@ -5982,7 +6312,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 developer applications by ID secret"
+        "summary": "轮换应用客户端密钥",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/statistics": {
@@ -6028,7 +6361,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 developer applications by ID statistics"
+        "summary": "查询应用协议使用统计",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/submit": {
@@ -6098,7 +6434,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 developer applications by ID submit"
+        "summary": "提交应用配置审核",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/test-members": {
@@ -6144,7 +6483,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 developer applications by ID test members"
+        "summary": "列出应用测试成员",
+        "tags": [
+          "开发者应用"
+        ]
       },
       "post": {
         "operationId": "post-api-v1-developer-applications-by-id-test-members",
@@ -6212,7 +6554,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 developer applications by ID test members"
+        "summary": "添加应用测试成员",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/test-members/{user_id}": {
@@ -6291,7 +6636,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 developer applications by ID test members by user ID"
+        "summary": "移除应用测试成员",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/developer/applications/{id}/versions": {
@@ -6348,7 +6696,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 developer applications by ID versions"
+        "summary": "查询应用配置版本历史",
+        "tags": [
+          "开发者应用"
+        ]
       }
     },
     "/api/v1/portal/authorizations": {
@@ -6394,7 +6745,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 portal authorizations"
+        "summary": "列出个人授权记录",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/authorizations/{id}": {
@@ -6447,7 +6801,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 portal authorizations by ID"
+        "summary": "撤销个人授权",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/avatar": {
@@ -6508,7 +6865,10 @@
             "description": "Error"
           }
         },
-        "summary": "Put API v1 portal avatar"
+        "summary": "上传或删除头像",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/central-logout": {
@@ -6566,7 +6926,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 portal central logout"
+        "summary": "发起用户站中央退出",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/context": {
@@ -6610,7 +6973,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 portal context"
+        "summary": "获取用户站登录上下文",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/deletion": {
@@ -6671,7 +7037,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 portal deletion"
+        "summary": "申请注销账号",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/email-changes": {
@@ -6732,7 +7101,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 portal email changes"
+        "summary": "发送新邮箱验证邮件",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/email-changes/confirm": {
@@ -6786,7 +7158,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 portal email changes confirm"
+        "summary": "确认更换邮箱",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/identities": {
@@ -6823,7 +7198,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 portal identities"
+        "summary": "列出已绑定的第三方身份",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/identities/{provider}": {
@@ -6889,7 +7267,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 portal identities by provider"
+        "summary": "解除第三方身份绑定",
+        "tags": [
+          "用户中心"
+        ]
       },
       "post": {
         "operationId": "post-api-v1-portal-identities-by-provider",
@@ -6967,7 +7348,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 portal identities by provider"
+        "summary": "发起第三方身份绑定",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/logout": {
@@ -7025,7 +7409,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 portal logout"
+        "summary": "退出用户站当前会话",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/password": {
@@ -7079,7 +7466,10 @@
             "description": "Error"
           }
         },
-        "summary": "Post API v1 portal password"
+        "summary": "修改本地登录密码",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/profile": {
@@ -7140,7 +7530,10 @@
             "description": "Error"
           }
         },
-        "summary": "Patch API v1 portal profile"
+        "summary": "更新个人资料",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/security-events": {
@@ -7177,7 +7570,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 portal security events"
+        "summary": "查询个人安全记录",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/sessions": {
@@ -7214,7 +7610,10 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 portal sessions"
+        "summary": "列出用户站会话",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/portal/sessions/{id}": {
@@ -7267,7 +7666,10 @@
             "description": "Error"
           }
         },
-        "summary": "Delete API v1 portal sessions by ID"
+        "summary": "撤销用户站会话",
+        "tags": [
+          "用户中心"
+        ]
       }
     },
     "/api/v1/status": {
@@ -7295,7 +7697,1546 @@
             "description": "Error"
           }
         },
-        "summary": "Get API v1 status"
+        "summary": "查询服务状态",
+        "tags": [
+          "服务状态"
+        ]
+      }
+    },
+    "/oauth/authorize": {
+      "get": {
+        "description": "使用浏览器顶层导航，进入身份站登录/同意交互；合法回调上的协议错误可通过重定向返回。PKCE 必须使用 S256。",
+        "operationId": "oauth-authorize",
+        "parameters": [
+          {
+            "description": "已注册的单一 audience；注册值只有一个时可省略",
+            "in": "query",
+            "name": "audience",
+            "schema": {
+              "description": "已注册的单一 audience；注册值只有一个时可省略",
+              "type": "string"
+            }
+          },
+          {
+            "description": "已注册的客户端 ID",
+            "in": "query",
+            "name": "client_id",
+            "required": true,
+            "schema": {
+              "description": "已注册的客户端 ID",
+              "type": "string"
+            }
+          },
+          {
+            "description": "PKCE S256 challenge",
+            "in": "query",
+            "name": "code_challenge",
+            "required": true,
+            "schema": {
+              "description": "PKCE S256 challenge",
+              "type": "string"
+            }
+          },
+          {
+            "description": "PKCE 算法",
+            "in": "query",
+            "name": "code_challenge_method",
+            "required": true,
+            "schema": {
+              "description": "PKCE 算法",
+              "enum": [
+                "S256"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_age",
+            "schema": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "请求 openid 时必填，至少八个字符，客户端须校验",
+            "in": "query",
+            "name": "nonce",
+            "schema": {
+              "description": "请求 openid 时必填，至少八个字符，客户端须校验",
+              "type": "string"
+            }
+          },
+          {
+            "description": "login 强制重新登录，consent 要求同意；none 返回 interaction_required",
+            "in": "query",
+            "name": "prompt",
+            "schema": {
+              "description": "login 强制重新登录，consent 要求同意；none 返回 interaction_required",
+              "enum": [
+                "login",
+                "consent",
+                "none"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "与注册值精确匹配的回调",
+            "in": "query",
+            "name": "redirect_uri",
+            "required": true,
+            "schema": {
+              "description": "与注册值精确匹配的回调",
+              "type": "string"
+            }
+          },
+          {
+            "description": "只支持 query 模式",
+            "in": "query",
+            "name": "response_mode",
+            "schema": {
+              "description": "只支持 query 模式",
+              "enum": [
+                "query"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "只支持授权码。",
+            "in": "query",
+            "name": "response_type",
+            "required": true,
+            "schema": {
+              "description": "只支持授权码。",
+              "enum": [
+                "code"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "空格分隔的权限；OIDC 包含 openid",
+            "in": "query",
+            "name": "scope",
+            "schema": {
+              "description": "空格分隔的权限；OIDC 包含 openid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "至少八个字符，客户端生成并在回调校验的随机关联值",
+            "in": "query",
+            "name": "state",
+            "required": true,
+            "schema": {
+              "description": "至少八个字符，客户端生成并在回调校验的随机关联值",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "浏览器跳转；保留 Location 和 Set-Cookie，不在服务器代理中自动跟随。",
+            "headers": {
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "303": {
+            "description": "浏览器跳转；保留 Location 和 Set-Cookie，不在服务器代理中自动跟随。",
+            "headers": {
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "无效协议请求；不使用业务 Problem JSON 包装。"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "客户端认证或 Bearer 认证失败。"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "触发限流，遵循 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "依赖不可用，拒绝放行。"
+          }
+        },
+        "summary": "发起授权码与 OIDC 登录",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
+    "/oauth/introspect": {
+      "post": {
+        "description": "只允许 confidential client 使用 HTTP Basic；只能检查自己的 access/refresh token。无效、撤销或其他客户端的令牌返回 active=false，不消费刷新凭据。",
+        "operationId": "oauth-introspect",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "writeOnly": true
+                  },
+                  "token_type_hint": {
+                    "description": "可选类型提示",
+                    "enum": [
+                      "access_token",
+                      "refresh_token"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "aud": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "client_id": {
+                      "description": "令牌客户端",
+                      "type": "string"
+                    },
+                    "exp": {
+                      "type": "integer"
+                    },
+                    "iss": {
+                      "description": "固定 issuer",
+                      "type": "string"
+                    },
+                    "scope": {
+                      "description": "批准权限",
+                      "type": "string"
+                    },
+                    "sub": {
+                      "description": "用户或机器主体",
+                      "type": "string"
+                    },
+                    "token_type": {
+                      "description": "令牌类型",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "active"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "非活跃只包含 active=false；活跃元数据按令牌类型返回，不返回个人资料。"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "无效协议请求；不使用业务 Problem JSON 包装。"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "客户端认证或 Bearer 认证失败。"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "触发限流，遵循 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "依赖不可用，拒绝放行。"
+          }
+        },
+        "security": [
+          {
+            "OAuthClientBasic": []
+          }
+        ],
+        "summary": "检查本客户端令牌的在线状态",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
+    "/oauth/jwks": {
+      "get": {
+        "description": "只返回 active 和重叠窗口内公钥，不含私钥。客户端按 kid 选择并按需刷新；不能永久固定旧公钥。",
+        "operationId": "oauth-jwks",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "keys": {
+                      "items": {
+                        "properties": {
+                          "alg": {
+                            "description": "签名算法",
+                            "enum": [
+                              "RS256"
+                            ],
+                            "type": "string"
+                          },
+                          "e": {
+                            "description": "RSA exponent，base64url",
+                            "type": "string"
+                          },
+                          "kid": {
+                            "description": "签名密钥标识",
+                            "type": "string"
+                          },
+                          "kty": {
+                            "description": "密钥类型",
+                            "enum": [
+                              "RSA"
+                            ],
+                            "type": "string"
+                          },
+                          "n": {
+                            "description": "RSA modulus，base64url",
+                            "type": "string"
+                          },
+                          "use": {
+                            "description": "签名用途",
+                            "enum": [
+                              "sig"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kty",
+                          "kid",
+                          "n",
+                          "e"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "keys"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "JSON Web Key Set"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "公钥存储不可用"
+          }
+        },
+        "summary": "查询当前可接受的签名公钥",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
+    "/oauth/logout": {
+      "get": {
+        "description": "必须提供 client_id 或 id_token_hint。先跳转确认页，由用户决定是否结束当前中央会话；不等于全站所有 RP/设备即时退出。",
+        "operationId": "oauth-logout-get",
+        "parameters": [
+          {
+            "description": "客户端 ID；无 id_token_hint 时必填",
+            "in": "query",
+            "name": "client_id",
+            "schema": {
+              "description": "客户端 ID；无 id_token_hint 时必填",
+              "type": "string"
+            }
+          },
+          {
+            "description": "本 issuer 签发且仍有效的 ID Token，可确定 client_id",
+            "in": "query",
+            "name": "id_token_hint",
+            "schema": {
+              "description": "本 issuer 签发且仍有效的 ID Token，可确定 client_id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "必须在已批准退出回调名单中精确匹配",
+            "in": "query",
+            "name": "post_logout_redirect_uri",
+            "schema": {
+              "description": "必须在已批准退出回调名单中精确匹配",
+              "type": "string"
+            }
+          },
+          {
+            "description": "回跳关联值",
+            "in": "query",
+            "name": "state",
+            "schema": {
+              "description": "回跳关联值",
+              "type": "string"
+            }
+          },
+          {
+            "description": "界面语言偏好",
+            "in": "query",
+            "name": "ui_locales",
+            "schema": {
+              "description": "界面语言偏好",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "浏览器跳转；保留 Location 和 Set-Cookie，不在服务器代理中自动跟随。",
+            "headers": {
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "无效协议请求；不使用业务 Problem JSON 包装。"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "客户端认证或 Bearer 认证失败。"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "触发限流，遵循 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "依赖不可用，拒绝放行。"
+          }
+        },
+        "summary": "发起 RP 退出与中央确认",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      },
+      "post": {
+        "description": "必须提供 client_id 或 id_token_hint。先跳转确认页，由用户决定是否结束当前中央会话；不等于全站所有 RP/设备即时退出。",
+        "operationId": "oauth-logout-post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "client_id": {
+                    "description": "客户端 ID；无 id_token_hint 时必填",
+                    "type": "string"
+                  },
+                  "id_token_hint": {
+                    "description": "本 issuer 签发且仍有效的 ID Token，可确定 client_id",
+                    "type": "string"
+                  },
+                  "post_logout_redirect_uri": {
+                    "description": "必须在已批准退出回调名单中精确匹配",
+                    "type": "string"
+                  },
+                  "state": {
+                    "description": "回跳关联值",
+                    "type": "string"
+                  },
+                  "ui_locales": {
+                    "description": "界面语言偏好",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "303": {
+            "description": "浏览器跳转；保留 Location 和 Set-Cookie，不在服务器代理中自动跟随。",
+            "headers": {
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "无效协议请求；不使用业务 Problem JSON 包装。"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "客户端认证或 Bearer 认证失败。"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "触发限流，遵循 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "依赖不可用，拒绝放行。"
+          }
+        },
+        "summary": "发起 RP 退出与中央确认",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
+    "/oauth/revoke": {
+      "post": {
+        "description": "支持已注册的 Basic、client_secret_post 或 public client 认证；未知或已失效令牌同样返回空 200，不能据此枚举令牌。",
+        "operationId": "oauth-revoke",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "properties": {
+                  "client_id": {
+                    "description": "表单认证客户端 ID",
+                    "type": "string"
+                  },
+                  "client_secret": {
+                    "type": "string",
+                    "writeOnly": true
+                  },
+                  "token": {
+                    "type": "string",
+                    "writeOnly": true
+                  },
+                  "token_type_hint": {
+                    "description": "可选类型提示",
+                    "enum": [
+                      "access_token",
+                      "refresh_token"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "撤销请求已处理，响应体为空。"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "无效协议请求；不使用业务 Problem JSON 包装。"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "客户端认证或 Bearer 认证失败。"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "触发限流，遵循 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "依赖不可用，拒绝放行。"
+          }
+        },
+        "security": [
+          {
+            "OAuthClientBasic": []
+          },
+          {}
+        ],
+        "summary": "撤销当前客户端的令牌",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "description": "仅接受 form。confidential client 使用已注册的 Basic 或 client_secret_post；public client 仅允许相应授权码/刷新流程，不允许 client_credentials。不要自动重试已消费的授权码/刷新令牌。",
+        "operationId": "oauth-token",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "grant_type": {
+                        "const": "authorization_code"
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "redirect_uri",
+                      "code_verifier"
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "grant_type": {
+                        "const": "refresh_token"
+                      }
+                    },
+                    "required": [
+                      "refresh_token"
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "grant_type": {
+                        "const": "client_credentials"
+                      }
+                    }
+                  }
+                ],
+                "properties": {
+                  "audience": {
+                    "description": "已注册的资源 audience",
+                    "type": "string"
+                  },
+                  "client_id": {
+                    "description": "public client 或 client_secret_post 使用的 ID；Basic 认证不要混用表单凭据",
+                    "type": "string"
+                  },
+                  "client_secret": {
+                    "description": "仅 client_secret_post；建议 confidential client 使用 HTTP Basic",
+                    "type": "string",
+                    "writeOnly": true
+                  },
+                  "code": {
+                    "description": "authorization_code 必填，单次授权码",
+                    "type": "string"
+                  },
+                  "code_verifier": {
+                    "description": "authorization_code 必填，原始 PKCE verifier",
+                    "type": "string"
+                  },
+                  "grant_type": {
+                    "description": "授权类型",
+                    "enum": [
+                      "authorization_code",
+                      "refresh_token",
+                      "client_credentials"
+                    ],
+                    "type": "string"
+                  },
+                  "redirect_uri": {
+                    "description": "authorization_code 必填，与授权请求相同",
+                    "type": "string"
+                  },
+                  "refresh_token": {
+                    "description": "refresh_token grant 必填；成功后换用新凭据，旧值重用将撤销整族",
+                    "type": "string",
+                    "writeOnly": true
+                  },
+                  "scope": {
+                    "description": "空格分隔；刷新只能缩小权限",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "grant_type"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "expires_in": {
+                      "type": "integer"
+                    },
+                    "id_token": {
+                      "description": "仅 OIDC 用户授权返回",
+                      "type": "string"
+                    },
+                    "refresh_token": {
+                      "description": "仅获准 offline_access 的授权码/刷新流程返回",
+                      "type": "string"
+                    },
+                    "scope": {
+                      "description": "实际批准的 scope",
+                      "type": "string"
+                    },
+                    "token_type": {
+                      "description": "令牌类型",
+                      "enum": [
+                        "bearer"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "access_token",
+                    "token_type",
+                    "expires_in"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "协议令牌；浏览器业务会话由 Go 管理，不将令牌存入 localStorage。"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "无效协议请求；不使用业务 Problem JSON 包装。"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "客户端认证或 Bearer 认证失败。"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "触发限流，遵循 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "依赖不可用，拒绝放行。"
+          }
+        },
+        "security": [
+          {
+            "OAuthClientBasic": []
+          },
+          {}
+        ],
+        "summary": "兑换、刷新或签发令牌",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
+    "/oauth/userinfo": {
+      "get": {
+        "description": "使用 Authorization: Bearer access_token，要求 openid；不接受 ID Token 或机器令牌。",
+        "operationId": "oauth-userinfo",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "email": {
+                      "description": "email 获准时返回",
+                      "type": "string"
+                    },
+                    "email_verified": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "description": "profile 获准时返回",
+                      "type": "string"
+                    },
+                    "sub": {
+                      "description": "稳定主体 ID",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "sub"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "只返回获准 scope 的身份 claims。"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "无效协议请求；不使用业务 Problem JSON 包装。"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "客户端认证或 Bearer 认证失败。"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "触发限流，遵循 Retry-After。",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "description": "OAuth 错误码",
+                      "type": "string"
+                    },
+                    "error_description": {
+                      "description": "可选错误说明，不含凭据",
+                      "type": "string"
+                    },
+                    "error_uri": {
+                      "description": "可选错误文档地址",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "依赖不可用，拒绝放行。"
+          }
+        },
+        "security": [
+          {
+            "OAuthAccessToken": []
+          }
+        ],
+        "summary": "获取获准的用户身份信息",
+        "tags": [
+          "OAuth / OIDC"
+        ]
       }
     }
   }

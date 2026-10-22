@@ -6,6 +6,16 @@
 
 管理员新增的角色、应急、全局统计及通知重投契约分别由[管理员控制](run-admin-controls.md)和[统计运行说明](run-admin-statistics.md)维护；生成的 `@moetopia/api-client` 类型是字段来源。不能用统计列表长度、缺失历史补零或 204 重投反馈冒充实际送达。
 
+## 当前生成内容
+
+`/openapi.json` 与 `packages/api-client/openapi.json` 使用同一生成路径。业务接口显式维护中文 summary 和分组，保留已有 operationId，避免默认 `Get API v1 ...` 作为接口标题。新增业务接口必须同步语义标题；测试检查缺失标题和重复 operationId。
+
+Fosite/原生 handler 不会自动进入 Huma 路由文档，因此 `/oauth/authorize`、`token`、`userinfo`、`jwks`、`revoke`、`introspect`、GET/POST `logout` 及 OIDC Discovery 由独立文档适配补入同一 OpenAPI，并生成 TypeScript 路径类型。这个适配仅登记契约，不替换 Fosite 处理器、不引入 Huma 业务响应包装或另一套协议校验；路由覆盖测试防止协议端点遗漏。
+
+协议 POST 说明 `application/x-www-form-urlencoded`，Bearer/Basic 分别定义 security scheme；token/revoke 的空 security 分支表示允许已注册的表单或 public client 认证，不能理解为任何匿名请求均可签发。introspect 只有 confidential Basic。撤销成功为空 200；授权/退出使用浏览器跳转和 Location，不能把它们视为普通 JSON RPC。支持能力与地址仍以实际 issuer Discovery 为准，不从静态文档推断某个环境已配置供应商或依赖。
+
+实现参考 [Huma OpenAPI 配置](https://huma.rocks/features/openapi-generation/)及其[操作元数据](https://huma.rocks/features/operations/)。文档条目只描述实际实现的协议形态；维护者必须同步协议变更、文档适配及生成文件。
+
 | 类别 | 目标约定 | 拥有者 |
 | --- | --- | --- |
 | OAuth/OIDC | 标准字段、HTTP 语义、header、重定向和错误 | authorization 协议适配层 |

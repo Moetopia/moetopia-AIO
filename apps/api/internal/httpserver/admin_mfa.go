@@ -9,13 +9,13 @@ import (
 type AdminPasswordInput struct {
 	AccountWrite
 	Body struct {
-		CurrentPassword string `json:"current_password" minLength:"1" maxLength:"256"`
+		CurrentPassword string `json:"current_password" minLength:"1" maxLength:"256" doc:"当前 Moetopia 账号的本地登录密码；不是单独的后台密码、邮箱验证码或验证器动态码。"`
 	}
 }
 type AdminCodeInput struct {
 	AccountWrite
 	Body struct {
-		Code string `json:"code" minLength:"6" maxLength:"6"`
+		Code string `json:"code" minLength:"6" maxLength:"6" doc:"验证器当前生成的六位 TOTP 动态码；不是邮箱验证码。"`
 	}
 }
 type AdminRecoveryInput struct {

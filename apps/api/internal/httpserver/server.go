@@ -122,6 +122,8 @@ func New(deps Dependencies) http.Handler {
 		result.Body.Service, result.Body.Phase = "moetopia", "foundation"
 		return result, nil
 	})
+	documentBusinessAPI(api.OpenAPI())
+	documentProtocolAPI(api.OpenAPI())
 	return r
 }
 
