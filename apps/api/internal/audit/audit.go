@@ -31,6 +31,10 @@ func RecordTarget(ctx context.Context, db *ent.Client, userID, action, target, o
 	id, _ := ctx.Value(requestKey{}).(string)
 	return db.SecurityEvent.Create().SetID(uuid.NewString()).SetUserID(userID).SetAction(action).SetTargetID(target).SetOutcome(outcome).SetRequestID(id).Exec(ctx)
 }
+func RecordReason(ctx context.Context, db *ent.Client, actor, action, target, reason string) error {
+	id, _ := ctx.Value(requestKey{}).(string)
+	return db.SecurityEvent.Create().SetID(uuid.NewString()).SetUserID(actor).SetAction(action).SetTargetID(target).SetOutcome("success").SetRequestID(id).SetReason(reason).Exec(ctx)
+}
 func List(ctx context.Context, db *ent.Client, userID string) ([]Event, error) {
 	rows, err := db.SecurityEvent.Query().Where(securityevent.UserID(userID), securityevent.CreatedAtGT(time.Now().Add(-90*24*time.Hour))).Order(ent.Desc(securityevent.FieldCreatedAt), ent.Desc(securityevent.FieldID)).Limit(50).All(ctx)
 	if err != nil {

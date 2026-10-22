@@ -22,6 +22,7 @@ type AdminEvent struct {
 	Outcome   string    `json:"outcome"`
 	RequestID string    `json:"request_id"`
 	CreatedAt time.Time `json:"created_at"`
+	Reason    string    `json:"reason"`
 }
 type AdminEvents struct {
 	Items      []AdminEvent `json:"items"`
@@ -62,7 +63,7 @@ func AdminList(ctx context.Context, db *ent.Client, value string) (AdminEvents, 
 		result.NextCursor = base64.RawURLEncoding.EncodeToString(raw)
 	}
 	for _, row := range rows {
-		result.Items = append(result.Items, AdminEvent{row.ID, row.UserID, row.TargetID, row.Action, row.Outcome, row.RequestID, row.CreatedAt})
+		result.Items = append(result.Items, AdminEvent{row.ID, row.UserID, row.TargetID, row.Action, row.Outcome, row.RequestID, row.CreatedAt, row.Reason})
 	}
 	return result, nil
 }

@@ -23,6 +23,8 @@ const (
 	FieldRequestID = "request_id"
 	// FieldOutcome holds the string denoting the outcome field in the database.
 	FieldOutcome = "outcome"
+	// FieldReason holds the string denoting the reason field in the database.
+	FieldReason = "reason"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// Table holds the table name of the securityevent in the database.
@@ -37,6 +39,7 @@ var Columns = []string{
 	FieldTargetID,
 	FieldRequestID,
 	FieldOutcome,
+	FieldReason,
 	FieldCreatedAt,
 }
 
@@ -57,6 +60,8 @@ var (
 	DefaultRequestID string
 	// DefaultOutcome holds the default value on creation for the "outcome" field.
 	DefaultOutcome string
+	// DefaultReason holds the default value on creation for the "reason" field.
+	DefaultReason string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )
@@ -92,6 +97,11 @@ func ByRequestID(opts ...sql.OrderTermOption) OrderOption {
 // ByOutcome orders the results by the outcome field.
 func ByOutcome(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOutcome, opts...).ToFunc()
+}
+
+// ByReason orders the results by the reason field.
+func ByReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldReason, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

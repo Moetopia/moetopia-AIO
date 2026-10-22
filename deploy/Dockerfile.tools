@@ -1,0 +1,13 @@
+ARG GO_IMAGE
+ARG POSTGRES_IMAGE
+FROM ${GO_IMAGE} AS build
+ARG GOPROXY=https://proxy.golang.org,direct
+ENV CGO_ENABLED=0 GOMAXPROCS=2 GOPROXY=${GOPROXY}
+RUN --mount=type=cache,target=/go/pkg/mod GOBIN=/out go install -p 2 filippo.io/age/cmd/age@v1.3.2 && GOBIN=/out go install -p 2 filippo.io/age/cmd/age-keygen@v1.3.2 && cp /go/pkg/mod/filippo.io/age@v1.3.2/LICENSE /out/AGE-LICENSE
+
+FROM ${POSTGRES_IMAGE}
+COPY --from=build /out/age /out/age-keygen /usr/local/bin/
+COPY --from=build /out/AGE-LICENSE /usr/share/licenses/age/LICENSE
+COPY --from=build /usr/local/go/LICENSE /usr/share/licenses/golang/LICENSE
+COPY deploy/backup.sh deploy/restore.sh deploy/backup-key.sh /scripts/
+ENTRYPOINT ["bash", "/scripts/backup.sh"]

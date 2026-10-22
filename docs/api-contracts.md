@@ -4,6 +4,8 @@
 
 ## 两类接口
 
+管理员新增的角色、应急、全局统计及通知重投契约分别由[管理员控制](run-admin-controls.md)和[统计运行说明](run-admin-statistics.md)维护；生成的 `@moetopia/api-client` 类型是字段来源。不能用统计列表长度、缺失历史补零或 204 重投反馈冒充实际送达。
+
 | 类别 | 目标约定 | 拥有者 |
 | --- | --- | --- |
 | OAuth/OIDC | 标准字段、HTTP 语义、header、重定向和错误 | authorization 协议适配层 |

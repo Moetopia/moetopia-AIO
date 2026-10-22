@@ -12,7 +12,7 @@ import (
 type SecurityEvent struct{ ent.Schema }
 
 func (SecurityEvent) Fields() []ent.Field {
-	return []ent.Field{field.String("id").Immutable(), field.String("user_id").Immutable(), field.String("action").Immutable(), field.String("target_id").Default(""), field.String("request_id").Default(""), field.String("outcome").Default("success"), field.Time("created_at").Default(time.Now).Immutable()}
+	return []ent.Field{field.String("id").Immutable(), field.String("user_id").Immutable(), field.String("action").Immutable(), field.String("target_id").Default(""), field.String("request_id").Default(""), field.String("outcome").Default("success"), field.String("reason").Default(""), field.Time("created_at").Default(time.Now).Immutable()}
 }
 func (SecurityEvent) Indexes() []ent.Index {
 	return []ent.Index{index.Fields("user_id", "created_at"), index.Fields("created_at")}

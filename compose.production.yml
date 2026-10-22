@@ -1,0 +1,265 @@
+name: moetopia-production
+
+x-api-environment: &api-environment
+  MOETOPIA_ENV: production
+  MOETOPIA_LISTEN: 0.0.0.0:8080
+  MOETOPIA_ISSUER: https://${MOETOPIA_ACCOUNT_HOST:?Set the account hostname}
+  MOETOPIA_ACCOUNT_ORIGIN: https://${MOETOPIA_ACCOUNT_HOST:?Set the account hostname}
+  MOETOPIA_ADMIN_ORIGIN: https://${MOETOPIA_ADMIN_HOST:?Set the admin hostname}
+  MOETOPIA_DATABASE_URL_FILE: /run/secrets/app_database_url
+  MOETOPIA_ENCRYPTION_KEY_FILE: /run/secrets/encryption_key
+  MOETOPIA_VALKEY_ADDRESS: valkey:6379
+  MOETOPIA_VALKEY_PASSWORD_FILE: /run/secrets/valkey_password
+  MOETOPIA_SMTP_ADDRESS: ${MOETOPIA_SMTP_ADDRESS:?Set the TLS SMTP endpoint}
+  MOETOPIA_SMTP_FROM: ${MOETOPIA_SMTP_FROM:?Set the verified sender}
+  MOETOPIA_SMTP_SECURITY: ${MOETOPIA_SMTP_SECURITY:-starttls}
+  MOETOPIA_SMTP_USERNAME: ${MOETOPIA_SMTP_USERNAME:-}
+  MOETOPIA_SMTP_PASSWORD_FILE: /run/secrets/smtp_password
+  MOETOPIA_GITHUB_CLIENT_ID: ${MOETOPIA_GITHUB_CLIENT_ID:-}
+  MOETOPIA_GITHUB_CLIENT_SECRET_FILE: /run/secrets/github_client_secret
+  MOETOPIA_GOOGLE_CLIENT_ID: ${MOETOPIA_GOOGLE_CLIENT_ID:-}
+  MOETOPIA_GOOGLE_CLIENT_SECRET_FILE: /run/secrets/google_client_secret
+  MOETOPIA_TRUSTED_PROXY_CIDRS: ${MOETOPIA_PROXY_SUBNET:?Choose an unused isolated proxy subnet}
+
+services:
+  postgres:
+    image: ${MOETOPIA_POSTGRES_IMAGE:?Load deploy/images.env}
+    environment:
+      POSTGRES_USER: moetopia_migrator
+      POSTGRES_DB: ${MOETOPIA_DATABASE_NAME:-moetopia}
+      POSTGRES_PASSWORD_FILE: /run/secrets/migration_db_password
+    command: [postgres, -c, shared_buffers=64MB, -c, max_connections=40]
+    secrets: [migration_db_password, app_db_password]
+    networks: [private]
+    volumes: [postgres_data:/var/lib/postgresql]
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U moetopia_migrator -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    logging: &logging
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+
+  valkey:
+    image: ${MOETOPIA_VALKEY_IMAGE:?Load deploy/images.env}
+    user: '10001:10001'
+    command:
+      - sh
+      - -ec
+      - |
+        umask 077
+        { printf '%s\n' 'save ""' 'appendonly no' 'maxmemory 64mb' 'maxmemory-policy noeviction'; printf 'requirepass %s\n' "$$(cat /run/secrets/valkey_password)"; } > /tmp/valkey.conf
+        exec valkey-server /tmp/valkey.conf
+    secrets: [valkey_password]
+    networks: [private]
+    read_only: true
+    tmpfs: ['/tmp:size=16m,mode=1777']
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, 'VALKEYCLI_AUTH="$$(cat /run/secrets/valkey_password)" valkey-cli ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    logging: *logging
+
+  api:
+    image: moetopia-api:${MOETOPIA_RELEASE:?Set an immutable release tag}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+      args:
+        GO_IMAGE: ${MOETOPIA_GO_IMAGE:?Load deploy/images.env}
+        GOPROXY: ${MOETOPIA_BUILD_GOPROXY:-https://proxy.golang.org,direct}
+    environment: *api-environment
+    secrets: [app_database_url, encryption_key, valkey_password, smtp_password, github_client_secret, google_client_secret]
+    networks:
+      private: {}
+      outbound: {}
+      proxy: {aliases: [api-proxy]}
+    depends_on:
+      postgres: {condition: service_healthy}
+      valkey: {condition: service_healthy}
+    read_only: true
+    tmpfs: ['/tmp:size=16m,mode=1777']
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+    cpus: 2
+    pids_limit: 256
+    stop_grace_period: 20s
+    restart: unless-stopped
+    logging: *logging
+
+  account:
+    image: moetopia-account:${MOETOPIA_RELEASE:?Set an immutable release tag}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      target: account
+      args: &web-args
+        NODE_IMAGE: ${MOETOPIA_NODE_IMAGE:?Load deploy/images.env}
+        CADDY_IMAGE: ${MOETOPIA_CADDY_IMAGE:?Load deploy/images.env}
+        ACCOUNT_URL: https://${MOETOPIA_ACCOUNT_HOST:?Set the account hostname}
+        ADMIN_URL: https://${MOETOPIA_ADMIN_HOST:?Set the admin hostname}
+    environment:
+      NUXT_PUBLIC_ACCOUNT_URL: https://${MOETOPIA_ACCOUNT_HOST}
+      NUXT_PUBLIC_ADMIN_URL: https://${MOETOPIA_ADMIN_HOST}
+    networks: [private]
+    read_only: true
+    tmpfs: ['/tmp:size=16m,mode=1777']
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    cpus: 1
+    pids_limit: 128
+    restart: unless-stopped
+    logging: *logging
+
+  edge:
+    image: moetopia-edge:${MOETOPIA_RELEASE:?Set an immutable release tag}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      target: edge
+      args: *web-args
+    environment:
+      MOETOPIA_ACCOUNT_HOST: ${MOETOPIA_ACCOUNT_HOST}
+      MOETOPIA_ADMIN_HOST: ${MOETOPIA_ADMIN_HOST}
+      MOETOPIA_TLS_EMAIL: ${MOETOPIA_TLS_EMAIL:?Set the ACME contact}
+    ports: ['80:80', '443:443', '443:443/udp']
+    networks: [private, outbound, proxy]
+    volumes: [caddy_data:/data, caddy_config:/config]
+    depends_on:
+      api: {condition: service_healthy}
+      account: {condition: service_started}
+    read_only: true
+    tmpfs: ['/tmp:size=16m,mode=1777']
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    cpus: 0.5
+    restart: unless-stopped
+    logging: *logging
+
+  migrate:
+    image: moetopia-api:${MOETOPIA_RELEASE}
+    entrypoint: [/app/migrate]
+    environment:
+      <<: *api-environment
+      MOETOPIA_DATABASE_URL_FILE: /run/secrets/migration_database_url
+    secrets: [migration_database_url, encryption_key, valkey_password, smtp_password, github_client_secret, google_client_secret]
+    networks: [private]
+    profiles: [maintenance]
+    depends_on:
+      postgres: {condition: service_healthy}
+
+  permissions:
+    image: ${MOETOPIA_POSTGRES_IMAGE}
+    entrypoint: [sh, -ec, 'export PGPASSWORD="$$(cat /run/secrets/migration_db_password)"; exec psql -X -v ON_ERROR_STOP=1 -h postgres -U moetopia_migrator -d "$$PGDATABASE" -f /scripts/permissions.sql']
+    environment:
+      PGDATABASE: ${MOETOPIA_DATABASE_NAME:-moetopia}
+    secrets: [migration_db_password]
+    networks: [private]
+    volumes: ['./deploy/permissions.sql:/scripts/permissions.sql:ro']
+    profiles: [maintenance]
+    depends_on:
+      postgres: {condition: service_healthy}
+
+  backup:
+    image: moetopia-tools:${MOETOPIA_RELEASE}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.tools
+      args:
+        GO_IMAGE: ${MOETOPIA_GO_IMAGE}
+        POSTGRES_IMAGE: ${MOETOPIA_POSTGRES_IMAGE}
+        GOPROXY: ${MOETOPIA_BUILD_GOPROXY:-https://proxy.golang.org,direct}
+    user: '${MOETOPIA_OPERATOR_UID:-1000}:${MOETOPIA_OPERATOR_GID:-1000}'
+    environment:
+      MOETOPIA_BACKUP_RECIPIENT: ${MOETOPIA_BACKUP_RECIPIENT:-}
+      PGDATABASE: ${MOETOPIA_DATABASE_NAME:-moetopia}
+    secrets: [migration_db_password]
+    networks: [private]
+    volumes: ['${MOETOPIA_BACKUPS_DIR:-./deploy/backups}:/backups']
+    profiles: [maintenance]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  backup-key:
+    image: moetopia-tools:${MOETOPIA_RELEASE}
+    entrypoint: [bash, /scripts/backup-key.sh]
+    user: '${MOETOPIA_OPERATOR_UID:-1000}:${MOETOPIA_OPERATOR_GID:-1000}'
+    environment:
+      MOETOPIA_KEY_BACKUP_RECIPIENT: ${MOETOPIA_KEY_BACKUP_RECIPIENT:-}
+    secrets: [encryption_key]
+    network_mode: none
+    volumes: ['${MOETOPIA_KEY_BACKUPS_DIR:-./deploy/key-backups}:/key-backups']
+    profiles: [maintenance]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  restore:
+    image: moetopia-tools:${MOETOPIA_RELEASE}
+    entrypoint: [bash, /scripts/restore.sh]
+    user: '${MOETOPIA_OPERATOR_UID:-1000}:${MOETOPIA_OPERATOR_GID:-1000}'
+    environment:
+      MOETOPIA_RESTORE_DATABASE: ${MOETOPIA_RESTORE_DATABASE:-}
+      MOETOPIA_RESTORE_ARCHIVE: ${MOETOPIA_RESTORE_ARCHIVE:-}
+    secrets: [migration_db_password, restore_identity]
+    networks: [private]
+    volumes: ['${MOETOPIA_BACKUPS_DIR:-./deploy/backups}:/backups:ro']
+    profiles: [restore]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  restore-check:
+    image: moetopia-api:${MOETOPIA_RELEASE}
+    entrypoint: [/app/restorecheck]
+    environment:
+      <<: *api-environment
+      MOETOPIA_DATABASE_URL_FILE: /run/secrets/restore_database_url
+    secrets: [restore_database_url, encryption_key, valkey_password, smtp_password, github_client_secret, google_client_secret]
+    networks: [private]
+    profiles: [restore]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+networks:
+  private: {internal: true}
+  outbound: {}
+  proxy:
+    internal: true
+    ipam:
+      config:
+        - subnet: ${MOETOPIA_PROXY_SUBNET}
+
+volumes:
+  postgres_data: {}
+  caddy_data: {}
+  caddy_config: {}
+
+secrets:
+  migration_db_password: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/migration_db_password'}
+  app_db_password: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/app_db_password'}
+  migration_database_url: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/migration_database_url'}
+  app_database_url: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/app_database_url'}
+  encryption_key: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/encryption_key'}
+  valkey_password: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/valkey_password'}
+  smtp_password: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/smtp_password'}
+  github_client_secret: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/github_client_secret'}
+  google_client_secret: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/google_client_secret'}
+  restore_identity: {file: '${MOETOPIA_RESTORE_IDENTITY_FILE:-./deploy/restore-identity}'}
+  restore_database_url: {file: '${MOETOPIA_SECRETS_DIR:-./deploy/secrets}/restore_database_url'}

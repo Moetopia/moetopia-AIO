@@ -67,6 +67,13 @@ func (s *Service) Recover(ctx context.Context, user identity.User, web sessions.
 	if err != nil {
 		return "", err
 	}
+	current, err := s.Sessions.Find(ctx, handle)
+	if err != nil {
+		return "", err
+	}
+	if err := unit.AdminPrincipal.UpdateOneID(user.ID).SetEnrollmentSession(current.ID).Exec(ctx); err != nil {
+		return "", err
+	}
 	if err := audit.RecordTarget(ctx, unit.Client(), user.ID, "admin.mfa.recovered", user.ID, "success"); err != nil {
 		return "", err
 	}

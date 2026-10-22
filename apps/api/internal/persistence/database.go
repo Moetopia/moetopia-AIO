@@ -37,6 +37,20 @@ func Open(ctx context.Context, dsn string) (*Database, error) {
 }
 
 func (d *Database) Ready(ctx context.Context) error {
+	var registrationStatistics bool
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('identity.registration_events') IS NOT NULL AND to_regclass('identity.registration_statistics_state') IS NOT NULL").Scan(&registrationStatistics); err != nil {
+		return err
+	}
+	if !registrationStatistics {
+		return errors.New("database migration required")
+	}
+	var controls bool
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('administration.controls') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='administration' AND table_name='principals' AND column_name='enrollment_blocked') AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='audit' AND table_name='security_events' AND column_name='reason')").Scan(&controls); err != nil {
+		return err
+	}
+	if !controls {
+		return errors.New("database migration required")
+	}
 	var statistics bool
 	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('authorization.protocol_events') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='authorization' AND table_name='clients' AND column_name='statistics_since')").Scan(&statistics); err != nil {
 		return err

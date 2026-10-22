@@ -23,6 +23,7 @@ import (
 	"moetopia.local/aio/api/internal/identity"
 	"moetopia.local/aio/api/internal/lifecycle"
 	"moetopia.local/aio/api/internal/notifications"
+	"moetopia.local/aio/api/internal/observability"
 	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/relyingparty"
 	"moetopia.local/aio/api/internal/sessions"
@@ -115,15 +116,18 @@ func run() error {
 	}
 	external := federation.NewService(db.Ent, box, accounts, externalProviders, portal.Sessions)
 	accountLifecycle := lifecycle.New(db.Ent, accounts, applications, provider)
+	metrics := observability.New()
 	go func() {
 		defer close(workerDone)
-		runWorkers(ctx, outbox, accounts, webSessions, provider, portal, admin.Service, accountLifecycle)
+		runWorkers(ctx, outbox, accounts, webSessions, provider, portal, admin.Service, accountLifecycle, metrics)
 	}()
 	defer func() { stop(); <-workerDone }()
 	handler := httpserver.New(httpserver.Dependencies{
 		RateNamespace: cfg.RateNamespace(), DatabaseReady: db.Ready,
-		CacheReady: func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() },
-		Tokens:     provider, Valkey: cache, Portal: httpserver.PortalEndpoints{Service: portal},
+		TrustedProxies: cfg.TrustedProxies,
+		Metrics:        metrics,
+		CacheReady:     func(ctx context.Context) error { return cache.Do(ctx, cache.B().Ping().Build()).Error() },
+		Tokens:         provider, Valkey: cache, Portal: httpserver.PortalEndpoints{Service: portal},
 		Developers: applications, Lifecycle: accountLifecycle,
 		Federation: httpserver.FederationEndpoints{Service: external, Origin: cfg.AccountOrigin},
 		Admin:      admin,

@@ -64,3 +64,19 @@ func TestExternalProviderCredentialPairs(t *testing.T) {
 		}
 	}
 }
+
+func TestProxyCIDRsMustBeExplicit(t *testing.T) {
+	values := map[string]string{"MOETOPIA_DATABASE_URL": "dsn", "MOETOPIA_VALKEY_ADDRESS": "localhost:6379", "MOETOPIA_ENCRYPTION_KEY": "key", "MOETOPIA_ISSUER": "https://account.example.test"}
+	get := func(key string) string { return values[key] }
+	for _, value := range []string{"*", "0.0.0.0/0", "::/0", "192.0.2.1", "192.0.2.0/33"} {
+		values["MOETOPIA_TRUSTED_PROXY_CIDRS"] = value
+		if _, err := Read(get); err == nil {
+			t.Fatal("unsafe proxy trust accepted")
+		}
+	}
+	values["MOETOPIA_TRUSTED_PROXY_CIDRS"] = "172.31.240.0/28, 2001:db8::/64"
+	cfg, err := Read(get)
+	if err != nil || len(cfg.TrustedProxies) != 2 {
+		t.Fatal("explicit proxy networks rejected")
+	}
+}

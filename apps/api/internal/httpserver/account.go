@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"net"
 	"net/http"
 	"strings"
 
@@ -185,12 +184,6 @@ func (a AccountEndpoints) rate(ctx context.Context, email string, clientIP strin
 
 type accountIPKey struct{}
 
-func accountClientIP(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		host, _, _ := net.SplitHostPort(r.RemoteAddr)
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), accountIPKey{}, host)))
-	})
-}
 func clientIP(ctx context.Context) string {
 	value, _ := ctx.Value(accountIPKey{}).(string)
 	return value

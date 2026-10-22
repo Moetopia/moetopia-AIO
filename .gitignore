@@ -15,3 +15,7 @@ apps/api/bin/
 *.exe
 *.test
 .DS_Store
+deploy/secrets/
+deploy/backups/
+deploy/key-backups/
+deploy/restore-identity

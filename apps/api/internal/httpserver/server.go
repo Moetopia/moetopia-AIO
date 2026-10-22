@@ -3,8 +3,8 @@ package httpserver
 import (
 	"context"
 	"encoding/json"
-	"net"
 	"net/http"
+	"net/netip"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -16,20 +16,23 @@ import (
 	"moetopia.local/aio/api/internal/authorization"
 	"moetopia.local/aio/api/internal/developer"
 	"moetopia.local/aio/api/internal/lifecycle"
+	"moetopia.local/aio/api/internal/observability"
 )
 
 type Dependencies struct {
-	DatabaseReady func(context.Context) error
-	CacheReady    func(context.Context) error
-	Tokens        *authorization.Provider
-	Valkey        valkey.Client
-	Accounts      AccountEndpoints
-	Portal        PortalEndpoints
-	RateNamespace string
-	Developers    *developer.Service
-	Admin         AdminEndpoints
-	Lifecycle     *lifecycle.Service
-	Federation    FederationEndpoints
+	DatabaseReady  func(context.Context) error
+	CacheReady     func(context.Context) error
+	Tokens         *authorization.Provider
+	Valkey         valkey.Client
+	Accounts       AccountEndpoints
+	Portal         PortalEndpoints
+	RateNamespace  string
+	Developers     *developer.Service
+	Admin          AdminEndpoints
+	Lifecycle      *lifecycle.Service
+	Federation     FederationEndpoints
+	TrustedProxies []netip.Prefix
+	Metrics        *observability.Registry
 }
 
 type Status struct {
@@ -43,7 +46,10 @@ func New(deps Dependencies) http.Handler {
 	deps.Accounts.RateNamespace = deps.RateNamespace
 	deps.Admin.Accounts, deps.Admin.Developers = deps.Accounts, deps.Developers
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID, middleware.Recoverer, accountClientIP)
+	if deps.Metrics == nil {
+		deps.Metrics = observability.New()
+	}
+	r.Use(middleware.RequestID, deps.Metrics.Middleware, middleware.Recoverer, trustedClientIP(deps.TrustedProxies))
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -57,6 +63,7 @@ func New(deps Dependencies) http.Handler {
 			next.ServeHTTP(w, req)
 		})
 	})
+	r.Get("/internal/metrics", deps.Metrics.ServeHTTP)
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "alive"})
 	})
@@ -131,10 +138,14 @@ func limitCredentials(client valkey.Client, next http.Handler, namespace string)
 			writeJSON(w, 503, map[string]string{"error": "temporarily_unavailable"})
 			return
 		}
-		host, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			writeJSON(w, 400, map[string]string{"error": "invalid_request"})
-			return
+		host := clientIP(r.Context())
+		if host == "" {
+			var ok bool
+			host, ok = requestClientAddress(r, nil)
+			if !ok {
+				writeJSON(w, 400, map[string]string{"error": "invalid_request"})
+				return
+			}
 		}
 		count, err := script.Exec(r.Context(), client, []string{namespace + "limit:token:" + host}, nil).AsInt64()
 		if err != nil {

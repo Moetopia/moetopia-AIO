@@ -1,0 +1,34 @@
+{
+	email {$MOETOPIA_TLS_EMAIL}
+	admin off
+}
+
+{$MOETOPIA_ACCOUNT_HOST} {
+	encode zstd gzip
+	@backend path /api/* /oauth/* /.well-known/openid-configuration
+	handle @backend {
+		reverse_proxy api-proxy:8080 {
+			header_up X-Moetopia-Client-IP {http.request.remote.host}
+		}
+	}
+	handle {
+		reverse_proxy account:3000
+	}
+	header Strict-Transport-Security "max-age=31536000"
+}
+
+{$MOETOPIA_ADMIN_HOST} {
+	encode zstd gzip
+	@backend path /api/* /oauth/* /.well-known/openid-configuration
+	handle @backend {
+		reverse_proxy api-proxy:8080 {
+			header_up X-Moetopia-Client-IP {http.request.remote.host}
+		}
+	}
+	handle {
+		root * /srv/admin
+		try_files {path} /200.html
+		file_server
+	}
+	header Strict-Transport-Security "max-age=31536000"
+}

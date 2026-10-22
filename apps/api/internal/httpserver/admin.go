@@ -11,6 +11,7 @@ import (
 	"moetopia.local/aio/api/internal/audit"
 	"moetopia.local/aio/api/internal/developer"
 	"moetopia.local/aio/api/internal/identity"
+	"moetopia.local/aio/api/internal/notifications"
 	"moetopia.local/aio/api/internal/relyingparty"
 	"moetopia.local/aio/api/internal/sessions"
 )
@@ -37,6 +38,14 @@ type AdminContextOutput struct {
 
 func adminError(err error) error {
 	switch {
+	case errors.Is(err, notifications.ErrDeliveryState):
+		return authorizationProblem(409, "Notification delivery state changed", "notification_state_changed")
+	case errors.Is(err, administration.ErrLastAdministrator):
+		return authorizationProblem(409, "Another enrolled administrator is required", "admin_last_administrator")
+	case errors.Is(err, administration.ErrEmergency):
+		return authorizationProblem(403, "Operator recovery proof required", "admin_emergency_required")
+	case errors.Is(err, administration.ErrInvalid):
+		return authorizationProblem(422, "Invalid administrator change", "admin_change_invalid")
 	case errors.Is(err, administration.ErrRole):
 		return authorizationProblem(403, "Administrator access required", "admin_role_required")
 	case errors.Is(err, administration.ErrFactor):
@@ -122,6 +131,9 @@ func (a AdminEndpoints) Register(api huma.API) {
 	a.registerApplications(api)
 	a.registerSessions(api)
 	a.registerIdentity(api)
+	a.registerPrincipals(api)
+	a.registerStatistics(api)
+	a.registerNotifications(api)
 }
 func (a AdminEndpoints) registerSessions(api huma.API) {
 	huma.Get(api, "/api/v1/admin/sessions", func(ctx context.Context, input *AccountCookie) (*SessionsOutput, error) {

@@ -18,6 +18,8 @@ type Tx struct {
 	AccountUser *AccountUserClient
 	// AdminBootstrap is the client for interacting with the AdminBootstrap builders.
 	AdminBootstrap *AdminBootstrapClient
+	// AdminControl is the client for interacting with the AdminControl builders.
+	AdminControl *AdminControlClient
 	// AdminElevation is the client for interacting with the AdminElevation builders.
 	AdminElevation *AdminElevationClient
 	// AdminPrincipal is the client for interacting with the AdminPrincipal builders.
@@ -52,8 +54,12 @@ type Tx struct {
 	ProtocolSession *ProtocolSessionClient
 	// RPLogin is the client for interacting with the RPLogin builders.
 	RPLogin *RPLoginClient
+	// RegistrationEvent is the client for interacting with the RegistrationEvent builders.
+	RegistrationEvent *RegistrationEventClient
 	// RegistrationPolicy is the client for interacting with the RegistrationPolicy builders.
 	RegistrationPolicy *RegistrationPolicyClient
+	// RegistrationStatisticsState is the client for interacting with the RegistrationStatisticsState builders.
+	RegistrationStatisticsState *RegistrationStatisticsStateClient
 	// SecurityEvent is the client for interacting with the SecurityEvent builders.
 	SecurityEvent *SecurityEventClient
 	// SigningKey is the client for interacting with the SigningKey builders.
@@ -194,6 +200,7 @@ func (tx *Tx) init() {
 	tx.AccountChallenge = NewAccountChallengeClient(tx.config)
 	tx.AccountUser = NewAccountUserClient(tx.config)
 	tx.AdminBootstrap = NewAdminBootstrapClient(tx.config)
+	tx.AdminControl = NewAdminControlClient(tx.config)
 	tx.AdminElevation = NewAdminElevationClient(tx.config)
 	tx.AdminPrincipal = NewAdminPrincipalClient(tx.config)
 	tx.ApplicationVersion = NewApplicationVersionClient(tx.config)
@@ -211,7 +218,9 @@ func (tx *Tx) init() {
 	tx.ProtocolEvent = NewProtocolEventClient(tx.config)
 	tx.ProtocolSession = NewProtocolSessionClient(tx.config)
 	tx.RPLogin = NewRPLoginClient(tx.config)
+	tx.RegistrationEvent = NewRegistrationEventClient(tx.config)
 	tx.RegistrationPolicy = NewRegistrationPolicyClient(tx.config)
+	tx.RegistrationStatisticsState = NewRegistrationStatisticsStateClient(tx.config)
 	tx.SecurityEvent = NewSecurityEventClient(tx.config)
 	tx.SigningKey = NewSigningKeyClient(tx.config)
 	tx.WebSession = NewWebSessionClient(tx.config)

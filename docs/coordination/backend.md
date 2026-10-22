@@ -1,6 +1,6 @@
 # 后端进度与前端接入
 
-更新时间：2026-10-22。所有者：本后端对话。**按文末最新批次接线：测试成员、真实协议统计**；联邦、签名轮换、中央确认退出等前批能力保留，前文仅作历史。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。共享文档交接，不声称前端已收到自动通知。
+更新时间：2026-10-22。所有者：本后端对话。**按文末最新批次接线：管理员角色/受控应急、全局统计、通知重投**；测试成员、真实协议统计、联邦和中央退出等前批能力保留，前文仅作历史。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。共享文档交接，不声称前端已收到自动通知。
 
 ## 已完成
 
@@ -226,3 +226,26 @@ API 改用持久化密钥 source，Token 事务固定 active 私钥和最终 kid
 开发库已应用迁移 13、14，当前版本 14；日常 API/worker 应重建并重启以开始采集，本轮未停止其他会话进程。无新依赖，未增加实际成员/管理员、改密钥/secret/.env、改 UI 或 frontend.md。新名单/统计页面尚未验收。
 
 Go test/vet、工作区 typecheck、生成/漂移和文档链接检查通过。真实随机数据库集成覆盖完整成员及统计事务、安全与清理边界，具体见实施进度；最初请求保护测试对中央 Cookie 预期 401，实际统一写保护先返回 403，已修正断言并重跑。真实 Mailpit/Nuxt/独立 RP Chromium 1 项通过（18.3 秒），只证明既有 OIDC 回归。剩余后端为管理台指标、管理员增补/最后管理员保护/全因素丢失应急，以及生产部署/备份恢复/容量；真实外部供应商和正式环境仍未验收。
+
+## 2026-10-22：剩余管理员能力与运行交付
+
+首期后端剩余功能已集中实现，无需逐项请求开放。新接口都使用独立 admin Cookie；除应急恢复入口外均要求有效 MFA，写入仍需 Origin/CSRF/限流。完整契约以[管理员控制](../run-admin-controls.md)、[统计及重投](../run-admin-statistics.md)为准：
+
+| 功能 | 接口 | 生成类型 |
+| --- | --- | --- |
+| 管理员主体分页 | GET `/api/v1/admin/principals?after=` | AdminPrincipals |
+| 授予/撤回 | POST `/api/v1/admin/principals/{id}/availability` | AdminPrincipalChangeRequest |
+| 操作员凭据消费 | POST `/api/v1/admin/mfa/emergency` | AdminEmergencyRequest |
+| 全局真实概览/注册趋势 | GET `/api/v1/admin/statistics` | AdminStatistics |
+| 失败通知分页 | GET `/api/v1/admin/notifications/failed?after=` | AdminFailedNotifications |
+| 条件重投 | POST `/api/v1/admin/notifications/{id}/retry` | AdminNotificationRetryRequest |
+
+角色主体只含 UUID/状态/revision，不返回邮箱/秘密；首次授予用既有账号 UUID 和 revision=0，current_password/reason 必填，不能撤回最后可用且已完成 MFA 的管理员。409 后重新读主体，不复用旧 revision。撤回自己后清理管理上下文；角色重新授予不恢复旧 MFA。
+
+AdminContext.mfa 新增 emergency_required；第一因素登录后优先处理该状态，进入当前密码+操作员 token 的恢复表单。该表单不能被完整 MFA 守卫阻断；成功立即替换 Cookie/CSRF、清空 token，继续原绑定/确认，恢复本身不授予 MFA 权限。扫码 seed/token/恢复码只放本次组件内存。其他浏览器不能接续已绑定的受限重新登记会话；丢失需操作员重签。
+
+AdminAuditEvents 新增 reason，历史为空。全局统计的 registrations 在采集前省略 count，开始日/当日 partial；不要补零。通知 queued/in_flight/retry_exhausted 分开显示，失败列表无邮箱/正文；重投 204 仅表示回到队列，409 表示租约/次数/有效期变化，不能当作邮件已送达。所有别名已从真实 OpenAPI 导出。
+
+专属开发库已应用迁移 15/16，当前 **16**。只需重建自己的 API；后台任务内置于同一 API 进程，**没有独立 worker 服务**。没有对日常账号执行角色变更、应急重置或密钥轮换，没有改 `.env`，未改页面/翻译/frontend.md，保留 app.vue 的既有改动。
+
+发布/加密恢复/内部指标工具和独立 Ubuntu Compose 演练已完成，细节见[实施进度](../implementation-status.md)。共享 Nuxt 配置增加固定构建上游 `MOETOPIA_API_UPSTREAM`，默认仍是开发 127.0.0.1:8080，容器构建固定 api:8080；保留 manual redirect，不能根据请求 Host 选择代理。实际管理员页面和新增历史/注销/联邦/退出/成员/统计页仍由前端统一接入，真实供应商和正式环境另验；此文档不代表另一对话已自动读取。

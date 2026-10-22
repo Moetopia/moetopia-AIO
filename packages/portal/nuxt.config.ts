@@ -1,5 +1,11 @@
 import tailwindcss from '@tailwindcss/vite'
 
+const apiUpstream = process.env.MOETOPIA_API_UPSTREAM ?? 'http://127.0.0.1:8080'
+const apiURL = new URL(apiUpstream)
+if (!['http:', 'https:'].includes(apiURL.protocol) || apiURL.username || apiURL.password || apiURL.pathname !== '/' || apiURL.search || apiURL.hash) {
+  throw new Error('MOETOPIA_API_UPSTREAM must be a fixed server origin')
+}
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-18',
   devtools: { enabled: false },
@@ -18,8 +24,8 @@ export default defineNuxtConfig({
   },
   vite: { plugins: [tailwindcss()] },
   routeRules: {
-    '/.well-known/openid-configuration': { proxy: 'http://127.0.0.1:8080/.well-known/openid-configuration', headers: { 'cache-control': 'no-store' } },
-    '/api/**': { proxy: { to: 'http://127.0.0.1:8080/api/**', fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
-    '/oauth/**': { proxy: { to: 'http://127.0.0.1:8080/oauth/**', fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
+    '/.well-known/openid-configuration': { proxy: `${apiURL.origin}/.well-known/openid-configuration`, headers: { 'cache-control': 'no-store' } },
+    '/api/**': { proxy: { to: `${apiURL.origin}/api/**`, fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
+    '/oauth/**': { proxy: { to: `${apiURL.origin}/oauth/**`, fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
   },
 })

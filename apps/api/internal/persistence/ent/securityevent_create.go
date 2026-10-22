@@ -74,6 +74,20 @@ func (_c *SecurityEventCreate) SetNillableOutcome(v *string) *SecurityEventCreat
 	return _c
 }
 
+// SetReason sets the "reason" field.
+func (_c *SecurityEventCreate) SetReason(v string) *SecurityEventCreate {
+	_c.mutation.SetReason(v)
+	return _c
+}
+
+// SetNillableReason sets the "reason" field if the given value is not nil.
+func (_c *SecurityEventCreate) SetNillableReason(v *string) *SecurityEventCreate {
+	if v != nil {
+		_c.SetReason(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *SecurityEventCreate) SetCreatedAt(v time.Time) *SecurityEventCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -141,6 +155,10 @@ func (_c *SecurityEventCreate) defaults() {
 		v := securityevent.DefaultOutcome
 		_c.mutation.SetOutcome(v)
 	}
+	if _, ok := _c.mutation.Reason(); !ok {
+		v := securityevent.DefaultReason
+		_c.mutation.SetReason(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := securityevent.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -163,6 +181,9 @@ func (_c *SecurityEventCreate) check() error {
 	}
 	if _, ok := _c.mutation.Outcome(); !ok {
 		return &ValidationError{Name: "outcome", err: errors.New(`ent: missing required field "SecurityEvent.outcome"`)}
+	}
+	if _, ok := _c.mutation.Reason(); !ok {
+		return &ValidationError{Name: "reason", err: errors.New(`ent: missing required field "SecurityEvent.reason"`)}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "SecurityEvent.created_at"`)}
@@ -222,6 +243,10 @@ func (_c *SecurityEventCreate) createSpec() (*SecurityEvent, *sqlgraph.CreateSpe
 	if value, ok := _c.mutation.Outcome(); ok {
 		_spec.SetField(securityevent.FieldOutcome, field.TypeString, value)
 		_node.Outcome = value
+	}
+	if value, ok := _c.mutation.Reason(); ok {
+		_spec.SetField(securityevent.FieldReason, field.TypeString, value)
+		_node.Reason = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(securityevent.FieldCreatedAt, field.TypeTime, value)

@@ -85,6 +85,16 @@ var (
 		Columns:    BootstrapColumns,
 		PrimaryKey: []*schema.Column{BootstrapColumns[0]},
 	}
+	// ControlsColumns holds the columns for the "controls" table.
+	ControlsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+	}
+	// ControlsTable holds the schema information for the "controls" table.
+	ControlsTable = &schema.Table{
+		Name:       "controls",
+		Columns:    ControlsColumns,
+		PrimaryKey: []*schema.Column{ControlsColumns[0]},
+	}
 	// ElevationsColumns holds the columns for the "elevations" table.
 	ElevationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -122,6 +132,10 @@ var (
 		{Name: "factor_version", Type: field.TypeInt, Default: 0},
 		{Name: "recovery_hashes", Type: field.TypeJSON},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "enrollment_blocked", Type: field.TypeBool, Default: false},
+		{Name: "enrollment_session", Type: field.TypeString, Default: ""},
+		{Name: "emergency_hash", Type: field.TypeString, Default: ""},
+		{Name: "emergency_expires_at", Type: field.TypeTime, Nullable: true},
 	}
 	// PrincipalsTable holds the schema information for the "principals" table.
 	PrincipalsTable = &schema.Table{
@@ -518,6 +532,24 @@ var (
 			},
 		},
 	}
+	// RegistrationEventsColumns holds the columns for the "registration_events" table.
+	RegistrationEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "day", Type: field.TypeString},
+	}
+	// RegistrationEventsTable holds the schema information for the "registration_events" table.
+	RegistrationEventsTable = &schema.Table{
+		Name:       "registration_events",
+		Columns:    RegistrationEventsColumns,
+		PrimaryKey: []*schema.Column{RegistrationEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "registrationevent_day",
+				Unique:  false,
+				Columns: []*schema.Column{RegistrationEventsColumns[1]},
+			},
+		},
+	}
 	// RegistrationPolicyColumns holds the columns for the "registration_policy" table.
 	RegistrationPolicyColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -530,6 +562,17 @@ var (
 		Columns:    RegistrationPolicyColumns,
 		PrimaryKey: []*schema.Column{RegistrationPolicyColumns[0]},
 	}
+	// RegistrationStatisticsStateColumns holds the columns for the "registration_statistics_state" table.
+	RegistrationStatisticsStateColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "started_at", Type: field.TypeTime},
+	}
+	// RegistrationStatisticsStateTable holds the schema information for the "registration_statistics_state" table.
+	RegistrationStatisticsStateTable = &schema.Table{
+		Name:       "registration_statistics_state",
+		Columns:    RegistrationStatisticsStateColumns,
+		PrimaryKey: []*schema.Column{RegistrationStatisticsStateColumns[0]},
+	}
 	// SecurityEventsColumns holds the columns for the "security_events" table.
 	SecurityEventsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -538,6 +581,7 @@ var (
 		{Name: "target_id", Type: field.TypeString, Default: ""},
 		{Name: "request_id", Type: field.TypeString, Default: ""},
 		{Name: "outcome", Type: field.TypeString, Default: "success"},
+		{Name: "reason", Type: field.TypeString, Default: ""},
 		{Name: "created_at", Type: field.TypeTime},
 	}
 	// SecurityEventsTable holds the schema information for the "security_events" table.
@@ -549,12 +593,12 @@ var (
 			{
 				Name:    "securityevent_user_id_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SecurityEventsColumns[1], SecurityEventsColumns[6]},
+				Columns: []*schema.Column{SecurityEventsColumns[1], SecurityEventsColumns[7]},
 			},
 			{
 				Name:    "securityevent_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{SecurityEventsColumns[6]},
+				Columns: []*schema.Column{SecurityEventsColumns[7]},
 			},
 		},
 	}
@@ -605,6 +649,7 @@ var (
 		AccountChallengesTable,
 		UsersTable,
 		BootstrapTable,
+		ControlsTable,
 		ElevationsTable,
 		PrincipalsTable,
 		ApplicationVersionsTable,
@@ -622,7 +667,9 @@ var (
 		ProtocolEventsTable,
 		ProtocolSessionsTable,
 		RpLoginsTable,
+		RegistrationEventsTable,
 		RegistrationPolicyTable,
+		RegistrationStatisticsStateTable,
 		SecurityEventsTable,
 		SigningKeysTable,
 		WebSessionsTable,
@@ -638,6 +685,9 @@ func init() {
 	}
 	BootstrapTable.Annotation = &entsql.Annotation{
 		Table: "bootstrap",
+	}
+	ControlsTable.Annotation = &entsql.Annotation{
+		Table: "controls",
 	}
 	ElevationsTable.Annotation = &entsql.Annotation{
 		Table: "elevations",
@@ -690,8 +740,14 @@ func init() {
 	RpLoginsTable.Annotation = &entsql.Annotation{
 		Table: "rp_logins",
 	}
+	RegistrationEventsTable.Annotation = &entsql.Annotation{
+		Table: "registration_events",
+	}
 	RegistrationPolicyTable.Annotation = &entsql.Annotation{
 		Table: "registration_policy",
+	}
+	RegistrationStatisticsStateTable.Annotation = &entsql.Annotation{
+		Table: "registration_statistics_state",
 	}
 	SecurityEventsTable.Annotation = &entsql.Annotation{
 		Table: "security_events",

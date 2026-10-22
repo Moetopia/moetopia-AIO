@@ -16,7 +16,7 @@ pnpm api:admin:bootstrap --email admin@example.test
 
 示例邮箱必须替换为已经注册、验证邮箱且启用的本地账号；CLI 不注册新账号，不输出密码、seed 或恢复码。用户已在当前会话指定首位管理员，实际操作结果见实施进度，不把真实邮箱写入仓库。
 
-`admin:init` 显式创建固定 confidential client `moetopia-admin`，回调固定为管理员 origin + `/api/v1/admin/callback`。secret 按独立用途从既有密钥派生，只保存 bcrypt；重复执行仅校验，配置不同或停用时拒绝覆盖。`admin:bootstrap` 通过唯一 bootstrap 记录保证并发下只成功一次；即使角色后来不可用，也不重新开放初始化，不以删除标记或环境变量绕过 MFA。当前角色为单一 administrator，尚无多级 RBAC、公开角色授予或第二管理员管理接口。
+`admin:init` 显式创建固定 confidential client `moetopia-admin`，回调固定为管理员 origin + `/api/v1/admin/callback`。secret 按独立用途从既有密钥派生，只保存 bcrypt；重复执行仅校验，配置不同或停用时拒绝覆盖。`admin:bootstrap` 通过唯一 bootstrap 记录保证并发下只成功一次；即使角色后来不可用，也不重新开放初始化，不以删除标记或环境变量绕过 MFA。当前只有 administrator 角色，后续角色授予/撤回及最后管理员保护见[管理员控制](run-admin-controls.md)，通用多级 RBAC 后置。
 
 角色赋予后仍须通过真实 OAuth 重新认证并完成 TOTP 绑定，才能使用后台。自己的 TUI 中 api 若因缺迁移而退出，迁移完成后选 api 按 r；不重新初始化账号、签名密钥或开发数据库。
 
@@ -53,7 +53,7 @@ MFA 状态包括 enrolled、verified、verified_until（有效时才提供）、
 
 恢复码每组 10 个，每个 128 bit 随机值，数据库仅存带用户/用途的 SHA-256 验证值。创建或重生时只返回一次，不通过 context/日志找回。使用其中一个恢复码后，原 seed、整组旧恢复码、所有管理员会话和提升记录均失效；当前浏览器只得到重新绑定所需的受限会话。完成新 seed 验证后才恢复管理权限，并收到一组新码。重生恢复码也使旧集合失效；安全变更与通知 outbox 同事务，当前邮件只进 Mailpit。
 
-首次 seed/otpauth URI 和恢复码仅在组件内存展示，不写 Cookie、localStorage、SSR payload、日志、截图或错误报告，不自动重试绑定确认、恢复或重生请求。已绑定时不能用 enrollment 直接覆盖 seed；更换验证器通过恢复并重新绑定。全部因素与恢复码都丢失时没有在线或 CLI 绕过路径，受控应急恢复和生产备份演练仍待完成。
+首次 seed/otpauth URI 和恢复码仅在组件内存展示，不写 Cookie、localStorage、SSR payload、日志、截图或错误报告，不自动重试绑定确认、恢复或重生请求。已绑定时不能用 enrollment 直接覆盖 seed；更换验证器通过恢复并重新绑定。全部因素与恢复码丢失时使用[受控应急流程](run-admin-controls.md)，只得到绑定当前会话的重新登记资格，不能绕过 MFA 访问业务。
 
 管理写操作复用 Valkey 限流，以独立管理员主体键及 IP 限制；额度也包括正常管理写操作，不能将连续操作的 429 当作验证码错误或自动重试。当前额度是开发基线，不是生产容量承诺。
 
@@ -77,11 +77,11 @@ MFA 状态包括 enrolled、verified、verified_until（有效时才提供）、
 | DELETE `/invitations/{id}` | 邀请记录的 64 位 hash ID | 204；已消费不能撤销，重复撤销不复活 |
 | GET `/audit-events` | 可选 cursor | 最近 90 天每页 50 条 |
 
-列表 next_cursor 为空字符串表示结束。用户 query 为邮箱/昵称前缀（最少 2 字符）或完整 ID，游标绑定原 query；变更筛选后丢弃旧游标。当前不提供统计趋势/汇总接口，不用列表长度伪造全站统计。小规模前缀检索的生产索引/容量仍需实测。
+列表 next_cursor 为空字符串表示结束。用户 query 为邮箱/昵称前缀（最少 2 字符）或完整 ID，游标绑定原 query；变更筛选后丢弃旧游标。全局概览、注册趋势和通知重投见[统计契约](run-admin-statistics.md)，不使用列表长度伪造统计。小规模前缀检索的生产索引/容量仍需实测。
 
 平台 suspended 与所有者 enabled 分开：有效可用条件为 enabled 且未 suspended。所有者自行启用、改草稿均不能绕过暂停；解除暂停不会复活旧授权。发布版 pending/rejected 仍使用旧批准配置；通过审核按既有保守策略撤销旧授权族并切换版本，详细语义见 [应用管理](run-developer-applications.md)。2026-10-21 新增版本历史读取和批准/拒绝、暂停/解除的所有者邮件通知；队列失败整笔回滚，账号冻结不妨碍管理员暂停其应用。通知投递和保留策略由应用文档唯一定义。
 
-普通账号停用/重启都递增 security_version，撤销全部自有会话并消费未完成挑战；重启不恢复旧会话、授权码或刷新凭据。离线 JWT 仍有到期残留窗口。**该接口禁止操作任何管理员主体，包括自己**，以免普通用户控制误封最后管理员；角色授予/撤回和受控管理员冻结另行设计，不提供伪装成普通账号停用的后门。
+普通账号停用/重启都递增 security_version，撤销全部自有会话并消费未完成挑战；重启不恢复旧会话、授权码或刷新凭据。离线 JWT 仍有到期残留窗口。**该接口禁止操作任何管理员主体，包括自己**；管理角色按[专用控制接口](run-admin-controls.md)撤回，不伪装为普通账号停用。
 
 注册模式更新与注册消费通过策略行锁协调；切到邀请模式不会让此前打开的页面绕过后端。邀请码不绑定邮箱、单次兑换，撤销与兑换按数据库条件串行，不能把可分享邀请码写入审计。审计新增 actor_id、target_id、action、outcome、request_id、created_at；新 HTTP 管理变更和 MFA 失败有脱敏事件。旧事件的缺失目标/关联 ID 保留为空，不虚构历史回填；CLI 事件可以没有 HTTP request ID，不承诺所有拒绝和基础设施故障都已有完整安全事件。
 

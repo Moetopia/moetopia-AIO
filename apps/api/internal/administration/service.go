@@ -3,6 +3,8 @@ package administration
 import (
 	"context"
 	"errors"
+	"slices"
+	"strings"
 	"time"
 
 	"moetopia.local/aio/api/internal/audit"
@@ -21,6 +23,9 @@ var ErrFactor = errors.New("administrator MFA required")
 var ErrProof = errors.New("invalid administrator verification")
 var ErrState = errors.New("administrator security state changed")
 var ErrProtected = errors.New("administrator account cannot be managed through ordinary account controls")
+var ErrLastAdministrator = errors.New("another enrolled administrator is required")
+var ErrInvalid = errors.New("invalid administrator change")
+var ErrEmergency = errors.New("operator recovery proof required")
 
 type Service struct {
 	db       *ent.Client
@@ -34,6 +39,7 @@ type State struct {
 	Verified               bool       `json:"verified"`
 	VerifiedUntil          *time.Time `json:"verified_until,omitempty"`
 	RecoveryCodesRemaining int        `json:"recovery_codes_remaining"`
+	EmergencyRequired      bool       `json:"emergency_required"`
 }
 
 func New(db *ent.Client, box *cryptobox.Box, users *identity.Service, outbox *notifications.Outbox, web *sessions.Service) *Service {
@@ -71,7 +77,7 @@ func (s *Service) State(ctx context.Context, userID, sessionID string) (State, e
 	if err != nil {
 		return State{}, err
 	}
-	state := State{Enrolled: len(row.Secret) > 0, RecoveryCodesRemaining: len(row.RecoveryHashes)}
+	state := State{Enrolled: len(row.Secret) > 0, RecoveryCodesRemaining: len(row.RecoveryHashes), EmergencyRequired: row.EnrollmentBlocked}
 	proof, err := persistence.Client(ctx, s.db).AdminElevation.Query().Where(adminelevation.ID(sessionID), adminelevation.UserID(userID), adminelevation.FactorVersion(row.FactorVersion), adminelevation.ExpiresAtGT(time.Now())).Only(ctx)
 	if err != nil && !ent.IsNotFound(err) {
 		return state, err
@@ -82,14 +88,36 @@ func (s *Service) State(ctx context.Context, userID, sessionID string) (State, e
 	return state, nil
 }
 func (s *Service) begin(ctx context.Context, user identity.User, web sessions.Session) (context.Context, *persistence.Unit, *ent.AdminPrincipal, error) {
+	return s.beginWithUsers(ctx, user, web)
+}
+func (s *Service) beginWithUsers(ctx context.Context, user identity.User, web sessions.Session, others ...identity.User) (context.Context, *persistence.Unit, *ent.AdminPrincipal, error) {
+	return s.beginTargets(ctx, user, web, others, nil)
+}
+func (s *Service) beginTargets(ctx context.Context, user identity.User, web sessions.Session, others []identity.User, targets []string) (context.Context, *persistence.Unit, *ent.AdminPrincipal, error) {
 	unit, err := persistence.Begin(ctx, s.db)
 	if err != nil {
 		return ctx, nil, nil, err
 	}
 	ctx = persistence.WithClient(ctx, unit.Client())
-	if err := s.users.VerifyVersion(ctx, user.ID, user.SecurityVersion); err != nil {
+	if err := lockAdministration(ctx, unit.Client()); err != nil {
 		_ = unit.Rollback()
 		return ctx, nil, nil, err
+	}
+	users := append([]identity.User{user}, others...)
+	slices.SortFunc(users, func(a, b identity.User) int { return strings.Compare(a.ID, b.ID) })
+	ids := append([]string{}, targets...)
+	for _, subject := range users {
+		ids = append(ids, subject.ID)
+	}
+	if err := s.users.LockUsers(ctx, ids); err != nil {
+		_ = unit.Rollback()
+		return ctx, nil, nil, err
+	}
+	for _, subject := range users {
+		if err := s.users.VerifyVersion(ctx, subject.ID, subject.SecurityVersion); err != nil {
+			_ = unit.Rollback()
+			return ctx, nil, nil, err
+		}
 	}
 	row, err := unit.AdminPrincipal.Query().Where(adminprincipal.ID(user.ID), adminprincipal.Enabled(true)).ForUpdate().Only(ctx)
 	if ent.IsNotFound(err) {
@@ -104,8 +132,8 @@ func (s *Service) begin(ctx context.Context, user identity.User, web sessions.Se
 	}
 	return ctx, unit, row, nil
 }
-func (s *Service) Run(ctx context.Context, user identity.User, web sessions.Session, command func(context.Context) error) error {
-	ctx, unit, _, err := s.begin(ctx, user, web)
+func (s *Service) Run(ctx context.Context, user identity.User, web sessions.Session, command func(context.Context) error, targets ...string) error {
+	ctx, unit, _, err := s.beginTargets(ctx, user, web, nil, targets)
 	if err != nil {
 		return err
 	}
@@ -129,7 +157,10 @@ func (s *Service) Cleanup(ctx context.Context) error {
 	if _, err := s.db.AdminElevation.Delete().Where(adminelevation.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
 		return err
 	}
-	return s.db.AdminPrincipal.Update().Where(adminprincipal.PendingExpiresAtLTE(time.Now())).ClearPendingSecret().ClearPendingExpiresAt().SetPendingSession("").Exec(ctx)
+	if err := s.db.AdminPrincipal.Update().Where(adminprincipal.PendingExpiresAtLTE(time.Now())).ClearPendingSecret().ClearPendingExpiresAt().SetPendingSession("").Exec(ctx); err != nil {
+		return err
+	}
+	return s.db.AdminPrincipal.Update().Where(adminprincipal.EmergencyExpiresAtLTE(time.Now())).SetEmergencyHash("").ClearEmergencyExpiresAt().Exec(ctx)
 }
 
 func (s *Service) OrdinaryTarget(ctx context.Context, id string) error {

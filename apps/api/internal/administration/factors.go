@@ -33,6 +33,12 @@ func (s *Service) BeginEnrollment(ctx context.Context, user identity.User, web s
 		return Enrollment{}, err
 	}
 	defer unit.Rollback()
+	if row.EnrollmentBlocked {
+		return Enrollment{}, ErrEmergency
+	}
+	if row.EnrollmentSession != "" && row.EnrollmentSession != web.ID {
+		return Enrollment{}, ErrState
+	}
 	if len(row.Secret) > 0 {
 		return Enrollment{}, ErrState
 	}
@@ -88,7 +94,7 @@ func (s *Service) ConfirmEnrollment(ctx context.Context, user identity.User, web
 		return "", nil, err
 	}
 	defer unit.Rollback()
-	if len(row.Secret) > 0 || len(row.PendingSecret) == 0 || row.PendingSession != web.ID || row.PendingExpiresAt == nil || !time.Now().Before(*row.PendingExpiresAt) {
+	if row.EnrollmentBlocked || row.EnrollmentSession != "" && row.EnrollmentSession != web.ID || len(row.Secret) > 0 || len(row.PendingSecret) == 0 || row.PendingSession != web.ID || row.PendingExpiresAt == nil || !time.Now().Before(*row.PendingExpiresAt) {
 		return "", nil, ErrState
 	}
 	secret, err := s.box.Open(row.PendingSecret, "admin:pending:"+user.ID+":"+web.ID)
@@ -107,7 +113,7 @@ func (s *Service) ConfirmEnrollment(ctx context.Context, user identity.User, web
 	if err != nil {
 		return "", nil, err
 	}
-	if err := unit.AdminPrincipal.UpdateOneID(user.ID).SetSecret(sealed).ClearPendingSecret().SetPendingSession("").ClearPendingExpiresAt().SetLastCounter(counter).AddFactorVersion(1).SetRecoveryHashes(hashes).Exec(ctx); err != nil {
+	if err := unit.AdminPrincipal.UpdateOneID(user.ID).SetSecret(sealed).SetEnrollmentSession("").ClearPendingSecret().SetPendingSession("").ClearPendingExpiresAt().SetLastCounter(counter).AddFactorVersion(1).SetRecoveryHashes(hashes).Exec(ctx); err != nil {
 		return "", nil, err
 	}
 	row.FactorVersion++

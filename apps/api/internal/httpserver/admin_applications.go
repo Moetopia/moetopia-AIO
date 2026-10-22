@@ -3,6 +3,7 @@ package httpserver
 import (
 	"context"
 	"github.com/danielgtaylor/huma/v2"
+	"moetopia.local/aio/api/internal/administration"
 )
 
 type AdminApplicationsInput struct {
@@ -78,11 +79,22 @@ func (a AdminEndpoints) registerApplications(api huma.API) {
 			return nil, huma.Error503ServiceUnavailable("Application service unavailable")
 		}
 		result := &ApplicationOutput{}
+		state, err := a.Service.State(ctx, user.ID, web.ID)
+		if err != nil {
+			return nil, adminError(err)
+		}
+		if !state.Verified {
+			return nil, adminError(administration.ErrFactor)
+		}
+		owner, err := a.Developers.ManagementOwner(ctx, input.ID)
+		if err != nil {
+			return nil, adminError(err)
+		}
 		err = a.Service.Run(ctx, user, web, func(ctx context.Context) error {
 			var err error
 			result.Body, err = a.Developers.Review(ctx, user.ID, input.ID, input.Body.Revision, input.Body.Approve, input.Body.Reason)
 			return err
-		})
+		}, owner)
 		if err != nil {
 			return nil, adminError(err)
 		}

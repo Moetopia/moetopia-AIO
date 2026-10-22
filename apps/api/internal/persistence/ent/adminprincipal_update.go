@@ -156,6 +156,68 @@ func (_u *AdminPrincipalUpdate) AppendRecoveryHashes(v []string) *AdminPrincipal
 	return _u
 }
 
+// SetEnrollmentBlocked sets the "enrollment_blocked" field.
+func (_u *AdminPrincipalUpdate) SetEnrollmentBlocked(v bool) *AdminPrincipalUpdate {
+	_u.mutation.SetEnrollmentBlocked(v)
+	return _u
+}
+
+// SetNillableEnrollmentBlocked sets the "enrollment_blocked" field if the given value is not nil.
+func (_u *AdminPrincipalUpdate) SetNillableEnrollmentBlocked(v *bool) *AdminPrincipalUpdate {
+	if v != nil {
+		_u.SetEnrollmentBlocked(*v)
+	}
+	return _u
+}
+
+// SetEnrollmentSession sets the "enrollment_session" field.
+func (_u *AdminPrincipalUpdate) SetEnrollmentSession(v string) *AdminPrincipalUpdate {
+	_u.mutation.SetEnrollmentSession(v)
+	return _u
+}
+
+// SetNillableEnrollmentSession sets the "enrollment_session" field if the given value is not nil.
+func (_u *AdminPrincipalUpdate) SetNillableEnrollmentSession(v *string) *AdminPrincipalUpdate {
+	if v != nil {
+		_u.SetEnrollmentSession(*v)
+	}
+	return _u
+}
+
+// SetEmergencyHash sets the "emergency_hash" field.
+func (_u *AdminPrincipalUpdate) SetEmergencyHash(v string) *AdminPrincipalUpdate {
+	_u.mutation.SetEmergencyHash(v)
+	return _u
+}
+
+// SetNillableEmergencyHash sets the "emergency_hash" field if the given value is not nil.
+func (_u *AdminPrincipalUpdate) SetNillableEmergencyHash(v *string) *AdminPrincipalUpdate {
+	if v != nil {
+		_u.SetEmergencyHash(*v)
+	}
+	return _u
+}
+
+// SetEmergencyExpiresAt sets the "emergency_expires_at" field.
+func (_u *AdminPrincipalUpdate) SetEmergencyExpiresAt(v time.Time) *AdminPrincipalUpdate {
+	_u.mutation.SetEmergencyExpiresAt(v)
+	return _u
+}
+
+// SetNillableEmergencyExpiresAt sets the "emergency_expires_at" field if the given value is not nil.
+func (_u *AdminPrincipalUpdate) SetNillableEmergencyExpiresAt(v *time.Time) *AdminPrincipalUpdate {
+	if v != nil {
+		_u.SetEmergencyExpiresAt(*v)
+	}
+	return _u
+}
+
+// ClearEmergencyExpiresAt clears the value of the "emergency_expires_at" field.
+func (_u *AdminPrincipalUpdate) ClearEmergencyExpiresAt() *AdminPrincipalUpdate {
+	_u.mutation.ClearEmergencyExpiresAt()
+	return _u
+}
+
 // Mutation returns the AdminPrincipalMutation object of the builder.
 func (_u *AdminPrincipalUpdate) Mutation() *AdminPrincipalMutation {
 	return _u.mutation
@@ -240,6 +302,21 @@ func (_u *AdminPrincipalUpdate) sqlSave(ctx context.Context) (_node int, err err
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, adminprincipal.FieldRecoveryHashes, value)
 		})
+	}
+	if value, ok := _u.mutation.EnrollmentBlocked(); ok {
+		_spec.SetField(adminprincipal.FieldEnrollmentBlocked, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.EnrollmentSession(); ok {
+		_spec.SetField(adminprincipal.FieldEnrollmentSession, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.EmergencyHash(); ok {
+		_spec.SetField(adminprincipal.FieldEmergencyHash, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.EmergencyExpiresAt(); ok {
+		_spec.SetField(adminprincipal.FieldEmergencyExpiresAt, field.TypeTime, value)
+	}
+	if _u.mutation.EmergencyExpiresAtCleared() {
+		_spec.ClearField(adminprincipal.FieldEmergencyExpiresAt, field.TypeTime)
 	}
 	_spec.Node.Schema = _u.schemaConfig.AdminPrincipal
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)
@@ -389,6 +466,68 @@ func (_u *AdminPrincipalUpdateOne) AppendRecoveryHashes(v []string) *AdminPrinci
 	return _u
 }
 
+// SetEnrollmentBlocked sets the "enrollment_blocked" field.
+func (_u *AdminPrincipalUpdateOne) SetEnrollmentBlocked(v bool) *AdminPrincipalUpdateOne {
+	_u.mutation.SetEnrollmentBlocked(v)
+	return _u
+}
+
+// SetNillableEnrollmentBlocked sets the "enrollment_blocked" field if the given value is not nil.
+func (_u *AdminPrincipalUpdateOne) SetNillableEnrollmentBlocked(v *bool) *AdminPrincipalUpdateOne {
+	if v != nil {
+		_u.SetEnrollmentBlocked(*v)
+	}
+	return _u
+}
+
+// SetEnrollmentSession sets the "enrollment_session" field.
+func (_u *AdminPrincipalUpdateOne) SetEnrollmentSession(v string) *AdminPrincipalUpdateOne {
+	_u.mutation.SetEnrollmentSession(v)
+	return _u
+}
+
+// SetNillableEnrollmentSession sets the "enrollment_session" field if the given value is not nil.
+func (_u *AdminPrincipalUpdateOne) SetNillableEnrollmentSession(v *string) *AdminPrincipalUpdateOne {
+	if v != nil {
+		_u.SetEnrollmentSession(*v)
+	}
+	return _u
+}
+
+// SetEmergencyHash sets the "emergency_hash" field.
+func (_u *AdminPrincipalUpdateOne) SetEmergencyHash(v string) *AdminPrincipalUpdateOne {
+	_u.mutation.SetEmergencyHash(v)
+	return _u
+}
+
+// SetNillableEmergencyHash sets the "emergency_hash" field if the given value is not nil.
+func (_u *AdminPrincipalUpdateOne) SetNillableEmergencyHash(v *string) *AdminPrincipalUpdateOne {
+	if v != nil {
+		_u.SetEmergencyHash(*v)
+	}
+	return _u
+}
+
+// SetEmergencyExpiresAt sets the "emergency_expires_at" field.
+func (_u *AdminPrincipalUpdateOne) SetEmergencyExpiresAt(v time.Time) *AdminPrincipalUpdateOne {
+	_u.mutation.SetEmergencyExpiresAt(v)
+	return _u
+}
+
+// SetNillableEmergencyExpiresAt sets the "emergency_expires_at" field if the given value is not nil.
+func (_u *AdminPrincipalUpdateOne) SetNillableEmergencyExpiresAt(v *time.Time) *AdminPrincipalUpdateOne {
+	if v != nil {
+		_u.SetEmergencyExpiresAt(*v)
+	}
+	return _u
+}
+
+// ClearEmergencyExpiresAt clears the value of the "emergency_expires_at" field.
+func (_u *AdminPrincipalUpdateOne) ClearEmergencyExpiresAt() *AdminPrincipalUpdateOne {
+	_u.mutation.ClearEmergencyExpiresAt()
+	return _u
+}
+
 // Mutation returns the AdminPrincipalMutation object of the builder.
 func (_u *AdminPrincipalUpdateOne) Mutation() *AdminPrincipalMutation {
 	return _u.mutation
@@ -503,6 +642,21 @@ func (_u *AdminPrincipalUpdateOne) sqlSave(ctx context.Context) (_node *AdminPri
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, adminprincipal.FieldRecoveryHashes, value)
 		})
+	}
+	if value, ok := _u.mutation.EnrollmentBlocked(); ok {
+		_spec.SetField(adminprincipal.FieldEnrollmentBlocked, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.EnrollmentSession(); ok {
+		_spec.SetField(adminprincipal.FieldEnrollmentSession, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.EmergencyHash(); ok {
+		_spec.SetField(adminprincipal.FieldEmergencyHash, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.EmergencyExpiresAt(); ok {
+		_spec.SetField(adminprincipal.FieldEmergencyExpiresAt, field.TypeTime, value)
+	}
+	if _u.mutation.EmergencyExpiresAtCleared() {
+		_spec.ClearField(adminprincipal.FieldEmergencyExpiresAt, field.TypeTime)
 	}
 	_spec.Node.Schema = _u.schemaConfig.AdminPrincipal
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)

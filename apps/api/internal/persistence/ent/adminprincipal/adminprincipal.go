@@ -31,6 +31,14 @@ const (
 	FieldRecoveryHashes = "recovery_hashes"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldEnrollmentBlocked holds the string denoting the enrollment_blocked field in the database.
+	FieldEnrollmentBlocked = "enrollment_blocked"
+	// FieldEnrollmentSession holds the string denoting the enrollment_session field in the database.
+	FieldEnrollmentSession = "enrollment_session"
+	// FieldEmergencyHash holds the string denoting the emergency_hash field in the database.
+	FieldEmergencyHash = "emergency_hash"
+	// FieldEmergencyExpiresAt holds the string denoting the emergency_expires_at field in the database.
+	FieldEmergencyExpiresAt = "emergency_expires_at"
 	// Table holds the table name of the adminprincipal in the database.
 	Table = "principals"
 )
@@ -47,6 +55,10 @@ var Columns = []string{
 	FieldFactorVersion,
 	FieldRecoveryHashes,
 	FieldCreatedAt,
+	FieldEnrollmentBlocked,
+	FieldEnrollmentSession,
+	FieldEmergencyHash,
+	FieldEmergencyExpiresAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -72,6 +84,12 @@ var (
 	DefaultRecoveryHashes []string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
+	// DefaultEnrollmentBlocked holds the default value on creation for the "enrollment_blocked" field.
+	DefaultEnrollmentBlocked bool
+	// DefaultEnrollmentSession holds the default value on creation for the "enrollment_session" field.
+	DefaultEnrollmentSession string
+	// DefaultEmergencyHash holds the default value on creation for the "emergency_hash" field.
+	DefaultEmergencyHash string
 )
 
 // OrderOption defines the ordering options for the AdminPrincipal queries.
@@ -110,4 +128,24 @@ func ByFactorVersion(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByEnrollmentBlocked orders the results by the enrollment_blocked field.
+func ByEnrollmentBlocked(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEnrollmentBlocked, opts...).ToFunc()
+}
+
+// ByEnrollmentSession orders the results by the enrollment_session field.
+func ByEnrollmentSession(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEnrollmentSession, opts...).ToFunc()
+}
+
+// ByEmergencyHash orders the results by the emergency_hash field.
+func ByEmergencyHash(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmergencyHash, opts...).ToFunc()
+}
+
+// ByEmergencyExpiresAt orders the results by the emergency_expires_at field.
+func ByEmergencyExpiresAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmergencyExpiresAt, opts...).ToFunc()
 }

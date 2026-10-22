@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"net/netip"
 	"net/url"
 	"os"
 	"strings"
@@ -28,10 +29,20 @@ type Config struct {
 	GitHubClientSecret string
 	GoogleClientID     string
 	GoogleClientSecret string
+	TrustedProxies     []netip.Prefix
 }
 
 func Load() (Config, error) {
-	return Read(os.Getenv)
+	values, err := loadSecrets(os.Getenv)
+	if err != nil {
+		return Config{}, err
+	}
+	return Read(func(key string) string {
+		if value, ok := values[key]; ok {
+			return value
+		}
+		return os.Getenv(key)
+	})
 }
 func (c Config) RateNamespace() string {
 	hash := sha256.Sum256([]byte(c.Environment + "\n" + c.Issuer + "\n" + c.DatabaseURL))
@@ -58,6 +69,15 @@ func Read(get func(string) string) (Config, error) {
 		GitHubClientSecret: get("MOETOPIA_GITHUB_CLIENT_SECRET"),
 		GoogleClientID:     get("MOETOPIA_GOOGLE_CLIENT_ID"),
 		GoogleClientSecret: get("MOETOPIA_GOOGLE_CLIENT_SECRET"),
+	}
+	if raw := get("MOETOPIA_TRUSTED_PROXY_CIDRS"); raw != "" {
+		for _, value := range strings.Split(raw, ",") {
+			prefix, err := netip.ParsePrefix(strings.TrimSpace(value))
+			if err != nil || prefix.Bits() == 0 {
+				return c, errors.New("MOETOPIA_TRUSTED_PROXY_CIDRS requires explicit non-universal CIDRs")
+			}
+			c.TrustedProxies = append(c.TrustedProxies, prefix.Masked())
+		}
 	}
 	if c.SMTPSecurity == "" {
 		c.SMTPSecurity = "none"

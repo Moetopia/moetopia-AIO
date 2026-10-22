@@ -15,6 +15,9 @@ type AccountUser func(*sql.Selector)
 // AdminBootstrap is the predicate function for adminbootstrap builders.
 type AdminBootstrap func(*sql.Selector)
 
+// AdminControl is the predicate function for admincontrol builders.
+type AdminControl func(*sql.Selector)
+
 // AdminElevation is the predicate function for adminelevation builders.
 type AdminElevation func(*sql.Selector)
 
@@ -66,8 +69,14 @@ type ProtocolSession func(*sql.Selector)
 // RPLogin is the predicate function for rplogin builders.
 type RPLogin func(*sql.Selector)
 
+// RegistrationEvent is the predicate function for registrationevent builders.
+type RegistrationEvent func(*sql.Selector)
+
 // RegistrationPolicy is the predicate function for registrationpolicy builders.
 type RegistrationPolicy func(*sql.Selector)
+
+// RegistrationStatisticsState is the predicate function for registrationstatisticsstate builders.
+type RegistrationStatisticsState func(*sql.Selector)
 
 // SecurityEvent is the predicate function for securityevent builders.
 type SecurityEvent func(*sql.Selector)

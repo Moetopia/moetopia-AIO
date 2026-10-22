@@ -1,0 +1,6 @@
+name: moetopia-release-check
+services:
+  edge:
+    ports: !override ['127.0.0.1:58443:58443', '127.0.0.1:58444:58444']
+    volumes:
+      - ./deploy/Caddyfile.check:/etc/caddy/Caddyfile:ro

@@ -17,6 +17,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 	"moetopia.local/aio/api/internal/persistence/ent/adminbootstrap"
+	"moetopia.local/aio/api/internal/persistence/ent/admincontrol"
 	"moetopia.local/aio/api/internal/persistence/ent/adminelevation"
 	"moetopia.local/aio/api/internal/persistence/ent/adminprincipal"
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
@@ -33,7 +34,9 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolevent"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
+	"moetopia.local/aio/api/internal/persistence/ent/registrationevent"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
+	"moetopia.local/aio/api/internal/persistence/ent/registrationstatisticsstate"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
 	"moetopia.local/aio/api/internal/persistence/ent/securityevent"
 	"moetopia.local/aio/api/internal/persistence/ent/signingkey"
@@ -53,6 +56,8 @@ type Client struct {
 	AccountUser *AccountUserClient
 	// AdminBootstrap is the client for interacting with the AdminBootstrap builders.
 	AdminBootstrap *AdminBootstrapClient
+	// AdminControl is the client for interacting with the AdminControl builders.
+	AdminControl *AdminControlClient
 	// AdminElevation is the client for interacting with the AdminElevation builders.
 	AdminElevation *AdminElevationClient
 	// AdminPrincipal is the client for interacting with the AdminPrincipal builders.
@@ -87,8 +92,12 @@ type Client struct {
 	ProtocolSession *ProtocolSessionClient
 	// RPLogin is the client for interacting with the RPLogin builders.
 	RPLogin *RPLoginClient
+	// RegistrationEvent is the client for interacting with the RegistrationEvent builders.
+	RegistrationEvent *RegistrationEventClient
 	// RegistrationPolicy is the client for interacting with the RegistrationPolicy builders.
 	RegistrationPolicy *RegistrationPolicyClient
+	// RegistrationStatisticsState is the client for interacting with the RegistrationStatisticsState builders.
+	RegistrationStatisticsState *RegistrationStatisticsStateClient
 	// SecurityEvent is the client for interacting with the SecurityEvent builders.
 	SecurityEvent *SecurityEventClient
 	// SigningKey is the client for interacting with the SigningKey builders.
@@ -109,6 +118,7 @@ func (c *Client) init() {
 	c.AccountChallenge = NewAccountChallengeClient(c.config)
 	c.AccountUser = NewAccountUserClient(c.config)
 	c.AdminBootstrap = NewAdminBootstrapClient(c.config)
+	c.AdminControl = NewAdminControlClient(c.config)
 	c.AdminElevation = NewAdminElevationClient(c.config)
 	c.AdminPrincipal = NewAdminPrincipalClient(c.config)
 	c.ApplicationVersion = NewApplicationVersionClient(c.config)
@@ -126,7 +136,9 @@ func (c *Client) init() {
 	c.ProtocolEvent = NewProtocolEventClient(c.config)
 	c.ProtocolSession = NewProtocolSessionClient(c.config)
 	c.RPLogin = NewRPLoginClient(c.config)
+	c.RegistrationEvent = NewRegistrationEventClient(c.config)
 	c.RegistrationPolicy = NewRegistrationPolicyClient(c.config)
+	c.RegistrationStatisticsState = NewRegistrationStatisticsStateClient(c.config)
 	c.SecurityEvent = NewSecurityEventClient(c.config)
 	c.SigningKey = NewSigningKeyClient(c.config)
 	c.WebSession = NewWebSessionClient(c.config)
@@ -223,32 +235,35 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:                      ctx,
-		config:                   cfg,
-		AccountChallenge:         NewAccountChallengeClient(cfg),
-		AccountUser:              NewAccountUserClient(cfg),
-		AdminBootstrap:           NewAdminBootstrapClient(cfg),
-		AdminElevation:           NewAdminElevationClient(cfg),
-		AdminPrincipal:           NewAdminPrincipalClient(cfg),
-		ApplicationVersion:       NewApplicationVersionClient(cfg),
-		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
-		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
-		ClientTestSubject:        NewClientTestSubjectClient(cfg),
-		DeveloperApplication:     NewDeveloperApplicationClient(cfg),
-		EmailDelivery:            NewEmailDeliveryClient(cfg),
-		EmailVerification:        NewEmailVerificationClient(cfg),
-		ExternalIdentity:         NewExternalIdentityClient(cfg),
-		ExternalLogin:            NewExternalLoginClient(cfg),
-		Invitation:               NewInvitationClient(cfg),
-		LogoutInteraction:        NewLogoutInteractionClient(cfg),
-		OAuthClient:              NewOAuthClientClient(cfg),
-		ProtocolEvent:            NewProtocolEventClient(cfg),
-		ProtocolSession:          NewProtocolSessionClient(cfg),
-		RPLogin:                  NewRPLoginClient(cfg),
-		RegistrationPolicy:       NewRegistrationPolicyClient(cfg),
-		SecurityEvent:            NewSecurityEventClient(cfg),
-		SigningKey:               NewSigningKeyClient(cfg),
-		WebSession:               NewWebSessionClient(cfg),
+		ctx:                         ctx,
+		config:                      cfg,
+		AccountChallenge:            NewAccountChallengeClient(cfg),
+		AccountUser:                 NewAccountUserClient(cfg),
+		AdminBootstrap:              NewAdminBootstrapClient(cfg),
+		AdminControl:                NewAdminControlClient(cfg),
+		AdminElevation:              NewAdminElevationClient(cfg),
+		AdminPrincipal:              NewAdminPrincipalClient(cfg),
+		ApplicationVersion:          NewApplicationVersionClient(cfg),
+		AuthorizationGrant:          NewAuthorizationGrantClient(cfg),
+		AuthorizationInteraction:    NewAuthorizationInteractionClient(cfg),
+		ClientTestSubject:           NewClientTestSubjectClient(cfg),
+		DeveloperApplication:        NewDeveloperApplicationClient(cfg),
+		EmailDelivery:               NewEmailDeliveryClient(cfg),
+		EmailVerification:           NewEmailVerificationClient(cfg),
+		ExternalIdentity:            NewExternalIdentityClient(cfg),
+		ExternalLogin:               NewExternalLoginClient(cfg),
+		Invitation:                  NewInvitationClient(cfg),
+		LogoutInteraction:           NewLogoutInteractionClient(cfg),
+		OAuthClient:                 NewOAuthClientClient(cfg),
+		ProtocolEvent:               NewProtocolEventClient(cfg),
+		ProtocolSession:             NewProtocolSessionClient(cfg),
+		RPLogin:                     NewRPLoginClient(cfg),
+		RegistrationEvent:           NewRegistrationEventClient(cfg),
+		RegistrationPolicy:          NewRegistrationPolicyClient(cfg),
+		RegistrationStatisticsState: NewRegistrationStatisticsStateClient(cfg),
+		SecurityEvent:               NewSecurityEventClient(cfg),
+		SigningKey:                  NewSigningKeyClient(cfg),
+		WebSession:                  NewWebSessionClient(cfg),
 	}, nil
 }
 
@@ -266,32 +281,35 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:                      ctx,
-		config:                   cfg,
-		AccountChallenge:         NewAccountChallengeClient(cfg),
-		AccountUser:              NewAccountUserClient(cfg),
-		AdminBootstrap:           NewAdminBootstrapClient(cfg),
-		AdminElevation:           NewAdminElevationClient(cfg),
-		AdminPrincipal:           NewAdminPrincipalClient(cfg),
-		ApplicationVersion:       NewApplicationVersionClient(cfg),
-		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
-		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
-		ClientTestSubject:        NewClientTestSubjectClient(cfg),
-		DeveloperApplication:     NewDeveloperApplicationClient(cfg),
-		EmailDelivery:            NewEmailDeliveryClient(cfg),
-		EmailVerification:        NewEmailVerificationClient(cfg),
-		ExternalIdentity:         NewExternalIdentityClient(cfg),
-		ExternalLogin:            NewExternalLoginClient(cfg),
-		Invitation:               NewInvitationClient(cfg),
-		LogoutInteraction:        NewLogoutInteractionClient(cfg),
-		OAuthClient:              NewOAuthClientClient(cfg),
-		ProtocolEvent:            NewProtocolEventClient(cfg),
-		ProtocolSession:          NewProtocolSessionClient(cfg),
-		RPLogin:                  NewRPLoginClient(cfg),
-		RegistrationPolicy:       NewRegistrationPolicyClient(cfg),
-		SecurityEvent:            NewSecurityEventClient(cfg),
-		SigningKey:               NewSigningKeyClient(cfg),
-		WebSession:               NewWebSessionClient(cfg),
+		ctx:                         ctx,
+		config:                      cfg,
+		AccountChallenge:            NewAccountChallengeClient(cfg),
+		AccountUser:                 NewAccountUserClient(cfg),
+		AdminBootstrap:              NewAdminBootstrapClient(cfg),
+		AdminControl:                NewAdminControlClient(cfg),
+		AdminElevation:              NewAdminElevationClient(cfg),
+		AdminPrincipal:              NewAdminPrincipalClient(cfg),
+		ApplicationVersion:          NewApplicationVersionClient(cfg),
+		AuthorizationGrant:          NewAuthorizationGrantClient(cfg),
+		AuthorizationInteraction:    NewAuthorizationInteractionClient(cfg),
+		ClientTestSubject:           NewClientTestSubjectClient(cfg),
+		DeveloperApplication:        NewDeveloperApplicationClient(cfg),
+		EmailDelivery:               NewEmailDeliveryClient(cfg),
+		EmailVerification:           NewEmailVerificationClient(cfg),
+		ExternalIdentity:            NewExternalIdentityClient(cfg),
+		ExternalLogin:               NewExternalLoginClient(cfg),
+		Invitation:                  NewInvitationClient(cfg),
+		LogoutInteraction:           NewLogoutInteractionClient(cfg),
+		OAuthClient:                 NewOAuthClientClient(cfg),
+		ProtocolEvent:               NewProtocolEventClient(cfg),
+		ProtocolSession:             NewProtocolSessionClient(cfg),
+		RPLogin:                     NewRPLoginClient(cfg),
+		RegistrationEvent:           NewRegistrationEventClient(cfg),
+		RegistrationPolicy:          NewRegistrationPolicyClient(cfg),
+		RegistrationStatisticsState: NewRegistrationStatisticsStateClient(cfg),
+		SecurityEvent:               NewSecurityEventClient(cfg),
+		SigningKey:                  NewSigningKeyClient(cfg),
+		WebSession:                  NewWebSessionClient(cfg),
 	}, nil
 }
 
@@ -321,13 +339,13 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminElevation,
-		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
+		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminControl,
+		c.AdminElevation, c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
 		c.AuthorizationInteraction, c.ClientTestSubject, c.DeveloperApplication,
 		c.EmailDelivery, c.EmailVerification, c.ExternalIdentity, c.ExternalLogin,
 		c.Invitation, c.LogoutInteraction, c.OAuthClient, c.ProtocolEvent,
-		c.ProtocolSession, c.RPLogin, c.RegistrationPolicy, c.SecurityEvent,
-		c.SigningKey, c.WebSession,
+		c.ProtocolSession, c.RPLogin, c.RegistrationEvent, c.RegistrationPolicy,
+		c.RegistrationStatisticsState, c.SecurityEvent, c.SigningKey, c.WebSession,
 	} {
 		n.Use(hooks...)
 	}
@@ -337,13 +355,13 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminElevation,
-		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
+		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminControl,
+		c.AdminElevation, c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
 		c.AuthorizationInteraction, c.ClientTestSubject, c.DeveloperApplication,
 		c.EmailDelivery, c.EmailVerification, c.ExternalIdentity, c.ExternalLogin,
 		c.Invitation, c.LogoutInteraction, c.OAuthClient, c.ProtocolEvent,
-		c.ProtocolSession, c.RPLogin, c.RegistrationPolicy, c.SecurityEvent,
-		c.SigningKey, c.WebSession,
+		c.ProtocolSession, c.RPLogin, c.RegistrationEvent, c.RegistrationPolicy,
+		c.RegistrationStatisticsState, c.SecurityEvent, c.SigningKey, c.WebSession,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -358,6 +376,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AccountUser.mutate(ctx, m)
 	case *AdminBootstrapMutation:
 		return c.AdminBootstrap.mutate(ctx, m)
+	case *AdminControlMutation:
+		return c.AdminControl.mutate(ctx, m)
 	case *AdminElevationMutation:
 		return c.AdminElevation.mutate(ctx, m)
 	case *AdminPrincipalMutation:
@@ -392,8 +412,12 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.ProtocolSession.mutate(ctx, m)
 	case *RPLoginMutation:
 		return c.RPLogin.mutate(ctx, m)
+	case *RegistrationEventMutation:
+		return c.RegistrationEvent.mutate(ctx, m)
 	case *RegistrationPolicyMutation:
 		return c.RegistrationPolicy.mutate(ctx, m)
+	case *RegistrationStatisticsStateMutation:
+		return c.RegistrationStatisticsState.mutate(ctx, m)
 	case *SecurityEventMutation:
 		return c.SecurityEvent.mutate(ctx, m)
 	case *SigningKeyMutation:
@@ -801,6 +825,139 @@ func (c *AdminBootstrapClient) mutate(ctx context.Context, m *AdminBootstrapMuta
 		return (&AdminBootstrapDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AdminBootstrap mutation op: %q", m.Op())
+	}
+}
+
+// AdminControlClient is a client for the AdminControl schema.
+type AdminControlClient struct {
+	config
+}
+
+// NewAdminControlClient returns a client for the AdminControl from the given config.
+func NewAdminControlClient(c config) *AdminControlClient {
+	return &AdminControlClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `admincontrol.Hooks(f(g(h())))`.
+func (c *AdminControlClient) Use(hooks ...Hook) {
+	c.hooks.AdminControl = append(c.hooks.AdminControl, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `admincontrol.Intercept(f(g(h())))`.
+func (c *AdminControlClient) Intercept(interceptors ...Interceptor) {
+	c.inters.AdminControl = append(c.inters.AdminControl, interceptors...)
+}
+
+// Create returns a builder for creating a AdminControl entity.
+func (c *AdminControlClient) Create() *AdminControlCreate {
+	mutation := newAdminControlMutation(c.config, OpCreate)
+	return &AdminControlCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of AdminControl entities.
+func (c *AdminControlClient) CreateBulk(builders ...*AdminControlCreate) *AdminControlCreateBulk {
+	return &AdminControlCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AdminControlClient) MapCreateBulk(slice any, setFunc func(*AdminControlCreate, int)) *AdminControlCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AdminControlCreateBulk{err: fmt.Errorf("calling to AdminControlClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AdminControlCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AdminControlCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for AdminControl.
+func (c *AdminControlClient) Update() *AdminControlUpdate {
+	mutation := newAdminControlMutation(c.config, OpUpdate)
+	return &AdminControlUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AdminControlClient) UpdateOne(_m *AdminControl) *AdminControlUpdateOne {
+	mutation := newAdminControlMutation(c.config, OpUpdateOne, withAdminControl(_m))
+	return &AdminControlUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AdminControlClient) UpdateOneID(id string) *AdminControlUpdateOne {
+	mutation := newAdminControlMutation(c.config, OpUpdateOne, withAdminControlID(id))
+	return &AdminControlUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for AdminControl.
+func (c *AdminControlClient) Delete() *AdminControlDelete {
+	mutation := newAdminControlMutation(c.config, OpDelete)
+	return &AdminControlDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AdminControlClient) DeleteOne(_m *AdminControl) *AdminControlDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *AdminControlClient) DeleteOneID(id string) *AdminControlDeleteOne {
+	builder := c.Delete().Where(admincontrol.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AdminControlDeleteOne{builder}
+}
+
+// Query returns a query builder for AdminControl.
+func (c *AdminControlClient) Query() *AdminControlQuery {
+	return &AdminControlQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAdminControl},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a AdminControl entity by its id.
+func (c *AdminControlClient) Get(ctx context.Context, id string) (*AdminControl, error) {
+	return c.Query().Where(admincontrol.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AdminControlClient) GetX(ctx context.Context, id string) *AdminControl {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AdminControlClient) Hooks() []Hook {
+	return c.hooks.AdminControl
+}
+
+// Interceptors returns the client interceptors.
+func (c *AdminControlClient) Interceptors() []Interceptor {
+	return c.inters.AdminControl
+}
+
+func (c *AdminControlClient) mutate(ctx context.Context, m *AdminControlMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AdminControlCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AdminControlUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AdminControlUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AdminControlDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown AdminControl mutation op: %q", m.Op())
 	}
 }
 
@@ -3065,6 +3222,139 @@ func (c *RPLoginClient) mutate(ctx context.Context, m *RPLoginMutation) (Value, 
 	}
 }
 
+// RegistrationEventClient is a client for the RegistrationEvent schema.
+type RegistrationEventClient struct {
+	config
+}
+
+// NewRegistrationEventClient returns a client for the RegistrationEvent from the given config.
+func NewRegistrationEventClient(c config) *RegistrationEventClient {
+	return &RegistrationEventClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `registrationevent.Hooks(f(g(h())))`.
+func (c *RegistrationEventClient) Use(hooks ...Hook) {
+	c.hooks.RegistrationEvent = append(c.hooks.RegistrationEvent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `registrationevent.Intercept(f(g(h())))`.
+func (c *RegistrationEventClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RegistrationEvent = append(c.inters.RegistrationEvent, interceptors...)
+}
+
+// Create returns a builder for creating a RegistrationEvent entity.
+func (c *RegistrationEventClient) Create() *RegistrationEventCreate {
+	mutation := newRegistrationEventMutation(c.config, OpCreate)
+	return &RegistrationEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RegistrationEvent entities.
+func (c *RegistrationEventClient) CreateBulk(builders ...*RegistrationEventCreate) *RegistrationEventCreateBulk {
+	return &RegistrationEventCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RegistrationEventClient) MapCreateBulk(slice any, setFunc func(*RegistrationEventCreate, int)) *RegistrationEventCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RegistrationEventCreateBulk{err: fmt.Errorf("calling to RegistrationEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RegistrationEventCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RegistrationEventCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RegistrationEvent.
+func (c *RegistrationEventClient) Update() *RegistrationEventUpdate {
+	mutation := newRegistrationEventMutation(c.config, OpUpdate)
+	return &RegistrationEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RegistrationEventClient) UpdateOne(_m *RegistrationEvent) *RegistrationEventUpdateOne {
+	mutation := newRegistrationEventMutation(c.config, OpUpdateOne, withRegistrationEvent(_m))
+	return &RegistrationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RegistrationEventClient) UpdateOneID(id string) *RegistrationEventUpdateOne {
+	mutation := newRegistrationEventMutation(c.config, OpUpdateOne, withRegistrationEventID(id))
+	return &RegistrationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RegistrationEvent.
+func (c *RegistrationEventClient) Delete() *RegistrationEventDelete {
+	mutation := newRegistrationEventMutation(c.config, OpDelete)
+	return &RegistrationEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RegistrationEventClient) DeleteOne(_m *RegistrationEvent) *RegistrationEventDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RegistrationEventClient) DeleteOneID(id string) *RegistrationEventDeleteOne {
+	builder := c.Delete().Where(registrationevent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RegistrationEventDeleteOne{builder}
+}
+
+// Query returns a query builder for RegistrationEvent.
+func (c *RegistrationEventClient) Query() *RegistrationEventQuery {
+	return &RegistrationEventQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRegistrationEvent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RegistrationEvent entity by its id.
+func (c *RegistrationEventClient) Get(ctx context.Context, id string) (*RegistrationEvent, error) {
+	return c.Query().Where(registrationevent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RegistrationEventClient) GetX(ctx context.Context, id string) *RegistrationEvent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *RegistrationEventClient) Hooks() []Hook {
+	return c.hooks.RegistrationEvent
+}
+
+// Interceptors returns the client interceptors.
+func (c *RegistrationEventClient) Interceptors() []Interceptor {
+	return c.inters.RegistrationEvent
+}
+
+func (c *RegistrationEventClient) mutate(ctx context.Context, m *RegistrationEventMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RegistrationEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RegistrationEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RegistrationEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RegistrationEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RegistrationEvent mutation op: %q", m.Op())
+	}
+}
+
 // RegistrationPolicyClient is a client for the RegistrationPolicy schema.
 type RegistrationPolicyClient struct {
 	config
@@ -3195,6 +3485,139 @@ func (c *RegistrationPolicyClient) mutate(ctx context.Context, m *RegistrationPo
 		return (&RegistrationPolicyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown RegistrationPolicy mutation op: %q", m.Op())
+	}
+}
+
+// RegistrationStatisticsStateClient is a client for the RegistrationStatisticsState schema.
+type RegistrationStatisticsStateClient struct {
+	config
+}
+
+// NewRegistrationStatisticsStateClient returns a client for the RegistrationStatisticsState from the given config.
+func NewRegistrationStatisticsStateClient(c config) *RegistrationStatisticsStateClient {
+	return &RegistrationStatisticsStateClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `registrationstatisticsstate.Hooks(f(g(h())))`.
+func (c *RegistrationStatisticsStateClient) Use(hooks ...Hook) {
+	c.hooks.RegistrationStatisticsState = append(c.hooks.RegistrationStatisticsState, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `registrationstatisticsstate.Intercept(f(g(h())))`.
+func (c *RegistrationStatisticsStateClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RegistrationStatisticsState = append(c.inters.RegistrationStatisticsState, interceptors...)
+}
+
+// Create returns a builder for creating a RegistrationStatisticsState entity.
+func (c *RegistrationStatisticsStateClient) Create() *RegistrationStatisticsStateCreate {
+	mutation := newRegistrationStatisticsStateMutation(c.config, OpCreate)
+	return &RegistrationStatisticsStateCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RegistrationStatisticsState entities.
+func (c *RegistrationStatisticsStateClient) CreateBulk(builders ...*RegistrationStatisticsStateCreate) *RegistrationStatisticsStateCreateBulk {
+	return &RegistrationStatisticsStateCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RegistrationStatisticsStateClient) MapCreateBulk(slice any, setFunc func(*RegistrationStatisticsStateCreate, int)) *RegistrationStatisticsStateCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RegistrationStatisticsStateCreateBulk{err: fmt.Errorf("calling to RegistrationStatisticsStateClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RegistrationStatisticsStateCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RegistrationStatisticsStateCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RegistrationStatisticsState.
+func (c *RegistrationStatisticsStateClient) Update() *RegistrationStatisticsStateUpdate {
+	mutation := newRegistrationStatisticsStateMutation(c.config, OpUpdate)
+	return &RegistrationStatisticsStateUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RegistrationStatisticsStateClient) UpdateOne(_m *RegistrationStatisticsState) *RegistrationStatisticsStateUpdateOne {
+	mutation := newRegistrationStatisticsStateMutation(c.config, OpUpdateOne, withRegistrationStatisticsState(_m))
+	return &RegistrationStatisticsStateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RegistrationStatisticsStateClient) UpdateOneID(id string) *RegistrationStatisticsStateUpdateOne {
+	mutation := newRegistrationStatisticsStateMutation(c.config, OpUpdateOne, withRegistrationStatisticsStateID(id))
+	return &RegistrationStatisticsStateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RegistrationStatisticsState.
+func (c *RegistrationStatisticsStateClient) Delete() *RegistrationStatisticsStateDelete {
+	mutation := newRegistrationStatisticsStateMutation(c.config, OpDelete)
+	return &RegistrationStatisticsStateDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RegistrationStatisticsStateClient) DeleteOne(_m *RegistrationStatisticsState) *RegistrationStatisticsStateDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *RegistrationStatisticsStateClient) DeleteOneID(id string) *RegistrationStatisticsStateDeleteOne {
+	builder := c.Delete().Where(registrationstatisticsstate.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RegistrationStatisticsStateDeleteOne{builder}
+}
+
+// Query returns a query builder for RegistrationStatisticsState.
+func (c *RegistrationStatisticsStateClient) Query() *RegistrationStatisticsStateQuery {
+	return &RegistrationStatisticsStateQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRegistrationStatisticsState},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RegistrationStatisticsState entity by its id.
+func (c *RegistrationStatisticsStateClient) Get(ctx context.Context, id string) (*RegistrationStatisticsState, error) {
+	return c.Query().Where(registrationstatisticsstate.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RegistrationStatisticsStateClient) GetX(ctx context.Context, id string) *RegistrationStatisticsState {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *RegistrationStatisticsStateClient) Hooks() []Hook {
+	return c.hooks.RegistrationStatisticsState
+}
+
+// Interceptors returns the client interceptors.
+func (c *RegistrationStatisticsStateClient) Interceptors() []Interceptor {
+	return c.inters.RegistrationStatisticsState
+}
+
+func (c *RegistrationStatisticsStateClient) mutate(ctx context.Context, m *RegistrationStatisticsStateMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RegistrationStatisticsStateCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RegistrationStatisticsStateUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RegistrationStatisticsStateUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RegistrationStatisticsStateDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RegistrationStatisticsState mutation op: %q", m.Op())
 	}
 }
 
@@ -3600,50 +4023,55 @@ func (c *WebSessionClient) mutate(ctx context.Context, m *WebSessionMutation) (V
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
-		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
-		ClientTestSubject, DeveloperApplication, EmailDelivery, EmailVerification,
-		ExternalIdentity, ExternalLogin, Invitation, LogoutInteraction, OAuthClient,
-		ProtocolEvent, ProtocolSession, RPLogin, RegistrationPolicy, SecurityEvent,
-		SigningKey, WebSession []ent.Hook
+		AccountChallenge, AccountUser, AdminBootstrap, AdminControl, AdminElevation,
+		AdminPrincipal, ApplicationVersion, AuthorizationGrant,
+		AuthorizationInteraction, ClientTestSubject, DeveloperApplication,
+		EmailDelivery, EmailVerification, ExternalIdentity, ExternalLogin, Invitation,
+		LogoutInteraction, OAuthClient, ProtocolEvent, ProtocolSession, RPLogin,
+		RegistrationEvent, RegistrationPolicy, RegistrationStatisticsState,
+		SecurityEvent, SigningKey, WebSession []ent.Hook
 	}
 	inters struct {
-		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
-		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
-		ClientTestSubject, DeveloperApplication, EmailDelivery, EmailVerification,
-		ExternalIdentity, ExternalLogin, Invitation, LogoutInteraction, OAuthClient,
-		ProtocolEvent, ProtocolSession, RPLogin, RegistrationPolicy, SecurityEvent,
-		SigningKey, WebSession []ent.Interceptor
+		AccountChallenge, AccountUser, AdminBootstrap, AdminControl, AdminElevation,
+		AdminPrincipal, ApplicationVersion, AuthorizationGrant,
+		AuthorizationInteraction, ClientTestSubject, DeveloperApplication,
+		EmailDelivery, EmailVerification, ExternalIdentity, ExternalLogin, Invitation,
+		LogoutInteraction, OAuthClient, ProtocolEvent, ProtocolSession, RPLogin,
+		RegistrationEvent, RegistrationPolicy, RegistrationStatisticsState,
+		SecurityEvent, SigningKey, WebSession []ent.Interceptor
 	}
 )
 
 var (
 	// DefaultSchemaConfig represents the default schema names for all tables as defined in ent/schema.
 	DefaultSchemaConfig = SchemaConfig{
-		AccountChallenge:         tableSchemas[4],
-		AccountUser:              tableSchemas[4],
-		AdminBootstrap:           tableSchemas[0],
-		AdminElevation:           tableSchemas[0],
-		AdminPrincipal:           tableSchemas[0],
-		ApplicationVersion:       tableSchemas[3],
-		AuthorizationGrant:       tableSchemas[2],
-		AuthorizationInteraction: tableSchemas[2],
-		ClientTestSubject:        tableSchemas[2],
-		DeveloperApplication:     tableSchemas[3],
-		EmailDelivery:            tableSchemas[5],
-		EmailVerification:        tableSchemas[4],
-		ExternalIdentity:         tableSchemas[4],
-		ExternalLogin:            tableSchemas[4],
-		Invitation:               tableSchemas[4],
-		LogoutInteraction:        tableSchemas[2],
-		OAuthClient:              tableSchemas[2],
-		ProtocolEvent:            tableSchemas[2],
-		ProtocolSession:          tableSchemas[2],
-		RPLogin:                  tableSchemas[6],
-		RegistrationPolicy:       tableSchemas[4],
-		SecurityEvent:            tableSchemas[1],
-		SigningKey:               tableSchemas[2],
-		WebSession:               tableSchemas[6],
+		AccountChallenge:            tableSchemas[4],
+		AccountUser:                 tableSchemas[4],
+		AdminBootstrap:              tableSchemas[0],
+		AdminControl:                tableSchemas[0],
+		AdminElevation:              tableSchemas[0],
+		AdminPrincipal:              tableSchemas[0],
+		ApplicationVersion:          tableSchemas[3],
+		AuthorizationGrant:          tableSchemas[2],
+		AuthorizationInteraction:    tableSchemas[2],
+		ClientTestSubject:           tableSchemas[2],
+		DeveloperApplication:        tableSchemas[3],
+		EmailDelivery:               tableSchemas[5],
+		EmailVerification:           tableSchemas[4],
+		ExternalIdentity:            tableSchemas[4],
+		ExternalLogin:               tableSchemas[4],
+		Invitation:                  tableSchemas[4],
+		LogoutInteraction:           tableSchemas[2],
+		OAuthClient:                 tableSchemas[2],
+		ProtocolEvent:               tableSchemas[2],
+		ProtocolSession:             tableSchemas[2],
+		RPLogin:                     tableSchemas[6],
+		RegistrationEvent:           tableSchemas[4],
+		RegistrationPolicy:          tableSchemas[4],
+		RegistrationStatisticsState: tableSchemas[4],
+		SecurityEvent:               tableSchemas[1],
+		SigningKey:                  tableSchemas[2],
+		WebSession:                  tableSchemas[6],
 	}
 	tableSchemas = [...]string{"administration", "audit", "authorization", "developer", "identity", "notifications", "sessions"}
 )

@@ -41,5 +41,19 @@ jobs:
       - run: docker compose -f compose.dev.yml up -d --wait
       - run: pnpm test:integration
       - run: pnpm test:account
+      - run: pnpm test:oidc
+        env:
+          MOETOPIA_TEST_API_PORT: '58500'
+      - run: pnpm test:admin
+        env:
+          MOETOPIA_TEST_API_PORT: '58500'
       - if: always()
         run: docker compose -f compose.dev.yml down
+
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build containers and verify isolated encrypted recovery
+        run: sudo env MOETOPIA_BUILD_GOPROXY=https://proxy.golang.org,direct bash deploy/verify-release.sh

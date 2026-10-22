@@ -15,6 +15,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/accountchallenge"
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 	"moetopia.local/aio/api/internal/persistence/ent/adminbootstrap"
+	"moetopia.local/aio/api/internal/persistence/ent/admincontrol"
 	"moetopia.local/aio/api/internal/persistence/ent/adminelevation"
 	"moetopia.local/aio/api/internal/persistence/ent/adminprincipal"
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
@@ -31,7 +32,9 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolevent"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
+	"moetopia.local/aio/api/internal/persistence/ent/registrationevent"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
+	"moetopia.local/aio/api/internal/persistence/ent/registrationstatisticsstate"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
 	"moetopia.local/aio/api/internal/persistence/ent/securityevent"
 	"moetopia.local/aio/api/internal/persistence/ent/signingkey"
@@ -96,30 +99,33 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			accountchallenge.Table:         accountchallenge.ValidColumn,
-			accountuser.Table:              accountuser.ValidColumn,
-			adminbootstrap.Table:           adminbootstrap.ValidColumn,
-			adminelevation.Table:           adminelevation.ValidColumn,
-			adminprincipal.Table:           adminprincipal.ValidColumn,
-			applicationversion.Table:       applicationversion.ValidColumn,
-			authorizationgrant.Table:       authorizationgrant.ValidColumn,
-			authorizationinteraction.Table: authorizationinteraction.ValidColumn,
-			clienttestsubject.Table:        clienttestsubject.ValidColumn,
-			developerapplication.Table:     developerapplication.ValidColumn,
-			emaildelivery.Table:            emaildelivery.ValidColumn,
-			emailverification.Table:        emailverification.ValidColumn,
-			externalidentity.Table:         externalidentity.ValidColumn,
-			externallogin.Table:            externallogin.ValidColumn,
-			invitation.Table:               invitation.ValidColumn,
-			logoutinteraction.Table:        logoutinteraction.ValidColumn,
-			oauthclient.Table:              oauthclient.ValidColumn,
-			protocolevent.Table:            protocolevent.ValidColumn,
-			protocolsession.Table:          protocolsession.ValidColumn,
-			rplogin.Table:                  rplogin.ValidColumn,
-			registrationpolicy.Table:       registrationpolicy.ValidColumn,
-			securityevent.Table:            securityevent.ValidColumn,
-			signingkey.Table:               signingkey.ValidColumn,
-			websession.Table:               websession.ValidColumn,
+			accountchallenge.Table:            accountchallenge.ValidColumn,
+			accountuser.Table:                 accountuser.ValidColumn,
+			adminbootstrap.Table:              adminbootstrap.ValidColumn,
+			admincontrol.Table:                admincontrol.ValidColumn,
+			adminelevation.Table:              adminelevation.ValidColumn,
+			adminprincipal.Table:              adminprincipal.ValidColumn,
+			applicationversion.Table:          applicationversion.ValidColumn,
+			authorizationgrant.Table:          authorizationgrant.ValidColumn,
+			authorizationinteraction.Table:    authorizationinteraction.ValidColumn,
+			clienttestsubject.Table:           clienttestsubject.ValidColumn,
+			developerapplication.Table:        developerapplication.ValidColumn,
+			emaildelivery.Table:               emaildelivery.ValidColumn,
+			emailverification.Table:           emailverification.ValidColumn,
+			externalidentity.Table:            externalidentity.ValidColumn,
+			externallogin.Table:               externallogin.ValidColumn,
+			invitation.Table:                  invitation.ValidColumn,
+			logoutinteraction.Table:           logoutinteraction.ValidColumn,
+			oauthclient.Table:                 oauthclient.ValidColumn,
+			protocolevent.Table:               protocolevent.ValidColumn,
+			protocolsession.Table:             protocolsession.ValidColumn,
+			rplogin.Table:                     rplogin.ValidColumn,
+			registrationevent.Table:           registrationevent.ValidColumn,
+			registrationpolicy.Table:          registrationpolicy.ValidColumn,
+			registrationstatisticsstate.Table: registrationstatisticsstate.ValidColumn,
+			securityevent.Table:               securityevent.ValidColumn,
+			signingkey.Table:                  signingkey.ValidColumn,
+			websession.Table:                  websession.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

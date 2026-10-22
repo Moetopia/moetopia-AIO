@@ -41,6 +41,9 @@ func NewStore(db *ent.Client, outbox *notifications.Outbox) *Store {
 }
 func (s *Store) WithSessions(revoker SessionRevoker) *Store { s.revoker = revoker; return s }
 func (s *Store) Cleanup(ctx context.Context) error {
+	if err := s.cleanupRegistrationStatistics(ctx); err != nil {
+		return err
+	}
 	if _, err := s.db.ExternalLogin.Delete().Where(externallogin.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
 		return err
 	}
@@ -159,6 +162,9 @@ func (s *Store) register(ctx context.Context, id, email, name, hash, invite stri
 		if ent.IsConstraintError(err) {
 			return "", ErrInvalid
 		}
+		return "", err
+	}
+	if err := tx.RegistrationEvent.Create().SetID(uuid.NewString()).SetDay(now.UTC().Format(time.DateOnly)).Exec(ctx); err != nil {
 		return "", err
 	}
 	return userID, tx.Commit()

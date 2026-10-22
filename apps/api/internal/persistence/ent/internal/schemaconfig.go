@@ -7,30 +7,33 @@ import "context"
 // SchemaConfig represents alternative schema names for all tables
 // that can be passed at runtime.
 type SchemaConfig struct {
-	AccountChallenge         string // AccountChallenge table.
-	AccountUser              string // AccountUser table.
-	AdminBootstrap           string // AdminBootstrap table.
-	AdminElevation           string // AdminElevation table.
-	AdminPrincipal           string // AdminPrincipal table.
-	ApplicationVersion       string // ApplicationVersion table.
-	AuthorizationGrant       string // AuthorizationGrant table.
-	AuthorizationInteraction string // AuthorizationInteraction table.
-	ClientTestSubject        string // ClientTestSubject table.
-	DeveloperApplication     string // DeveloperApplication table.
-	EmailDelivery            string // EmailDelivery table.
-	EmailVerification        string // EmailVerification table.
-	ExternalIdentity         string // ExternalIdentity table.
-	ExternalLogin            string // ExternalLogin table.
-	Invitation               string // Invitation table.
-	LogoutInteraction        string // LogoutInteraction table.
-	OAuthClient              string // OAuthClient table.
-	ProtocolEvent            string // ProtocolEvent table.
-	ProtocolSession          string // ProtocolSession table.
-	RPLogin                  string // RPLogin table.
-	RegistrationPolicy       string // RegistrationPolicy table.
-	SecurityEvent            string // SecurityEvent table.
-	SigningKey               string // SigningKey table.
-	WebSession               string // WebSession table.
+	AccountChallenge            string // AccountChallenge table.
+	AccountUser                 string // AccountUser table.
+	AdminBootstrap              string // AdminBootstrap table.
+	AdminControl                string // AdminControl table.
+	AdminElevation              string // AdminElevation table.
+	AdminPrincipal              string // AdminPrincipal table.
+	ApplicationVersion          string // ApplicationVersion table.
+	AuthorizationGrant          string // AuthorizationGrant table.
+	AuthorizationInteraction    string // AuthorizationInteraction table.
+	ClientTestSubject           string // ClientTestSubject table.
+	DeveloperApplication        string // DeveloperApplication table.
+	EmailDelivery               string // EmailDelivery table.
+	EmailVerification           string // EmailVerification table.
+	ExternalIdentity            string // ExternalIdentity table.
+	ExternalLogin               string // ExternalLogin table.
+	Invitation                  string // Invitation table.
+	LogoutInteraction           string // LogoutInteraction table.
+	OAuthClient                 string // OAuthClient table.
+	ProtocolEvent               string // ProtocolEvent table.
+	ProtocolSession             string // ProtocolSession table.
+	RPLogin                     string // RPLogin table.
+	RegistrationEvent           string // RegistrationEvent table.
+	RegistrationPolicy          string // RegistrationPolicy table.
+	RegistrationStatisticsState string // RegistrationStatisticsState table.
+	SecurityEvent               string // SecurityEvent table.
+	SigningKey                  string // SigningKey table.
+	WebSession                  string // WebSession table.
 }
 
 type schemaCtxKey struct{}

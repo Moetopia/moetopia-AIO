@@ -16,6 +16,9 @@ func Bootstrap(ctx context.Context, db *ent.Client, users *identity.Service, ema
 	}
 	defer unit.Rollback()
 	ctx = persistence.WithClient(ctx, unit.Client())
+	if err := lockAdministration(ctx, unit.Client()); err != nil {
+		return err
+	}
 	user, err := users.VerifiedEmailUser(ctx, email)
 	if err != nil {
 		return errors.New("bootstrap requires an existing enabled account with a verified email")

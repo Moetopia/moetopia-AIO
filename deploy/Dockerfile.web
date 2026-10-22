@@ -1,0 +1,30 @@
+ARG NODE_IMAGE
+ARG CADDY_IMAGE
+FROM ${NODE_IMAGE} AS build
+WORKDIR /src
+RUN npm install --global pnpm@12.14.0
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/account/package.json apps/account/package.json
+COPY apps/admin/package.json apps/admin/package.json
+COPY packages/ packages/
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+COPY apps/account/ apps/account/
+COPY apps/admin/ apps/admin/
+ARG ACCOUNT_URL
+ARG ADMIN_URL
+ENV MOETOPIA_API_UPSTREAM=http://api:8080
+ENV NUXT_PUBLIC_ACCOUNT_URL=${ACCOUNT_URL}
+ENV NUXT_PUBLIC_ADMIN_URL=${ADMIN_URL}
+RUN pnpm build
+
+FROM ${NODE_IMAGE} AS account
+WORKDIR /app
+COPY --from=build --chown=node:node /src/apps/account/.output/ ./
+USER node
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
+EXPOSE 3000
+CMD ["node", "server/index.mjs"]
+
+FROM ${CADDY_IMAGE} AS edge
+COPY --from=build /src/apps/admin/.output/public/ /srv/admin/
+COPY deploy/Caddyfile /etc/caddy/Caddyfile

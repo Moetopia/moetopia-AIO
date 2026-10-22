@@ -11,6 +11,6 @@ export default defineConfig({
     { command: 'node scripts/oidc-test-server.mjs api', url: oidcAPIOrigin() + '/readyz', reuseExistingServer: false },
     { command: 'node scripts/oidc-test-server.mjs account', url: 'http://127.0.0.1:54305', reuseExistingServer: false },
     { command: 'node scripts/oidc-test-rp.mjs', url: 'http://localhost:54310/healthz', reuseExistingServer: false },
-    ...(process.env.MOETOPIA_TEST_OIDC_SUITE === 'admin' ? [{ command: 'node scripts/admin-test-proxy.mjs', url: 'http://admin.localhost:54311/healthz', reuseExistingServer: false }] : []),
+    ...(process.env.MOETOPIA_TEST_OIDC_SUITE === 'admin' ? [{ command: 'node scripts/admin-test-proxy.mjs', url: 'http://127.0.0.1:54311/healthz', reuseExistingServer: false }] : []),
   ],
 })

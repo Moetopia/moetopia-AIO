@@ -18,6 +18,8 @@ func (AdminPrincipal) Fields() []ent.Field {
 		field.Int64("last_counter").Default(-1), field.Int("factor_version").Default(0),
 		field.Strings("recovery_hashes").Default([]string{}).Sensitive(),
 		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Bool("enrollment_blocked").Default(false), field.String("enrollment_session").Default(""),
+		field.String("emergency_hash").Default("").Sensitive(), field.Time("emergency_expires_at").Optional().Nillable(),
 	}
 }
 func (AdminPrincipal) Annotations() []schema.Annotation {

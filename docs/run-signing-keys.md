@@ -1,6 +1,6 @@
 # 签名密钥运行与轮换
 
-状态：已有常规轮换命令和持久化运行路径，开发验证见 [实施进度](implementation-status.md)。不默认执行轮换，不代表已经完成私钥泄露应急或生产下游验收。
+状态：已有常规轮换、维护窗口应急轮换和持久化运行路径，开发验证见 [实施进度](implementation-status.md)。不默认执行轮换，不代表生产下游已经完成验收。
 
 ## 常规操作
 
@@ -32,6 +32,18 @@ worker 在旧密钥 retire_after 到期后清空加密私钥材料；保留非�
 
 轮换前必须将所有 API 实例升级到持久化密钥路径。旧进程若仍固定持有启动私钥，会继续签旧令牌，十五分钟窗口无法保护长期遗留实例；不能混跑后宣称热轮换成功。确认下游 RP/资源服务器在未知 kid 时刷新 JWKS、不永久固定公钥；多副本及实际资源服务器的验证尚未完成。
 
-私钥泄露不是常规轮换：重叠期间旧 key 仍受信任，离线下游也可能缓存。应停止受影响签发、定位凭据暴露范围、部署新密钥、按受控策略移除旧信任并处理授权/会话与下游缓存。当前没有自动紧急吊销所有下游的功能；也不将该命令用于加密根密钥轮换。生产应急演练仍需完成。
+## 维护窗口应急轮换
+
+私钥泄露不能使用常规重叠窗口。先停止全部 issuer API 实例（包含内置 worker）及其他相关维护任务，确认数据库/根密钥目标，再显式执行：
+
+```powershell
+pnpm api:keys:emergency --acknowledge-global-revocation --reason "Confirmed signing key exposure"
+```
+
+生产停止 API 后可通过 `sh deploy/compose.sh run --rm --no-deps --entrypoint /app/keys api emergency --acknowledge-global-revocation --reason "Confirmed signing key exposure"` 执行。命令不自动停止进程，不能在仍有写入者时当作在线撤销使用。
+
+新 RSA 密钥、全部旧公钥立即退出 JWKS、旧私钥清空、全局瞬态凭据撤销和原因审计同事务提交；失败全部回滚。瞬态撤销范围由[恢复指南](run-backup-recovery.md)定义，长期密码、TOTP 和外部绑定保持，用户必须重新登录/授权。只启动全部升级后的实例，核验新 JWKS 并通知下游刷新信任。未对日常开发库执行此命令。
+
+下游缓存的旧 JWKS、离线 JWT 及 RP 自己的会话不会被服务器命令瞬间删除，实际应急仍需协调下游。根加密密钥泄露涉及另一组长期秘密，不能由 RSA 轮换解决。当前测试证明本项目事务和在线协议行为，不代表所有外部 RP 已完成生产事故演练。
 
 协议依据：[OIDC Core 10.1.1](https://openid.net/specs/openid-connect-core-1_0.html#RotateSigKeys)。

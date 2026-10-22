@@ -75,7 +75,7 @@ func (a AdminEndpoints) registerIdentity(api huma.API) {
 			var err error
 			result.Body, err = a.Accounts.Identity.AdminSetEnabled(ctx, user.ID, input.ID, input.Body.Revision, input.Body.Enabled, input.Body.Reason)
 			return err
-		})
+		}, input.ID)
 		if err != nil {
 			return nil, adminError(err)
 		}

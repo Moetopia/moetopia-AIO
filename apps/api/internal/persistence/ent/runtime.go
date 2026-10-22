@@ -23,6 +23,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
+	"moetopia.local/aio/api/internal/persistence/ent/registrationstatisticsstate"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
 	"moetopia.local/aio/api/internal/persistence/ent/schema"
 	"moetopia.local/aio/api/internal/persistence/ent/securityevent"
@@ -122,6 +123,18 @@ func init() {
 	adminprincipalDescCreatedAt := adminprincipalFields[9].Descriptor()
 	// adminprincipal.DefaultCreatedAt holds the default value on creation for the created_at field.
 	adminprincipal.DefaultCreatedAt = adminprincipalDescCreatedAt.Default.(func() time.Time)
+	// adminprincipalDescEnrollmentBlocked is the schema descriptor for enrollment_blocked field.
+	adminprincipalDescEnrollmentBlocked := adminprincipalFields[10].Descriptor()
+	// adminprincipal.DefaultEnrollmentBlocked holds the default value on creation for the enrollment_blocked field.
+	adminprincipal.DefaultEnrollmentBlocked = adminprincipalDescEnrollmentBlocked.Default.(bool)
+	// adminprincipalDescEnrollmentSession is the schema descriptor for enrollment_session field.
+	adminprincipalDescEnrollmentSession := adminprincipalFields[11].Descriptor()
+	// adminprincipal.DefaultEnrollmentSession holds the default value on creation for the enrollment_session field.
+	adminprincipal.DefaultEnrollmentSession = adminprincipalDescEnrollmentSession.Default.(string)
+	// adminprincipalDescEmergencyHash is the schema descriptor for emergency_hash field.
+	adminprincipalDescEmergencyHash := adminprincipalFields[12].Descriptor()
+	// adminprincipal.DefaultEmergencyHash holds the default value on creation for the emergency_hash field.
+	adminprincipal.DefaultEmergencyHash = adminprincipalDescEmergencyHash.Default.(string)
 	applicationversionFields := schema.ApplicationVersion{}.Fields()
 	_ = applicationversionFields
 	// applicationversionDescReviewReason is the schema descriptor for review_reason field.
@@ -352,6 +365,12 @@ func init() {
 	registrationpolicyDescRevision := registrationpolicyFields[2].Descriptor()
 	// registrationpolicy.DefaultRevision holds the default value on creation for the revision field.
 	registrationpolicy.DefaultRevision = registrationpolicyDescRevision.Default.(int)
+	registrationstatisticsstateFields := schema.RegistrationStatisticsState{}.Fields()
+	_ = registrationstatisticsstateFields
+	// registrationstatisticsstateDescStartedAt is the schema descriptor for started_at field.
+	registrationstatisticsstateDescStartedAt := registrationstatisticsstateFields[1].Descriptor()
+	// registrationstatisticsstate.DefaultStartedAt holds the default value on creation for the started_at field.
+	registrationstatisticsstate.DefaultStartedAt = registrationstatisticsstateDescStartedAt.Default.(func() time.Time)
 	securityeventFields := schema.SecurityEvent{}.Fields()
 	_ = securityeventFields
 	// securityeventDescTargetID is the schema descriptor for target_id field.
@@ -366,8 +385,12 @@ func init() {
 	securityeventDescOutcome := securityeventFields[5].Descriptor()
 	// securityevent.DefaultOutcome holds the default value on creation for the outcome field.
 	securityevent.DefaultOutcome = securityeventDescOutcome.Default.(string)
+	// securityeventDescReason is the schema descriptor for reason field.
+	securityeventDescReason := securityeventFields[6].Descriptor()
+	// securityevent.DefaultReason holds the default value on creation for the reason field.
+	securityevent.DefaultReason = securityeventDescReason.Default.(string)
 	// securityeventDescCreatedAt is the schema descriptor for created_at field.
-	securityeventDescCreatedAt := securityeventFields[6].Descriptor()
+	securityeventDescCreatedAt := securityeventFields[7].Descriptor()
 	// securityevent.DefaultCreatedAt holds the default value on creation for the created_at field.
 	securityevent.DefaultCreatedAt = securityeventDescCreatedAt.Default.(func() time.Time)
 	signingkeyFields := schema.SigningKey{}.Fields()

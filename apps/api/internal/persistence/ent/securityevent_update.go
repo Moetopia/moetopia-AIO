@@ -70,6 +70,20 @@ func (_u *SecurityEventUpdate) SetNillableOutcome(v *string) *SecurityEventUpdat
 	return _u
 }
 
+// SetReason sets the "reason" field.
+func (_u *SecurityEventUpdate) SetReason(v string) *SecurityEventUpdate {
+	_u.mutation.SetReason(v)
+	return _u
+}
+
+// SetNillableReason sets the "reason" field if the given value is not nil.
+func (_u *SecurityEventUpdate) SetNillableReason(v *string) *SecurityEventUpdate {
+	if v != nil {
+		_u.SetReason(*v)
+	}
+	return _u
+}
+
 // Mutation returns the SecurityEventMutation object of the builder.
 func (_u *SecurityEventUpdate) Mutation() *SecurityEventMutation {
 	return _u.mutation
@@ -119,6 +133,9 @@ func (_u *SecurityEventUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	}
 	if value, ok := _u.mutation.Outcome(); ok {
 		_spec.SetField(securityevent.FieldOutcome, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Reason(); ok {
+		_spec.SetField(securityevent.FieldReason, field.TypeString, value)
 	}
 	_spec.Node.Schema = _u.schemaConfig.SecurityEvent
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)
@@ -180,6 +197,20 @@ func (_u *SecurityEventUpdateOne) SetOutcome(v string) *SecurityEventUpdateOne {
 func (_u *SecurityEventUpdateOne) SetNillableOutcome(v *string) *SecurityEventUpdateOne {
 	if v != nil {
 		_u.SetOutcome(*v)
+	}
+	return _u
+}
+
+// SetReason sets the "reason" field.
+func (_u *SecurityEventUpdateOne) SetReason(v string) *SecurityEventUpdateOne {
+	_u.mutation.SetReason(v)
+	return _u
+}
+
+// SetNillableReason sets the "reason" field if the given value is not nil.
+func (_u *SecurityEventUpdateOne) SetNillableReason(v *string) *SecurityEventUpdateOne {
+	if v != nil {
+		_u.SetReason(*v)
 	}
 	return _u
 }
@@ -263,6 +294,9 @@ func (_u *SecurityEventUpdateOne) sqlSave(ctx context.Context) (_node *SecurityE
 	}
 	if value, ok := _u.mutation.Outcome(); ok {
 		_spec.SetField(securityevent.FieldOutcome, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Reason(); ok {
+		_spec.SetField(securityevent.FieldReason, field.TypeString, value)
 	}
 	_spec.Node.Schema = _u.schemaConfig.SecurityEvent
 	ctx = internal.NewSchemaConfigContext(ctx, _u.schemaConfig)

@@ -45,6 +45,18 @@ func (f AdminBootstrapFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdminBootstrapMutation", m)
 }
 
+// The AdminControlFunc type is an adapter to allow the use of ordinary
+// function as AdminControl mutator.
+type AdminControlFunc func(context.Context, *ent.AdminControlMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AdminControlFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AdminControlMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdminControlMutation", m)
+}
+
 // The AdminElevationFunc type is an adapter to allow the use of ordinary
 // function as AdminElevation mutator.
 type AdminElevationFunc func(context.Context, *ent.AdminElevationMutation) (ent.Value, error)
@@ -249,6 +261,18 @@ func (f RPLoginFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RPLoginMutation", m)
 }
 
+// The RegistrationEventFunc type is an adapter to allow the use of ordinary
+// function as RegistrationEvent mutator.
+type RegistrationEventFunc func(context.Context, *ent.RegistrationEventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RegistrationEventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RegistrationEventMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RegistrationEventMutation", m)
+}
+
 // The RegistrationPolicyFunc type is an adapter to allow the use of ordinary
 // function as RegistrationPolicy mutator.
 type RegistrationPolicyFunc func(context.Context, *ent.RegistrationPolicyMutation) (ent.Value, error)
@@ -259,6 +283,18 @@ func (f RegistrationPolicyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RegistrationPolicyMutation", m)
+}
+
+// The RegistrationStatisticsStateFunc type is an adapter to allow the use of ordinary
+// function as RegistrationStatisticsState mutator.
+type RegistrationStatisticsStateFunc func(context.Context, *ent.RegistrationStatisticsStateMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RegistrationStatisticsStateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.RegistrationStatisticsStateMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RegistrationStatisticsStateMutation", m)
 }
 
 // The SecurityEventFunc type is an adapter to allow the use of ordinary

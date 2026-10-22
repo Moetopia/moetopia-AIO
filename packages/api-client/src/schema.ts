@@ -463,6 +463,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/mfa/emergency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin mfa emergency */
+        post: operations["post-api-v1-admin-mfa-emergency"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/mfa/enrollment": {
         parameters: {
             query?: never;
@@ -548,6 +565,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/notifications/failed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin notifications failed */
+        get: operations["get-api-v1-admin-notifications-failed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin notifications by ID retry */
+        post: operations["post-api-v1-admin-notifications-by-id-retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/principals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin principals */
+        get: operations["get-api-v1-admin-principals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/principals/{id}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post API v1 admin principals by ID availability */
+        post: operations["post-api-v1-admin-principals-by-id-availability"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/registration-policy": {
         parameters: {
             query?: never;
@@ -595,6 +680,23 @@ export interface paths {
         post?: never;
         /** Delete API v1 admin sessions by ID */
         delete: operations["delete-api-v1-admin-sessions-by-id"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 admin statistics */
+        get: operations["get-api-v1-admin-statistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1178,6 +1280,16 @@ export interface components {
             recovery_codes?: string[] | null;
             user?: components["schemas"]["User"];
         };
+        AdminEmergencyInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminEmergencyInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+            token: string;
+        };
         AdminEvent: {
             action: string;
             actor_id: string;
@@ -1185,6 +1297,7 @@ export interface components {
             created_at: string;
             id: string;
             outcome: string;
+            reason: string;
             request_id: string;
             target_id: string;
         };
@@ -1208,6 +1321,17 @@ export interface components {
             /** Format: int64 */
             expires_in_hours: number;
         };
+        AdminNotificationRetryInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminNotificationRetryInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            attempts: number;
+            reason: string;
+        };
         AdminPasswordInputBody: {
             /**
              * Format: uri
@@ -1226,6 +1350,19 @@ export interface components {
             readonly $schema?: string;
             /** @enum {string} */
             mode: "invite" | "open";
+            /** Format: int64 */
+            revision: number;
+        };
+        AdminPrincipalChangeInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminPrincipalChangeInputBody.json
+             */
+            readonly $schema?: string;
+            current_password: string;
+            enabled: boolean;
+            reason: string;
             /** Format: int64 */
             revision: number;
         };
@@ -1259,6 +1396,20 @@ export interface components {
             reason: string;
             /** Format: int64 */
             revision: number;
+        };
+        AdminStatisticsOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminStatisticsOutputBody.json
+             */
+            readonly $schema?: string;
+            applications: components["schemas"]["Overview"];
+            /** Format: date-time */
+            generated_at: string;
+            identity: components["schemas"]["IdentityStatistics"];
+            notifications: components["schemas"]["QueueStatistics"];
+            timezone: string;
         };
         AdminSuspendInputBody: {
             /**
@@ -1555,6 +1706,25 @@ export interface components {
             created_at: string;
             provider: string;
         };
+        FailedDeliveries: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FailedDeliveries.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["FailedDelivery"][];
+            next_after: string;
+        };
+        FailedDelivery: {
+            /** Format: int64 */
+            attempts: number;
+            /** Format: date-time */
+            available_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            id: string;
+        };
         FederationBindingInputBody: {
             /**
              * Format: uri
@@ -1614,6 +1784,17 @@ export interface components {
             authorization_request?: string;
             /** @enum {string} */
             continue?: "" | "developer-applications";
+        };
+        IdentityStatistics: {
+            /** Format: int64 */
+            enabled_users: number;
+            /** Format: int64 */
+            pending_deletions: number;
+            /** Format: date-time */
+            recording_since: string;
+            registrations: components["schemas"]["RegistrationDay"][];
+            /** Format: int64 */
+            total_users: number;
         };
         IssuedInvitation: {
             /**
@@ -1714,6 +1895,16 @@ export interface components {
             items: components["schemas"]["ManagedUser"][] | null;
             next_cursor: string;
         };
+        Overview: {
+            /** Format: int64 */
+            pending: number;
+            /** Format: int64 */
+            published_enabled: number;
+            /** Format: int64 */
+            suspended: number;
+            /** Format: int64 */
+            total: number;
+        };
         PasswordChangeInputBody: {
             /**
              * Format: uri
@@ -1748,6 +1939,32 @@ export interface components {
             expires_at?: string;
             login_url: string;
             user?: components["schemas"]["User"];
+        };
+        Principal: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Principal.json
+             */
+            readonly $schema?: string;
+            /** Format: date-time */
+            created_at: string;
+            emergency_required: boolean;
+            enabled: boolean;
+            enrolled: boolean;
+            id: string;
+            /** Format: int64 */
+            revision: number;
+        };
+        Principals: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/Principals.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["Principal"][];
+            next_after: string;
         };
         ProfileInputBody: {
             /**
@@ -1794,6 +2011,14 @@ export interface components {
             window_end: string;
             window_start: string;
         };
+        QueueStatistics: {
+            /** Format: int64 */
+            in_flight: number;
+            /** Format: int64 */
+            queued: number;
+            /** Format: int64 */
+            retry_exhausted: number;
+        };
         RPLogoutOutputBody: {
             /**
              * Format: uri
@@ -1815,6 +2040,12 @@ export interface components {
             display_name: string;
             invitation: string;
             password: string;
+        };
+        RegistrationDay: {
+            day: string;
+            partial: boolean;
+            /** Format: int64 */
+            registrations?: number;
         };
         RegistrationDetails: {
             /**
@@ -1867,6 +2098,7 @@ export interface components {
             items: components["schemas"]["Session"][] | null;
         };
         State: {
+            emergency_required: boolean;
             enrolled: boolean;
             /** Format: int64 */
             recovery_codes_remaining: number;
@@ -3083,6 +3315,44 @@ export interface operations {
             };
         };
     };
+    "post-api-v1-admin-mfa-emergency": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminEmergencyInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    "Set-Cookie"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
     "post-api-v1-admin-mfa-enrollment": {
         parameters: {
             query?: never;
@@ -3271,6 +3541,148 @@ export interface operations {
             };
         };
     };
+    "get-api-v1-admin-notifications-failed": {
+        parameters: {
+            query?: {
+                after?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FailedDeliveries"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-notifications-by-id-retry": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminNotificationRetryInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-principals": {
+        parameters: {
+            query?: {
+                after?: string;
+            };
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Principals"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-admin-principals-by-id-availability": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminPrincipalChangeInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Principal"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
     "get-api-v1-admin-registration-policy": {
         parameters: {
             query?: never;
@@ -3391,6 +3803,37 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-admin-statistics": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStatisticsOutputBody"];
+                };
             };
             /** @description Error */
             default: {

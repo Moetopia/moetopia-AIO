@@ -89,6 +89,11 @@ func Outcome(v string) predicate.SecurityEvent {
 	return predicate.SecurityEvent(sql.FieldEQ(FieldOutcome, v))
 }
 
+// Reason applies equality check predicate on the "reason" field. It's identical to ReasonEQ.
+func Reason(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldReason, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.SecurityEvent {
 	return predicate.SecurityEvent(sql.FieldEQ(FieldCreatedAt, v))
@@ -417,6 +422,71 @@ func OutcomeEqualFold(v string) predicate.SecurityEvent {
 // OutcomeContainsFold applies the ContainsFold predicate on the "outcome" field.
 func OutcomeContainsFold(v string) predicate.SecurityEvent {
 	return predicate.SecurityEvent(sql.FieldContainsFold(FieldOutcome, v))
+}
+
+// ReasonEQ applies the EQ predicate on the "reason" field.
+func ReasonEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEQ(FieldReason, v))
+}
+
+// ReasonNEQ applies the NEQ predicate on the "reason" field.
+func ReasonNEQ(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNEQ(FieldReason, v))
+}
+
+// ReasonIn applies the In predicate on the "reason" field.
+func ReasonIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldIn(FieldReason, vs...))
+}
+
+// ReasonNotIn applies the NotIn predicate on the "reason" field.
+func ReasonNotIn(vs ...string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldNotIn(FieldReason, vs...))
+}
+
+// ReasonGT applies the GT predicate on the "reason" field.
+func ReasonGT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGT(FieldReason, v))
+}
+
+// ReasonGTE applies the GTE predicate on the "reason" field.
+func ReasonGTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldGTE(FieldReason, v))
+}
+
+// ReasonLT applies the LT predicate on the "reason" field.
+func ReasonLT(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLT(FieldReason, v))
+}
+
+// ReasonLTE applies the LTE predicate on the "reason" field.
+func ReasonLTE(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldLTE(FieldReason, v))
+}
+
+// ReasonContains applies the Contains predicate on the "reason" field.
+func ReasonContains(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContains(FieldReason, v))
+}
+
+// ReasonHasPrefix applies the HasPrefix predicate on the "reason" field.
+func ReasonHasPrefix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasPrefix(FieldReason, v))
+}
+
+// ReasonHasSuffix applies the HasSuffix predicate on the "reason" field.
+func ReasonHasSuffix(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldHasSuffix(FieldReason, v))
+}
+
+// ReasonEqualFold applies the EqualFold predicate on the "reason" field.
+func ReasonEqualFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldEqualFold(FieldReason, v))
+}
+
+// ReasonContainsFold applies the ContainsFold predicate on the "reason" field.
+func ReasonContainsFold(v string) predicate.SecurityEvent {
+	return predicate.SecurityEvent(sql.FieldContainsFold(FieldReason, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

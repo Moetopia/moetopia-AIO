@@ -35,8 +35,16 @@ type AdminPrincipal struct {
 	// RecoveryHashes holds the value of the "recovery_hashes" field.
 	RecoveryHashes []string `json:"-"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"created_at,omitempty"`
-	selectValues sql.SelectValues
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// EnrollmentBlocked holds the value of the "enrollment_blocked" field.
+	EnrollmentBlocked bool `json:"enrollment_blocked,omitempty"`
+	// EnrollmentSession holds the value of the "enrollment_session" field.
+	EnrollmentSession string `json:"enrollment_session,omitempty"`
+	// EmergencyHash holds the value of the "emergency_hash" field.
+	EmergencyHash string `json:"-"`
+	// EmergencyExpiresAt holds the value of the "emergency_expires_at" field.
+	EmergencyExpiresAt *time.Time `json:"emergency_expires_at,omitempty"`
+	selectValues       sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -46,13 +54,13 @@ func (*AdminPrincipal) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case adminprincipal.FieldSecret, adminprincipal.FieldPendingSecret, adminprincipal.FieldRecoveryHashes:
 			values[i] = new([]byte)
-		case adminprincipal.FieldEnabled:
+		case adminprincipal.FieldEnabled, adminprincipal.FieldEnrollmentBlocked:
 			values[i] = new(sql.NullBool)
 		case adminprincipal.FieldLastCounter, adminprincipal.FieldFactorVersion:
 			values[i] = new(sql.NullInt64)
-		case adminprincipal.FieldID, adminprincipal.FieldPendingSession:
+		case adminprincipal.FieldID, adminprincipal.FieldPendingSession, adminprincipal.FieldEnrollmentSession, adminprincipal.FieldEmergencyHash:
 			values[i] = new(sql.NullString)
-		case adminprincipal.FieldPendingExpiresAt, adminprincipal.FieldCreatedAt:
+		case adminprincipal.FieldPendingExpiresAt, adminprincipal.FieldCreatedAt, adminprincipal.FieldEmergencyExpiresAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -132,6 +140,31 @@ func (_m *AdminPrincipal) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
 			}
+		case adminprincipal.FieldEnrollmentBlocked:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field enrollment_blocked", values[i])
+			} else if value.Valid {
+				_m.EnrollmentBlocked = value.Bool
+			}
+		case adminprincipal.FieldEnrollmentSession:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field enrollment_session", values[i])
+			} else if value.Valid {
+				_m.EnrollmentSession = value.String
+			}
+		case adminprincipal.FieldEmergencyHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field emergency_hash", values[i])
+			} else if value.Valid {
+				_m.EmergencyHash = value.String
+			}
+		case adminprincipal.FieldEmergencyExpiresAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field emergency_expires_at", values[i])
+			} else if value.Valid {
+				_m.EmergencyExpiresAt = new(time.Time)
+				*_m.EmergencyExpiresAt = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -193,6 +226,19 @@ func (_m *AdminPrincipal) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("enrollment_blocked=")
+	builder.WriteString(fmt.Sprintf("%v", _m.EnrollmentBlocked))
+	builder.WriteString(", ")
+	builder.WriteString("enrollment_session=")
+	builder.WriteString(_m.EnrollmentSession)
+	builder.WriteString(", ")
+	builder.WriteString("emergency_hash=<sensitive>")
+	builder.WriteString(", ")
+	if v := _m.EmergencyExpiresAt; v != nil {
+		builder.WriteString("emergency_expires_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

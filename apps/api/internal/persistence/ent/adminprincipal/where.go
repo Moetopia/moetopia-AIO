@@ -104,6 +104,26 @@ func CreatedAt(v time.Time) predicate.AdminPrincipal {
 	return predicate.AdminPrincipal(sql.FieldEQ(FieldCreatedAt, v))
 }
 
+// EnrollmentBlocked applies equality check predicate on the "enrollment_blocked" field. It's identical to EnrollmentBlockedEQ.
+func EnrollmentBlocked(v bool) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEnrollmentBlocked, v))
+}
+
+// EnrollmentSession applies equality check predicate on the "enrollment_session" field. It's identical to EnrollmentSessionEQ.
+func EnrollmentSession(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEnrollmentSession, v))
+}
+
+// EmergencyHash applies equality check predicate on the "emergency_hash" field. It's identical to EmergencyHashEQ.
+func EmergencyHash(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEmergencyHash, v))
+}
+
+// EmergencyExpiresAt applies equality check predicate on the "emergency_expires_at" field. It's identical to EmergencyExpiresAtEQ.
+func EmergencyExpiresAt(v time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEmergencyExpiresAt, v))
+}
+
 // EnabledEQ applies the EQ predicate on the "enabled" field.
 func EnabledEQ(v bool) predicate.AdminPrincipal {
 	return predicate.AdminPrincipal(sql.FieldEQ(FieldEnabled, v))
@@ -447,6 +467,196 @@ func CreatedAtLT(v time.Time) predicate.AdminPrincipal {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.AdminPrincipal {
 	return predicate.AdminPrincipal(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// EnrollmentBlockedEQ applies the EQ predicate on the "enrollment_blocked" field.
+func EnrollmentBlockedEQ(v bool) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEnrollmentBlocked, v))
+}
+
+// EnrollmentBlockedNEQ applies the NEQ predicate on the "enrollment_blocked" field.
+func EnrollmentBlockedNEQ(v bool) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNEQ(FieldEnrollmentBlocked, v))
+}
+
+// EnrollmentSessionEQ applies the EQ predicate on the "enrollment_session" field.
+func EnrollmentSessionEQ(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionNEQ applies the NEQ predicate on the "enrollment_session" field.
+func EnrollmentSessionNEQ(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNEQ(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionIn applies the In predicate on the "enrollment_session" field.
+func EnrollmentSessionIn(vs ...string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldIn(FieldEnrollmentSession, vs...))
+}
+
+// EnrollmentSessionNotIn applies the NotIn predicate on the "enrollment_session" field.
+func EnrollmentSessionNotIn(vs ...string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNotIn(FieldEnrollmentSession, vs...))
+}
+
+// EnrollmentSessionGT applies the GT predicate on the "enrollment_session" field.
+func EnrollmentSessionGT(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldGT(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionGTE applies the GTE predicate on the "enrollment_session" field.
+func EnrollmentSessionGTE(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldGTE(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionLT applies the LT predicate on the "enrollment_session" field.
+func EnrollmentSessionLT(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldLT(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionLTE applies the LTE predicate on the "enrollment_session" field.
+func EnrollmentSessionLTE(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldLTE(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionContains applies the Contains predicate on the "enrollment_session" field.
+func EnrollmentSessionContains(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldContains(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionHasPrefix applies the HasPrefix predicate on the "enrollment_session" field.
+func EnrollmentSessionHasPrefix(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldHasPrefix(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionHasSuffix applies the HasSuffix predicate on the "enrollment_session" field.
+func EnrollmentSessionHasSuffix(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldHasSuffix(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionEqualFold applies the EqualFold predicate on the "enrollment_session" field.
+func EnrollmentSessionEqualFold(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEqualFold(FieldEnrollmentSession, v))
+}
+
+// EnrollmentSessionContainsFold applies the ContainsFold predicate on the "enrollment_session" field.
+func EnrollmentSessionContainsFold(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldContainsFold(FieldEnrollmentSession, v))
+}
+
+// EmergencyHashEQ applies the EQ predicate on the "emergency_hash" field.
+func EmergencyHashEQ(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEmergencyHash, v))
+}
+
+// EmergencyHashNEQ applies the NEQ predicate on the "emergency_hash" field.
+func EmergencyHashNEQ(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNEQ(FieldEmergencyHash, v))
+}
+
+// EmergencyHashIn applies the In predicate on the "emergency_hash" field.
+func EmergencyHashIn(vs ...string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldIn(FieldEmergencyHash, vs...))
+}
+
+// EmergencyHashNotIn applies the NotIn predicate on the "emergency_hash" field.
+func EmergencyHashNotIn(vs ...string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNotIn(FieldEmergencyHash, vs...))
+}
+
+// EmergencyHashGT applies the GT predicate on the "emergency_hash" field.
+func EmergencyHashGT(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldGT(FieldEmergencyHash, v))
+}
+
+// EmergencyHashGTE applies the GTE predicate on the "emergency_hash" field.
+func EmergencyHashGTE(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldGTE(FieldEmergencyHash, v))
+}
+
+// EmergencyHashLT applies the LT predicate on the "emergency_hash" field.
+func EmergencyHashLT(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldLT(FieldEmergencyHash, v))
+}
+
+// EmergencyHashLTE applies the LTE predicate on the "emergency_hash" field.
+func EmergencyHashLTE(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldLTE(FieldEmergencyHash, v))
+}
+
+// EmergencyHashContains applies the Contains predicate on the "emergency_hash" field.
+func EmergencyHashContains(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldContains(FieldEmergencyHash, v))
+}
+
+// EmergencyHashHasPrefix applies the HasPrefix predicate on the "emergency_hash" field.
+func EmergencyHashHasPrefix(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldHasPrefix(FieldEmergencyHash, v))
+}
+
+// EmergencyHashHasSuffix applies the HasSuffix predicate on the "emergency_hash" field.
+func EmergencyHashHasSuffix(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldHasSuffix(FieldEmergencyHash, v))
+}
+
+// EmergencyHashEqualFold applies the EqualFold predicate on the "emergency_hash" field.
+func EmergencyHashEqualFold(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEqualFold(FieldEmergencyHash, v))
+}
+
+// EmergencyHashContainsFold applies the ContainsFold predicate on the "emergency_hash" field.
+func EmergencyHashContainsFold(v string) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldContainsFold(FieldEmergencyHash, v))
+}
+
+// EmergencyExpiresAtEQ applies the EQ predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtEQ(v time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldEQ(FieldEmergencyExpiresAt, v))
+}
+
+// EmergencyExpiresAtNEQ applies the NEQ predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtNEQ(v time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNEQ(FieldEmergencyExpiresAt, v))
+}
+
+// EmergencyExpiresAtIn applies the In predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtIn(vs ...time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldIn(FieldEmergencyExpiresAt, vs...))
+}
+
+// EmergencyExpiresAtNotIn applies the NotIn predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtNotIn(vs ...time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNotIn(FieldEmergencyExpiresAt, vs...))
+}
+
+// EmergencyExpiresAtGT applies the GT predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtGT(v time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldGT(FieldEmergencyExpiresAt, v))
+}
+
+// EmergencyExpiresAtGTE applies the GTE predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtGTE(v time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldGTE(FieldEmergencyExpiresAt, v))
+}
+
+// EmergencyExpiresAtLT applies the LT predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtLT(v time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldLT(FieldEmergencyExpiresAt, v))
+}
+
+// EmergencyExpiresAtLTE applies the LTE predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtLTE(v time.Time) predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldLTE(FieldEmergencyExpiresAt, v))
+}
+
+// EmergencyExpiresAtIsNil applies the IsNil predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtIsNil() predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldIsNull(FieldEmergencyExpiresAt))
+}
+
+// EmergencyExpiresAtNotNil applies the NotNil predicate on the "emergency_expires_at" field.
+func EmergencyExpiresAtNotNil() predicate.AdminPrincipal {
+	return predicate.AdminPrincipal(sql.FieldNotNull(FieldEmergencyExpiresAt))
 }
 
 // And groups predicates with the AND operator between them.

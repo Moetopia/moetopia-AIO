@@ -27,6 +27,8 @@ type SecurityEvent struct {
 	RequestID string `json:"request_id,omitempty"`
 	// Outcome holds the value of the "outcome" field.
 	Outcome string `json:"outcome,omitempty"`
+	// Reason holds the value of the "reason" field.
+	Reason string `json:"reason,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt    time.Time `json:"created_at,omitempty"`
 	selectValues sql.SelectValues
@@ -37,7 +39,7 @@ func (*SecurityEvent) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case securityevent.FieldID, securityevent.FieldUserID, securityevent.FieldAction, securityevent.FieldTargetID, securityevent.FieldRequestID, securityevent.FieldOutcome:
+		case securityevent.FieldID, securityevent.FieldUserID, securityevent.FieldAction, securityevent.FieldTargetID, securityevent.FieldRequestID, securityevent.FieldOutcome, securityevent.FieldReason:
 			values[i] = new(sql.NullString)
 		case securityevent.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -91,6 +93,12 @@ func (_m *SecurityEvent) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field outcome", values[i])
 			} else if value.Valid {
 				_m.Outcome = value.String
+			}
+		case securityevent.FieldReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field reason", values[i])
+			} else if value.Valid {
+				_m.Reason = value.String
 			}
 		case securityevent.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -148,6 +156,9 @@ func (_m *SecurityEvent) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("outcome=")
 	builder.WriteString(_m.Outcome)
+	builder.WriteString(", ")
+	builder.WriteString("reason=")
+	builder.WriteString(_m.Reason)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

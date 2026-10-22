@@ -122,6 +122,62 @@ func (_c *AdminPrincipalCreate) SetNillableCreatedAt(v *time.Time) *AdminPrincip
 	return _c
 }
 
+// SetEnrollmentBlocked sets the "enrollment_blocked" field.
+func (_c *AdminPrincipalCreate) SetEnrollmentBlocked(v bool) *AdminPrincipalCreate {
+	_c.mutation.SetEnrollmentBlocked(v)
+	return _c
+}
+
+// SetNillableEnrollmentBlocked sets the "enrollment_blocked" field if the given value is not nil.
+func (_c *AdminPrincipalCreate) SetNillableEnrollmentBlocked(v *bool) *AdminPrincipalCreate {
+	if v != nil {
+		_c.SetEnrollmentBlocked(*v)
+	}
+	return _c
+}
+
+// SetEnrollmentSession sets the "enrollment_session" field.
+func (_c *AdminPrincipalCreate) SetEnrollmentSession(v string) *AdminPrincipalCreate {
+	_c.mutation.SetEnrollmentSession(v)
+	return _c
+}
+
+// SetNillableEnrollmentSession sets the "enrollment_session" field if the given value is not nil.
+func (_c *AdminPrincipalCreate) SetNillableEnrollmentSession(v *string) *AdminPrincipalCreate {
+	if v != nil {
+		_c.SetEnrollmentSession(*v)
+	}
+	return _c
+}
+
+// SetEmergencyHash sets the "emergency_hash" field.
+func (_c *AdminPrincipalCreate) SetEmergencyHash(v string) *AdminPrincipalCreate {
+	_c.mutation.SetEmergencyHash(v)
+	return _c
+}
+
+// SetNillableEmergencyHash sets the "emergency_hash" field if the given value is not nil.
+func (_c *AdminPrincipalCreate) SetNillableEmergencyHash(v *string) *AdminPrincipalCreate {
+	if v != nil {
+		_c.SetEmergencyHash(*v)
+	}
+	return _c
+}
+
+// SetEmergencyExpiresAt sets the "emergency_expires_at" field.
+func (_c *AdminPrincipalCreate) SetEmergencyExpiresAt(v time.Time) *AdminPrincipalCreate {
+	_c.mutation.SetEmergencyExpiresAt(v)
+	return _c
+}
+
+// SetNillableEmergencyExpiresAt sets the "emergency_expires_at" field if the given value is not nil.
+func (_c *AdminPrincipalCreate) SetNillableEmergencyExpiresAt(v *time.Time) *AdminPrincipalCreate {
+	if v != nil {
+		_c.SetEmergencyExpiresAt(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *AdminPrincipalCreate) SetID(v string) *AdminPrincipalCreate {
 	_c.mutation.SetID(v)
@@ -187,6 +243,18 @@ func (_c *AdminPrincipalCreate) defaults() {
 		v := adminprincipal.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
+	if _, ok := _c.mutation.EnrollmentBlocked(); !ok {
+		v := adminprincipal.DefaultEnrollmentBlocked
+		_c.mutation.SetEnrollmentBlocked(v)
+	}
+	if _, ok := _c.mutation.EnrollmentSession(); !ok {
+		v := adminprincipal.DefaultEnrollmentSession
+		_c.mutation.SetEnrollmentSession(v)
+	}
+	if _, ok := _c.mutation.EmergencyHash(); !ok {
+		v := adminprincipal.DefaultEmergencyHash
+		_c.mutation.SetEmergencyHash(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -208,6 +276,15 @@ func (_c *AdminPrincipalCreate) check() error {
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "AdminPrincipal.created_at"`)}
+	}
+	if _, ok := _c.mutation.EnrollmentBlocked(); !ok {
+		return &ValidationError{Name: "enrollment_blocked", err: errors.New(`ent: missing required field "AdminPrincipal.enrollment_blocked"`)}
+	}
+	if _, ok := _c.mutation.EnrollmentSession(); !ok {
+		return &ValidationError{Name: "enrollment_session", err: errors.New(`ent: missing required field "AdminPrincipal.enrollment_session"`)}
+	}
+	if _, ok := _c.mutation.EmergencyHash(); !ok {
+		return &ValidationError{Name: "emergency_hash", err: errors.New(`ent: missing required field "AdminPrincipal.emergency_hash"`)}
 	}
 	return nil
 }
@@ -280,6 +357,22 @@ func (_c *AdminPrincipalCreate) createSpec() (*AdminPrincipal, *sqlgraph.CreateS
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(adminprincipal.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.EnrollmentBlocked(); ok {
+		_spec.SetField(adminprincipal.FieldEnrollmentBlocked, field.TypeBool, value)
+		_node.EnrollmentBlocked = value
+	}
+	if value, ok := _c.mutation.EnrollmentSession(); ok {
+		_spec.SetField(adminprincipal.FieldEnrollmentSession, field.TypeString, value)
+		_node.EnrollmentSession = value
+	}
+	if value, ok := _c.mutation.EmergencyHash(); ok {
+		_spec.SetField(adminprincipal.FieldEmergencyHash, field.TypeString, value)
+		_node.EmergencyHash = value
+	}
+	if value, ok := _c.mutation.EmergencyExpiresAt(); ok {
+		_spec.SetField(adminprincipal.FieldEmergencyExpiresAt, field.TypeTime, value)
+		_node.EmergencyExpiresAt = &value
 	}
 	return _node, _spec
 }

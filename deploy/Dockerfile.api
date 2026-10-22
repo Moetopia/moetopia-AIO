@@ -1,0 +1,21 @@
+ARG GO_IMAGE
+FROM ${GO_IMAGE} AS build
+WORKDIR /src
+ARG GOPROXY=https://proxy.golang.org,direct
+ENV GOPROXY=${GOPROXY}
+COPY apps/api/go.mod apps/api/go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
+COPY apps/api/ ./
+ARG TARGETOS
+ARG TARGETARCH
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOMAXPROCS=2 go build -p 2 -trimpath -ldflags="-s -w" -o /out/ ./cmd/api ./cmd/migrate ./cmd/keys ./cmd/firstparty ./cmd/administrator ./cmd/backfillgrants ./cmd/healthcheck ./cmd/restorecheck
+
+FROM scratch
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /out/ /app/
+COPY --from=build /usr/local/go/LICENSE /licenses/GO-LICENSE
+USER 65532:65532
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=4s --start-period=15s --retries=3 CMD ["/app/healthcheck"]
+ENTRYPOINT ["/app/api"]
