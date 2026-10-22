@@ -39,6 +39,8 @@ const (
 	FieldAudiences = "audiences"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldStatisticsSince holds the string denoting the statistics_since field in the database.
+	FieldStatisticsSince = "statistics_since"
 	// Table holds the table name of the oauthclient in the database.
 	Table = "clients"
 )
@@ -59,6 +61,7 @@ var Columns = []string{
 	FieldScopes,
 	FieldAudiences,
 	FieldCreatedAt,
+	FieldStatisticsSince,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -96,6 +99,8 @@ var (
 	DefaultAudiences []string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
+	// DefaultStatisticsSince holds the default value on creation for the "statistics_since" field.
+	DefaultStatisticsSince func() time.Time
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -136,4 +141,9 @@ func ByEnabled(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByStatisticsSince orders the results by the statistics_since field.
+func ByStatisticsSince(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatisticsSince, opts...).ToFunc()
 }

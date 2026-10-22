@@ -19,6 +19,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/clienttestsubject"
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
@@ -28,6 +29,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/predicate"
+	"moetopia.local/aio/api/internal/persistence/ent/protocolevent"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
@@ -53,6 +55,7 @@ const (
 	TypeApplicationVersion       = "ApplicationVersion"
 	TypeAuthorizationGrant       = "AuthorizationGrant"
 	TypeAuthorizationInteraction = "AuthorizationInteraction"
+	TypeClientTestSubject        = "ClientTestSubject"
 	TypeDeveloperApplication     = "DeveloperApplication"
 	TypeEmailDelivery            = "EmailDelivery"
 	TypeEmailVerification        = "EmailVerification"
@@ -61,6 +64,7 @@ const (
 	TypeInvitation               = "Invitation"
 	TypeLogoutInteraction        = "LogoutInteraction"
 	TypeOAuthClient              = "OAuthClient"
+	TypeProtocolEvent            = "ProtocolEvent"
 	TypeProtocolSession          = "ProtocolSession"
 	TypeRPLogin                  = "RPLogin"
 	TypeRegistrationPolicy       = "RegistrationPolicy"
@@ -6016,6 +6020,446 @@ func (m *AuthorizationInteractionMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown AuthorizationInteraction edge %s", name)
 }
 
+// ClientTestSubjectMutation represents an operation that mutates the ClientTestSubject nodes in the graph.
+type ClientTestSubjectMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	client_id     *string
+	user_id       *string
+	created_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*ClientTestSubject, error)
+	predicates    []predicate.ClientTestSubject
+}
+
+var _ ent.Mutation = (*ClientTestSubjectMutation)(nil)
+
+// clienttestsubjectOption allows management of the mutation configuration using functional options.
+type clienttestsubjectOption func(*ClientTestSubjectMutation)
+
+// newClientTestSubjectMutation creates new mutation for the ClientTestSubject entity.
+func newClientTestSubjectMutation(c config, op Op, opts ...clienttestsubjectOption) *ClientTestSubjectMutation {
+	m := &ClientTestSubjectMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeClientTestSubject,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withClientTestSubjectID sets the ID field of the mutation.
+func withClientTestSubjectID(id string) clienttestsubjectOption {
+	return func(m *ClientTestSubjectMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ClientTestSubject
+		)
+		m.oldValue = func(ctx context.Context) (*ClientTestSubject, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ClientTestSubject.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withClientTestSubject sets the old ClientTestSubject of the mutation.
+func withClientTestSubject(node *ClientTestSubject) clienttestsubjectOption {
+	return func(m *ClientTestSubjectMutation) {
+		m.oldValue = func(context.Context) (*ClientTestSubject, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ClientTestSubjectMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ClientTestSubjectMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ClientTestSubject entities.
+func (m *ClientTestSubjectMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ClientTestSubjectMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ClientTestSubjectMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ClientTestSubject.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetClientID sets the "client_id" field.
+func (m *ClientTestSubjectMutation) SetClientID(s string) {
+	m.client_id = &s
+}
+
+// ClientID returns the value of the "client_id" field in the mutation.
+func (m *ClientTestSubjectMutation) ClientID() (r string, exists bool) {
+	v := m.client_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientID returns the old "client_id" field's value of the ClientTestSubject entity.
+// If the ClientTestSubject object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ClientTestSubjectMutation) OldClientID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientID: %w", err)
+	}
+	return oldValue.ClientID, nil
+}
+
+// ResetClientID resets all changes to the "client_id" field.
+func (m *ClientTestSubjectMutation) ResetClientID() {
+	m.client_id = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *ClientTestSubjectMutation) SetUserID(s string) {
+	m.user_id = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *ClientTestSubjectMutation) UserID() (r string, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the ClientTestSubject entity.
+// If the ClientTestSubject object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ClientTestSubjectMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *ClientTestSubjectMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ClientTestSubjectMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ClientTestSubjectMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the ClientTestSubject entity.
+// If the ClientTestSubject object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ClientTestSubjectMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ClientTestSubjectMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// Where appends a list predicates to the ClientTestSubjectMutation builder.
+func (m *ClientTestSubjectMutation) Where(ps ...predicate.ClientTestSubject) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ClientTestSubjectMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ClientTestSubjectMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ClientTestSubject, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ClientTestSubjectMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ClientTestSubjectMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ClientTestSubject).
+func (m *ClientTestSubjectMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ClientTestSubjectMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.client_id != nil {
+		fields = append(fields, clienttestsubject.FieldClientID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, clienttestsubject.FieldUserID)
+	}
+	if m.created_at != nil {
+		fields = append(fields, clienttestsubject.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ClientTestSubjectMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case clienttestsubject.FieldClientID:
+		return m.ClientID()
+	case clienttestsubject.FieldUserID:
+		return m.UserID()
+	case clienttestsubject.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ClientTestSubjectMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case clienttestsubject.FieldClientID:
+		return m.OldClientID(ctx)
+	case clienttestsubject.FieldUserID:
+		return m.OldUserID(ctx)
+	case clienttestsubject.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown ClientTestSubject field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ClientTestSubjectMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case clienttestsubject.FieldClientID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientID(v)
+		return nil
+	case clienttestsubject.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case clienttestsubject.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ClientTestSubject field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ClientTestSubjectMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ClientTestSubjectMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ClientTestSubjectMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ClientTestSubject numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ClientTestSubjectMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ClientTestSubjectMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ClientTestSubjectMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ClientTestSubject nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ClientTestSubjectMutation) ResetField(name string) error {
+	switch name {
+	case clienttestsubject.FieldClientID:
+		m.ResetClientID()
+		return nil
+	case clienttestsubject.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case clienttestsubject.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown ClientTestSubject field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ClientTestSubjectMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ClientTestSubjectMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ClientTestSubjectMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ClientTestSubjectMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ClientTestSubjectMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ClientTestSubjectMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ClientTestSubjectMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ClientTestSubject unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ClientTestSubjectMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ClientTestSubject edge %s", name)
+}
+
 // DeveloperApplicationMutation represents an operation that mutates the DeveloperApplication nodes in the graph.
 type DeveloperApplicationMutation struct {
 	config
@@ -10483,6 +10927,7 @@ type OAuthClientMutation struct {
 	audiences                       *[]string
 	appendaudiences                 []string
 	created_at                      *time.Time
+	statistics_since                *time.Time
 	clearedFields                   map[string]struct{}
 	done                            bool
 	oldValue                        func(context.Context) (*OAuthClient, error)
@@ -11164,6 +11609,42 @@ func (m *OAuthClientMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
+// SetStatisticsSince sets the "statistics_since" field.
+func (m *OAuthClientMutation) SetStatisticsSince(t time.Time) {
+	m.statistics_since = &t
+}
+
+// StatisticsSince returns the value of the "statistics_since" field in the mutation.
+func (m *OAuthClientMutation) StatisticsSince() (r time.Time, exists bool) {
+	v := m.statistics_since
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatisticsSince returns the old "statistics_since" field's value of the OAuthClient entity.
+// If the OAuthClient object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OAuthClientMutation) OldStatisticsSince(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatisticsSince is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatisticsSince requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatisticsSince: %w", err)
+	}
+	return oldValue.StatisticsSince, nil
+}
+
+// ResetStatisticsSince resets all changes to the "statistics_since" field.
+func (m *OAuthClientMutation) ResetStatisticsSince() {
+	m.statistics_since = nil
+}
+
 // Where appends a list predicates to the OAuthClientMutation builder.
 func (m *OAuthClientMutation) Where(ps ...predicate.OAuthClient) {
 	m.predicates = append(m.predicates, ps...)
@@ -11198,7 +11679,7 @@ func (m *OAuthClientMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OAuthClientMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.secret_hash != nil {
 		fields = append(fields, oauthclient.FieldSecretHash)
 	}
@@ -11238,6 +11719,9 @@ func (m *OAuthClientMutation) Fields() []string {
 	if m.created_at != nil {
 		fields = append(fields, oauthclient.FieldCreatedAt)
 	}
+	if m.statistics_since != nil {
+		fields = append(fields, oauthclient.FieldStatisticsSince)
+	}
 	return fields
 }
 
@@ -11272,6 +11756,8 @@ func (m *OAuthClientMutation) Field(name string) (ent.Value, bool) {
 		return m.Audiences()
 	case oauthclient.FieldCreatedAt:
 		return m.CreatedAt()
+	case oauthclient.FieldStatisticsSince:
+		return m.StatisticsSince()
 	}
 	return nil, false
 }
@@ -11307,6 +11793,8 @@ func (m *OAuthClientMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldAudiences(ctx)
 	case oauthclient.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
+	case oauthclient.FieldStatisticsSince:
+		return m.OldStatisticsSince(ctx)
 	}
 	return nil, fmt.Errorf("unknown OAuthClient field %s", name)
 }
@@ -11407,6 +11895,13 @@ func (m *OAuthClientMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCreatedAt(v)
 		return nil
+	case oauthclient.FieldStatisticsSince:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatisticsSince(v)
+		return nil
 	}
 	return fmt.Errorf("unknown OAuthClient field %s", name)
 }
@@ -11504,6 +11999,9 @@ func (m *OAuthClientMutation) ResetField(name string) error {
 	case oauthclient.FieldCreatedAt:
 		m.ResetCreatedAt()
 		return nil
+	case oauthclient.FieldStatisticsSince:
+		m.ResetStatisticsSince()
+		return nil
 	}
 	return fmt.Errorf("unknown OAuthClient field %s", name)
 }
@@ -11554,6 +12052,446 @@ func (m *OAuthClientMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *OAuthClientMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown OAuthClient edge %s", name)
+}
+
+// ProtocolEventMutation represents an operation that mutates the ProtocolEvent nodes in the graph.
+type ProtocolEventMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	client_id     *string
+	day           *string
+	kind          *protocolevent.Kind
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*ProtocolEvent, error)
+	predicates    []predicate.ProtocolEvent
+}
+
+var _ ent.Mutation = (*ProtocolEventMutation)(nil)
+
+// protocoleventOption allows management of the mutation configuration using functional options.
+type protocoleventOption func(*ProtocolEventMutation)
+
+// newProtocolEventMutation creates new mutation for the ProtocolEvent entity.
+func newProtocolEventMutation(c config, op Op, opts ...protocoleventOption) *ProtocolEventMutation {
+	m := &ProtocolEventMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeProtocolEvent,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withProtocolEventID sets the ID field of the mutation.
+func withProtocolEventID(id string) protocoleventOption {
+	return func(m *ProtocolEventMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ProtocolEvent
+		)
+		m.oldValue = func(ctx context.Context) (*ProtocolEvent, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ProtocolEvent.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withProtocolEvent sets the old ProtocolEvent of the mutation.
+func withProtocolEvent(node *ProtocolEvent) protocoleventOption {
+	return func(m *ProtocolEventMutation) {
+		m.oldValue = func(context.Context) (*ProtocolEvent, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ProtocolEventMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ProtocolEventMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ProtocolEvent entities.
+func (m *ProtocolEventMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ProtocolEventMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ProtocolEventMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ProtocolEvent.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetClientID sets the "client_id" field.
+func (m *ProtocolEventMutation) SetClientID(s string) {
+	m.client_id = &s
+}
+
+// ClientID returns the value of the "client_id" field in the mutation.
+func (m *ProtocolEventMutation) ClientID() (r string, exists bool) {
+	v := m.client_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClientID returns the old "client_id" field's value of the ProtocolEvent entity.
+// If the ProtocolEvent object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProtocolEventMutation) OldClientID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClientID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClientID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClientID: %w", err)
+	}
+	return oldValue.ClientID, nil
+}
+
+// ResetClientID resets all changes to the "client_id" field.
+func (m *ProtocolEventMutation) ResetClientID() {
+	m.client_id = nil
+}
+
+// SetDay sets the "day" field.
+func (m *ProtocolEventMutation) SetDay(s string) {
+	m.day = &s
+}
+
+// Day returns the value of the "day" field in the mutation.
+func (m *ProtocolEventMutation) Day() (r string, exists bool) {
+	v := m.day
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDay returns the old "day" field's value of the ProtocolEvent entity.
+// If the ProtocolEvent object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProtocolEventMutation) OldDay(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDay is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDay requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDay: %w", err)
+	}
+	return oldValue.Day, nil
+}
+
+// ResetDay resets all changes to the "day" field.
+func (m *ProtocolEventMutation) ResetDay() {
+	m.day = nil
+}
+
+// SetKind sets the "kind" field.
+func (m *ProtocolEventMutation) SetKind(pr protocolevent.Kind) {
+	m.kind = &pr
+}
+
+// Kind returns the value of the "kind" field in the mutation.
+func (m *ProtocolEventMutation) Kind() (r protocolevent.Kind, exists bool) {
+	v := m.kind
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKind returns the old "kind" field's value of the ProtocolEvent entity.
+// If the ProtocolEvent object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProtocolEventMutation) OldKind(ctx context.Context) (v protocolevent.Kind, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKind is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKind requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKind: %w", err)
+	}
+	return oldValue.Kind, nil
+}
+
+// ResetKind resets all changes to the "kind" field.
+func (m *ProtocolEventMutation) ResetKind() {
+	m.kind = nil
+}
+
+// Where appends a list predicates to the ProtocolEventMutation builder.
+func (m *ProtocolEventMutation) Where(ps ...predicate.ProtocolEvent) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ProtocolEventMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ProtocolEventMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ProtocolEvent, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ProtocolEventMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ProtocolEventMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ProtocolEvent).
+func (m *ProtocolEventMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ProtocolEventMutation) Fields() []string {
+	fields := make([]string, 0, 3)
+	if m.client_id != nil {
+		fields = append(fields, protocolevent.FieldClientID)
+	}
+	if m.day != nil {
+		fields = append(fields, protocolevent.FieldDay)
+	}
+	if m.kind != nil {
+		fields = append(fields, protocolevent.FieldKind)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ProtocolEventMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case protocolevent.FieldClientID:
+		return m.ClientID()
+	case protocolevent.FieldDay:
+		return m.Day()
+	case protocolevent.FieldKind:
+		return m.Kind()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ProtocolEventMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case protocolevent.FieldClientID:
+		return m.OldClientID(ctx)
+	case protocolevent.FieldDay:
+		return m.OldDay(ctx)
+	case protocolevent.FieldKind:
+		return m.OldKind(ctx)
+	}
+	return nil, fmt.Errorf("unknown ProtocolEvent field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProtocolEventMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case protocolevent.FieldClientID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClientID(v)
+		return nil
+	case protocolevent.FieldDay:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDay(v)
+		return nil
+	case protocolevent.FieldKind:
+		v, ok := value.(protocolevent.Kind)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKind(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ProtocolEvent field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ProtocolEventMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ProtocolEventMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ProtocolEventMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ProtocolEvent numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ProtocolEventMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ProtocolEventMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ProtocolEventMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ProtocolEvent nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ProtocolEventMutation) ResetField(name string) error {
+	switch name {
+	case protocolevent.FieldClientID:
+		m.ResetClientID()
+		return nil
+	case protocolevent.FieldDay:
+		m.ResetDay()
+		return nil
+	case protocolevent.FieldKind:
+		m.ResetKind()
+		return nil
+	}
+	return fmt.Errorf("unknown ProtocolEvent field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ProtocolEventMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ProtocolEventMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ProtocolEventMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ProtocolEventMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ProtocolEventMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ProtocolEventMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ProtocolEventMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ProtocolEvent unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ProtocolEventMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ProtocolEvent edge %s", name)
 }
 
 // ProtocolSessionMutation represents an operation that mutates the ProtocolSession nodes in the graph.

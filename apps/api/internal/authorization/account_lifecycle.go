@@ -10,6 +10,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/persistence/ent"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
+	"moetopia.local/aio/api/internal/persistence/ent/clienttestsubject"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 )
@@ -29,6 +30,13 @@ func (p *Provider) PurgeAccount(ctx context.Context, userID string) error {
 		return err
 	}
 	clients := append([]string{}, owned...)
+	memberships, err := db.ClientTestSubject.Query().Where(clienttestsubject.UserID(userID)).All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, membership := range memberships {
+		clients = append(clients, membership.ClientID)
+	}
 	for _, row := range rows {
 		clients = append(clients, row.ClientID)
 	}
@@ -39,6 +47,9 @@ func (p *Provider) PurgeAccount(ctx context.Context, userID string) error {
 		if err != nil && !ent.IsNotFound(err) {
 			return err
 		}
+	}
+	if _, err := db.ClientTestSubject.Delete().Where(clienttestsubject.UserID(userID)).Exec(ctx); err != nil {
+		return err
 	}
 	for {
 		ids, err := db.AuthorizationGrant.Query().Where(authorizationgrant.Or(authorizationgrant.UserID(userID), authorizationgrant.ClientIDIn(owned...), authorizationgrant.IDIn(legacy...))).Order(ent.Asc(authorizationgrant.FieldID)).Limit(100).ForUpdate().IDs(ctx)

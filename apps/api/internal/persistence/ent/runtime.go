@@ -12,6 +12,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/clienttestsubject"
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
@@ -171,6 +172,12 @@ func init() {
 	authorizationinteractionDescCreatedAt := authorizationinteractionFields[5].Descriptor()
 	// authorizationinteraction.DefaultCreatedAt holds the default value on creation for the created_at field.
 	authorizationinteraction.DefaultCreatedAt = authorizationinteractionDescCreatedAt.Default.(func() time.Time)
+	clienttestsubjectFields := schema.ClientTestSubject{}.Fields()
+	_ = clienttestsubjectFields
+	// clienttestsubjectDescCreatedAt is the schema descriptor for created_at field.
+	clienttestsubjectDescCreatedAt := clienttestsubjectFields[3].Descriptor()
+	// clienttestsubject.DefaultCreatedAt holds the default value on creation for the created_at field.
+	clienttestsubject.DefaultCreatedAt = clienttestsubjectDescCreatedAt.Default.(func() time.Time)
 	developerapplicationFields := schema.DeveloperApplication{}.Fields()
 	_ = developerapplicationFields
 	// developerapplicationDescEnabled is the schema descriptor for enabled field.
@@ -311,6 +318,10 @@ func init() {
 	oauthclientDescCreatedAt := oauthclientFields[13].Descriptor()
 	// oauthclient.DefaultCreatedAt holds the default value on creation for the created_at field.
 	oauthclient.DefaultCreatedAt = oauthclientDescCreatedAt.Default.(func() time.Time)
+	// oauthclientDescStatisticsSince is the schema descriptor for statistics_since field.
+	oauthclientDescStatisticsSince := oauthclientFields[14].Descriptor()
+	// oauthclient.DefaultStatisticsSince holds the default value on creation for the statistics_since field.
+	oauthclient.DefaultStatisticsSince = oauthclientDescStatisticsSince.Default.(func() time.Time)
 	// oauthclientDescID is the schema descriptor for id field.
 	oauthclientDescID := oauthclientFields[0].Descriptor()
 	// oauthclient.IDValidator is a validator for the "id" field. It is called by the builders before save.

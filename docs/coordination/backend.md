@@ -1,6 +1,6 @@
 # 后端进度与前端接入
 
-更新时间：2026-10-21。所有者：本后端对话。**按文末最新批次接线：联邦、签名轮换、中央确认退出**；注销/邮件等前批能力保留，前文仅作历史。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。共享文档交接，不声称前端已收到自动通知。
+更新时间：2026-10-22。所有者：本后端对话。**按文末最新批次接线：测试成员、真实协议统计**；联邦、签名轮换、中央确认退出等前批能力保留，前文仅作历史。分工基线见 [workstreams](../workstreams.md)，同步方式见 [本目录说明](README.md)。共享文档交接，不声称前端已收到自动通知。
 
 ## 已完成
 
@@ -212,3 +212,17 @@ API 改用持久化密钥 source，Token 事务固定 active 私钥和最终 kid
 真实随机数据库集成通过，覆盖 GET/form POST、ID hint 验签/类型/issuer/aud/期限、精确回调、未知语言、Cookie/CSRF、账号变化、拒绝/匿名确认、单次并发、审计失败回滚、配置移除、旧批准列表和省略字段保留，以及 RP 返回不清除更新的会话。Go test/vet、类型和契约漂移检查通过。普通 OIDC 浏览器回归用于验证既有流程；新增确认页仍须前端接入后另验，不能把 HTTP 手工导航模拟记成成品浏览器退出。
 
 剩余首期后端主要为真实统计/时间序列、应用测试成员、后续管理员授予/保护及受控应急、生产部署和备份恢复/容量验收。真实 GitHub/Google/SMTP、正式域名和运行资源仍需实际配置；Webhook、所有权转移等后置功能不在本批扩大范围。后台/历史/注销/联邦/退出页面由前端对话接线，本文件不等于对方已自动收到消息。
+
+## 2026-10-22：测试成员和真实协议统计
+
+新增完整 [测试成员契约](../run-test-members.md)：GET/POST `/api/v1/developer/applications/{id}/test-members` 和 DELETE 子路径 `{user_id}`，使用 portal Cookie/写入 CSRF/Origin/最新应用 revision。返回 revision、limit、items，列表项仅 user_id/created_at；生成别名 DeveloperTestMembers/DeveloperTestMemberRequest。不能提供邮箱搜索或将成员当团队管理角色；用户可从自身 context 取得 UUID 后主动分享。
+
+最多 20 名显式成员，owner 隐式测试且不计数。添加只对首次发布前开放，已公开可清理名单。删除 200 返回新名单，不按应用删除写成 204；409 后重读应用和名单。变更递增应用 revision，不产生配置版本，后台旧审核 revision 会失效。移除在未发布应用撤销其旧授权；重加要重新同意。不能用隐藏按钮替代服务器的名单校验。
+
+新增 [协议统计契约](../run-statistics.md)：GET `/api/v1/developer/applications/{id}/statistics`，生成别名 DeveloperApplicationStatistics。真实计数为批准授权、授权码兑换、刷新和机器 token 签发；最近 30 个 UTC 日期，明确 recording_since、window_start/end、generated_at、totals、days。采集前的 days 项省略 counts，开始日/当日 partial=true；只有已采集且无事件才返回零，禁止将缺失补为零。不是 API 请求消费、唯一用户或计费额度，当前 developer 不开放机器授权，因此该字段通常真实为零。
+
+前端一次接入成员列表/添加/移除、revision 冲突/限额/公开态提示及真实用量图表。成员 UUID 不是邮箱，不增设后端不存在的搜索；不可把新增资格伪装为账号已注册或自动同意。统计需显示采集起点、部分日期和未记录，不能合成旧历史。管理台全局概览和注册趋势仍无新接口，勿用应用统计冒充。
+
+开发库已应用迁移 13、14，当前版本 14；日常 API/worker 应重建并重启以开始采集，本轮未停止其他会话进程。无新依赖，未增加实际成员/管理员、改密钥/secret/.env、改 UI 或 frontend.md。新名单/统计页面尚未验收。
+
+Go test/vet、工作区 typecheck、生成/漂移和文档链接检查通过。真实随机数据库集成覆盖完整成员及统计事务、安全与清理边界，具体见实施进度；最初请求保护测试对中央 Cookie 预期 401，实际统一写保护先返回 403，已修正断言并重跑。真实 Mailpit/Nuxt/独立 RP Chromium 1 项通过（18.3 秒），只证明既有 OIDC 回归。剩余后端为管理台指标、管理员增补/最后管理员保护/全因素丢失应急，以及生产部署/备份恢复/容量；真实外部供应商和正式环境仍未验收。

@@ -15,6 +15,7 @@ type SchemaConfig struct {
 	ApplicationVersion       string // ApplicationVersion table.
 	AuthorizationGrant       string // AuthorizationGrant table.
 	AuthorizationInteraction string // AuthorizationInteraction table.
+	ClientTestSubject        string // ClientTestSubject table.
 	DeveloperApplication     string // DeveloperApplication table.
 	EmailDelivery            string // EmailDelivery table.
 	EmailVerification        string // EmailVerification table.
@@ -23,6 +24,7 @@ type SchemaConfig struct {
 	Invitation               string // Invitation table.
 	LogoutInteraction        string // LogoutInteraction table.
 	OAuthClient              string // OAuthClient table.
+	ProtocolEvent            string // ProtocolEvent table.
 	ProtocolSession          string // ProtocolSession table.
 	RPLogin                  string // RPLogin table.
 	RegistrationPolicy       string // RegistrationPolicy table.

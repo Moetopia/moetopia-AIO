@@ -59,6 +59,12 @@ func (p *Provider) prepareToken(ctx context.Context, request fosite.AccessReques
 	if user.SecurityVersion != session.SecurityVersion {
 		return fosite.ErrInvalidGrant
 	}
+	if err := p.AllowSubject(ctx, request.GetClient().GetID(), session.Subject); err != nil {
+		if errors.Is(err, ErrGrantMissing) {
+			return fosite.ErrInvalidGrant
+		}
+		return fosite.ErrTemporarilyUnavailable
+	}
 	grant, err := p.store.grant(ctx, request.GetID())
 	if err != nil {
 		return fosite.ErrTemporarilyUnavailable

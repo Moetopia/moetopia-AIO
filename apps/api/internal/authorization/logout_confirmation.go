@@ -2,6 +2,7 @@ package authorization
 
 import (
 	"context"
+	"errors"
 	"net/url"
 
 	"moetopia.local/aio/api/internal/audit"
@@ -18,8 +19,11 @@ func (p *Provider) LogoutDetails(ctx context.Context, handle, browser, subject s
 	if err != nil {
 		return LogoutDetails{}, err
 	}
-	if subject != "" && (data.HintSubject != "" && data.HintSubject != subject || client.TestOnly && client.OwnerID != subject) {
+	if subject != "" && data.HintSubject != "" && data.HintSubject != subject {
 		return LogoutDetails{}, ErrLogoutAccount
+	}
+	if err := p.allowLogoutSubject(ctx, client.ID, subject); err != nil {
+		return LogoutDetails{}, err
 	}
 	return LogoutDetails{client.ID, client.Name, data.RedirectURI, row.ExpiresAt, true}, nil
 }
@@ -54,8 +58,11 @@ func (p *Provider) ConfirmLogout(ctx context.Context, handle, browser, subject, 
 	if err != nil {
 		return "", err
 	}
-	if subject != "" && (data.HintSubject != "" && data.HintSubject != subject || client.TestOnly && client.OwnerID != subject) {
+	if subject != "" && data.HintSubject != "" && data.HintSubject != subject {
 		return "", ErrLogoutAccount
+	}
+	if err := p.allowLogoutSubject(ctx, client.ID, subject); err != nil {
+		return "", err
 	}
 	if approve && subject != "" {
 		if err := audit.RecordTarget(ctx, unit.Client(), subject, "session.central_logout", sessionID, "success"); err != nil {
@@ -84,4 +91,15 @@ func (p *Provider) ConfirmLogout(ctx context.Context, handle, browser, subject, 
 	}
 	redirect.RawQuery = values.Encode()
 	return redirect.String(), nil
+}
+
+func (p *Provider) allowLogoutSubject(ctx context.Context, clientID, subject string) error {
+	if subject == "" {
+		return nil
+	}
+	err := p.AllowSubject(ctx, clientID, subject)
+	if errors.Is(err, ErrGrantMissing) {
+		return ErrLogoutAccount
+	}
+	return err
 }

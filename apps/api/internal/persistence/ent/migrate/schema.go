@@ -216,6 +216,31 @@ var (
 			},
 		},
 	}
+	// ClientTestSubjectsColumns holds the columns for the "client_test_subjects" table.
+	ClientTestSubjectsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "client_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// ClientTestSubjectsTable holds the schema information for the "client_test_subjects" table.
+	ClientTestSubjectsTable = &schema.Table{
+		Name:       "client_test_subjects",
+		Columns:    ClientTestSubjectsColumns,
+		PrimaryKey: []*schema.Column{ClientTestSubjectsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "clienttestsubject_client_id_user_id",
+				Unique:  true,
+				Columns: []*schema.Column{ClientTestSubjectsColumns[1], ClientTestSubjectsColumns[2]},
+			},
+			{
+				Name:    "clienttestsubject_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{ClientTestSubjectsColumns[2]},
+			},
+		},
+	}
 	// ApplicationsColumns holds the columns for the "applications" table.
 	ApplicationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -402,6 +427,7 @@ var (
 		{Name: "scopes", Type: field.TypeJSON},
 		{Name: "audiences", Type: field.TypeJSON},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "statistics_since", Type: field.TypeTime},
 	}
 	// ClientsTable holds the schema information for the "clients" table.
 	ClientsTable = &schema.Table{
@@ -413,6 +439,31 @@ var (
 				Name:    "oauthclient_owner_id",
 				Unique:  false,
 				Columns: []*schema.Column{ClientsColumns[3]},
+			},
+		},
+	}
+	// ProtocolEventsColumns holds the columns for the "protocol_events" table.
+	ProtocolEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "client_id", Type: field.TypeString},
+		{Name: "day", Type: field.TypeString},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"authorization", "code_exchange", "refresh", "machine_token"}},
+	}
+	// ProtocolEventsTable holds the schema information for the "protocol_events" table.
+	ProtocolEventsTable = &schema.Table{
+		Name:       "protocol_events",
+		Columns:    ProtocolEventsColumns,
+		PrimaryKey: []*schema.Column{ProtocolEventsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "protocolevent_client_id_day_kind",
+				Unique:  false,
+				Columns: []*schema.Column{ProtocolEventsColumns[1], ProtocolEventsColumns[2], ProtocolEventsColumns[3]},
+			},
+			{
+				Name:    "protocolevent_day",
+				Unique:  false,
+				Columns: []*schema.Column{ProtocolEventsColumns[2]},
 			},
 		},
 	}
@@ -559,6 +610,7 @@ var (
 		ApplicationVersionsTable,
 		GrantsTable,
 		InteractionsTable,
+		ClientTestSubjectsTable,
 		ApplicationsTable,
 		EmailDeliveriesTable,
 		EmailVerificationsTable,
@@ -567,6 +619,7 @@ var (
 		InvitationsTable,
 		LogoutInteractionsTable,
 		ClientsTable,
+		ProtocolEventsTable,
 		ProtocolSessionsTable,
 		RpLoginsTable,
 		RegistrationPolicyTable,
@@ -601,6 +654,9 @@ func init() {
 	InteractionsTable.Annotation = &entsql.Annotation{
 		Table: "interactions",
 	}
+	ClientTestSubjectsTable.Annotation = &entsql.Annotation{
+		Table: "client_test_subjects",
+	}
 	ApplicationsTable.Annotation = &entsql.Annotation{
 		Table: "applications",
 	}
@@ -624,6 +680,9 @@ func init() {
 	}
 	ClientsTable.Annotation = &entsql.Annotation{
 		Table: "clients",
+	}
+	ProtocolEventsTable.Annotation = &entsql.Annotation{
+		Table: "protocol_events",
 	}
 	ProtocolSessionsTable.Annotation = &entsql.Annotation{
 		Table: "protocol_sessions",

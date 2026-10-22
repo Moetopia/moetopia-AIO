@@ -138,6 +138,20 @@ func (_c *OAuthClientCreate) SetNillableCreatedAt(v *time.Time) *OAuthClientCrea
 	return _c
 }
 
+// SetStatisticsSince sets the "statistics_since" field.
+func (_c *OAuthClientCreate) SetStatisticsSince(v time.Time) *OAuthClientCreate {
+	_c.mutation.SetStatisticsSince(v)
+	return _c
+}
+
+// SetNillableStatisticsSince sets the "statistics_since" field if the given value is not nil.
+func (_c *OAuthClientCreate) SetNillableStatisticsSince(v *time.Time) *OAuthClientCreate {
+	if v != nil {
+		_c.SetStatisticsSince(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *OAuthClientCreate) SetID(v string) *OAuthClientCreate {
 	_c.mutation.SetID(v)
@@ -223,6 +237,10 @@ func (_c *OAuthClientCreate) defaults() {
 		v := oauthclient.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
+	if _, ok := _c.mutation.StatisticsSince(); !ok {
+		v := oauthclient.DefaultStatisticsSince()
+		_c.mutation.SetStatisticsSince(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -267,6 +285,9 @@ func (_c *OAuthClientCreate) check() error {
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "OAuthClient.created_at"`)}
+	}
+	if _, ok := _c.mutation.StatisticsSince(); !ok {
+		return &ValidationError{Name: "statistics_since", err: errors.New(`ent: missing required field "OAuthClient.statistics_since"`)}
 	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := oauthclient.IDValidator(v); err != nil {
@@ -360,6 +381,10 @@ func (_c *OAuthClientCreate) createSpec() (*OAuthClient, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(oauthclient.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.StatisticsSince(); ok {
+		_spec.SetField(oauthclient.FieldStatisticsSince, field.TypeTime, value)
+		_node.StatisticsSince = value
 	}
 	return _node, _spec
 }

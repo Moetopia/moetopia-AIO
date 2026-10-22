@@ -14,6 +14,7 @@ import (
 	"github.com/ory/fosite/compose"
 	"github.com/ory/fosite/token/jwt"
 	"moetopia.local/aio/api/internal/identity"
+	"moetopia.local/aio/api/internal/persistence/ent/protocolevent"
 )
 
 type Provider struct {
@@ -103,6 +104,17 @@ func (p *Provider) Token(w http.ResponseWriter, r *http.Request) {
 	response, err := p.oauth.NewAccessResponse(ctx, request)
 	if err != nil {
 		p.oauth.WriteAccessError(ctx, w, request, err)
+		return
+	}
+	kind := protocolevent.KindCodeExchange
+	if request.GetGrantTypes().ExactOne("refresh_token") {
+		kind = protocolevent.KindRefresh
+	}
+	if request.GetGrantTypes().ExactOne("client_credentials") {
+		kind = protocolevent.KindMachineToken
+	}
+	if err := p.store.recordProtocolEvent(ctx, request.GetClient().GetID(), kind); err != nil {
+		p.oauth.WriteAccessError(ctx, w, request, fosite.ErrTemporarilyUnavailable)
 		return
 	}
 	if err := p.store.Commit(ctx); err != nil {

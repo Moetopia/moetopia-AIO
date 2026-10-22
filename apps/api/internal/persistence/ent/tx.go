@@ -28,6 +28,8 @@ type Tx struct {
 	AuthorizationGrant *AuthorizationGrantClient
 	// AuthorizationInteraction is the client for interacting with the AuthorizationInteraction builders.
 	AuthorizationInteraction *AuthorizationInteractionClient
+	// ClientTestSubject is the client for interacting with the ClientTestSubject builders.
+	ClientTestSubject *ClientTestSubjectClient
 	// DeveloperApplication is the client for interacting with the DeveloperApplication builders.
 	DeveloperApplication *DeveloperApplicationClient
 	// EmailDelivery is the client for interacting with the EmailDelivery builders.
@@ -44,6 +46,8 @@ type Tx struct {
 	LogoutInteraction *LogoutInteractionClient
 	// OAuthClient is the client for interacting with the OAuthClient builders.
 	OAuthClient *OAuthClientClient
+	// ProtocolEvent is the client for interacting with the ProtocolEvent builders.
+	ProtocolEvent *ProtocolEventClient
 	// ProtocolSession is the client for interacting with the ProtocolSession builders.
 	ProtocolSession *ProtocolSessionClient
 	// RPLogin is the client for interacting with the RPLogin builders.
@@ -195,6 +199,7 @@ func (tx *Tx) init() {
 	tx.ApplicationVersion = NewApplicationVersionClient(tx.config)
 	tx.AuthorizationGrant = NewAuthorizationGrantClient(tx.config)
 	tx.AuthorizationInteraction = NewAuthorizationInteractionClient(tx.config)
+	tx.ClientTestSubject = NewClientTestSubjectClient(tx.config)
 	tx.DeveloperApplication = NewDeveloperApplicationClient(tx.config)
 	tx.EmailDelivery = NewEmailDeliveryClient(tx.config)
 	tx.EmailVerification = NewEmailVerificationClient(tx.config)
@@ -203,6 +208,7 @@ func (tx *Tx) init() {
 	tx.Invitation = NewInvitationClient(tx.config)
 	tx.LogoutInteraction = NewLogoutInteractionClient(tx.config)
 	tx.OAuthClient = NewOAuthClientClient(tx.config)
+	tx.ProtocolEvent = NewProtocolEventClient(tx.config)
 	tx.ProtocolSession = NewProtocolSessionClient(tx.config)
 	tx.RPLogin = NewRPLoginClient(tx.config)
 	tx.RegistrationPolicy = NewRegistrationPolicyClient(tx.config)

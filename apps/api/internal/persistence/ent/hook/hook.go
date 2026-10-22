@@ -105,6 +105,18 @@ func (f AuthorizationInteractionFunc) Mutate(ctx context.Context, m ent.Mutation
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthorizationInteractionMutation", m)
 }
 
+// The ClientTestSubjectFunc type is an adapter to allow the use of ordinary
+// function as ClientTestSubject mutator.
+type ClientTestSubjectFunc func(context.Context, *ent.ClientTestSubjectMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ClientTestSubjectFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ClientTestSubjectMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ClientTestSubjectMutation", m)
+}
+
 // The DeveloperApplicationFunc type is an adapter to allow the use of ordinary
 // function as DeveloperApplication mutator.
 type DeveloperApplicationFunc func(context.Context, *ent.DeveloperApplicationMutation) (ent.Value, error)
@@ -199,6 +211,18 @@ func (f OAuthClientFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OAuthClientMutation", m)
+}
+
+// The ProtocolEventFunc type is an adapter to allow the use of ordinary
+// function as ProtocolEvent mutator.
+type ProtocolEventFunc func(context.Context, *ent.ProtocolEventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProtocolEventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ProtocolEventMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProtocolEventMutation", m)
 }
 
 // The ProtocolSessionFunc type is an adapter to allow the use of ordinary

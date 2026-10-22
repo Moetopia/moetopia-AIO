@@ -22,6 +22,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/clienttestsubject"
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
@@ -30,6 +31,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
+	"moetopia.local/aio/api/internal/persistence/ent/protocolevent"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
@@ -61,6 +63,8 @@ type Client struct {
 	AuthorizationGrant *AuthorizationGrantClient
 	// AuthorizationInteraction is the client for interacting with the AuthorizationInteraction builders.
 	AuthorizationInteraction *AuthorizationInteractionClient
+	// ClientTestSubject is the client for interacting with the ClientTestSubject builders.
+	ClientTestSubject *ClientTestSubjectClient
 	// DeveloperApplication is the client for interacting with the DeveloperApplication builders.
 	DeveloperApplication *DeveloperApplicationClient
 	// EmailDelivery is the client for interacting with the EmailDelivery builders.
@@ -77,6 +81,8 @@ type Client struct {
 	LogoutInteraction *LogoutInteractionClient
 	// OAuthClient is the client for interacting with the OAuthClient builders.
 	OAuthClient *OAuthClientClient
+	// ProtocolEvent is the client for interacting with the ProtocolEvent builders.
+	ProtocolEvent *ProtocolEventClient
 	// ProtocolSession is the client for interacting with the ProtocolSession builders.
 	ProtocolSession *ProtocolSessionClient
 	// RPLogin is the client for interacting with the RPLogin builders.
@@ -108,6 +114,7 @@ func (c *Client) init() {
 	c.ApplicationVersion = NewApplicationVersionClient(c.config)
 	c.AuthorizationGrant = NewAuthorizationGrantClient(c.config)
 	c.AuthorizationInteraction = NewAuthorizationInteractionClient(c.config)
+	c.ClientTestSubject = NewClientTestSubjectClient(c.config)
 	c.DeveloperApplication = NewDeveloperApplicationClient(c.config)
 	c.EmailDelivery = NewEmailDeliveryClient(c.config)
 	c.EmailVerification = NewEmailVerificationClient(c.config)
@@ -116,6 +123,7 @@ func (c *Client) init() {
 	c.Invitation = NewInvitationClient(c.config)
 	c.LogoutInteraction = NewLogoutInteractionClient(c.config)
 	c.OAuthClient = NewOAuthClientClient(c.config)
+	c.ProtocolEvent = NewProtocolEventClient(c.config)
 	c.ProtocolSession = NewProtocolSessionClient(c.config)
 	c.RPLogin = NewRPLoginClient(c.config)
 	c.RegistrationPolicy = NewRegistrationPolicyClient(c.config)
@@ -225,6 +233,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ApplicationVersion:       NewApplicationVersionClient(cfg),
 		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
 		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
+		ClientTestSubject:        NewClientTestSubjectClient(cfg),
 		DeveloperApplication:     NewDeveloperApplicationClient(cfg),
 		EmailDelivery:            NewEmailDeliveryClient(cfg),
 		EmailVerification:        NewEmailVerificationClient(cfg),
@@ -233,6 +242,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Invitation:               NewInvitationClient(cfg),
 		LogoutInteraction:        NewLogoutInteractionClient(cfg),
 		OAuthClient:              NewOAuthClientClient(cfg),
+		ProtocolEvent:            NewProtocolEventClient(cfg),
 		ProtocolSession:          NewProtocolSessionClient(cfg),
 		RPLogin:                  NewRPLoginClient(cfg),
 		RegistrationPolicy:       NewRegistrationPolicyClient(cfg),
@@ -266,6 +276,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ApplicationVersion:       NewApplicationVersionClient(cfg),
 		AuthorizationGrant:       NewAuthorizationGrantClient(cfg),
 		AuthorizationInteraction: NewAuthorizationInteractionClient(cfg),
+		ClientTestSubject:        NewClientTestSubjectClient(cfg),
 		DeveloperApplication:     NewDeveloperApplicationClient(cfg),
 		EmailDelivery:            NewEmailDeliveryClient(cfg),
 		EmailVerification:        NewEmailVerificationClient(cfg),
@@ -274,6 +285,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Invitation:               NewInvitationClient(cfg),
 		LogoutInteraction:        NewLogoutInteractionClient(cfg),
 		OAuthClient:              NewOAuthClientClient(cfg),
+		ProtocolEvent:            NewProtocolEventClient(cfg),
 		ProtocolSession:          NewProtocolSessionClient(cfg),
 		RPLogin:                  NewRPLoginClient(cfg),
 		RegistrationPolicy:       NewRegistrationPolicyClient(cfg),
@@ -311,10 +323,11 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminElevation,
 		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
-		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
-		c.EmailVerification, c.ExternalIdentity, c.ExternalLogin, c.Invitation,
-		c.LogoutInteraction, c.OAuthClient, c.ProtocolSession, c.RPLogin,
-		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
+		c.AuthorizationInteraction, c.ClientTestSubject, c.DeveloperApplication,
+		c.EmailDelivery, c.EmailVerification, c.ExternalIdentity, c.ExternalLogin,
+		c.Invitation, c.LogoutInteraction, c.OAuthClient, c.ProtocolEvent,
+		c.ProtocolSession, c.RPLogin, c.RegistrationPolicy, c.SecurityEvent,
+		c.SigningKey, c.WebSession,
 	} {
 		n.Use(hooks...)
 	}
@@ -326,10 +339,11 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AccountChallenge, c.AccountUser, c.AdminBootstrap, c.AdminElevation,
 		c.AdminPrincipal, c.ApplicationVersion, c.AuthorizationGrant,
-		c.AuthorizationInteraction, c.DeveloperApplication, c.EmailDelivery,
-		c.EmailVerification, c.ExternalIdentity, c.ExternalLogin, c.Invitation,
-		c.LogoutInteraction, c.OAuthClient, c.ProtocolSession, c.RPLogin,
-		c.RegistrationPolicy, c.SecurityEvent, c.SigningKey, c.WebSession,
+		c.AuthorizationInteraction, c.ClientTestSubject, c.DeveloperApplication,
+		c.EmailDelivery, c.EmailVerification, c.ExternalIdentity, c.ExternalLogin,
+		c.Invitation, c.LogoutInteraction, c.OAuthClient, c.ProtocolEvent,
+		c.ProtocolSession, c.RPLogin, c.RegistrationPolicy, c.SecurityEvent,
+		c.SigningKey, c.WebSession,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -354,6 +368,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AuthorizationGrant.mutate(ctx, m)
 	case *AuthorizationInteractionMutation:
 		return c.AuthorizationInteraction.mutate(ctx, m)
+	case *ClientTestSubjectMutation:
+		return c.ClientTestSubject.mutate(ctx, m)
 	case *DeveloperApplicationMutation:
 		return c.DeveloperApplication.mutate(ctx, m)
 	case *EmailDeliveryMutation:
@@ -370,6 +386,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.LogoutInteraction.mutate(ctx, m)
 	case *OAuthClientMutation:
 		return c.OAuthClient.mutate(ctx, m)
+	case *ProtocolEventMutation:
+		return c.ProtocolEvent.mutate(ctx, m)
 	case *ProtocolSessionMutation:
 		return c.ProtocolSession.mutate(ctx, m)
 	case *RPLoginMutation:
@@ -1451,6 +1469,139 @@ func (c *AuthorizationInteractionClient) mutate(ctx context.Context, m *Authoriz
 	}
 }
 
+// ClientTestSubjectClient is a client for the ClientTestSubject schema.
+type ClientTestSubjectClient struct {
+	config
+}
+
+// NewClientTestSubjectClient returns a client for the ClientTestSubject from the given config.
+func NewClientTestSubjectClient(c config) *ClientTestSubjectClient {
+	return &ClientTestSubjectClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `clienttestsubject.Hooks(f(g(h())))`.
+func (c *ClientTestSubjectClient) Use(hooks ...Hook) {
+	c.hooks.ClientTestSubject = append(c.hooks.ClientTestSubject, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `clienttestsubject.Intercept(f(g(h())))`.
+func (c *ClientTestSubjectClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ClientTestSubject = append(c.inters.ClientTestSubject, interceptors...)
+}
+
+// Create returns a builder for creating a ClientTestSubject entity.
+func (c *ClientTestSubjectClient) Create() *ClientTestSubjectCreate {
+	mutation := newClientTestSubjectMutation(c.config, OpCreate)
+	return &ClientTestSubjectCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ClientTestSubject entities.
+func (c *ClientTestSubjectClient) CreateBulk(builders ...*ClientTestSubjectCreate) *ClientTestSubjectCreateBulk {
+	return &ClientTestSubjectCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ClientTestSubjectClient) MapCreateBulk(slice any, setFunc func(*ClientTestSubjectCreate, int)) *ClientTestSubjectCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ClientTestSubjectCreateBulk{err: fmt.Errorf("calling to ClientTestSubjectClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ClientTestSubjectCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ClientTestSubjectCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ClientTestSubject.
+func (c *ClientTestSubjectClient) Update() *ClientTestSubjectUpdate {
+	mutation := newClientTestSubjectMutation(c.config, OpUpdate)
+	return &ClientTestSubjectUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ClientTestSubjectClient) UpdateOne(_m *ClientTestSubject) *ClientTestSubjectUpdateOne {
+	mutation := newClientTestSubjectMutation(c.config, OpUpdateOne, withClientTestSubject(_m))
+	return &ClientTestSubjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ClientTestSubjectClient) UpdateOneID(id string) *ClientTestSubjectUpdateOne {
+	mutation := newClientTestSubjectMutation(c.config, OpUpdateOne, withClientTestSubjectID(id))
+	return &ClientTestSubjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ClientTestSubject.
+func (c *ClientTestSubjectClient) Delete() *ClientTestSubjectDelete {
+	mutation := newClientTestSubjectMutation(c.config, OpDelete)
+	return &ClientTestSubjectDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ClientTestSubjectClient) DeleteOne(_m *ClientTestSubject) *ClientTestSubjectDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ClientTestSubjectClient) DeleteOneID(id string) *ClientTestSubjectDeleteOne {
+	builder := c.Delete().Where(clienttestsubject.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ClientTestSubjectDeleteOne{builder}
+}
+
+// Query returns a query builder for ClientTestSubject.
+func (c *ClientTestSubjectClient) Query() *ClientTestSubjectQuery {
+	return &ClientTestSubjectQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeClientTestSubject},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ClientTestSubject entity by its id.
+func (c *ClientTestSubjectClient) Get(ctx context.Context, id string) (*ClientTestSubject, error) {
+	return c.Query().Where(clienttestsubject.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ClientTestSubjectClient) GetX(ctx context.Context, id string) *ClientTestSubject {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ClientTestSubjectClient) Hooks() []Hook {
+	return c.hooks.ClientTestSubject
+}
+
+// Interceptors returns the client interceptors.
+func (c *ClientTestSubjectClient) Interceptors() []Interceptor {
+	return c.inters.ClientTestSubject
+}
+
+func (c *ClientTestSubjectClient) mutate(ctx context.Context, m *ClientTestSubjectMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ClientTestSubjectCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ClientTestSubjectUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ClientTestSubjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ClientTestSubjectDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ClientTestSubject mutation op: %q", m.Op())
+	}
+}
+
 // DeveloperApplicationClient is a client for the DeveloperApplication schema.
 type DeveloperApplicationClient struct {
 	config
@@ -2515,6 +2666,139 @@ func (c *OAuthClientClient) mutate(ctx context.Context, m *OAuthClientMutation) 
 	}
 }
 
+// ProtocolEventClient is a client for the ProtocolEvent schema.
+type ProtocolEventClient struct {
+	config
+}
+
+// NewProtocolEventClient returns a client for the ProtocolEvent from the given config.
+func NewProtocolEventClient(c config) *ProtocolEventClient {
+	return &ProtocolEventClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `protocolevent.Hooks(f(g(h())))`.
+func (c *ProtocolEventClient) Use(hooks ...Hook) {
+	c.hooks.ProtocolEvent = append(c.hooks.ProtocolEvent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `protocolevent.Intercept(f(g(h())))`.
+func (c *ProtocolEventClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ProtocolEvent = append(c.inters.ProtocolEvent, interceptors...)
+}
+
+// Create returns a builder for creating a ProtocolEvent entity.
+func (c *ProtocolEventClient) Create() *ProtocolEventCreate {
+	mutation := newProtocolEventMutation(c.config, OpCreate)
+	return &ProtocolEventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ProtocolEvent entities.
+func (c *ProtocolEventClient) CreateBulk(builders ...*ProtocolEventCreate) *ProtocolEventCreateBulk {
+	return &ProtocolEventCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ProtocolEventClient) MapCreateBulk(slice any, setFunc func(*ProtocolEventCreate, int)) *ProtocolEventCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ProtocolEventCreateBulk{err: fmt.Errorf("calling to ProtocolEventClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ProtocolEventCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ProtocolEventCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ProtocolEvent.
+func (c *ProtocolEventClient) Update() *ProtocolEventUpdate {
+	mutation := newProtocolEventMutation(c.config, OpUpdate)
+	return &ProtocolEventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProtocolEventClient) UpdateOne(_m *ProtocolEvent) *ProtocolEventUpdateOne {
+	mutation := newProtocolEventMutation(c.config, OpUpdateOne, withProtocolEvent(_m))
+	return &ProtocolEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProtocolEventClient) UpdateOneID(id string) *ProtocolEventUpdateOne {
+	mutation := newProtocolEventMutation(c.config, OpUpdateOne, withProtocolEventID(id))
+	return &ProtocolEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ProtocolEvent.
+func (c *ProtocolEventClient) Delete() *ProtocolEventDelete {
+	mutation := newProtocolEventMutation(c.config, OpDelete)
+	return &ProtocolEventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ProtocolEventClient) DeleteOne(_m *ProtocolEvent) *ProtocolEventDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ProtocolEventClient) DeleteOneID(id string) *ProtocolEventDeleteOne {
+	builder := c.Delete().Where(protocolevent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProtocolEventDeleteOne{builder}
+}
+
+// Query returns a query builder for ProtocolEvent.
+func (c *ProtocolEventClient) Query() *ProtocolEventQuery {
+	return &ProtocolEventQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeProtocolEvent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ProtocolEvent entity by its id.
+func (c *ProtocolEventClient) Get(ctx context.Context, id string) (*ProtocolEvent, error) {
+	return c.Query().Where(protocolevent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProtocolEventClient) GetX(ctx context.Context, id string) *ProtocolEvent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ProtocolEventClient) Hooks() []Hook {
+	return c.hooks.ProtocolEvent
+}
+
+// Interceptors returns the client interceptors.
+func (c *ProtocolEventClient) Interceptors() []Interceptor {
+	return c.inters.ProtocolEvent
+}
+
+func (c *ProtocolEventClient) mutate(ctx context.Context, m *ProtocolEventMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProtocolEventCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProtocolEventUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProtocolEventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProtocolEventDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ProtocolEvent mutation op: %q", m.Op())
+	}
+}
+
 // ProtocolSessionClient is a client for the ProtocolSession schema.
 type ProtocolSessionClient struct {
 	config
@@ -3318,17 +3602,18 @@ type (
 	hooks struct {
 		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
 		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
-		DeveloperApplication, EmailDelivery, EmailVerification, ExternalIdentity,
-		ExternalLogin, Invitation, LogoutInteraction, OAuthClient, ProtocolSession,
-		RPLogin, RegistrationPolicy, SecurityEvent, SigningKey, WebSession []ent.Hook
+		ClientTestSubject, DeveloperApplication, EmailDelivery, EmailVerification,
+		ExternalIdentity, ExternalLogin, Invitation, LogoutInteraction, OAuthClient,
+		ProtocolEvent, ProtocolSession, RPLogin, RegistrationPolicy, SecurityEvent,
+		SigningKey, WebSession []ent.Hook
 	}
 	inters struct {
 		AccountChallenge, AccountUser, AdminBootstrap, AdminElevation, AdminPrincipal,
 		ApplicationVersion, AuthorizationGrant, AuthorizationInteraction,
-		DeveloperApplication, EmailDelivery, EmailVerification, ExternalIdentity,
-		ExternalLogin, Invitation, LogoutInteraction, OAuthClient, ProtocolSession,
-		RPLogin, RegistrationPolicy, SecurityEvent, SigningKey,
-		WebSession []ent.Interceptor
+		ClientTestSubject, DeveloperApplication, EmailDelivery, EmailVerification,
+		ExternalIdentity, ExternalLogin, Invitation, LogoutInteraction, OAuthClient,
+		ProtocolEvent, ProtocolSession, RPLogin, RegistrationPolicy, SecurityEvent,
+		SigningKey, WebSession []ent.Interceptor
 	}
 )
 
@@ -3343,6 +3628,7 @@ var (
 		ApplicationVersion:       tableSchemas[3],
 		AuthorizationGrant:       tableSchemas[2],
 		AuthorizationInteraction: tableSchemas[2],
+		ClientTestSubject:        tableSchemas[2],
 		DeveloperApplication:     tableSchemas[3],
 		EmailDelivery:            tableSchemas[5],
 		EmailVerification:        tableSchemas[4],
@@ -3351,6 +3637,7 @@ var (
 		Invitation:               tableSchemas[4],
 		LogoutInteraction:        tableSchemas[2],
 		OAuthClient:              tableSchemas[2],
+		ProtocolEvent:            tableSchemas[2],
 		ProtocolSession:          tableSchemas[2],
 		RPLogin:                  tableSchemas[6],
 		RegistrationPolicy:       tableSchemas[4],

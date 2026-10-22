@@ -721,6 +721,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/developer/applications/{id}/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 developer applications by ID statistics */
+        get: operations["get-api-v1-developer-applications-by-id-statistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/developer/applications/{id}/submit": {
         parameters: {
             query?: never;
@@ -733,6 +750,41 @@ export interface paths {
         /** Post API v1 developer applications by ID submit */
         post: operations["post-api-v1-developer-applications-by-id-submit"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}/test-members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API v1 developer applications by ID test members */
+        get: operations["get-api-v1-developer-applications-by-id-test-members"];
+        put?: never;
+        /** Post API v1 developer applications by ID test members */
+        post: operations["post-api-v1-developer-applications-by-id-test-members"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/developer/applications/{id}/test-members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete API v1 developer applications by ID test members by user ID */
+        delete: operations["delete-api-v1-developer-applications-by-id-test-members-by-user-id"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1316,6 +1368,28 @@ export interface components {
             readonly $schema?: string;
             client_secret: string;
         };
+        ApplicationTestMemberInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationTestMemberInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            revision: number;
+            /** Format: uuid */
+            user_id: string;
+        };
+        ApplicationTestMemberRemoveInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ApplicationTestMemberRemoveInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: int64 */
+            revision: number;
+        };
         Applications: {
             /**
              * Format: uri
@@ -1687,6 +1761,39 @@ export interface components {
             /** Format: int64 */
             revision: number;
         };
+        ProtocolCounts: {
+            /** Format: int64 */
+            authorizations: number;
+            /** Format: int64 */
+            code_exchanges: number;
+            /** Format: int64 */
+            machine_tokens: number;
+            /** Format: int64 */
+            refreshes: number;
+        };
+        ProtocolDay: {
+            /** @description Omitted before recording began; present zero counts mean no committed events. */
+            counts?: components["schemas"]["ProtocolCounts"];
+            day: string;
+            partial: boolean;
+        };
+        ProtocolStatistics: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ProtocolStatistics.json
+             */
+            readonly $schema?: string;
+            days: components["schemas"]["ProtocolDay"][];
+            /** Format: date-time */
+            generated_at: string;
+            /** Format: date-time */
+            recording_since: string;
+            timezone: string;
+            totals: components["schemas"]["ProtocolCounts"];
+            window_end: string;
+            window_start: string;
+        };
         RPLogoutOutputBody: {
             /**
              * Format: uri
@@ -1776,6 +1883,24 @@ export interface components {
             readonly $schema?: string;
             phase: string;
             service: string;
+        };
+        TestMembers: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/TestMembers.json
+             */
+            readonly $schema?: string;
+            items: components["schemas"]["TestSubject"][];
+            /** Format: int64 */
+            limit: number;
+            /** Format: int64 */
+            revision: number;
+        };
+        TestSubject: {
+            /** Format: date-time */
+            created_at: string;
+            user_id: string;
         };
         User: {
             /**
@@ -3608,6 +3733,39 @@ export interface operations {
             };
         };
     };
+    "get-api-v1-developer-applications-by-id-statistics": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProtocolStatistics"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
     "post-api-v1-developer-applications-by-id-submit": {
         parameters: {
             query?: never;
@@ -3634,6 +3792,118 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Application"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "get-api-v1-developer-applications-by-id-test-members": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMembers"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "post-api-v1-developer-applications-by-id-test-members": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationTestMemberInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMembers"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-developer-applications-by-id-test-members-by-user-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationTestMemberRemoveInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestMembers"];
                 };
             };
             /** @description Error */

@@ -684,6 +684,57 @@
         ],
         "type": "object"
       },
+      "ApplicationTestMemberInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/ApplicationTestMemberInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "user_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "user_id"
+        ],
+        "type": "object"
+      },
+      "ApplicationTestMemberRemoveInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/ApplicationTestMemberRemoveInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "type": "object"
+      },
       "Applications": {
         "additionalProperties": false,
         "properties": {
@@ -1762,6 +1813,104 @@
         ],
         "type": "object"
       },
+      "ProtocolCounts": {
+        "additionalProperties": false,
+        "properties": {
+          "authorizations": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "code_exchanges": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "machine_tokens": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "refreshes": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "authorizations",
+          "code_exchanges",
+          "refreshes",
+          "machine_tokens"
+        ],
+        "type": "object"
+      },
+      "ProtocolDay": {
+        "additionalProperties": false,
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/ProtocolCounts",
+            "description": "Omitted before recording began; present zero counts mean no committed events."
+          },
+          "day": {
+            "type": "string"
+          },
+          "partial": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "day",
+          "partial"
+        ],
+        "type": "object"
+      },
+      "ProtocolStatistics": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/ProtocolStatistics.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/ProtocolDay"
+            },
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "recording_since": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/ProtocolCounts"
+          },
+          "window_end": {
+            "type": "string"
+          },
+          "window_start": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "timezone",
+          "recording_since",
+          "window_start",
+          "window_end",
+          "generated_at",
+          "totals",
+          "days"
+        ],
+        "type": "object"
+      },
       "RPLogoutOutputBody": {
         "additionalProperties": false,
         "properties": {
@@ -2015,6 +2164,57 @@
         "required": [
           "service",
           "phase"
+        ],
+        "type": "object"
+      },
+      "TestMembers": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/TestMembers.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TestSubject"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "revision": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "limit",
+          "items"
+        ],
+        "type": "object"
+      },
+      "TestSubject": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "created_at"
         ],
         "type": "object"
       },
@@ -5082,6 +5282,52 @@
         "summary": "Post API v1 developer applications by ID secret"
       }
     },
+    "/api/v1/developer/applications/{id}/statistics": {
+      "get": {
+        "operationId": "get-api-v1-developer-applications-by-id-statistics",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtocolStatistics"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 developer applications by ID statistics"
+      }
+    },
     "/api/v1/developer/applications/{id}/submit": {
       "post": {
         "operationId": "post-api-v1-developer-applications-by-id-submit",
@@ -5150,6 +5396,199 @@
           }
         },
         "summary": "Post API v1 developer applications by ID submit"
+      }
+    },
+    "/api/v1/developer/applications/{id}/test-members": {
+      "get": {
+        "operationId": "get-api-v1-developer-applications-by-id-test-members",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMembers"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Get API v1 developer applications by ID test members"
+      },
+      "post": {
+        "operationId": "post-api-v1-developer-applications-by-id-test-members",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationTestMemberInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMembers"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Post API v1 developer applications by ID test members"
+      }
+    },
+    "/api/v1/developer/applications/{id}/test-members/{user_id}": {
+      "delete": {
+        "operationId": "delete-api-v1-developer-applications-by-id-test-members-by-user-id",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Cookie",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Moetopia-CSRF",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationTestMemberRemoveInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestMembers"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountProblem"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Delete API v1 developer applications by ID test members by user ID"
       }
     },
     "/api/v1/developer/applications/{id}/versions": {

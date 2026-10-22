@@ -30,6 +30,9 @@ type AuthorizationGrant func(*sql.Selector)
 // AuthorizationInteraction is the predicate function for authorizationinteraction builders.
 type AuthorizationInteraction func(*sql.Selector)
 
+// ClientTestSubject is the predicate function for clienttestsubject builders.
+type ClientTestSubject func(*sql.Selector)
+
 // DeveloperApplication is the predicate function for developerapplication builders.
 type DeveloperApplication func(*sql.Selector)
 
@@ -53,6 +56,9 @@ type LogoutInteraction func(*sql.Selector)
 
 // OAuthClient is the predicate function for oauthclient builders.
 type OAuthClient func(*sql.Selector)
+
+// ProtocolEvent is the predicate function for protocolevent builders.
+type ProtocolEvent func(*sql.Selector)
 
 // ProtocolSession is the predicate function for protocolsession builders.
 type ProtocolSession func(*sql.Selector)

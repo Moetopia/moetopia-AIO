@@ -28,6 +28,7 @@ func (OAuthClient) Fields() []ent.Field {
 		field.Strings("scopes").Default([]string{}),
 		field.Strings("audiences").Default([]string{}),
 		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("statistics_since").Default(time.Now).Immutable(),
 	}
 }
 

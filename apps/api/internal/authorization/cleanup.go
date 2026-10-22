@@ -14,6 +14,9 @@ import (
 )
 
 func (p *Provider) Cleanup(ctx context.Context) error {
+	if err := p.cleanupStatistics(ctx); err != nil {
+		return err
+	}
 	if _, err := p.store.client.LogoutInteraction.Delete().Where(logoutinteraction.ExpiresAtLTE(time.Now())).Exec(ctx); err != nil {
 		return err
 	}

@@ -103,12 +103,5 @@ func (p *Provider) RotateManagedSecret(ctx context.Context, id, owner string) (s
 	return secret, nil
 }
 func (p *Provider) AllowSubject(ctx context.Context, clientID, userID string) error {
-	row, err := p.store.database(ctx).OAuthClient.Get(ctx, clientID)
-	if err != nil {
-		return err
-	}
-	if row.TestOnly && row.OwnerID != userID {
-		return ErrGrantMissing
-	}
-	return nil
+	return p.store.allowSubject(ctx, clientID, userID)
 }

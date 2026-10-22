@@ -24,7 +24,7 @@ config 包含 name、description、homepage_url、redirect_uris、scopes。创�
 
 ## 测试与发布语义
 
-初始版本 draft，active_version=0，已建立仅允许所有者授权的测试 OAuth client；服务端在授权详情与实际同意环节都检查测试主体。首期未开放测试成员管理。提交后 latest=pending，不允许修改正在审核的版本；当前没有撤回接口。
+初始版本 draft，active_version=0，只允许所有者和显式测试成员授权；名单及移除后的凭据处理见 [测试成员契约](run-test-members.md)。提交后 latest=pending，不允许修改正在审核的配置版本；当前没有撤回接口。
 
 首次批准将测试应用切为对普通用户开放；发布后编辑产生新 draft，再提交 pending。等待审核或拒绝时，协议层仍使用旧 approved 的名称、回调和 scope，新配置不会提前生效。批准在同一事务内更换协议配置、版本状态及审计；中途数据库失败整笔回滚，旧服务及凭据仍保留。
 
@@ -32,7 +32,7 @@ config 包含 name、description、homepage_url、redirect_uris、scopes。创�
 
 secret 轮换立即使旧 secret 无法通过后续客户端认证，不提供重叠宽限；本次之前已经成功认证的事务可先完成。轮换本身不结束既有 access token，必要时先停用应用。公开客户端不能轮换 secret。
 
-这些业务管理接口不等于 RFC 动态客户端注册。固定自有 RP 客户端不归开发者管理，不能通过用户站修改其凭据或注册配置。管理员暂停独立使用 suspended/suspension_reason；有效可用条件为 enabled 且未 suspended，所有者重新启用或更新草稿不能绕过。暂停期间不能提交/批准，解除暂停不恢复旧凭据。测试成员、统计、站内通知/Webhook 和所有权转移尚未实现。
+这些业务管理接口不等于 RFC 动态客户端注册。固定自有 RP 客户端不归开发者管理，不能通过用户站修改其凭据或注册配置。管理员暂停独立使用 suspended/suspension_reason；有效可用条件为 enabled 且未 suspended，所有者重新启用或更新草稿不能绕过。暂停期间不能提交/批准，解除暂停不恢复旧凭据。[应用协议统计](run-statistics.md) 已有后端，管理台全局统计、站内通知/Webhook 和所有权转移尚未实现。
 
 ## 配置版本与应用通知
 

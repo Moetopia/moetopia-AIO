@@ -15,6 +15,7 @@ import (
 	"moetopia.local/aio/api/internal/identity"
 	"moetopia.local/aio/api/internal/persistence/ent"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/protocolevent"
 	"moetopia.local/aio/api/internal/sessions"
 )
 
@@ -142,6 +143,9 @@ func (p *Provider) Decide(ctx context.Context, id, token string, user identity.U
 		session.IdentityClaims.Extra["security_version"] = user.SecurityVersion
 		response, err := p.oauth.NewAuthorizeResponse(ctx, ar, session)
 		if err != nil {
+			return "", err
+		}
+		if err := p.store.recordProtocolEvent(ctx, ar.GetClient().GetID(), protocolevent.KindAuthorization); err != nil {
 			return "", err
 		}
 		p.oauth.WriteAuthorizeResponse(ctx, w, ar, response)

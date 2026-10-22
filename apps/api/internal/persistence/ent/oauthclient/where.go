@@ -99,6 +99,11 @@ func CreatedAt(v time.Time) predicate.OAuthClient {
 	return predicate.OAuthClient(sql.FieldEQ(FieldCreatedAt, v))
 }
 
+// StatisticsSince applies equality check predicate on the "statistics_since" field. It's identical to StatisticsSinceEQ.
+func StatisticsSince(v time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldEQ(FieldStatisticsSince, v))
+}
+
 // SecretHashEQ applies the EQ predicate on the "secret_hash" field.
 func SecretHashEQ(v []byte) predicate.OAuthClient {
 	return predicate.OAuthClient(sql.FieldEQ(FieldSecretHash, v))
@@ -347,6 +352,46 @@ func CreatedAtLT(v time.Time) predicate.OAuthClient {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.OAuthClient {
 	return predicate.OAuthClient(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// StatisticsSinceEQ applies the EQ predicate on the "statistics_since" field.
+func StatisticsSinceEQ(v time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldEQ(FieldStatisticsSince, v))
+}
+
+// StatisticsSinceNEQ applies the NEQ predicate on the "statistics_since" field.
+func StatisticsSinceNEQ(v time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldNEQ(FieldStatisticsSince, v))
+}
+
+// StatisticsSinceIn applies the In predicate on the "statistics_since" field.
+func StatisticsSinceIn(vs ...time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldIn(FieldStatisticsSince, vs...))
+}
+
+// StatisticsSinceNotIn applies the NotIn predicate on the "statistics_since" field.
+func StatisticsSinceNotIn(vs ...time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldNotIn(FieldStatisticsSince, vs...))
+}
+
+// StatisticsSinceGT applies the GT predicate on the "statistics_since" field.
+func StatisticsSinceGT(v time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldGT(FieldStatisticsSince, v))
+}
+
+// StatisticsSinceGTE applies the GTE predicate on the "statistics_since" field.
+func StatisticsSinceGTE(v time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldGTE(FieldStatisticsSince, v))
+}
+
+// StatisticsSinceLT applies the LT predicate on the "statistics_since" field.
+func StatisticsSinceLT(v time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldLT(FieldStatisticsSince, v))
+}
+
+// StatisticsSinceLTE applies the LTE predicate on the "statistics_since" field.
+func StatisticsSinceLTE(v time.Time) predicate.OAuthClient {
+	return predicate.OAuthClient(sql.FieldLTE(FieldStatisticsSince, v))
 }
 
 // And groups predicates with the AND operator between them.

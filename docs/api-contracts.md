@@ -23,8 +23,8 @@
 | 令牌 | `/oauth/token` | 标准 form 编码与客户端认证 |
 | 用户信息 | `/oauth/userinfo` | 仅披露获准 claims |
 | 撤销 | `/oauth/revoke` | 已实现 RFC 7009，成功为空 200；策略见 ADR-0018 |
-| 内省 | `/oauth/introspect` | 未实现；目标为认证并限制调用方 |
-| 退出 | `/oauth/logout` | 未实现；目标按 OIDC 退出参数及注册地址验证 |
+| 内省 | `/oauth/introspect` | 已实现受限认证内省，见运行契约 |
+| 退出 | `/oauth/logout` | 已实现显式确认与受审回跳，见 [退出契约](run-logout.md) |
 
 不要将协议表中的路径看作必须有特定前缀的标准要求。OAuth/OIDC 客户端依赖元数据及文档，不解析自家页面路径。首期不开放 RFC 动态客户端注册，开发者门户自助创建是业务能力。
 
@@ -64,3 +64,5 @@ HTTP 状态表达结果：401 未认证、403 无权限、404 不存在或按策
 2026-10-19 新增的 [账号管理](run-account-management.md) 和 [开发者应用](run-developer-applications.md) 接口已由真实 Huma 路由生成；新增字段和方法不改变旧 account 密码/注册契约。profile/avatar 使用 revision，应用管理使用独立应用 revision；密钥只在创建/轮换响应出现，密码、验证码等校验错误不回显输入值。
 
 同日新增 `/api/v1/admin/*`，契约见 [管理员接入](run-administration.md)。AdminContext.authenticated 只表示第一因素与角色，业务 gate 还要求 mfa.verified；MFA 成功会旋转 Cookie/CSRF。TOTP 初次绑定载荷、恢复码和邀请码只在相应 POST 成功时返回，读取接口不返回秘密。平台暂停新增字段保留生成类型的增量兼容性；真实响应包含 suspended/suspension_reason。
+
+2026-10-22 增加 [应用测试成员](run-test-members.md)，使用 portal Cookie 和应用 revision，名单不暴露邮箱。新增、删除返回更新后的名单和 revision；删除成功为 200，不套用应用删除的 204。

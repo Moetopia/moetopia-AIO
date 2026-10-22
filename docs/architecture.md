@@ -37,6 +37,8 @@
 
 authorization 通过 applications 的已批准配置视图工作；不能读取待审版本作为有效权限。sessions 与 authorization 各自管理登录会话和 OAuth 授权，不混用一张“token 表”表达所有状态。
 
+当前 developer 拥有配置版本与所有者管理用例；authorization 保存已安装 client 及唯一有效测试名单。developer 通过协议模块的名单命令变更资格，不直接写 authorization 表；具体事务与账号清理边界见 [测试成员](run-test-members.md)。
+
 ## 调用与依赖
 
 - HTTP handler 负责解析和协议适配；应用层编排用例；领域逻辑不依赖 HTTP、Nuxt、Redis 或具体协议库。

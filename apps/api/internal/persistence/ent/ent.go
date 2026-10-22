@@ -20,6 +20,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/applicationversion"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationgrant"
 	"moetopia.local/aio/api/internal/persistence/ent/authorizationinteraction"
+	"moetopia.local/aio/api/internal/persistence/ent/clienttestsubject"
 	"moetopia.local/aio/api/internal/persistence/ent/developerapplication"
 	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/emailverification"
@@ -28,6 +29,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 	"moetopia.local/aio/api/internal/persistence/ent/logoutinteraction"
 	"moetopia.local/aio/api/internal/persistence/ent/oauthclient"
+	"moetopia.local/aio/api/internal/persistence/ent/protocolevent"
 	"moetopia.local/aio/api/internal/persistence/ent/protocolsession"
 	"moetopia.local/aio/api/internal/persistence/ent/registrationpolicy"
 	"moetopia.local/aio/api/internal/persistence/ent/rplogin"
@@ -102,6 +104,7 @@ func checkColumn(t, c string) error {
 			applicationversion.Table:       applicationversion.ValidColumn,
 			authorizationgrant.Table:       authorizationgrant.ValidColumn,
 			authorizationinteraction.Table: authorizationinteraction.ValidColumn,
+			clienttestsubject.Table:        clienttestsubject.ValidColumn,
 			developerapplication.Table:     developerapplication.ValidColumn,
 			emaildelivery.Table:            emaildelivery.ValidColumn,
 			emailverification.Table:        emailverification.ValidColumn,
@@ -110,6 +113,7 @@ func checkColumn(t, c string) error {
 			invitation.Table:               invitation.ValidColumn,
 			logoutinteraction.Table:        logoutinteraction.ValidColumn,
 			oauthclient.Table:              oauthclient.ValidColumn,
+			protocolevent.Table:            protocolevent.ValidColumn,
 			protocolsession.Table:          protocolsession.ValidColumn,
 			rplogin.Table:                  rplogin.ValidColumn,
 			registrationpolicy.Table:       registrationpolicy.ValidColumn,

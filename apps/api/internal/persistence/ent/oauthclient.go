@@ -43,8 +43,10 @@ type OAuthClient struct {
 	// Audiences holds the value of the "audiences" field.
 	Audiences []string `json:"audiences,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt    time.Time `json:"created_at,omitempty"`
-	selectValues sql.SelectValues
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// StatisticsSince holds the value of the "statistics_since" field.
+	StatisticsSince time.Time `json:"statistics_since,omitempty"`
+	selectValues    sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -58,7 +60,7 @@ func (*OAuthClient) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case oauthclient.FieldID, oauthclient.FieldName, oauthclient.FieldOwnerID:
 			values[i] = new(sql.NullString)
-		case oauthclient.FieldCreatedAt:
+		case oauthclient.FieldCreatedAt, oauthclient.FieldStatisticsSince:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -171,6 +173,12 @@ func (_m *OAuthClient) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
 			}
+		case oauthclient.FieldStatisticsSince:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field statistics_since", values[i])
+			} else if value.Valid {
+				_m.StatisticsSince = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -244,6 +252,9 @@ func (_m *OAuthClient) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("statistics_since=")
+	builder.WriteString(_m.StatisticsSince.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

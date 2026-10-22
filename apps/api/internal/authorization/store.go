@@ -164,6 +164,17 @@ func (s *Store) load(ctx context.Context, kind, signature string, session fosite
 			return request, nil
 		}
 	}
+	if subject := session.GetSubject(); subject != "" && subject != client.GetID() {
+		if err := s.allowSubject(ctx, client.GetID(), subject); err != nil {
+			if !errors.Is(err, ErrGrantMissing) {
+				return nil, err
+			}
+			if kind == "access" {
+				return request, fosite.ErrInactiveToken
+			}
+			return nil, fosite.ErrNotFound
+		}
+	}
 	if grant.Revoked || !time.Now().Before(grant.ExpiresAt) {
 		if kind == "code" {
 			return nil, fosite.ErrNotFound
