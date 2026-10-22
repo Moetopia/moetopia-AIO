@@ -34,6 +34,9 @@
   .moe-page-frame[data-portal='admin'] .moe-page-header-inner, .moe-page-frame[data-portal='admin'] .moe-page-main { max-width: none; }
   .moe-page-frame[data-portal='admin'] .moe-page-main { padding: 24px; }
   .moe-page-frame[data-portal='admin'] .moe-navbar-brand::before { display: none; }
+  .moe-page-frame[data-portal='admin'] .moe-navbar-brand { min-width: 0; flex-shrink: 1; }
+  .moe-page-frame[data-portal='admin'] .moe-navbar-wordmark { min-width: 0; }
+  .moe-page-frame[data-portal='admin'] .moe-navbar-wordmark > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .moe-sidebar[data-layout='rail'] { padding: 0; }
   .moe-sidebar[data-layout='rail'] .moe-sidebar-heading { height: 64px; flex-shrink: 0; margin: 0; padding-inline: 16px; border-bottom: 1px solid var(--moe-line); font-size: 16px; font-weight: 700; color: var(--moe-primary-ink); white-space: nowrap; overflow: hidden; }
   .moe-sidebar-brand { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: var(--moe-accent); }

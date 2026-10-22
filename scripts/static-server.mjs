@@ -16,5 +16,15 @@ createServer(async (request, response) => {
     const content = await readFile(file)
     response.writeHead(200, { 'Content-Type': types[extname(file)] ?? 'application/octet-stream', 'X-Content-Type-Options': 'nosniff' })
     response.end(content)
-  } catch { response.writeHead(404); response.end() }
+  } catch {
+    if (process.argv.includes('--spa') && !extname(file)) {
+      try {
+        const content = await readFile(resolve(directory, 'index.html'))
+        response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'X-Content-Type-Options': 'nosniff' })
+        response.end(content)
+        return
+      } catch { response.writeHead(404); response.end(); return }
+    }
+    response.writeHead(404); response.end()
+  }
 }).listen(port, '127.0.0.1')

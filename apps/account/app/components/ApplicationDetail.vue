@@ -65,6 +65,8 @@ onBeforeUnmount(() => { password.value = ''; secret.value = '' })
       <ApplicationOverview :application="app" :status="status" :busy="busy" @edit="edit('identity')" @delete="ask('delete')" @submit="ask('submit')" @availability="ask('availability')" />
       <ApplicationLoginSettings :application="app" :busy="busy" @edit="edit('login')" />
       <ApplicationCredentialsPanel :application="app" :busy="busy" @rotate="ask('secret')" />
+      <ApplicationTestMembers :application="app" @changed="load" />
+      <ApplicationHistory :id="app.id" :revision="app.revision" />
     </template>
     <MoeDialog v-model:open="editing" :title="editMode === 'identity' ? text.editIdentity : text.editLogin" :close-label="text.close" :show-close-action="false">
       <form class="grid gap-5" @submit.prevent="save">

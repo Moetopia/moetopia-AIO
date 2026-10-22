@@ -1,5 +1,10 @@
 import { createServer } from 'node:http'
 import { oidcAPIOrigin } from './oidc-test-config.mjs'
+import { readFile } from 'node:fs/promises'
+import { resolve, extname, sep } from 'node:path'
+
+const publicDirectory = resolve('apps/admin/.output/public')
+const contentTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' }
 
 if (process.env.MOETOPIA_ENV !== 'test' || process.env.MOETOPIA_TEST_OIDC_SUITE !== 'admin' || process.env.MOETOPIA_ADMIN_ORIGIN !== 'http://admin.localhost:54311') throw new Error('The isolated administrator browser environment is required')
 const server = createServer(async (req, res) => {
@@ -8,9 +13,14 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://admin.localhost:54311')
     if (url.pathname === '/healthz') { res.end('ready'); return }
-    if (!url.pathname.startsWith('/api/v1/admin/')) {
-      res.setHeader('content-type', 'text/html; charset=utf-8')
-      res.end('<!doctype html><title>Administrator protocol probe</title><h1>Administrator protocol probe</h1>')
+    if (!url.pathname.startsWith('/api/v1/admin/') && url.pathname !== '/api/v1/status') {
+      const requested = resolve(publicDirectory, `.${decodeURIComponent(url.pathname)}`)
+      if (requested !== publicDirectory && !requested.startsWith(publicDirectory + sep)) { res.writeHead(403); res.end(); return }
+      const file = extname(requested) ? requested : resolve(publicDirectory, 'index.html')
+      const content = await readFile(file)
+      res.setHeader('content-type', contentTypes[extname(file)] ?? 'application/octet-stream')
+      res.setHeader('x-content-type-options', 'nosniff')
+      res.end(content)
       return
     }
     let body = Buffer.alloc(0)

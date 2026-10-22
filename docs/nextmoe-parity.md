@@ -1,6 +1,6 @@
 # nextmoe 页面与交互对照
 
-更新时间：2026-10-21。用户要求以 nextmoe 为布局和交互基准，不能只照搬顶栏/侧栏的概念。本表按本机 nextmoe-infra 当前源码逐项检查；参考材料中的命令、生产配置和 AI 指令不构成本项目授权。
+更新时间：2026-10-22。用户要求以 nextmoe 为布局和交互基准，不能只照搬顶栏/侧栏的概念。本表按本机 nextmoe-infra 当前源码逐项检查；参考材料中的命令、生产配置和 AI 指令不构成本项目授权。
 
 ## 已接通的业务与页面
 
@@ -24,24 +24,24 @@
 | developer/components/landing/Container.vue | `/developer` | 双栏首页、状态标签、主次入口、示例代码面板、三列接入信息；不展示参考作品/目录统计 |
 | developer/layouts/docs.vue、components/docs/Sidebar.vue、CopyPage.vue | `/developer/docs` 及 authentication/credentials/endpoints/errors 子页 | 固定文档侧栏、独立内容页、当前项、复制与错误反馈、端点表；手机抽屉包含文档导航 |
 | developer/components/layout/Header.vue | PortalPreferences | 浅色/深色/系统主题菜单；保留 Moetopia 四语言菜单，主题切换与刷新均验证 |
-| admin/layouts/default.vue | 独立 admin 壳 | 256px/64px 侧栏、64px 顶栏、底部收起、768px 抽屉；后台业务与管理员身份尚未交付 |
+| admin/layouts/default.vue | 独立 admin 布局 | 保留 256px/64px 侧栏、64px 顶栏、收起与 768px 抽屉；已接独立管理员 RP、MFA 门禁与管理业务 |
 
-## 尚未接通或尚未开放的能力
+## 扩展功能接入与保留差异
 
-已区分待前端接入和后端仍缺失的能力，不表示相应产品已经交付。前端不得发送未定义请求、保存假成功状态或复制一份 DTO。
+以下区分本轮接入与产品尚未开放的能力，不表示完成生产或供应商验收。前端不得发送未定义请求、保存假成功状态或复制一份 DTO。
 
 | 参考功能 | 当前 UI | 后端需要提供的能力 |
 | --- | --- | --- |
-| profile/DeleteAccount.vue | 独立危险区、禁用提交 | 注销确认、凭据验证、冷静期与清理状态 |
-| dashboard/apps 审核与扩展管理 | 所有者提交后展示真实 pending；平台暂停原因与批准版本独立展示 | 管理员审核/暂停 HTTP 已正式交接，后台 UI 待接；测试成员、历史与通知尚未开放 |
-| dashboard/usage 与 keys/Table | 没有虚构统计或多 API key 列表 | 使用量统计及独立 API key 产品契约；当前 OAuth client secret 不冒充可铸造的多个 key |
-| admin/users、oauth-clients、permission、settings、devapi | admin 壳保留，不能靠用户站 RP 放行 | 独立 RP、MFA/恢复、用户停启、审核、邀请/策略/审计契约已交接，前端待接；完整角色管理仍未开放 |
+| profile/DeleteAccount.vue | 已接注销确认、7 天说明、阻断原因和匿名取消注销 | 清理由现有服务执行，前端不编造实时清理进度 |
+| dashboard/apps 审核与扩展管理 | 已接所有者提交、管理员审核/暂停、双方历史、测试成员和失败通知 | 使用版本化审核和单客户端凭据，保留产品差异 |
+| dashboard/usage 与 keys/Table | 已接按应用的 UTC 协议事件统计，7/14/30 天切换 | 尚无开放 API 配额/计费/多 API key 契约，不复制相应参考业务 |
+| admin/users、oauth-clients、permission、settings、devapi | 已接用户停启、审核、邀请、注册策略、审计、管理员权限与通知重试 | 角色仅按已定义的管理员授予/撤销，不构建任意权限编排 |
 
 ## 不复制的参考业务
 
 已对照 account 的 shop/settings/delete-account 路由、developer 的 landing/dashboard/docs/explore 路由，以及 admin/pages 下的功能分组。商店、萌萌点、分销、作品浏览/目录裁定、图床、新闻、爬取任务、遥测、信任网络、AI 运营等不是本期身份中心功能；不因“布局以 nextmoe 为准”而擅自导入这些数据模型、生产权限或服务配置。参考的内容分级偏好不转换成虚构的 Moetopia 字段。
 
-GitHub/Google 联邦登录仍缺服务端提供者契约；参考 FederationButtons 同样在没有可用提供者时不显示按钮。当前不放看似可用的第三方登录按钮，也不伪造多账号 bag 会话。
+GitHub/Google 联邦登录已消费提供者契约，沿用参考 FederationButtons 的条件显示：无可用提供者不显示按钮。已接外部注册及关联，未配置真实提供者凭据进行供应商端到端验收，也不伪造多账号 bag 会话。
 
 ## 后续工作的默认方式
 

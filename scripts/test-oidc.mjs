@@ -40,6 +40,12 @@ try {
   env.MOETOPIA_TEST_INVITATION = fixture.invitation
   execute('go', ['-C', 'apps/api', 'build', '-o', binary, './cmd/api'], env)
   execute(process.execPath, ['scripts/build-oidc-account.mjs'], env)
+  if (suite === 'admin') {
+    const pnpm = process.env.npm_execpath
+    if (!pnpm) throw new Error('Run with pnpm test:admin')
+    if (/\.[cm]?js$/.test(pnpm)) execute(process.execPath, [pnpm, '--filter', '@moetopia/admin', 'build'], env)
+    else execute(pnpm, ['--filter', '@moetopia/admin', 'build'], env)
+  }
   const pnpm = process.env.npm_execpath
   if (!pnpm) throw new Error('Run with pnpm test:oidc')
   const args = ['exec', 'playwright', 'test', '--config', 'playwright.oidc.config.ts']

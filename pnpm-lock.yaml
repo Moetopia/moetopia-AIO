@@ -217,6 +217,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@moetopia/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
       '@moetopia/locales':
         specifier: workspace:*
         version: link:../../packages/locales

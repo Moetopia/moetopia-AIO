@@ -155,6 +155,7 @@ test('developer creates confidential app, edits draft, submits, rotates and dele
   await page.route(`**/api/v1/developer/applications/${id}`, route => route.request().method() === 'DELETE' ? route.fulfill({ status: 204 }) : route.fulfill({ json: app }))
   await page.route(`**/api/v1/developer/applications/${id}/*`, route => {
     const operation = route.request().url().split('/').at(-1)!
+    if (route.request().method() === 'GET') return route.fulfill({ json: operation === 'test-members' ? { revision: app.revision, limit: 20, items: [] } : { items: [{ ...app.latest, created_at: app.created_at }], next_before: 0, active_version: app.active_version, latest_version: app.latest.version } })
     writes.push(operation)
     const body = route.request().postDataJSON()
     expect(route.request().headers()['x-moetopia-csrf']).toBe('portal-csrf')

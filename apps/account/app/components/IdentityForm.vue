@@ -5,6 +5,7 @@ defineProps<{ embedded?: boolean }>()
 const route = useRoute()
 const { locale } = usePortalPreferences()
 const text = computed(() => accountMessages[locale.value])
+const { text: integration } = useIntegrationMessages()
 const { account, view, email, password, displayName, invitation, code, challenge, busy, loading, feedback, success, feedbackElement, connect, login, sendCode, register, changeView } = useAccountContext()
 const alternative = computed(() => ({ path: view.value === 'login' ? '/auth/register' : '/auth/login', query: route.query.continue === 'developer-applications' ? { continue: 'developer-applications' } : {} }))
 </script>
@@ -31,6 +32,8 @@ const alternative = computed(() => ({ path: view.value === 'login' ? '/auth/regi
       <div v-if="feedback" ref="feedbackElement" tabindex="-1" class="outline-none"><MoeAlert :title="text[feedback]" :color="success ? 'success' : 'danger'" announce /></div>
       <MoeButton type="submit" size="lg" class="mt-2 w-full" :loading="busy" :disabled="!account || loading || view === 'register' && !challenge">{{ view === 'login' ? text.login : text.continue }}</MoeButton>
     </form>
+    <FederationSignIn />
+    <MoeLink v-if="view === 'login'" as-child class="justify-self-center text-xs"><NuxtLink to="/auth/cancel-deletion">{{ integration.cancelDeletion }}</NuxtLink></MoeLink>
     <p class="moe-auth-alternative"><span>{{ view === 'login' ? text.noAccount : text.haveAccount }}</span><MoeButton v-if="route.query.authorization_request !== undefined" variant="light" size="sm" :disabled="busy || loading" @click="changeView(view === 'login' ? 'register' : 'login')">{{ view === 'login' ? text.registerLink : text.loginLink }}</MoeButton><MoeLink v-else as-child><NuxtLink :to="alternative">{{ view === 'login' ? text.registerLink : text.loginLink }}</NuxtLink></MoeLink></p>
     <MoeButton v-if="!account && !loading || feedback === 'forbidden'" variant="bordered" :loading="loading" @click="connect">{{ text.retry }}</MoeButton>
   </div>

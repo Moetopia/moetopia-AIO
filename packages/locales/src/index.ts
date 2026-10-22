@@ -7,6 +7,16 @@ import managementTW from './management/zh-TW'
 import managementEN from './management/en'
 import managementJA from './management/ja'
 import type { Locale, LocaleMessages } from './types'
+import adminCN from './admin/zh-CN'
+import adminTW from './admin/zh-TW'
+import adminEN from './admin/en'
+import adminJA from './admin/ja'
+import integrationCN from './integration/zh-CN'
+import integrationTW from './integration/zh-TW'
+import integrationEN from './integration/en'
+import integrationJA from './integration/ja'
+export const integrationMessages = { 'zh-CN': integrationCN, 'zh-TW': integrationTW, en: integrationEN, ja: integrationJA } satisfies Record<Locale, Record<keyof typeof integrationCN, string>>
+export const adminMessages = { 'zh-CN': adminCN, 'zh-TW': adminTW, en: adminEN, ja: adminJA } satisfies Record<Locale, Record<keyof typeof adminCN, string>>
 
 export type { Locale, LocaleMessages, Portal } from './types'
 export const supportedLocales = [

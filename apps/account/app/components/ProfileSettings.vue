@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import type { PortalContext } from '@moetopia/api-client'
-import { MoeCard, MoeButton, MoeSettingRow, MoeBadge, MoeDangerZone } from '@moetopia/ui'
+import { MoeAlert, MoeLink } from '@moetopia/ui'
 import { portalMessages } from '@moetopia/locales'
 defineProps<{ user: NonNullable<PortalContext['user']>; securityOnly?: boolean }>()
 const { locale } = usePortalPreferences()
 const pageText = computed(() => portalMessages[locale.value])
+const { text } = useIntegrationMessages()
 </script>
 <template>
   <div class="grid gap-6">
     <ProfileEditor v-if="!securityOnly" />
-    <AccountCredentials mode="email" />
-    <AccountCredentials mode="password" />
+    <MoeAlert v-if="user.has_password === false" :title="text.passwordNeeded" color="info"><template #actions><MoeLink as-child><NuxtLink to="/auth/forgot-password">{{ pageText.changePassword }}</NuxtLink></MoeLink></template></MoeAlert>
+    <template v-else><AccountCredentials mode="email" /><AccountCredentials mode="password" /></template>
     <AccountSecurityRecords v-if="securityOnly" />
-    <MoeCard v-if="securityOnly" layout="form" :title="pageText.providerAccess"><MoeSettingRow :title="'GitHub'" :description="pageText.providerAccessDescription" icon="code"><template #actions><MoeBadge color="secondary">{{ pageText.planned }}</MoeBadge></template></MoeSettingRow><MoeSettingRow title="Google" :description="pageText.providerAccessDescription" icon="user"><template #actions><MoeBadge color="secondary">{{ pageText.planned }}</MoeBadge></template></MoeSettingRow></MoeCard>
-    <MoeDangerZone :title="pageText.deleteAccount" :description="pageText.deleteAccountDescription"><MoeButton color="danger" variant="flat" disabled>{{ pageText.deleteAccount }}</MoeButton></MoeDangerZone>
+    <AccountBindings v-if="securityOnly" />
+    <CentralLogout v-if="securityOnly" />
+    <AccountDeletion />
   </div>
 </template>

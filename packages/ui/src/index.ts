@@ -1,4 +1,6 @@
 export { default as MoeButton } from './components/Button.vue'
+export { default as MoeSecretDisplay } from './components/SecretDisplay.vue'
+export { default as MoeTimeSeriesChart } from './components/TimeSeriesChart.vue'
 export { default as MoeProvider } from './components/Provider.vue'
 export { default as MoeSearchPalette } from './components/SearchPalette.vue'
 export { default as MoeResourceSummary } from './components/ResourceSummary.vue'

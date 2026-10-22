@@ -9,6 +9,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@moetopia/api-client": "workspace:*",
     "@moetopia/locales": "workspace:*",
     "@moetopia/portal": "workspace:*",
     "@moetopia/ui": "workspace:*",

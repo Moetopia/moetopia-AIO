@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { MoeNavbar, MoePageFrame, MoeAuthShell, MoeConsoleLayout, MoeDocsLayout, MoeSidebar, MoeStatusIndicator } from '@moetopia/ui'
 import type { MoeNavEntry } from '@moetopia/ui'
-import { portalMessages, type Portal } from '@moetopia/locales'
+import { portalMessages, adminMessages, integrationMessages, type Portal } from '@moetopia/locales'
 import type { StatusResponse } from '@moetopia/api-client'
 
 const props = defineProps<{ kind: Portal; workspace?: boolean; documentation?: boolean; auth?: boolean }>()
 const route = useRoute()
 const { locale, theme, text } = usePortalPreferences()
 const pageText = computed(() => portalMessages[locale.value])
+const adminText = computed(() => adminMessages[locale.value])
 const workspace = computed(() => props.kind === 'developer' && props.workspace)
-const activeSection = computed(() => props.kind === 'account' ? route.path === '/sessions' ? 'sessions' : route.path === '/security' ? 'security' : 'profile' : props.kind === 'developer' ? route.path.startsWith('/developer/applications') ? 'applications' : route.path.startsWith('/developer/docs') ? 'preparation' : 'overview' : route.hash.slice(1) || 'overview')
+const activeSection = computed(() => props.kind === 'account' ? route.path === '/sessions' ? 'sessions' : route.path === '/security' ? 'security' : 'profile' : props.kind === 'developer' ? route.path.startsWith('/developer/applications') ? 'applications' : route.path.startsWith('/developer/usage') ? 'usage' : route.path.startsWith('/developer/docs') ? 'preparation' : 'overview' : route.path.split('/')[1] || 'overview')
 const sectionItems = computed<MoeNavEntry[]>(() => props.kind === 'account' ? [
   { id: 'profile', label: pageText.value.profile, href: '/profile', icon: 'user' },
   { id: 'sessions', label: pageText.value.sessions, href: '/sessions', icon: 'shield' },
@@ -19,17 +20,14 @@ const sectionItems = computed<MoeNavEntry[]>(() => props.kind === 'account' ? [
   { id: 'applications', label: pageText.value.applications, href: '/developer/applications', icon: 'grid' },
   { id: 'preparation', label: pageText.value.preparation, href: '/developer/docs', icon: 'code' },
 ] : [
-  { id: 'overview', label: pageText.value.overview, href: '#overview', icon: 'home' },
-  { id: 'users', label: pageText.value.users, href: '#users', icon: 'user', disabled: true },
-  { id: 'review', label: pageText.value.review, href: '#review', icon: 'grid', disabled: true },
-  { id: 'security', label: pageText.value.security, href: '#security', icon: 'shield', disabled: true },
+  ...(['overview', 'applications', 'users', 'invitations', 'audit', 'principals', 'notifications', 'settings'] as const).map(id => ({ id, label: adminText.value[id], href: id === 'overview' ? '/' : `/${id}`, icon: id === 'overview' ? 'home' as const : 'grid' as const })),
 ])
 const navigate = (event: MouseEvent, item: MoeNavEntry) => {
   if (event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
   if (item.href.startsWith('/')) { event.preventDefault(); return navigateTo(item.href) }
 }
 const navigation = computed<MoeNavEntry[]>(() => props.kind === 'admin' ? [] : props.kind === 'account' ? [sectionItems.value[0]!, { id: 'developer', label: text.value.developer, href: '/developer' }] : [sectionItems.value[0]!, sectionItems.value[2]!, { id: 'console', label: pageText.value.console, href: '/developer/applications' }])
-const consoleGroups = computed(() => [{ label: pageText.value.console, items: [sectionItems.value[1]!, sectionItems.value[2]!] }])
+const consoleGroups = computed(() => [{ label: pageText.value.console, items: [sectionItems.value[1]!, { id: 'usage', label: integrationMessages[locale.value].usage, href: '/developer/usage', icon: 'grid' as const }, sectionItems.value[2]!] }])
 const documentation = computed(() => props.kind === 'developer' && props.documentation)
 const docsGroups = computed(() => [{ label: pageText.value.docsNavigation, items: [
   { id: 'overview', label: pageText.value.docsOverview, href: '/developer/docs' },
