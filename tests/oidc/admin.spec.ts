@@ -44,6 +44,19 @@ test('administrator RP requires fresh login and MFA, rotates sessions and recove
   const codes = (await page.locator('pre').innerText()).trim().split('\n')
   await stored.click()
   await expect(page.getByRole('heading', { name: '应用审核', exact: true })).toBeVisible()
+  for (const [route, endpoint] of [
+    ['notifications', 'notifications/failed'], ['principals', 'principals'],
+    ['audit', 'audit-events'], ['invitations', 'invitations'],
+    ['users', 'users'], ['applications', 'applications'],
+  ]) {
+    const response = page.waitForResponse(res => new URL(res.url()).pathname === `/api/v1/admin/${endpoint}` && res.request().method() === 'GET')
+    await page.goto(`${origin}/${route}`)
+    const loaded = await response
+    const problem = loaded.ok() ? undefined : await loaded.json() as { code?: string, errors?: { location?: string }[] }
+    expect({ status: loaded.status(), code: problem?.code, locations: problem?.errors?.map(error => error.location) }, route).toEqual({ status: 200, code: undefined, locations: undefined })
+    expect([...new URL(loaded.url()).searchParams.values()].every(value => value !== ''), `${route} has no empty query parameters`).toBe(true)
+    await expect(page.getByRole('alert')).toHaveCount(0)
+  }
   const confirmed = await call(page, '/api/v1/admin/context')
   expect(confirmed.status).toBe(200)
   const factor = confirmed.body.mfa as { enrolled: boolean, verified: boolean }

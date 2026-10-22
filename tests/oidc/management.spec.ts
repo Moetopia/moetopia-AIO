@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test'
 import { verifyPortalUI } from './portal-ui'
 
+test.use({ actionTimeout: 15000 })
+
 test('real user-site pages manage applications, profile and recovery with isolated fixtures', async ({ page, request }) => {
   const email = process.env.MOETOPIA_TEST_OIDC_EMAIL
   const password = process.env.MOETOPIA_TEST_OIDC_PASSWORD

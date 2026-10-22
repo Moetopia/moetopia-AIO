@@ -6,7 +6,7 @@ const status = ref('pending')
 const cursor = ref('')
 const history = ref<string[]>([])
 const data = shallowRef<AdminApplications>()
-const load = () => run(async () => { data.value = await $fetch<AdminApplications>('/api/v1/admin/applications', { query: { status: status.value, cursor: cursor.value }, retry: 0 }) })
+const load = () => run(async () => { data.value = await $fetch<AdminApplications>('/api/v1/admin/applications', { query: { status: status.value, ...(cursor.value ? { cursor: cursor.value } : {}) }, retry: 0 }) })
 watch(status, () => { cursor.value = ''; history.value = []; void load() })
 const page = (next: boolean) => { if (next) { history.value.push(cursor.value); cursor.value = data.value?.next_cursor ?? '' } else cursor.value = history.value.pop() ?? ''; void load() }
 onMounted(load)

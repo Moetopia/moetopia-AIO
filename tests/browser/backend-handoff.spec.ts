@@ -188,6 +188,45 @@ test('developer test membership, history and usage preserve revision and missing
   await expect(page.getByRole('table')).toContainText('未开始记录')
 })
 
+test('administrator pagination omits empty cursors and retains nonempty cursors', async ({ page }) => {
+  await adminSetup(page)
+  for (const [section, endpoint, key] of [['audit', 'audit-events', 'cursor'], ['principals', 'principals', 'after']] as const) {
+    const queries: string[] = []
+    await page.route(`**/api/v1/admin/${endpoint}*`, route => {
+      const url = new URL(route.request().url())
+      queries.push(url.search)
+      return route.fulfill({ json: { items: [], [key === 'after' ? 'next_after' : 'next_cursor']: url.searchParams.has(key) ? '' : 'example-next-page' } })
+    })
+    await page.goto(admin + '/' + section)
+    await expect(page.getByRole('button', { name: '下一页', exact: true })).toBeEnabled()
+    await page.getByRole('button', { name: '下一页', exact: true }).click()
+    await expect(page.getByRole('button', { name: '上一页', exact: true })).toBeEnabled()
+    await page.getByRole('button', { name: '上一页', exact: true }).click()
+    await expect(page.getByRole('button', { name: '下一页', exact: true })).toBeEnabled()
+    expect(queries).toEqual(['', `?${key}=example-next-page`, ''])
+  }
+})
+
+test('usage can retry its first application load and automatically loads statistics', async ({ page }) => {
+  await mockPortal(page)
+  let attempts = 0
+  await page.route('**/api/v1/developer/applications**', route => {
+    const url = new URL(route.request().url())
+    if (url.pathname.endsWith('/statistics')) return route.fulfill({ json: { generated_at: application.created_at, days: [] } })
+    expect(url.search).toBe('')
+    attempts++
+    return attempts === 1 ? route.fulfill({ status: 503, json: {} }) : route.fulfill({ json: { items: [application], next_cursor: '' } })
+  })
+  await page.goto(account + '/developer/usage')
+  await expect(page.getByRole('alert')).toBeVisible()
+  const retry = page.getByRole('button', { name: '刷新', exact: true })
+  await expect(retry).toBeEnabled()
+  await retry.click()
+  await expect(page.getByRole('figure')).toBeVisible()
+  await expect(page.getByRole('alert')).toHaveCount(0)
+  expect(attempts).toBe(2)
+})
+
 test('central sign-out requires an explicit decision and re-confirms a changed account', async ({ page }) => {
   const request = 'a'.repeat(43)
   let decisions = 0

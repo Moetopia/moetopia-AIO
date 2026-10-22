@@ -24,7 +24,10 @@ const rows = computed<Row[]>(() => result.value?.items ?? [])
 const columns = computed(() => ({ users: [['display_name', text.value.name], ['email', text.value.email], ['enabled', text.value.status], ['deletion_due_at', text.value.deletions], ['actions', text.value.actions]], invitations: [['id', 'ID'], ['expires_at', text.value.expires], ['consumed', text.value.used], ['revoked', text.value.revoke], ['actions', text.value.actions]], audit: [['created_at', text.value.created], ['action', text.value.action], ['actor_id', text.value.actor], ['target_id', text.value.target], ['outcome', text.value.outcome], ['reason', text.value.reason], ['request_id', 'Request ID']], principals: [['id', 'ID'], ['enabled', text.value.status], ['enrolled', text.value.enroll], ['emergency_required', text.value.emergency], ['actions', text.value.actions]], notifications: [['id', 'ID'], ['attempts', text.value.attempts], ['available_at', text.value.created], ['expires_at', text.value.expires], ['actions', text.value.actions]] })[props.section].map(([key, label]) => ({ key: key!, label: label! })))
 const load = () => run(refresh)
 const refresh = async () => {
-  result.value = await $fetch<List>(endpoint.value, { query: props.section === 'principals' || props.section === 'notifications' ? { after: cursor.value } : { cursor: cursor.value, ...(props.section === 'users' ? { query: appliedQuery.value } : {}) }, retry: 0 })
+  const query: Record<string, string> = {}
+  if (cursor.value) query[props.section === 'principals' || props.section === 'notifications' ? 'after' : 'cursor'] = cursor.value
+  if (props.section === 'users' && appliedQuery.value) query.query = appliedQuery.value
+  result.value = await $fetch<List>(endpoint.value, { query, retry: 0 })
   selected.value = undefined; dialog.value = false
 }
 const search = () => { appliedQuery.value = query.value.trim(); cursor.value = ''; previous.value = []; void load() }
