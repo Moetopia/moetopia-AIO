@@ -66,6 +66,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [Git 提交规范](docs/git-commits.md) | `type (scope): summary`、提交类型与范围 |
 | [前端规范](docs/frontend.md) | Nuxt 页面、状态、接口、国际化 |
 | [设计系统](docs/design-system.md) | 品牌、Headless 封装、Storybook |
+| [看板娘与状态插画清单](docs/illustration-brief.md) | 使用位置、角色姿势、生图描述与后续接入要求 |
 | [后端规范](docs/backend.md) | Go 分层、事务、迁移、任务 |
 | [身份与安全](docs/identity-security.md) | OAuth/OIDC、账号、会话和密钥 |
 | [API 契约](docs/api-contracts.md) | 协议格式、业务 API、类型生成 |
