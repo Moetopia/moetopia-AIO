@@ -31,6 +31,7 @@ type AdminSuspendInput struct {
 }
 
 func (a AdminEndpoints) registerApplications(api huma.API) {
+	a.registerApplicationDeletion(api)
 	a.registerApplicationHistory(api)
 	huma.Get(api, "/api/v1/admin/applications", func(ctx context.Context, input *AdminApplicationsInput) (*ApplicationsOutput, error) {
 		user, web, err := a.actor(ctx, AccountWrite{Cookie: input.Cookie}, false)

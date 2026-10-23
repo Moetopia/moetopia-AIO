@@ -70,6 +70,7 @@ var businessSummaries = map[string]string{
 	"POST /api/v1/admin/mfa/emergency":                                  "消费操作员应急凭据",
 	"GET /api/v1/admin/applications":                                    "查询平台应用列表",
 	"GET /api/v1/admin/applications/{id}":                               "获取平台应用详情",
+	"DELETE /api/v1/admin/applications/{id}":                            "删除平台应用并撤销授权",
 	"GET /api/v1/admin/applications/{id}/versions":                      "查询平台应用配置历史",
 	"POST /api/v1/admin/applications/{id}/review":                       "批准或拒绝应用配置",
 	"POST /api/v1/admin/applications/{id}/suspension":                   "暂停或解除暂停应用",

@@ -43,7 +43,7 @@ test('administrator RP requires fresh login and MFA, rotates sessions and recove
   await expect(stored).toBeVisible()
   const codes = (await page.locator('pre').innerText()).trim().split('\n')
   await stored.click()
-  await expect(page.getByRole('heading', { name: '应用审核', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '应用管理', exact: true })).toBeVisible()
   for (const [route, endpoint] of [
     ['notifications', 'notifications/failed'], ['principals', 'principals'],
     ['audit', 'audit-events'], ['invitations', 'invitations'],

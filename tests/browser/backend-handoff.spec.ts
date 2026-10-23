@@ -37,6 +37,98 @@ const adminSetup = async (page: Page, verified = true, enrolled = true, emergenc
   return state
 }
 
+test('administrator lists all applications and can review, suspend, inspect and delete with confirmation', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await adminSetup(page)
+  let current = { ...application, latest: { ...application.latest, version: 2 }, suspended: false, suspension_reason: '', active_version: 1, approved: { ...application.latest, version: 1, status: 'approved', config: { ...application.latest.config, name: '此前批准的名称' } } }
+  let removed = false
+  let initialStatus = ''
+  const writes: string[] = []
+  await page.route('**/api/v1/admin/applications**', route => {
+    const request = route.request(), url = new URL(request.url()), path = url.pathname
+    if (request.method() === 'DELETE') {
+      expect(request.headers()['x-moetopia-csrf']).toBe('admin-example-csrf')
+      expect(request.postDataJSON()).toMatchObject({ revision: current.revision, reason: '测试删除原因' })
+      removed = true; writes.push('delete'); return route.fulfill({ status: 204 })
+    }
+    if (request.method() === 'POST') {
+      const body = request.postDataJSON()
+      expect(body.revision).toBe(current.revision)
+      writes.push(path.endsWith('/review') ? 'review' : 'suspend')
+      current = { ...current, revision: current.revision + 1, ...(path.endsWith('/review') ? { active_version: 2, approved: { ...current.latest, status: 'approved' }, latest: { ...current.latest, status: 'approved' } } : { suspended: body.suspended, suspension_reason: body.reason }) }
+      return route.fulfill({ json: current })
+    }
+    if (path.endsWith('/versions')) return route.fulfill({ json: { items: current.latest.version === current.approved.version ? [current.latest] : [current.latest, current.approved], active_version: current.active_version, latest_version: current.latest.version, next_before: 0 } })
+    if (path.endsWith('/applications')) { initialStatus ||= url.searchParams.get('status') ?? ''; return route.fulfill({ json: { items: removed ? [] : [current], next_cursor: '' } }) }
+    return route.fulfill({ json: current })
+  })
+  await page.goto(admin + '/applications')
+  await expect(page.getByRole('columnheader', { name: '操作', exact: true })).toBeVisible()
+  expect(initialStatus).toBe('all')
+  await page.screenshot({ path: '.data/previews/admin/application-controls-list.png', fullPage: true })
+  await page.getByRole('link', { name: '查看配置', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '最新配置', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '当前生效配置', exact: true })).toBeVisible()
+  await expect(page.getByText('此前批准的名称', { exact: true }).first()).toBeVisible()
+  await page.screenshot({ path: '.data/previews/admin/application-configuration.png', fullPage: true })
+  await page.getByRole('link', { name: '返回应用列表', exact: true }).click()
+  await page.getByRole('button', { name: '操作', exact: true }).click()
+  await page.getByRole('menuitem', { name: '批准发布', exact: true }).click()
+  await page.getByRole('dialog').getByRole('button', { name: '确认', exact: true }).click()
+  await expect(page.getByRole('table')).toContainText('已批准')
+  await page.getByRole('button', { name: '操作', exact: true }).click()
+  await page.getByRole('menuitem', { name: '暂停应用', exact: true }).click()
+  await page.getByLabel('操作原因', { exact: true }).fill('测试暂停原因')
+  await page.getByRole('dialog').getByRole('button', { name: '确认', exact: true }).click()
+  await expect(page.getByRole('table')).toContainText('暂停应用')
+  await page.getByRole('link', { name: '查看配置', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '最新配置', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '当前生效配置', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '删除应用', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  const confirm = dialog.getByRole('button', { name: '确认', exact: true })
+  await expect(confirm).toBeDisabled()
+  await page.getByLabel('操作原因', { exact: true }).fill('测试删除原因')
+  await page.getByLabel('输入应用名称以确认删除', { exact: true }).fill('错误的名称')
+  await expect(confirm).toBeDisabled()
+  await page.getByLabel('输入应用名称以确认删除', { exact: true }).fill(application.latest.config.name)
+  await confirm.click()
+  await expect(page).toHaveURL(admin + '/applications')
+  await expect(page.getByRole('table')).toContainText('暂无记录')
+  expect(writes).toEqual(['review', 'suspend', 'delete'])
+})
+
+test('administrator deletion rechecks changed names and revisions after a conflict', async ({ page }) => {
+  await adminSetup(page)
+  let current = { ...application }
+  let writes = 0
+  await page.route('**/api/v1/admin/applications**', route => {
+    const path = new URL(route.request().url()).pathname
+    if (route.request().method() === 'DELETE') {
+      writes++
+      expect(route.request().postDataJSON().revision).toBe(current.revision)
+      if (writes === 1) { current = { ...current, revision: 4, latest: { ...current.latest, config: { ...current.latest.config, name: '更新后的名称' } } }; return route.fulfill({ status: 409, json: { code: 'application_conflict' } }) }
+      return route.fulfill({ status: 204 })
+    }
+    if (path.endsWith('/versions')) return route.fulfill({ json: { items: [], active_version: 0, latest_version: 1, next_before: 0 } })
+    if (path.endsWith('/applications')) return route.fulfill({ json: { items: [], next_cursor: '' } })
+    return route.fulfill({ json: current })
+  })
+  await page.goto(admin + `/applications/${application.id}`)
+  await page.getByRole('button', { name: '删除应用', exact: true }).click()
+  await page.getByLabel('操作原因', { exact: true }).fill('测试版本冲突')
+  await page.getByLabel('输入应用名称以确认删除', { exact: true }).fill(application.latest.config.name)
+  const confirm = page.getByRole('dialog').getByRole('button', { name: '确认', exact: true })
+  await confirm.click()
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText('状态已变化')
+  await expect(confirm).toBeDisabled()
+  expect(writes).toBe(1)
+  await page.getByLabel('输入应用名称以确认删除', { exact: true }).fill('更新后的名称')
+  await confirm.click()
+  await expect(page).toHaveURL(admin + '/applications')
+  expect(writes).toBe(2)
+})
+
 test('administrator enrollment withholds protected pages until one-time codes are acknowledged', async ({ page }) => {
   const state = await adminSetup(page, false, false)
   await page.goto(admin + '/users')

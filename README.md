@@ -49,6 +49,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [应用测试成员](docs/run-test-members.md) | 显式资格、在线撤销、通知与迁移 13 |
 | [应用协议统计](docs/run-statistics.md) | 真实事件、30 个 UTC 日期、采集边界与迁移 14 |
 | [管理员与后台接入](docs/run-administration.md) | 独立 RP、TOTP/恢复、审核/暂停、用户/邀请/审计与迁移 8/9 |
+| [管理台应用控制](docs/run-admin-application-management.md) | 全部应用、配置、审核、暂停及管理员删除契约 |
 | [管理员控制与应急](docs/run-admin-controls.md) | 后续角色授予、最后管理员保护、受控恢复与迁移 15 |
 | [全局统计与通知重投](docs/run-admin-statistics.md) | 真实注册趋势、队列状态、人工重投与迁移 16 |
 | [Linux 容器发布](docs/run-production.md) | 镜像、秘密文件、运行角色、入口与可重复演练 |

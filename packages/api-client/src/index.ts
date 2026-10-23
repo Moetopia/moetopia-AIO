@@ -39,6 +39,7 @@ export type AdminEnrollment = paths['/api/v1/admin/mfa/enrollment']['post']['res
 export type AdminApplications = paths['/api/v1/admin/applications']['get']['responses'][200]['content']['application/json']
 export type AdminReviewRequest = paths['/api/v1/admin/applications/{id}/review']['post']['requestBody']['content']['application/json']
 export type AdminSuspensionRequest = paths['/api/v1/admin/applications/{id}/suspension']['post']['requestBody']['content']['application/json']
+export type AdminApplicationDeleteRequest = paths['/api/v1/admin/applications/{id}']['delete']['requestBody']['content']['application/json']
 export type AdminUsers = paths['/api/v1/admin/users']['get']['responses'][200]['content']['application/json']
 export type AdminUserAvailabilityRequest = paths['/api/v1/admin/users/{id}/availability']['post']['requestBody']['content']['application/json']
 export type AdminInvitations = paths['/api/v1/admin/invitations']['get']['responses'][200]['content']['application/json']

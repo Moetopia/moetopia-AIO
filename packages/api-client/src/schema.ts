@@ -323,7 +323,8 @@ export interface paths {
         get: operations["get-api-v1-admin-applications-by-id"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** 删除平台应用并撤销授权 */
+        delete: operations["delete-api-v1-admin-applications-by-id"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1421,6 +1422,17 @@ export interface components {
              * @example https://example.com/errors/example
              */
             type: string;
+        };
+        AdminApplicationDeleteInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/AdminApplicationDeleteInputBody.json
+             */
+            readonly $schema?: string;
+            reason: string;
+            /** Format: int64 */
+            revision: number;
         };
         AdminCodeInputBody: {
             /**
@@ -3173,6 +3185,43 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Application"];
                 };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "delete-api-v1-admin-applications-by-id": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminApplicationDeleteInputBody"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Error */
             default: {
