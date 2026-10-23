@@ -46,6 +46,41 @@ try {
       console.log(`${name}: ${result.width}x${result.height}, ${Math.round(output.length / 1024)} KiB, alpha verified`)
     }
   }
+  const portrait = await readFile(path.join(root, 'output/illustrations/2026-10-23-second-batch/mascot-face-neutral.png'))
+  const icons = await page.evaluate(async base64 => {
+    const image = new Image()
+    image.src = `data:image/png;base64,${base64}`
+    await image.decode()
+    return [16, 32, 48, 64, 180].map(size => {
+      const canvas = document.createElement('canvas')
+      canvas.width = size; canvas.height = size
+      const context = canvas.getContext('2d')
+      context.fillStyle = '#e4f4ed'
+      context.beginPath(); context.roundRect(0, 0, size, size, Math.round(size * .22)); context.fill(); context.clip()
+      context.imageSmoothingQuality = 'high'
+      const inset = Math.max(1, Math.round(size * .04))
+      context.drawImage(image, inset, inset, size - inset * 2, size - inset * 2)
+      return { size, data: canvas.toDataURL('image/png').split(',')[1] }
+    })
+  }, portrait.toString('base64'))
+  const publicRoot = path.join(root, 'packages/portal/public')
+  await mkdir(path.join(publicRoot, 'brand'), { recursive: true })
+  const frames = icons.filter(icon => icon.size < 180).map(icon => ({ size: icon.size, data: Buffer.from(icon.data, 'base64') }))
+  const directory = Buffer.alloc(6 + frames.length * 16)
+  directory.writeUInt16LE(1, 2); directory.writeUInt16LE(frames.length, 4)
+  let offset = directory.length
+  for (const [index, frame] of frames.entries()) {
+    const entry = 6 + index * 16
+    directory[entry] = frame.size; directory[entry + 1] = frame.size
+    directory.writeUInt16LE(1, entry + 4); directory.writeUInt16LE(32, entry + 6)
+    directory.writeUInt32LE(frame.data.length, entry + 8); directory.writeUInt32LE(offset, entry + 12)
+    offset += frame.data.length
+  }
+  await writeFile(path.join(publicRoot, 'favicon.ico'), Buffer.concat([directory, ...frames.map(frame => frame.data)]))
+  for (const icon of icons.filter(icon => [32, 48, 180].includes(icon.size))) {
+    await writeFile(path.join(publicRoot, 'brand', icon.size === 180 ? 'apple-touch-icon.png' : `favicon-${icon.size}.png`), Buffer.from(icon.data, 'base64'))
+  }
+  console.log('Site icons: 16/32/48/64 ICO, 32/48 PNG and 180px Apple touch icon')
 } finally { await browser.close() }
 await writeFile(path.join(target, 'manifest.json'), JSON.stringify({ encoder: 'Chromium Canvas WebP quality 0.88', entries }, null, 2) + '\n')
 const imports = entries.map((entry, i) => `import art${i} from './assets/illustrations/${entry.file}'`).join('\n')

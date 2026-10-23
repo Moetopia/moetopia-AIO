@@ -169,7 +169,7 @@ for (const [status, message] of [[403, '无法验证此次操作'], [404, '此�
   })
 }
 
-test('English dark authorization fits a narrow screen without loading mascot art', async ({ page }) => {
+test('English dark authorization fits a narrow screen with the compact provider mark', async ({ page }) => {
   await setup(page)
   await page.route(`**/api/v1/account/authorizations/${id}`, route => route.fulfill({ json: details }))
   await page.setViewportSize({ width: 375, height: 812 })
@@ -177,6 +177,7 @@ test('English dark authorization fits a narrow screen without loading mascot art
   await selectLanguage(page, 'English')
   await chooseTheme(page, 'Change theme', 'Dark')
   await expect(page.getByRole('button', { name: 'Allow access', exact: true })).toBeEnabled()
-  await expect(page.locator('main img')).toHaveCount(0)
+  await expect(page.locator('main .moe-authorization-provider .moe-brand-mark img')).toBeVisible()
+  await expect(page.locator('.moe-auth-brand [data-illustration="auth-welcome"]')).toBeHidden()
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
 })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
-import { MoeProvider, MoeStatusPage, MoeButton, MoeLink } from '@moetopia/ui'
+import { MoeProvider, MoeStatusPage, MoeButton, MoeLink, MoeBrandMark } from '@moetopia/ui'
 import { feedbackMessages } from '@moetopia/locales'
 const props = defineProps<{ error: NuxtError }>()
 const { locale, theme } = usePortalPreferences()
@@ -11,7 +11,7 @@ useHead(() => ({ title: `${props.error.statusCode} · Moetopia`, htmlAttrs: { la
 </script>
 <template>
   <MoeProvider><MoeStatusPage :code="String(error.statusCode)" :title="text[kind]" :description="text[`${kind}Description`]" :illustration="illustration">
-    <template #header><MoeLink href="/">Moetopia</MoeLink><PortalPreferences /></template>
+    <template #header><MoeLink href="/" class="moe-brand-lockup"><MoeBrandMark />Moetopia</MoeLink><PortalPreferences /></template>
     <MoeButton @click="clearError({ redirect: '/' })">{{ text.home }}</MoeButton><MoeButton v-if="kind === 'unavailable'" variant="bordered" @click="clearError()">{{ text.retry }}</MoeButton>
   </MoeStatusPage></MoeProvider>
 </template>

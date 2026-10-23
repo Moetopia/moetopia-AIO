@@ -1,5 +1,6 @@
 export { default as MoeButton } from './components/Button.vue'
 export { default as MoeIllustration } from './components/Illustration.vue'
+export { default as MoeBrandMark } from './components/BrandMark.vue'
 export { default as MoeStatusPage } from './components/StatusPage.vue'
 export type { MoeIllustrationName } from './illustrations'
 export { default as MoeEndpointList } from './components/EndpointList.vue'

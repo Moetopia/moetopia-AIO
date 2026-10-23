@@ -28,7 +28,7 @@ onBeforeUnmount(() => media?.removeEventListener('change', closeOnDesktop))
         </DialogContent>
       </DialogPortal>
     </DialogRoot>
-    <a :href="brandHref" class="moe-navbar-brand moe-focus"><slot name="brand"><span class="moe-navbar-wordmark"><span>{{ brand }}</span><span v-if="subtitle" class="moe-navbar-subtitle">{{ subtitle }}</span></span></slot></a>
+    <a :href="brandHref" class="moe-navbar-brand moe-focus" :data-brand-icon="!!$slots['brand-icon'] || undefined"><slot name="brand-icon" /><slot name="brand"><span class="moe-navbar-wordmark"><span>{{ brand }}</span><span v-if="subtitle" class="moe-navbar-subtitle">{{ subtitle }}</span></span></slot></a>
     <nav :aria-label="label" class="moe-navbar-links"><NavItem v-for="item in items" :key="item.id" :item="item" :active="active === item.id" @navigate="navigate" /></nav>
     <div class="moe-navbar-actions"><slot name="actions" /></div>
   </header>

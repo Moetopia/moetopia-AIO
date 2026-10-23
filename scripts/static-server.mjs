@@ -5,7 +5,7 @@ import { resolve, extname, sep } from 'node:path'
 const directory = resolve(process.argv[2])
 const port = Number(process.argv[3])
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('Invalid local preview port')
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' }
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2' }
 createServer(async (request, response) => {
   const pathname = new URL(request.url, 'http://localhost').pathname
   if (pathname.startsWith('/api/') || pathname.startsWith('/oauth/')) { response.writeHead(503); response.end(); return }

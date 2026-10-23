@@ -10,7 +10,7 @@ const healthy = async (page: import('@playwright/test').Page, name: string) => {
   await expect(image).toHaveAttribute('alt', '')
 }
 
-test('authentication art fits desktop and is neither displayed nor fetched on mobile or consent', async ({ page }) => {
+test('authentication art fits desktop including OAuth and is neither displayed nor fetched on mobile', async ({ page }) => {
   await page.route('**/api/**', route => route.fulfill({ status: 503, json: {} }))
   await page.setViewportSize({ width: 1440, height: 800 })
   await page.goto(account + '/auth/login')
@@ -30,7 +30,7 @@ test('authentication art fits desktop and is neither displayed nor fetched on mo
   await mobile.close()
   await page.goto(account + '/auth/authorize')
   await expect(page.getByRole('alert')).toContainText('授权请求格式无效')
-  await expect(page.locator('[data-illustration="auth-welcome"]')).toHaveCount(0)
+  await healthy(page, 'auth-welcome')
 })
 
 test('empty applications, failed loading, developer landing and guide each use the matching illustration', async ({ page }) => {

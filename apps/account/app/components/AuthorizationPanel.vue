@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoeAlert, MoeButton, MoeDescriptionList, MoePageHeading, MoeSettingRow, MoeSpinner, MoeAuthorizationHandshake, MoeConsentDetails, MoeAccordion, MoeUserChip, MoeIllustration } from '@moetopia/ui'
+import { MoeAlert, MoeButton, MoeDescriptionList, MoePageHeading, MoeSettingRow, MoeSpinner, MoeAuthorizationHandshake, MoeConsentDetails, MoeAccordion, MoeUserChip, MoeIllustration, MoeBrandMark } from '@moetopia/ui'
 import { authorizationMessages } from '@moetopia/locales'
 
 const { locale } = usePortalPreferences()
@@ -25,7 +25,7 @@ const claims = computed(() => {
   <section class="moe-authorization" :aria-label="text.title" :aria-busy="loading || submitting">
     <MoeSpinner v-if="loading" :label="text.loading" />
     <template v-else>
-      <MoeAuthorizationHandshake v-if="details && !expired" :application="details.client_name" provider="Moetopia" />
+      <MoeAuthorizationHandshake v-if="details && !expired" :application="details.client_name" provider="Moetopia"><template #provider><MoeBrandMark size="lg" /></template></MoeAuthorizationHandshake>
       <MoePageHeading :title="needsLogin && details ? forceLogin || details.user ? text.reauthenticate : text.login : text.title" :description="details ? undefined : text.description" />
       <div v-if="details && !expired"><h2 class="text-sm font-semibold">{{ details.client_name }}</h2><p class="mt-2 text-sm text-muted">{{ text.requestAccess }}</p></div>
     </template>

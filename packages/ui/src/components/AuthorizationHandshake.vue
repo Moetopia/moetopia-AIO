@@ -6,6 +6,6 @@ defineProps<{ application: string; provider: string }>()
   <div class="moe-authorization-handshake">
     <span class="moe-authorization-app" :aria-label="application">{{ application.trim().slice(0, 1).toUpperCase() || '?' }}</span>
     <span class="moe-authorization-connector" aria-hidden="true" /><Icon name="arrow-right" /><span class="moe-authorization-connector" aria-hidden="true" />
-    <span class="moe-authorization-app moe-authorization-provider" :aria-label="provider">M</span>
+    <span class="moe-authorization-app moe-authorization-provider" :aria-label="provider"><slot name="provider">M</slot></span>
   </div>
 </template>

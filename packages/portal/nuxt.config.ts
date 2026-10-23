@@ -10,6 +10,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-10-18',
   devtools: { enabled: false },
   app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', sizes: '16x16 32x32 48x48 64x64' },
+        { rel: 'icon', type: 'image/png', href: '/brand/favicon-32.png', sizes: '32x32' },
+        { rel: 'icon', type: 'image/png', href: '/brand/favicon-48.png', sizes: '48x48' },
+        { rel: 'apple-touch-icon', href: '/brand/apple-touch-icon.png', sizes: '180x180' },
+      ],
+    },
     pageTransition: { name: 'moe-page', mode: 'out-in' },
     layoutTransition: { name: 'moe-layout', mode: 'out-in' },
   },

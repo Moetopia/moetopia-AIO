@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { MoeNavbar, MoePageFrame, MoeAuthShell, MoeConsoleLayout, MoeDocsLayout, MoeSidebar, MoeStatusIndicator, MoeIllustration } from '@moetopia/ui'
+import { MoeNavbar, MoePageFrame, MoeAuthShell, MoeConsoleLayout, MoeDocsLayout, MoeSidebar, MoeStatusIndicator, MoeIllustration, MoeBrandMark } from '@moetopia/ui'
 import type { MoeNavEntry } from '@moetopia/ui'
 import { portalMessages, adminMessages, integrationMessages, documentationMessages, guideIds, type Portal } from '@moetopia/locales'
 import type { StatusResponse } from '@moetopia/api-client'
 
 const props = defineProps<{ kind: Portal; workspace?: boolean; documentation?: boolean; auth?: boolean }>()
 const route = useRoute()
-const showAuthArt = computed(() => ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password'].includes(route.path) && !route.query.authorization_request)
+const showAuthArt = computed(() => ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/authorize'].includes(route.path) || props.auth && typeof route.query.authorization_request === 'string')
 const { locale, theme, text } = usePortalPreferences()
 const pageText = computed(() => portalMessages[locale.value])
 const adminText = computed(() => adminMessages[locale.value])
@@ -47,16 +47,17 @@ onMounted(async () => {
 
 <template>
   <MoeAuthShell v-if="auth" :skip-label="pageText.skip" brand-label="Moetopia">
-    <template #header><NuxtLink to="/" class="moe-navbar-brand moe-focus"><span>Moetopia<span class="moe-navbar-subtitle">{{ text.account }}</span></span></NuxtLink><PortalPreferences /></template>
+    <template #header><NuxtLink to="/" class="moe-navbar-brand moe-brand-lockup moe-focus"><MoeBrandMark /><span>Moetopia<span class="moe-navbar-subtitle">{{ text.account }}</span></span></NuxtLink><PortalPreferences /></template>
     <slot :locale="locale" />
     <template #footer><span>© 2026 Moetopia</span><MoeStatusIndicator :label="text[status]" :state="status === 'connected' ? 'positive' : status === 'disconnected' ? 'negative' : 'pending'" announce /></template>
     <template #brand><div v-if="showAuthArt" class="moe-auth-brand-art"><MoeIllustration name="auth-welcome" size="hero" desktop-only eager /></div><div><span class="moe-auth-wordmark">Moetopia</span><h2 class="moe-auth-headline">{{ pageText.artTitle }}</h2><p class="moe-auth-brand-detail">{{ pageText.artDescription }}</p></div></template>
     <template #mobile-brand><span>Moetopia</span><p>{{ pageText.artTitle }}</p></template>
   </MoeAuthShell>
   <MoePageFrame v-else :skip-label="pageText.skip" :data-portal="kind" :density="kind === 'account' ? 'compact' : kind === 'developer' && route.path === '/developer' ? 'landing' : 'default'">
-    <template v-if="kind === 'admin'" #sidebar><MoeSidebar v-bind="sidebar" layout="rail" :title="`Moetopia · ${text.admin}`" :footer-text="undefined" @navigate="navigate" /></template>
+    <template v-if="kind === 'admin'" #sidebar><MoeSidebar v-bind="sidebar" layout="rail" :title="`Moetopia · ${text.admin}`" :footer-text="undefined" @navigate="navigate"><template #brand-icon><MoeBrandMark /></template></MoeSidebar></template>
     <template #header>
       <MoeNavbar :brand="kind === 'developer' ? `Moetopia ${text.developer}` : kind === 'admin' ? text.admin : 'Moetopia'" :subtitle="kind === 'account' ? text.account : undefined" :brand-href="kind === 'developer' ? '/developer' : kind === 'account' ? '/profile' : '/'" :label="pageText.navigation" :items="navigation" :mobile-items="mobileItems" :active="workspace ? 'console' : activeSection" :menu-label="pageText.openNavigation" :close-label="pageText.closeNavigation" :breakpoint="kind === 'admin' ? 'tablet' : 'desktop'" @navigate="navigate">
+        <template #brand-icon><MoeBrandMark /></template>
         <template #actions><PortalDocSearch v-if="kind === 'developer'" /><PortalPreferences /><slot name="account" /></template>
       </MoeNavbar>
     </template>
