@@ -13,7 +13,7 @@ test('developer navigation keeps stable transition containers across all layouts
     ['/developer/docs', '快速开始'], ['/developer/docs/endpoints', 'API 参考'], ['/developer/applications', '我的应用'], ['/developer', '让你的应用，连接 Moetopia。'],
   ]
   for (let repeat = 0; repeat < 3; repeat++) for (const [path, heading] of steps) {
-    await page.locator(`a[href="${path}"]`).first().click()
+    await page.locator(`a[href="${path}"]:visible`).first().click()
     await expect(page).toHaveURL(`${origin}${path}`)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await page.waitForTimeout(240)

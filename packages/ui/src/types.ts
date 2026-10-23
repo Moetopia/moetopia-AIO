@@ -10,3 +10,4 @@ export interface MoeMenuItem { id: string; label: string; icon?: MoeIconName; de
 export interface MoeTableColumn { key: string; label: string; align?: 'start' | 'end'; sortable?: boolean }
 export interface MoeAccordionItem { value: string; title: string; description?: string; disabled?: boolean }
 export interface MoeSchemaField { name: string; type: string; required: boolean; description?: string; constraints?: string[]; children?: MoeSchemaField[] }
+export interface MoeTreeEntry { id: string; label: string; href?: string; description?: string; method?: string; children?: MoeTreeEntry[] }

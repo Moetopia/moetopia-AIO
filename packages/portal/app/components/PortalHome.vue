@@ -63,7 +63,7 @@ onMounted(async () => {
       <template #account><slot name="workspace-account" /></template>
       <slot :locale="locale"><PortalPreparation :kind="kind" :locale="locale" /></slot>
     </MoeConsoleLayout>
-    <MoeDocsLayout v-else-if="documentation" :label="pageText.docsNavigation" :groups="docsGroups" :active="route.path === '/developer/docs' ? 'overview' : route.path.includes('/docs/api/') ? 'endpoints' : route.path.split('/').at(-1)" @navigate="navigate"><slot :locale="locale" /></MoeDocsLayout>
+    <MoeDocsLayout v-else-if="documentation" :label="pageText.docsNavigation" :groups="docsGroups" :active="route.path === '/developer/docs' ? 'overview' : route.path.includes('/docs/api/') ? 'endpoints' : route.path.split('/').at(-1)" @navigate="navigate"><template v-if="$slots['docs-navigation']" #navigation><slot name="docs-navigation" /></template><slot :locale="locale" /></MoeDocsLayout>
     <slot v-else :locale="locale"><PortalPreparation :kind="kind" :locale="locale" /></slot>
     <template v-if="kind === 'developer' && !workspace" #footer><span>© 2026 Moetopia</span><MoeStatusIndicator :label="text[status]" :state="status === 'connected' ? 'positive' : status === 'disconnected' ? 'negative' : 'pending'" announce /></template>
   </MoePageFrame>

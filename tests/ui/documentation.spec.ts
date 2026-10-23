@@ -28,3 +28,13 @@ test('mobile document outline expands and links to the requested section', async
   await page.getByRole('navigation', { name: '本页内容' }).getByRole('link', { name: '验证回调' }).click()
   await expect(page).toHaveURL(/#callback$/)
 })
+
+test('folder navigation supports disclosure keys and selected-operation links', async ({ page }) => {
+  await page.goto('/iframe.html?id=documentation-navigationtree--default&viewMode=story')
+  const folder = page.getByRole('button', { name: /OAuth \/ OIDC/ })
+  await expect(folder).toHaveAttribute('aria-expanded', 'true')
+  await folder.focus(); await page.keyboard.press('ArrowLeft')
+  await expect(page.getByRole('link', { name: /兑换令牌/ })).not.toBeVisible()
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByRole('link', { name: /兑换令牌/ })).toHaveAttribute('aria-current', 'page')
+})

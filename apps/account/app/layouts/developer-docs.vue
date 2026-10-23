@@ -1,1 +1,1 @@
-<template><div><PortalHome kind="developer" documentation><template #account><AccountNavigation /></template><slot /></PortalHome></div></template>
+<template><div><PortalHome kind="developer" documentation><template #account><AccountNavigation /></template><template #docs-navigation><DocumentationNavigation /></template><slot /></PortalHome></div></template>

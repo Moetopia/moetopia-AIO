@@ -26,3 +26,20 @@
 .moe-schema-nested > summary { width: fit-content; cursor: pointer; color: var(--moe-primary); font-size: .8rem; }
 @media (min-width: 1280px) { .moe-document-layout { grid-template-columns: minmax(0, 1fr) 10rem; gap: 2.5rem; } .moe-document-mobile-outline { display: none; } .moe-document-outline { display: block; } .moe-document-outline > nav { position: sticky; top: 6rem; } }
 @media (max-width: 480px) { .moe-endpoint-link { grid-template-columns: 3.7rem minmax(0, 1fr); padding: .85rem; gap: .6rem; } .moe-endpoint-link > :last-child { display: none; } }
+.moe-navigation-tree { min-width: 0; }
+.moe-tree-folder { display: flex; align-items: center; gap: .45rem; width: 100%; padding: .65rem .3rem; font-size: .8rem; font-weight: 600; text-align: start; cursor: pointer; }
+.moe-tree-folder:hover { color: var(--moe-primary); }
+.moe-tree-chevron { transition: transform 150ms; }
+.moe-tree-chevron[data-open='true'] { transform: rotate(90deg); }
+.moe-tree-children { margin-left: .4rem; padding-left: .5rem; border-left: 1px solid var(--moe-line); }
+.moe-tree-link { display: flex; align-items: start; gap: .45rem; padding: .6rem .5rem; border-radius: 6px; color: var(--moe-muted); }
+.moe-tree-link:hover, .moe-tree-link[aria-current='page'] { background: var(--moe-accent); color: var(--moe-primary); }
+.moe-tree-link .moe-http-method { min-width: 2.5rem; padding: .15rem .2rem; font-size: .55rem; }
+.moe-tree-label { display: block; overflow-wrap: anywhere; font-size: .75rem; }
+.moe-tree-description { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: .65rem; opacity: .8; }
+.moe-docs-mobile-navigation { display: none; }
+@media (max-width: 1023px) { .moe-docs-mobile-navigation { display: block; border-bottom: 1px solid var(--moe-line); padding-bottom: 1rem; } .moe-docs-mobile-navigation > summary { cursor: pointer; margin-bottom: .8rem; color: var(--moe-primary); } }
+@media (prefers-reduced-motion: reduce) { .moe-tree-chevron { transition: none; } }
+.moe-request-panel { display: grid; gap: 1.2rem; min-width: 0; padding: 1.3rem; border: 1px solid var(--moe-line); border-radius: var(--moe-radius-panel); background: var(--moe-surface); }
+.moe-request-panel > header { display: grid; gap: .6rem; }
+@media (max-width: 1023px) { .moe-docs-layout { flex-direction: column; } .moe-docs-mobile-navigation { width: 100%; } }
