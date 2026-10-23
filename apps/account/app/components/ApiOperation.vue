@@ -6,7 +6,7 @@ import { documentationExamples } from '../utils/documentation-examples'
 const props = defineProps<{ id: string }>()
 const { docs, common } = useDocumentation()
 const { data, error, status, refresh } = await useFetch<DocDetail>(() => `/developer/docs/operations/${encodeURIComponent(props.id)}`)
-if (error.value?.statusCode === 404) throw createError({ statusCode: 404, statusMessage: 'API operation not found' })
+if (error.value?.statusCode === 404) throw createError({ statusCode: 404, statusMessage: 'API operation not found', fatal: true })
 const operation = computed(() => data.value?.operation)
 const protocol = computed(() => data.value?.entry.group === 'OAuth / OIDC')
 const outline = computed(() => ['authentication', 'parameters', 'body', 'responses', 'test', 'raw'].map(id => ({ id, label: docs.value.labels[id as 'authentication' | 'parameters' | 'body' | 'responses' | 'test' | 'raw'] })))

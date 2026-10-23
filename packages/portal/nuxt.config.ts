@@ -23,6 +23,13 @@ export default defineNuxtConfig({
     },
   },
   vite: { plugins: [tailwindcss()] },
+  hooks: {
+    'build:manifest': manifest => {
+      for (const entry of Object.values(manifest)) {
+        if (/(?:^|\/)(?:mascot|state)-[\w.-]+\.webp$/.test(entry.file)) { entry.prefetch = false; entry.preload = false }
+      }
+    },
+  },
   routeRules: {
     '/.well-known/openid-configuration': { proxy: `${apiURL.origin}/.well-known/openid-configuration`, headers: { 'cache-control': 'no-store' } },
     '/api/**': { proxy: { to: `${apiURL.origin}/api/**`, fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },

@@ -69,13 +69,14 @@ test('recovery entry preserves authorization and enables supported recovery', as
   await expect(page.getByRole('link', { name: '返回登录' })).toHaveAttribute('href', `/auth/login?authorization_request=${id}`)
 })
 
-test('registration history is private and the illustrated layout never loads candidate art', async ({ page }) => {
+test('registration history is private and only approved scene art enters the illustrated layout', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 800 })
   await page.route('**/api/**', route => route.fulfill({ status: 503, json: {} }))
   await page.goto(`${origin}/auth/login`)
   await page.getByRole('link', { name: '立即注册', exact: true }).click()
   await expect(page).toHaveURL(`${origin}/auth/register`)
-  await expect(page.locator('.moe-auth-shell img')).toHaveCount(0)
+  await expect(page.locator('.moe-auth-shell [data-illustration="auth-welcome"]')).toBeVisible()
+  await expect(page.locator('.moe-auth-shell img[src*="mascot-mint"]')).toHaveCount(0)
   expect(await page.locator('.moe-auth-column').evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true)
   await page.goBack()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('欢迎回来')

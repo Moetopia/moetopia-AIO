@@ -10,6 +10,7 @@
 @import './console-details.css';
 @import './security-patterns.css';
 @import './documentation.css';
+@import './illustrations.css';
 @source './';
 @source '../../portal/app';
 @source '../../../apps/account/app';

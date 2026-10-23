@@ -1,4 +1,7 @@
 export { default as MoeButton } from './components/Button.vue'
+export { default as MoeIllustration } from './components/Illustration.vue'
+export { default as MoeStatusPage } from './components/StatusPage.vue'
+export type { MoeIllustrationName } from './illustrations'
 export { default as MoeEndpointList } from './components/EndpointList.vue'
 export { default as MoeHttpMethod } from './components/HttpMethod.vue'
 export { default as MoeNavigationTree } from './components/NavigationTree.vue'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoePageHeading, MoeEndpointList, MoeInput, MoeSelect, MoeLink, MoeAlert, MoeButton, MoeSpinner, MoeCopyButton } from '@moetopia/ui'
+import { MoePageHeading, MoeEndpointList, MoeInput, MoeSelect, MoeLink, MoeAlert, MoeButton, MoeSpinner, MoeCopyButton, MoeEmptyState } from '@moetopia/ui'
 import type { DocEntry } from '../../shared/documentation'
 const { docs, common } = useDocumentation()
 const route = useRoute()
@@ -24,5 +24,5 @@ useHead(() => ({ title: `${docs.value.labels.reference} · Moetopia` }))
   <p class="text-xs text-muted">{{ docs.labels.languageNote }}</p>
   <MoeSpinner v-if="status === 'pending'" :label="docs.labels.reference" />
   <MoeAlert v-if="error" :title="docs.labels.loadError" color="danger" announce><template #actions><MoeButton @click="refresh()">{{ docs.labels.retry }}</MoeButton></template></MoeAlert>
-  <template v-else><p class="text-sm text-muted" aria-live="polite">{{ filtered.length }} {{ docs.labels.count }}</p><section v-for="section in sections" :key="section.group" class="grid gap-3"><h2 class="text-base font-semibold">{{ section.group }}</h2><MoeEndpointList :label="section.group" :items="section.items" :empty-label="docs.labels.empty" @navigate="navigate" /></section><p v-if="data && !filtered.length" class="py-8 text-muted">{{ docs.labels.empty }}</p></template>
+  <template v-else><p class="text-sm text-muted" aria-live="polite">{{ filtered.length }} {{ docs.labels.count }}</p><section v-for="section in sections" :key="section.group" class="grid gap-3"><h2 class="text-base font-semibold">{{ section.group }}</h2><MoeEndpointList :label="section.group" :items="section.items" :empty-label="docs.labels.empty" @navigate="navigate" /></section><MoeEmptyState v-if="data && !filtered.length && status !== 'pending'" :title="docs.labels.empty" illustration="no-results" illustration-size="sm" /></template>
 </div></template>

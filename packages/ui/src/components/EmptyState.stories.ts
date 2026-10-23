@@ -11,5 +11,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 export const Default: Story = {}
+export const Illustrated: Story = { args: { illustration: 'no-applications' } }
+export const NoResults: Story = { args: { title: '没有匹配的结果', description: '试试其他搜索条件。', illustration: 'no-results', illustrationSize: 'sm' } }
 
 

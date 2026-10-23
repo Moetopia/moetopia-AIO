@@ -100,6 +100,7 @@ test('catalog failure offers a real retry instead of an empty successful directo
   let unavailable = true
   await page.route('**/developer/docs/catalog', route => unavailable ? route.fulfill({ status: 503, json: {} }) : route.continue())
   await page.goto(origin + '/developer/docs')
+  await expect(page.locator('.moe-docs-sidebar input[type="search"]')).toBeEnabled()
   await page.locator('.moe-docs-sidebar a[href="/developer/docs/endpoints"]').click()
   await expect(page.getByRole('alert')).toContainText('文档暂时无法加载')
   await expect(page.getByText('没有找到匹配的接口，请调整筛选条件。')).toHaveCount(0)

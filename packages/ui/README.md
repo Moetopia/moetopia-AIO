@@ -43,6 +43,8 @@ pnpm test:ui
 
 ## 当前组件
 
+2026-10-23 新增 MoeIllustration 与 MoeStatusPage，并扩展 MoeEmptyState / MoeTable 的可选插画。`MoeIllustration` 接收类型化的 name、sm/md/lg/hero 尺寸、alt、desktopOnly 和 eager；图片失败时保留占位及图标，不影响外部文字与操作。默认装饰性空 alt，desktopOnly 在窄屏不加载实际图片。MoeStatusPage 提供整页状态内容、header 和操作插槽，不依赖 Nuxt 路由或 API。两项新组件及空状态变体均有 Storybook，原头像与 logo 不变。资源母版、压缩命令及页面落点见 [素材接入记录](../../docs/illustration-brief.md#8-本轮素材接入记录)。
+
 2026-10-21 截图对照轮次新增 Provider、ResourceSummary、ResourceCard、SectionPanel、RepeatableInput、SearchPalette，共 78 个公开组件，均有 Storybook。应用根节点使用 MoeProvider，并加载共享 styles.css；Provider 与全局稳定滚动条槽配合，避免弹窗二次补偿 body 宽度，同时保留 Reka 的滚动锁和焦点管理。不要在单个页面用 !important 清理 body 样式。
 
 ResourceSummary 组合概览、标识复制、操作和资料网格；ResourceCard 只展示通用资源内容，通过 href/navigate 适配路由；SectionPanel 保持标题/操作在卡片外。RepeatableInput 接受字符串数组、增删标签与数量上限；SearchPalette 接收页面选项并通过 select 返回值，支持 Ctrl K 和键盘选择，不依赖 Nuxt 或业务接口。CheckboxGroup 新增 cards，SettingRow 新增 inset，Dialog 支持 sm/md/lg 及右上关闭入口，PageHeading 提供 leading 插槽。业务范围、测试与截图见 [最新前端交接](../../docs/coordination/frontend.md)。

@@ -1,4 +1,9 @@
 import zhCN from './lang/zh-CN'
+import feedbackCN from './feedback/zh-CN'
+import feedbackTW from './feedback/zh-TW'
+import feedbackEN from './feedback/en'
+import feedbackJA from './feedback/ja'
+export const feedbackMessages = { 'zh-CN': feedbackCN, 'zh-TW': feedbackTW, en: feedbackEN, ja: feedbackJA } satisfies Record<Locale, Record<keyof typeof feedbackCN, string>>
 import documentationCN from './documentation/zh-CN'
 import documentationTW from './documentation/zh-TW'
 import documentationEN from './documentation/en'

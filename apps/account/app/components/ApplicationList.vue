@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DeveloperApplication, DeveloperApplications } from '@moetopia/api-client'
-import { MoeCard, MoeButton, MoeBadge, MoeEmptyState, MoeSpinner, MoeAlert, MoeResourceCard } from '@moetopia/ui'
+import { MoeCard, MoeButton, MoeBadge, MoeEmptyState, MoeSpinner, MoeAlert, MoeResourceCard, MoeIllustration } from '@moetopia/ui'
 import { accountMessages } from '@moetopia/locales'
 const { locale } = usePortalPreferences()
 const a = computed(() => accountMessages[locale.value])
@@ -24,6 +24,7 @@ onMounted(() => { void load() })
 </script>
 <template>
   <div class="grid gap-4">
+    <MoeIllustration v-if="error && !ready && !busy" name="service-unavailable" class="justify-self-center" />
     <MoeAlert v-if="error" :title="error" color="danger" announce><template #actions><MoeButton :disabled="busy" @click="load()">{{ a.retry }}</MoeButton></template></MoeAlert>
     <MoeSpinner v-if="busy && !ready" :label="a.checking" />
     <div v-if="items.length" class="moe-resource-grid">
@@ -32,7 +33,7 @@ onMounted(() => { void load() })
         <span>{{ app.enabled ? text.enabled : text.disabled }}</span><span>{{ text.version }} {{ app.latest.version }}</span>
       </MoeResourceCard>
     </div>
-    <MoeCard v-else-if="ready" class="moe-console-empty" padding="none"><MoeEmptyState :title="text.empty" :description="text.testOnly" icon="grid"><slot /></MoeEmptyState></MoeCard>
+    <MoeCard v-else-if="ready && !error" class="moe-console-empty" padding="none"><MoeEmptyState :title="text.empty" :description="text.testOnly" illustration="no-applications"><slot /></MoeEmptyState></MoeCard>
     <MoeButton v-if="cursor" :loading="busy" variant="bordered" @click="load(true)">{{ text.more }}</MoeButton>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoePageHeading, MoeCodeBlock, MoeCopyButton, MoeDocumentLayout, MoeLink, MoeAlert } from '@moetopia/ui'
+import { MoePageHeading, MoeCodeBlock, MoeCopyButton, MoeDocumentLayout, MoeLink, MoeAlert, MoeIllustration } from '@moetopia/ui'
 import { guideIds, type GuideId } from '@moetopia/locales'
 import { documentationExamples, documentationSources } from '../utils/documentation-examples'
 const props = defineProps<{ section?: string }>()
@@ -16,7 +16,7 @@ useHead(() => ({ title: `${guide.value.title} · Moetopia` }))
   <ApiDocumentation v-if="section === 'endpoints'" />
   <MoeDocumentLayout v-else :label="docs.labels.outline" :items="[...guide.sections.map(section => ({ id: section.id, label: section.title })), { id: 'test', label: docs.labels.test }]">
     <div class="flex flex-wrap items-center justify-between gap-3"><MoeLink as-child><NuxtLink to="/developer/docs/endpoints">{{ docs.labels.reference }}</NuxtLink></MoeLink><MoeCopyButton :value="documentText" :label="common.copy" :copied-label="common.copied" :error-label="common.copyFailed" /></div>
-    <MoePageHeading :title="guide.title" :description="guide.description" />
+    <div class="moe-guide-heading"><MoePageHeading :title="guide.title" :description="guide.description" /><MoeIllustration v-if="id === 'overview'" name="guide-helper" size="sm" /></div>
     <MoeAlert v-if="id === 'authentication'" :title="docs.labels.sdk" />
     <section v-for="section in guide.sections" :id="section.id" :key="section.id">
       <h2>{{ section.title }}</h2><p v-for="paragraph in section.paragraphs" :key="paragraph">{{ paragraph }}</p>

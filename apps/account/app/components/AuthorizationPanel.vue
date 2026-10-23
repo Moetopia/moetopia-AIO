@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoeAlert, MoeButton, MoeDescriptionList, MoePageHeading, MoeSettingRow, MoeSpinner, MoeAuthorizationHandshake, MoeConsentDetails, MoeAccordion, MoeUserChip } from '@moetopia/ui'
+import { MoeAlert, MoeButton, MoeDescriptionList, MoePageHeading, MoeSettingRow, MoeSpinner, MoeAuthorizationHandshake, MoeConsentDetails, MoeAccordion, MoeUserChip, MoeIllustration } from '@moetopia/ui'
 import { authorizationMessages } from '@moetopia/locales'
 
 const { locale } = usePortalPreferences()
@@ -29,6 +29,7 @@ const claims = computed(() => {
       <MoePageHeading :title="needsLogin && details ? forceLogin || details.user ? text.reauthenticate : text.login : text.title" :description="details ? undefined : text.description" />
       <div v-if="details && !expired"><h2 class="text-sm font-semibold">{{ details.client_name }}</h2><p class="mt-2 text-sm text-muted">{{ text.requestAccess }}</p></div>
     </template>
+    <MoeIllustration v-if="expired && !loading" name="session-expired" size="sm" class="justify-self-center" />
     <MoeAlert v-if="expired || feedback" :title="alertTitle" :color="feedback === 'changed' && !expired ? 'warning' : 'danger'" announce>
       <template #actions><MoeButton v-if="feedback === 'changed' && !expired" variant="bordered" @click="acknowledge">{{ text.title }}</MoeButton><MoeButton v-else-if="!expired && feedback !== 'expired' && feedback !== 'invalid'" variant="bordered" :disabled="submitting" @click="reload()">{{ text.retry }}</MoeButton></template>
     </MoeAlert>
