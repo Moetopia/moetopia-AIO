@@ -68,7 +68,7 @@ apps/
   account/             用户账号、认证与 /developer 开发者分区
   admin/               平台控制台
 packages/
-  ui/                  Vue 基础组件与 Storybook
+  ui/                  独立共享 UI 包的 Storybook 工作台（源码已迁出）
   api-client/          业务 API 生成类型及调用适配
   locales/             共享翻译
   portal/              两应用共享 Nuxt 适配与页面壳

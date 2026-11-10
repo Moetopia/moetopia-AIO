@@ -12,7 +12,7 @@
     "@moetopia/api-client": "workspace:*",
     "@moetopia/locales": "workspace:*",
     "@moetopia/portal": "workspace:*",
-    "@moetopia/ui": "workspace:*",
+    "@moetopia/ui": "file:../../vendor/moetopia-ui-0.1.2.tgz",
     "nuxt": "4.6.2",
     "vue": "3.5.44"
   },

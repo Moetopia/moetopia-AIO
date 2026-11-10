@@ -9,7 +9,11 @@ const batches = [
   ['2026-10-23-first-batch', ['mascot-auth-welcome', 'state-not-found', 'state-no-applications', 'state-no-results', 'state-service-unavailable']],
   ['2026-10-23-second-batch', ['mascot-developer-welcome', 'state-access-restricted', 'state-session-expired', 'state-no-records', 'state-complete', 'mascot-guide-helper', 'mascot-face-neutral']],
 ]
-const target = path.join(root, 'packages/ui/src/assets/illustrations')
+if (!process.env.MOETOPIA_UI_SOURCE) throw new Error('Set MOETOPIA_UI_SOURCE to the independent shared UI source repository')
+const uiRoot = path.resolve(process.env.MOETOPIA_UI_SOURCE)
+const uiPackage = JSON.parse(await readFile(path.join(uiRoot, 'package.json'), 'utf8'))
+if (uiPackage.name !== '@moetopia/ui') throw new Error('MOETOPIA_UI_SOURCE must own @moetopia/ui')
+const target = path.join(uiRoot, 'src/assets/illustrations')
 await mkdir(target, { recursive: true })
 const browser = await chromium.launch()
 const entries = []
@@ -85,4 +89,4 @@ try {
 await writeFile(path.join(target, 'manifest.json'), JSON.stringify({ encoder: 'Chromium Canvas WebP quality 0.88', entries }, null, 2) + '\n')
 const imports = entries.map((entry, i) => `import art${i} from './assets/illustrations/${entry.file}'`).join('\n')
 const records = entries.map((entry, i) => `  '${entry.key}': { src: art${i}, width: ${entry.width}, height: ${entry.height} },`).join('\n')
-await writeFile(path.join(root, 'packages/ui/src/illustrations.ts'), `${imports}\n\nexport const illustrations = {\n${records}\n} as const\n\nexport type MoeIllustrationName = keyof typeof illustrations\n`)
+await writeFile(path.join(uiRoot, 'src/illustrations.ts'), `${imports}\n\nexport const illustrations = {\n${records}\n} as const\n\nexport type MoeIllustrationName = keyof typeof illustrations\n`)

@@ -9,5 +9,5 @@
     "types": ["node", "vite/client"],
     "noEmit": true
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", ".storybook/**/*.ts"]
+  "include": [".storybook/**/*.ts"]
 }

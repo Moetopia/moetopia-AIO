@@ -1,4 +1,5 @@
 import tailwindcss from '@tailwindcss/vite'
+import { fileURLToPath } from 'node:url'
 
 const apiUpstream = process.env.MOETOPIA_API_UPSTREAM ?? 'http://127.0.0.1:8080'
 const apiURL = new URL(apiUpstream)
@@ -21,7 +22,7 @@ export default defineNuxtConfig({
     pageTransition: { name: 'moe-page', mode: 'out-in' },
     layoutTransition: { name: 'moe-layout', mode: 'out-in' },
   },
-  css: ['@moetopia/ui/styles.css'],
+  css: [fileURLToPath(new URL('./app/assets/shared-ui.css', import.meta.url))],
   typescript: { strict: true },
   build: { transpile: ['@moetopia/ui', '@moetopia/locales'] },
   runtimeConfig: {

@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/vue3-vite'
-import '../src/styles.css'
-import Provider from '../src/components/Provider.vue'
+import '@moetopia/ui/styles.css'
+import { MoeProvider as Provider } from '@moetopia/ui'
 
 const preview: Preview = {
   globalTypes: { theme: { toolbar: { icon: 'circlehollow', items: ['light', 'dark'] } } },
