@@ -8,4 +8,8 @@
 
 规范入口与前端/设计/架构说明已更新。维护插画时必须显式提供 MOETOPIA_UI_SOURCE 指向共享源码仓，避免脚本重建本仓副本。素材原图及其他会话改动保持原样。
 
-Game Info 的真实 AIO confidential RP 注册及浏览器联调尚未完成，不把本轮本地协议测试当作真实供应商验收。不得自动变更 AIO 生产应用或主机资源。
+后续补齐：新增仅 integration 构建标签启用的 `cmd/gameinfofixture`，用于 Game Info 的真实 AIO 授权服务器协议联调。夹具严格要求 loopback 回调、显式测试标记、`mgi_test_aio_<随机值>` 空数据库，并复用真实授权/签名/持久化实现；合成用户和同意页只用于隔离验证，不编入正常 API。调用入口为 Game Info 的 `pnpm test:aio <AIO checkout>`。
+
+共享 UI 0.1.4 同步修复 Dialog/Drawer 的描述 ID 绑定以及无描述导航抽屉的 ARIA 声明，版本及摘要由来源记录维护。提供描述时不向 Reka 显式传 undefined，以保留默认描述关联；无描述时传空值。读屏描述、焦点和弹窗警告检查以及 41 项组件回归通过。
+
+正式 confidential RP 注册、真实账号/MFA 与完整授权页面浏览器联调尚未完成，不把隔离协议测试当作生产验收。不得自动变更 AIO 生产应用或主机资源。

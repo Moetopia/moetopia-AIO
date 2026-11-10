@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@moetopia/ui": "file:../../vendor/moetopia-ui-0.1.2.tgz",
+    "@moetopia/ui": "file:../../vendor/moetopia-ui-0.1.4.tgz",
     "@moetopia/locales": "workspace:*",
     "@moetopia/api-client": "workspace:*",
     "@tailwindcss/vite": "4.3.3",

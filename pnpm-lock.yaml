@@ -199,8 +199,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/portal
       '@moetopia/ui':
-        specifier: file:../../vendor/moetopia-ui-0.1.2.tgz
-        version: file:vendor/moetopia-ui-0.1.2.tgz(vue@3.5.44(typescript@6.0.3))
+        specifier: file:../../vendor/moetopia-ui-0.1.4.tgz
+        version: file:vendor/moetopia-ui-0.1.4.tgz(vue@3.5.44(typescript@6.0.3))
       nuxt:
         specifier: 4.6.2
         version: 4.6.2(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.154.0)(@types/node@24.19.2)(@vue/compiler-sfc@3.5.44)(acorn@8.19.0)(confbox@0.3.1)(db0@0.3.4)(dotenv@17.4.2)(esbuild@0.28.2)(giget@3.3.1)(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(mlly@1.8.2)(oxc-parser@0.127.0)(rolldown@1.2.14)(rollup-plugin-visualizer@7.1.1(rolldown@1.2.14)(rollup@4.64.7))(rollup@4.64.7)(srvx@1.0.5)(supports-color@10.2.2)(terser@5.51.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))(vue-tsc@3.3.13(typescript@6.0.3))
@@ -230,8 +230,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/portal
       '@moetopia/ui':
-        specifier: file:../../vendor/moetopia-ui-0.1.2.tgz
-        version: file:vendor/moetopia-ui-0.1.2.tgz(vue@3.5.44(typescript@6.0.3))
+        specifier: file:../../vendor/moetopia-ui-0.1.4.tgz
+        version: file:vendor/moetopia-ui-0.1.4.tgz(vue@3.5.44(typescript@6.0.3))
       nuxt:
         specifier: 4.6.2
         version: 4.6.2(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.154.0)(@types/node@24.19.2)(@vue/compiler-sfc@3.5.44)(acorn@8.19.0)(confbox@0.3.1)(db0@0.3.4)(dotenv@17.4.2)(esbuild@0.28.2)(giget@3.3.1)(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(mlly@1.8.2)(oxc-parser@0.127.0)(rolldown@1.2.14)(rollup-plugin-visualizer@7.1.1(rolldown@1.2.14)(rollup@4.64.7))(rollup@4.64.7)(srvx@1.0.5)(supports-color@10.2.2)(terser@5.51.2)(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))(vue-tsc@3.3.13(typescript@6.0.3))
@@ -262,8 +262,8 @@ importers:
         specifier: workspace:*
         version: link:../locales
       '@moetopia/ui':
-        specifier: file:../../vendor/moetopia-ui-0.1.2.tgz
-        version: file:vendor/moetopia-ui-0.1.2.tgz(vue@3.5.44(typescript@6.0.3))
+        specifier: file:../../vendor/moetopia-ui-0.1.4.tgz
+        version: file:vendor/moetopia-ui-0.1.4.tgz(vue@3.5.44(typescript@6.0.3))
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
@@ -277,8 +277,8 @@ importers:
   packages/ui:
     dependencies:
       '@moetopia/ui':
-        specifier: file:../../vendor/moetopia-ui-0.1.2.tgz
-        version: file:vendor/moetopia-ui-0.1.2.tgz(vue@3.5.44(typescript@6.0.3))
+        specifier: file:../../vendor/moetopia-ui-0.1.4.tgz
+        version: file:vendor/moetopia-ui-0.1.4.tgz(vue@3.5.44(typescript@6.0.3))
     devDependencies:
       '@storybook/addon-a11y':
         specifier: 10.6.2
@@ -729,9 +729,9 @@ packages:
       '@types/react': '>=16'
       react: '>=16'
 
-  '@moetopia/ui@file:vendor/moetopia-ui-0.1.2.tgz':
-    resolution: {integrity: sha512-T5OiKGma50fIFb8snr5NlLZWnrrGZvW3t/ZEn5RWLxAW6ofqvMmLhsLSLhQ/OwDdzxpnvnUejIuVvh60PkUvhw==, tarball: file:vendor/moetopia-ui-0.1.2.tgz}
-    version: 0.1.2
+  '@moetopia/ui@file:vendor/moetopia-ui-0.1.4.tgz':
+    resolution: {integrity: sha512-TkaZgM4qYKZj6lJ/zb//bpbtXI6EB36bLjCSW3MUjFxaw4qhwTEwm5YL5xSHaMl2zRUgXYm7hvhdhZWXpsQdmQ==, tarball: file:vendor/moetopia-ui-0.1.4.tgz}
+    version: 0.1.4
     peerDependencies:
       vue: ^3.5.44
 
@@ -5002,7 +5002,7 @@ snapshots:
       '@types/react': 19.3.0
       react: 19.3.1
 
-  '@moetopia/ui@file:vendor/moetopia-ui-0.1.2.tgz(vue@3.5.44(typescript@6.0.3))':
+  '@moetopia/ui@file:vendor/moetopia-ui-0.1.4.tgz(vue@3.5.44(typescript@6.0.3))':
     dependencies:
       '@types/qrcode': 1.5.6
       '@zxcvbn-ts/core': 4.2.0

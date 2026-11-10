@@ -49,9 +49,15 @@ test('select and tabs support keyboard navigation', async ({ page }) => {
 })
 
 test('dialog returns focus and tooltip is available on focus', async ({ page }) => {
+  const warnings: string[] = []
+  page.on('console', message => {
+    if (message.type() === 'warning' && message.text().includes('DialogContent')) warnings.push(message.text())
+  })
   const trigger = page.getByRole('button', { name: '打开对话框', exact: true })
   await trigger.click()
   await expect(page.getByRole('dialog', { name: '确认操作' })).toBeVisible()
+  await expect(page.getByRole('dialog', { name: '确认操作' })).toHaveAccessibleDescription('检查焦点进入、Escape 关闭和焦点返回。')
+  expect(warnings).toEqual([])
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(trigger).toBeFocused()
