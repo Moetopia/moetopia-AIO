@@ -59,7 +59,8 @@ func TestOpenAPIBusinessTitlesAndMFAInstructions(t *testing.T) {
 func TestOpenAPIProtocolContracts(t *testing.T) {
 	doc := exportedDocument(t)
 	for path, methods := range map[string][]string{
-		"/.well-known/openid-configuration": {"GET"}, "/oauth/jwks": {"GET"}, "/oauth/authorize": {"GET"},
+		"/.well-known/openid-configuration": {"GET"}, "/.well-known/oauth-authorization-server": {"GET"},
+		"/oauth/jwks": {"GET"}, "/oauth/authorize": {"GET"},
 		"/oauth/userinfo": {"GET"}, "/oauth/token": {"POST"}, "/oauth/revoke": {"POST"},
 		"/oauth/introspect": {"POST"}, "/oauth/logout": {"GET", "POST"},
 	} {
@@ -107,7 +108,7 @@ func TestOpenAPICoversRegisteredProtocolRoutes(t *testing.T) {
 	doc := exportedDocument(t)
 	router := New(Dependencies{Tokens: &authorization.Provider{}}).(chi.Routes)
 	err := chi.Walk(router, func(method, route string, _ http.Handler, _ ...func(http.Handler) http.Handler) error {
-		if !strings.HasPrefix(route, "/oauth/") && route != "/.well-known/openid-configuration" {
+		if !strings.HasPrefix(route, "/oauth/") && !strings.HasPrefix(route, "/.well-known/") {
 			return nil
 		}
 		item := doc.Paths[route]

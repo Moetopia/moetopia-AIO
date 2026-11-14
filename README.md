@@ -38,6 +38,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [实施进度](docs/implementation-status.md) | 实际交付状态与验证限制 |
 | [前后端交接](docs/workstreams.md) | 对话分工、文件边界与后端接手说明 |
 | [对话进度同步](docs/coordination/README.md) | 各对话维护自己的进度与接口接入事项 |
+| [配置 OAuth / OIDC](docs/configure-oidc.md) | issuer、客户端设置、回调与协议覆盖 |
 | [OAuth/OIDC 后端接入](docs/run-authorization.md) | 当前协议端点、授权确认 DTO、错误、迁移与验证 |
 | [自有用户站 OAuth 接入](docs/run-first-party-oidc.md) | Go RP 登录/回调、独立会话、前端接线与迁移 5 |
 | [账号管理接入](docs/run-account-management.md) | 资料/头像、密码/邮箱/恢复、授权/审计与迁移 6 |

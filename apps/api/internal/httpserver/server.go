@@ -79,7 +79,9 @@ func New(deps Dependencies) http.Handler {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 	})
 	if deps.Tokens != nil {
-		r.Get("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, http.StatusOK, deps.Tokens.Metadata()) })
+		discovery := func(w http.ResponseWriter, r *http.Request) { writeJSON(w, http.StatusOK, deps.Tokens.Metadata()) }
+		r.Get("/.well-known/openid-configuration", discovery)
+		r.Get("/.well-known/oauth-authorization-server", discovery)
 		r.Get("/oauth/authorize", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.Authorize), deps.RateNamespace))
 		r.Get("/oauth/userinfo", limitCredentials(deps.Valkey, http.HandlerFunc(deps.Tokens.UserInfo), deps.RateNamespace))
 		r.Get("/oauth/jwks", deps.Tokens.WriteJWKS)

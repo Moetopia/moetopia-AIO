@@ -4,7 +4,7 @@
 }
 https://{$MOETOPIA_ACCOUNT_HOST} {
 	tls internal
-	@backend path /api/* /oauth/* /.well-known/openid-configuration
+	@backend path /api/* /oauth/* /.well-known/openid-configuration /.well-known/oauth-authorization-server
 	handle @backend {
 		reverse_proxy api-proxy:8080 {
 			header_up X-Moetopia-Client-IP {http.request.remote.host}
@@ -16,7 +16,7 @@ https://{$MOETOPIA_ACCOUNT_HOST} {
 }
 https://{$MOETOPIA_ADMIN_HOST} {
 	tls internal
-	@backend path /api/* /oauth/* /.well-known/openid-configuration
+	@backend path /api/* /oauth/* /.well-known/openid-configuration /.well-known/oauth-authorization-server
 	handle @backend {
 		reverse_proxy api-proxy:8080 {
 			header_up X-Moetopia-Client-IP {http.request.remote.host}

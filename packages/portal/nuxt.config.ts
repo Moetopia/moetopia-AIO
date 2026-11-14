@@ -41,6 +41,7 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/.well-known/openid-configuration': { proxy: `${apiURL.origin}/.well-known/openid-configuration`, headers: { 'cache-control': 'no-store' } },
+    '/.well-known/oauth-authorization-server': { proxy: `${apiURL.origin}/.well-known/oauth-authorization-server`, headers: { 'cache-control': 'no-store' } },
     '/api/**': { proxy: { to: `${apiURL.origin}/api/**`, fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
     '/oauth/**': { proxy: { to: `${apiURL.origin}/oauth/**`, fetchOptions: { redirect: 'manual' } }, headers: { 'cache-control': 'no-store' } },
   },

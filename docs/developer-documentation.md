@@ -2,6 +2,8 @@
 
 当前用户站提供原生 Nuxt 文档中心，沿用既有开发者顶栏、文档侧栏、品牌变量及页面转场，不嵌入独立 React 文档站或另建登录体系。开发入口为 `http://account.localhost:3000/developer/docs`；API 参考为 `/developer/docs/endpoints`。
 
+部署和通用客户端的填写方式见 [OAuth / OIDC 配置](configure-oidc.md)。
+
 ## 内容与导航
 
 - 快速开始：创建测试应用、Discovery、登录闭环和发布入口。

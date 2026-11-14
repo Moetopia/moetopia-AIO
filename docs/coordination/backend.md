@@ -4,6 +4,7 @@
 
 ## 已完成
 
+- 2026-11-14 新增 RFC 8414 默认元数据地址 `/.well-known/oauth-authorization-server`，与 OIDC Discovery 共用固定 issuer 元数据。Go、Nuxt、Caddy 和生成契约已接线，应用字段见 [OAuth / OIDC 配置](../configure-oidc.md)。没有数据库迁移。
 - 原有账号接口兼容：邮箱验证、邀请注册、密码登录、context/CSRF、退出和会话列表/撤销。
 - 新增 Authorization Code + PKCE S256、OIDC RS256 ID Token、Discovery、UserInfo 后端。
 - 新增授权详情/批准/拒绝业务接口，OpenAPI 与 TypeScript 类型已生成。

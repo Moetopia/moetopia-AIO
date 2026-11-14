@@ -2916,6 +2916,157 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/.well-known/oauth-authorization-server": {
+      "get": {
+        "description": "RFC 8414 默认发现地址，与 OIDC Discovery 共用同一份元数据。",
+        "operationId": "oauth-server-metadata",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "authorization_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "claims_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "code_challenge_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "end_session_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "grant_types_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "id_token_signing_alg_values_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "introspection_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "introspection_endpoint_auth_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "issuer": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "jwks_uri": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "request_parameter_supported": {
+                      "type": "boolean"
+                    },
+                    "request_uri_parameter_supported": {
+                      "type": "boolean"
+                    },
+                    "response_modes_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "response_types_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "revocation_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "revocation_endpoint_auth_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "scopes_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "subject_types_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "token_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "token_endpoint_auth_methods_supported": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "userinfo_endpoint": {
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "authorization_endpoint",
+                    "claims_supported",
+                    "code_challenge_methods_supported",
+                    "end_session_endpoint",
+                    "grant_types_supported",
+                    "id_token_signing_alg_values_supported",
+                    "introspection_endpoint",
+                    "introspection_endpoint_auth_methods_supported",
+                    "issuer",
+                    "jwks_uri",
+                    "request_parameter_supported",
+                    "request_uri_parameter_supported",
+                    "response_modes_supported",
+                    "response_types_supported",
+                    "revocation_endpoint",
+                    "revocation_endpoint_auth_methods_supported",
+                    "scopes_supported",
+                    "subject_types_supported",
+                    "token_endpoint",
+                    "token_endpoint_auth_methods_supported",
+                    "userinfo_endpoint"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OAuth authorization server metadata"
+          }
+        },
+        "summary": "查询 OAuth 授权服务器元数据",
+        "tags": [
+          "OAuth / OIDC"
+        ]
+      }
+    },
     "/.well-known/openid-configuration": {
       "get": {
         "description": "固定 issuer 的实际端点、scope、认证方式和算法；客户端应从此发现能力。",

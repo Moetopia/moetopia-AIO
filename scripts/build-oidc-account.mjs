@@ -10,6 +10,7 @@ const require = createRequire(resolve('apps/account/package.json'))
 const { loadNuxt, buildNuxt } = await import(pathToFileURL(require.resolve('nuxt/kit')).href)
 const rules = {
   '/.well-known/openid-configuration': { proxy: oidcAPIOrigin() + '/.well-known/openid-configuration', headers: { 'cache-control': 'no-store' } },
+  '/.well-known/oauth-authorization-server': { proxy: oidcAPIOrigin() + '/.well-known/oauth-authorization-server', headers: { 'cache-control': 'no-store' } },
   '/api/**': { proxy: oidcAPIOrigin() + '/api/**', headers: { 'cache-control': 'no-store' } },
   '/oauth/**': { proxy: oidcAPIOrigin() + '/oauth/**', headers: { 'cache-control': 'no-store' } },
 }

@@ -24,6 +24,7 @@ func documentProtocolMetadata(add protocolDocumenter) {
 	}
 	sort.Strings(required)
 	add(http.MethodGet, "/.well-known/openid-configuration", "oidc-discovery", "查询 OIDC 服务发现信息", "固定 issuer 的实际端点、scope、认证方式和算法；客户端应从此发现能力。", map[string]*huma.Response{"200": protocolJSON("OIDC discovery metadata", protocolObject(properties, required...))})
+	add(http.MethodGet, "/.well-known/oauth-authorization-server", "oauth-server-metadata", "查询 OAuth 授权服务器元数据", "RFC 8414 默认发现地址，与 OIDC Discovery 共用同一份元数据。", map[string]*huma.Response{"200": protocolJSON("OAuth authorization server metadata", protocolObject(properties, required...))})
 	add(http.MethodGet, "/oauth/jwks", "oauth-jwks", "查询当前可接受的签名公钥", "只返回 active 和重叠窗口内公钥，不含私钥。客户端按 kid 选择并按需刷新；不能永久固定旧公钥。", map[string]*huma.Response{
 		"200": protocolJSON("JSON Web Key Set", protocolObject(map[string]*huma.Schema{"keys": {Type: "array", Items: protocolObject(map[string]*huma.Schema{
 			"kty": protocolString("密钥类型", "RSA"), "kid": protocolString("签名密钥标识"), "use": protocolString("签名用途", "sig"),

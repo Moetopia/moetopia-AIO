@@ -54,7 +54,7 @@ func routeGroup(path string) string {
 		return "login"
 	case "/api/v1/account/register":
 		return "registration"
-	case "/.well-known/openid-configuration", "/oauth/jwks":
+	case "/.well-known/openid-configuration", "/.well-known/oauth-authorization-server", "/oauth/jwks":
 		return "metadata"
 	case "/healthz", "/readyz":
 		return "health"

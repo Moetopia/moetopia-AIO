@@ -10,7 +10,7 @@ const insecure = args.includes('--insecure-test-tls')
 const connect = args.find(value => value.startsWith('--connect-host='))?.split('=')[1] ?? base.hostname
 if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.pathname !== '/' || base.search || base.hash || !Number.isInteger(requests) || requests < 1 || requests > 1000 || !Number.isInteger(concurrency) || concurrency < 1 || concurrency > 16) throw new Error('Use an origin, 1-1000 requests and 1-16 workers')
 if (insecure && !base.hostname.endsWith('.test') && !['localhost', '127.0.0.1', '[::1]'].includes(base.hostname)) throw new Error('Unverified TLS is only permitted for explicit test origins')
-const paths = ['/api/v1/status', '/api/v1/account/context', '/.well-known/openid-configuration']
+const paths = ['/api/v1/status', '/api/v1/account/context', '/.well-known/openid-configuration', '/.well-known/oauth-authorization-server']
 const samples = []
 const statuses = {}
 let index = 0

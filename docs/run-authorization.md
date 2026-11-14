@@ -1,6 +1,6 @@
 # OAuth/OIDC 后端接入与验证
 
-更新时间：2026-10-21。本文件描述已实现后端；前端授权页已接入，并完成 [独立 RP 的真实浏览器验证](oidc-interop.md)，包括刷新轮换与 RFC 7009 撤销。本批新增受限公开内省，RP 标准退出仍未实现。参数与事务决定见 [ADR-0015](decisions/0015-authorization-code-oidc.md)、[ADR-0018](decisions/0018-refresh-token-rotation.md) 和 [ADR-0023](decisions/0023-introspection-and-application-history.md)，跨对话交接见 [后端状态](coordination/backend.md)。
+配置应用请先看 [OAuth / OIDC 配置](configure-oidc.md)。本文件描述协议接口，浏览器验证见 [独立 RP 测试](oidc-interop.md)，退出见 [RP 发起退出](run-logout.md)。参数与事务决定见 [ADR-0015](decisions/0015-authorization-code-oidc.md)、[ADR-0018](decisions/0018-refresh-token-rotation.md) 和 [ADR-0023](decisions/0023-introspection-and-application-history.md)。
 
 ## 运行前置条件
 
@@ -20,16 +20,18 @@ pnpm dev
 | 方法与路径 | 当前能力 |
 | --- | --- |
 | GET `/.well-known/openid-configuration` | 固定 issuer 的真实元数据，仅声明已实现流程 |
+| GET `/.well-known/oauth-authorization-server` | RFC 8414 默认地址，与 OIDC 发现端点返回相同元数据 |
 | GET `/oauth/jwks` | RS256 公钥 |
 | GET `/oauth/authorize` | Authorization Code + PKCE S256，创建授权交互并跳回 account |
 | POST `/oauth/token` | form 编码；authorization_code、refresh_token 和 client_credentials |
 | POST `/oauth/revoke` | form 编码；客户端认证及整族撤销，成功为空 200 |
 | POST `/oauth/introspect` | form 编码；仅 confidential Basic 认证，查询自身 access/refresh 状态 |
 | GET `/oauth/userinfo` | Authorization Bearer；要求 openid；返回 sub 和获准资料 |
+| GET/POST `/oauth/logout` | RP 发起中央退出，支持受审回跳 |
 
-issuer 来自配置，不从 Host 或代理头推导。Nuxt 需将 Discovery 转发到固定 Go 上游；现有 `/oauth/**` 转发也需保留。标准 OAuth/OIDC 应由 RP 使用标准客户端实现 state、PKCE、nonce 和 ID Token 验证，不把浏览器账号 Cookie 送给第三方。
+issuer 来自配置，不从 Host 或代理头推导。Nuxt 将两个 Discovery 地址和 `/oauth/**` 转发到固定 Go 上游。RP 使用标准客户端实现 state、PKCE、nonce 和 ID Token 验证。
 
-本阶段没有 RP 标准退出、动态注册或已记忆同意。openid 必须带 nonce；授权码请求必须有精确 redirect_uri、PKCE S256 和单一允许 audience（仅有一个注册 audience 时可省略）。项目当前只接受 code/query，支持单值 prompt=login/consent，prompt=none 返回 interaction_required；max_age=0 要求本次授权之后重新登录。
+当前要求显式同意。openid 必须带 nonce；授权码请求必须有精确 redirect_uri、PKCE S256 和单一允许 audience（仅有一个注册 audience 时可省略）。项目当前只接受 code/query，支持单值 prompt=login/consent，prompt=none 返回 interaction_required；max_age=0 要求本次授权之后重新登录。
 
 ## 刷新与撤销
 

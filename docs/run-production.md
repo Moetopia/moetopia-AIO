@@ -45,6 +45,8 @@ sh deploy/compose.sh ps
 
 ## 升级及故障
 
+对外发布前，按 [OAuth / OIDC 配置](configure-oidc.md#配置-moetopia) 从应用所在网络检查公开 issuer 的两个发现地址，登记实际 HTTPS 回调并完成登录闭环。
+
 先生成并确认可解密的数据库备份与独立根密钥备份，保留上一版本镜像。停止旧 API（同时停止内置任务），更新发布标签并构建镜像；独立运行 migrate、permissions，再启动 API/account/edge。生产不执行 Down；代码回退前先评估新 schema、注销状态和 MFA 状态兼容性。当前升级策略允许短暂停机，不声称无中断滚动升级。
 
 ```bash

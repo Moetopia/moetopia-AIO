@@ -30,6 +30,7 @@ Fosite/原生 handler 不会自动进入 Huma 路由文档，因此 `/oauth/auth
 | 能力 | 建议路径 | 说明 |
 | --- | --- | --- |
 | OIDC 元数据 | `/.well-known/openid-configuration` | issuer 固定配置，仅声明实现的能力 |
+| OAuth 授权服务器元数据 | `/.well-known/oauth-authorization-server` | RFC 8414 默认路径，内容与 OIDC 元数据一致 |
 | 公钥 | `/oauth/jwks` | 路径由 jwks_uri 公布，不含私钥 |
 | 授权 | `/oauth/authorize` | 以授权事务驱动登录及同意 |
 | 令牌 | `/oauth/token` | 标准 form 编码与客户端认证 |

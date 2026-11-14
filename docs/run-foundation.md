@@ -72,7 +72,7 @@ pnpm dev
 
 迁移针对 `.env` 中明确配置的本项目开发库 `moetopia_dev`。版本 1 创建 authorization schema，版本 2 独立新增 identity、sessions、notifications schema，旧版协议表不变；本轮开发库已应用至版本 2。服务不会自动创建表。`api:keys:init` 只初始化一次，存在活动密钥时拒绝重复操作，不充当轮换命令。
 
-当前可通过账号页注册用户，`pnpm dev:invite` 只发行开发邀请码；没有默认管理员、固定账号密码或正式 OAuth client 创建命令。协议端点当前只装配 client_credentials 路径，其真实持久化与 JWT 行为已通过集成测试；不声明完整 OIDC discovery。
+当前可通过账号页注册用户，`pnpm dev:invite` 只发行开发邀请码。正式应用由开发者中心创建并提交审核，issuer、OIDC Discovery 和回调配置见 [OAuth / OIDC 配置](configure-oidc.md)。
 
 ## 本地入口
 
@@ -122,7 +122,7 @@ pnpm test:integration
 
 运行器要求 development 环境、`moetopia_dev` 库和 55432 端口，通过 pgx 创建随机命名的 `moetopia_test_*` 库，测试后只删除本轮库，不重置开发库或生产库。Go 工具校验角色、库名和操作，不接受任意 SQL 标识符。运行器显式设置 `TEST_DATABASE_DSN`、`TEST_VALKEY_ADDRESS` 和密码，缺失环境时失败，不以跳过替代通过。
 
-当前集成测试覆盖迁移、Ent 的 schema 映射、密钥重开连接恢复、client_credentials JWT、错误权限/audience/凭据、邀请注册、验证码尝试上限、邀请码并发单次兑换、CSRF、登录会话轮换、所有权检查和退出失效。它不覆盖尚未实现的授权码或刷新流程。
+工程基座的原始集成测试覆盖迁移、Ent 的 schema 映射、密钥重开连接恢复、client_credentials JWT、错误权限/audience/凭据、邀请注册、验证码尝试上限、邀请码并发单次兑换、CSRF、登录会话轮换、所有权检查和退出失效。后续授权码与刷新流程见 [协议验证](oidc-interop.md)。
 
 真实 Mailpit + 浏览器账号流程：先构建 account 应用，再运行独立测试。
 
