@@ -3,11 +3,46 @@ package administration
 import (
 	"context"
 	"errors"
+	"time"
 	"moetopia.local/aio/api/internal/audit"
 	"moetopia.local/aio/api/internal/identity"
 	"moetopia.local/aio/api/internal/persistence"
 	"moetopia.local/aio/api/internal/persistence/ent"
+	"moetopia.local/aio/api/internal/persistence/ent/invitation"
 )
+
+func BootstrapInvitation(ctx context.Context, db *ent.Client, users *identity.Service) (string, error) {
+	unit, err := persistence.Begin(ctx, db)
+	if err != nil {
+		return "", err
+	}
+	defer unit.Rollback()
+	ctx = persistence.WithClient(ctx, unit.Client())
+	if err := lockAdministration(ctx, unit.Client()); err != nil {
+		return "", err
+	}
+	for _, exists := range []func(context.Context) (bool, error){
+		unit.AdminBootstrap.Query().Exist,
+		unit.AdminPrincipal.Query().Exist,
+		unit.Invitation.Query().Where(invitation.Consumed(false), invitation.Revoked(false), invitation.ExpiresAtGT(time.Now())).Exist,
+	} {
+		found, err := exists(ctx)
+		if err != nil {
+			return "", err
+		}
+		if found {
+			return "", errors.New("administrator bootstrap or an active invitation already exists")
+		}
+	}
+	issued, err := users.AdminIssueInvitation(ctx, "operator:bootstrap", 1)
+	if err != nil {
+		return "", err
+	}
+	if err := unit.Commit(); err != nil {
+		return "", err
+	}
+	return issued.Code, nil
+}
 
 func Bootstrap(ctx context.Context, db *ent.Client, users *identity.Service, email string) error {
 	unit, err := persistence.Begin(ctx, db)

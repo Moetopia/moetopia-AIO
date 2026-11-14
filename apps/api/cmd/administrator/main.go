@@ -28,7 +28,7 @@ func main() {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return errors.New("use init-client or bootstrap")
+		return errors.New("use init-client, bootstrap-invite, bootstrap, inspect or emergency-reset")
 	}
 	flags := flag.NewFlagSet("administrator", flag.ContinueOnError)
 	email := flags.String("email", "", "existing verified account email")
@@ -118,6 +118,20 @@ func run() error {
 			return err
 		}
 		slog.Info("administrator OIDC client initialized or verified; no credentials were displayed")
+	case "bootstrap-invite":
+		if *email != "" {
+			return errors.New("email is only accepted for bootstrap")
+		}
+		users, err := identity.New(identity.NewStore(db.Ent, nil), cfg.EncryptionKey)
+		if err != nil {
+			return err
+		}
+		code, err := administration.BootstrapInvitation(ctx, db.Ent, users)
+		if err != nil {
+			return err
+		}
+		_, err = os.Stdout.WriteString(code + "\n")
+		return err
 	case "bootstrap":
 		users, err := identity.New(identity.NewStore(db.Ent, nil), cfg.EncryptionKey)
 		if err != nil {

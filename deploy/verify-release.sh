@@ -3,6 +3,14 @@ set -euo pipefail
 umask 077
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P)
 cd "$root"
+export MOETOPIA_CHECK_ACCOUNT_PORT="${MOETOPIA_CHECK_ACCOUNT_PORT:-58443}"
+export MOETOPIA_CHECK_ADMIN_PORT="${MOETOPIA_CHECK_ADMIN_PORT:-58444}"
+for port in "$MOETOPIA_CHECK_ACCOUNT_PORT" "$MOETOPIA_CHECK_ADMIN_PORT"; do
+  [[ "$port" =~ ^[0-9]{5}$ && "$port" -ge 50000 && "$port" -le 65535 ]]
+done
+[[ "$MOETOPIA_CHECK_ACCOUNT_PORT" != "$MOETOPIA_CHECK_ADMIN_PORT" ]]
+export MOETOPIA_ACCOUNT_HOST="account.moetopia.test:$MOETOPIA_CHECK_ACCOUNT_PORT"
+export MOETOPIA_ADMIN_HOST="admin.moetopia.test:$MOETOPIA_CHECK_ADMIN_PORT"
 nonce=$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')
 [[ "$nonce" =~ ^[a-f0-9]{16}$ ]]
 run="$root/.data/release-$nonce"
@@ -31,14 +39,20 @@ fi
 compose run --rm --no-deps --entrypoint /app/keys api init
 compose run --rm --no-deps --entrypoint /app/firstparty api
 compose run --rm --no-deps --entrypoint /app/administrator api init-client
+compose run --rm -T --no-deps --entrypoint /app/administrator api bootstrap-invite > "$run/bootstrap-invite"
+grep -Eq '^[a-f0-9]{48}$' "$run/bootstrap-invite"
+if compose run --rm -T --no-deps --entrypoint /app/administrator api bootstrap-invite > "$run/duplicate-invite.log" 2>&1; then
+  printf '%s\n' 'A second active bootstrap invitation was issued.' >&2; exit 1
+fi
+rm -- "$run/bootstrap-invite"
 compose up -d --wait api account edge
 for path in /auth/register /auth/login; do
-  [[ "$(curl --silent --show-error --insecure --resolve account.moetopia.test:58443:127.0.0.1 --output /dev/null --write-out '%{http_code}' "https://account.moetopia.test:58443$path")" == 200 ]]
+  [[ "$(curl --silent --show-error --insecure --resolve "$MOETOPIA_ACCOUNT_HOST:127.0.0.1" --output /dev/null --write-out '%{http_code}' "https://$MOETOPIA_ACCOUNT_HOST$path")" == 200 ]]
 done
-[[ "$(curl --silent --show-error --insecure --resolve admin.moetopia.test:58444:127.0.0.1 --output /dev/null --write-out '%{http_code}' https://admin.moetopia.test:58444/applications)" == 200 ]]
-curl --silent --show-error --insecure --resolve account.moetopia.test:58443:127.0.0.1 https://account.moetopia.test:58443/internal/metrics > "$run/public-metrics-response.html"
+[[ "$(curl --silent --show-error --insecure --resolve "$MOETOPIA_ADMIN_HOST:127.0.0.1" --output /dev/null --write-out '%{http_code}' "https://$MOETOPIA_ADMIN_HOST/applications")" == 200 ]]
+curl --silent --show-error --insecure --resolve "$MOETOPIA_ACCOUNT_HOST:127.0.0.1" "https://$MOETOPIA_ACCOUNT_HOST/internal/metrics" > "$run/public-metrics-response.html"
 if grep -q '^moetopia_http_requests_total' "$run/public-metrics-response.html"; then printf '%s\n' 'Private metrics leaked through the public edge.' >&2; exit 1; fi
-docker run --rm --label io.moetopia.validation="$nonce" --network host --read-only -v "$root/deploy/probe.mjs:/probe.mjs:ro" --entrypoint node "$(sed -n 's/^MOETOPIA_NODE_IMAGE=//p' deploy/images.env)" /probe.mjs https://account.moetopia.test:58443 100 4 --connect-host=127.0.0.1 --insecure-test-tls > "$run/probe.json"
+docker run --rm --label io.moetopia.validation="$nonce" --network host --read-only -v "$root/deploy/probe.mjs:/probe.mjs:ro" --entrypoint node "$(sed -n 's/^MOETOPIA_NODE_IMAGE=//p' deploy/images.env)" /probe.mjs "https://$MOETOPIA_ACCOUNT_HOST" 100 4 --connect-host=127.0.0.1 --insecure-test-tls > "$run/probe.json"
 docker run --rm --label io.moetopia.validation="$nonce" --network none --read-only --user "$MOETOPIA_OPERATOR_UID:$MOETOPIA_OPERATOR_GID" -v "$run:/work" --entrypoint age-keygen "moetopia-tools:$MOETOPIA_RELEASE" -o /work/restore-identity > "$run/keygen.log" 2>&1
 docker run --rm --label io.moetopia.validation="$nonce" --network none --read-only --user "$MOETOPIA_OPERATOR_UID:$MOETOPIA_OPERATOR_GID" -v "$run:/work" --entrypoint age-keygen "moetopia-tools:$MOETOPIA_RELEASE" -o /work/key-identity >> "$run/keygen.log" 2>&1
 export MOETOPIA_BACKUP_RECIPIENT

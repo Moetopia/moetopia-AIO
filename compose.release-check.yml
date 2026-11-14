@@ -1,6 +1,8 @@
 name: moetopia-release-check
 services:
   edge:
-    ports: !override ['127.0.0.1:58443:58443', '127.0.0.1:58444:58444']
+    ports: !override
+      - '127.0.0.1:${MOETOPIA_CHECK_ACCOUNT_PORT:-58443}:${MOETOPIA_CHECK_ACCOUNT_PORT:-58443}'
+      - '127.0.0.1:${MOETOPIA_CHECK_ADMIN_PORT:-58444}:${MOETOPIA_CHECK_ADMIN_PORT:-58444}'
     volumes:
       - ./deploy/Caddyfile.check:/etc/caddy/Caddyfile:ro

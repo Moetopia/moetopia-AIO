@@ -41,15 +41,31 @@ sh deploy/compose.sh up -d --wait api account edge
 sh deploy/compose.sh ps
 ```
 
-迁移使用 `moetopia_migrator`；普通 API 使用 `moetopia_app`，仅获模块 schema 的 CRUD/序列权限，不能迁移。permissions 任务根据私密密码文件显式设置运行角色密码及默认表权限，必须与 DSN 一致。脚本没有自动 bootstrap 管理员或建立测试账号；首管理员按[管理员指南](run-administration.md)显式指定已有验证账号。
+迁移使用 `moetopia_migrator`；普通 API 使用 `moetopia_app`，仅获模块 schema 的 CRUD/序列权限，不能迁移。permissions 任务根据私密密码文件显式设置运行角色密码及默认表权限，必须与 DSN 一致。
+
+### 初始化首位管理员
+
+全新库默认邀请注册。先配置可投递验证码的 TLS SMTP，再在运维终端执行下列命令生成一小时有效、单次使用的邀请码。命令只在管理员尚未初始化且没有有效未使用邀请码时签发。将输出通过私密渠道交给指定的首位管理员。
+
+```bash
+sh deploy/compose.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap-invite
+```
+
+在用户站使用邀请码注册并验证邮箱。随后由运维将该已验证账号设为首位管理员，将命令中的邮箱替换为实际账号。若已经有合适的已验证账号，可直接执行此步。
+
+```bash
+sh deploy/compose.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap --email admin@example.com
+```
+
+从管理台域名发起登录，绑定 TOTP 并离线保存恢复码。之后的邀请码和注册模式在管理台管理。页面验收见 [生产前端交接](coordination/production-frontend.md)。
 
 ## 升级及故障
 
-对外发布前，按 [OAuth / OIDC 配置](configure-oidc.md#配置-moetopia) 从应用所在网络检查公开 issuer 的两个发现地址，登记实际 HTTPS 回调并完成登录闭环。
-
-先生成并确认可解密的数据库备份与独立根密钥备份，保留上一版本镜像。停止旧 API（同时停止内置任务），更新发布标签并构建镜像；独立运行 migrate、permissions，再启动 API/account/edge。生产不执行 Down；代码回退前先评估新 schema、注销状态和 MFA 状态兼容性。当前升级策略允许短暂停机，不声称无中断滚动升级。
+先生成并确认可解密的数据库备份与独立根密钥备份，保留上一版本镜像。更新发布标签并预先构建镜像，再停止旧 API（同时停止内置任务）；独立运行 migrate、permissions，再启动 API/account/edge。生产不执行 Down；代码回退前先评估新 schema、注销状态和 MFA 状态兼容性。当前升级策略允许短暂停机。
 
 ```bash
+sh deploy/compose.sh config --quiet
+sh deploy/compose.sh build api account edge backup
 sh deploy/compose.sh stop api
 sh deploy/compose.sh --profile maintenance run --rm migrate
 sh deploy/compose.sh --profile maintenance run --rm permissions
@@ -59,10 +75,16 @@ sh deploy/compose.sh logs --tail 100 api
 
 不要运行 `down --volumes` 清理生产数据。readyz 失败时检查迁移、密钥、数据库和缓存；未知错误拒绝放行。日志不得包含连接串或邮件正文。Caddy 前再加代理/CDN 时需另行设计直接 peer 的信任链，不能扩大到任意 CIDR。
 
+## 对外开放前验收
+
+- 从应用所在网络检查两个公开发现地址与 JWKS，验证可信 TLS、发现文档中的 issuer 以及回调地址。用测试应用完成授权、回跳、换码和应用会话。步骤见 [OAuth / OIDC 配置](configure-oidc.md)。
+- 用真实 SMTP 完成注册和密码恢复，登录管理员并完成 MFA。GitHub、Google 可在首发时留空，配置后分别验收。
+- 按 [备份恢复指南](run-backup-recovery.md) 设置数据库与根密钥的独立加密备份和外部保存，核对恢复材料可用。
+
 ## 可重复的发布演练
 
 ```bash
 sudo bash deploy/verify-release.sh
 ```
 
-该脚本创建随机命名的独立 Compose 项目、测试秘密和数据卷；只绑定宿主机回环 58443/58444，使用 `.test` 域和内部 CA，不操作日常开发库。确保端口及测试子网未占用，同一时间仅跑一轮。它构建全部镜像、验证迁移和运行角色隔离、启动入口、探测匿名接口，并实际执行加密备份/新库恢复/错误密钥拒绝/瞬态凭据失效。结束只清理本轮项目的数据卷，私密产物保留 `.data/release-<nonce>`；不提交或公开其中密钥、日志和备份。生产 TLS、外部邮件和供应商流程仍需真实环境验收。
+该脚本创建随机命名的独立 Compose 项目、测试秘密和数据卷；只绑定宿主机回环，默认端口 58443/58444。若已占用，通过 `MOETOPIA_CHECK_ACCOUNT_PORT` 和 `MOETOPIA_CHECK_ADMIN_PORT` 指定两个不同的空闲端口（50000–65535），使用 `.test` 域和内部 CA，不操作日常开发库。确保端口及测试子网未占用，同一时间仅跑一轮。它构建全部镜像、验证迁移和运行角色隔离、启动入口、探测匿名接口，并实际执行加密备份/新库恢复/错误密钥拒绝/瞬态凭据失效。结束只清理本轮项目的数据卷，私密产物保留 `.data/release-<nonce>`；不提交或公开其中密钥、日志和备份。生产 TLS、外部邮件和供应商流程仍需真实环境验收。
