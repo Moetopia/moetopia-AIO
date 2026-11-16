@@ -1,5 +1,7 @@
 # Linux 容器发布
 
+已有 Nginx Proxy Manager 和共享 PostgreSQL 时，使用 [NPM 与共享数据库发布指南](run-production-npm.md)。
+
 状态：已编写发布工程；本次隔离演练结果见[实施进度](implementation-status.md)。这不是已上线的生产环境。正式域名、SMTP、GitHub/Google、备份存放位置和机器预算仍需实际配置。
 
 ## 运行结构

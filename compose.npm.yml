@@ -1,0 +1,60 @@
+services:
+  postgres:
+    profiles: [bundled-only]
+  edge:
+    profiles: [bundled-only]
+    ports: !reset []
+  api:
+    environment:
+      MOETOPIA_TRUSTED_PROXY_CIDRS: ${MOETOPIA_NPM_PEER_CIDR:?Set the NPM container address as a host CIDR}
+    depends_on: !override
+      valkey: {condition: service_healthy}
+    networks: !override
+      private: {}
+      outbound: {}
+      shared_database: {}
+      npm_proxy: {aliases: [moetopia-api]}
+  account:
+    networks: !override
+      private: {}
+      npm_proxy: {aliases: [moetopia-account]}
+  admin:
+    image: moetopia-admin:${MOETOPIA_RELEASE}
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      target: admin
+      args:
+        NODE_IMAGE: ${MOETOPIA_NODE_IMAGE}
+        CADDY_IMAGE: ${MOETOPIA_CADDY_IMAGE}
+        ACCOUNT_URL: https://${MOETOPIA_ACCOUNT_HOST}
+        ADMIN_URL: https://${MOETOPIA_ADMIN_HOST}
+    networks:
+      private: {}
+      npm_proxy: {aliases: [moetopia-admin]}
+    read_only: true
+    tmpfs: ['/tmp:size=16m,mode=1777']
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 384m
+    cpus: 1
+    restart: unless-stopped
+  migrate:
+    depends_on: !reset {}
+    networks: !override [shared_database]
+  permissions:
+    profiles: [bundled-only]
+  backup:
+    profiles: [bundled-only]
+  restore:
+    profiles: [bundled-only]
+  restore-check:
+    networks: !override [shared_database]
+
+networks:
+  npm_proxy:
+    external: true
+    name: proxy-network
+  shared_database:
+    external: true
+    name: database-network

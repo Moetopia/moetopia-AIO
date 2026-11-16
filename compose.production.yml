@@ -169,7 +169,9 @@ services:
       PGDATABASE: ${MOETOPIA_DATABASE_NAME:-moetopia}
     secrets: [migration_db_password]
     networks: [private]
-    volumes: ['./deploy/permissions.sql:/scripts/permissions.sql:ro']
+    volumes:
+      - './deploy/permissions.sql:/scripts/permissions.sql:ro'
+      - './deploy/grants.sql:/scripts/grants.sql:ro'
     profiles: [maintenance]
     depends_on:
       postgres: {condition: service_healthy}

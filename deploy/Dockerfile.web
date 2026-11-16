@@ -26,6 +26,17 @@ ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
 EXPOSE 3000
 CMD ["node", "server/index.mjs"]
 
+FROM build AS admin-build
+RUN pnpm --filter @moetopia/admin exec nuxt build
+
+FROM ${NODE_IMAGE} AS admin
+WORKDIR /app
+COPY --from=admin-build --chown=node:node /src/apps/admin/.output/ ./
+USER node
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
+EXPOSE 3000
+CMD ["node", "server/index.mjs"]
+
 FROM ${CADDY_IMAGE} AS edge
 COPY --from=build /src/apps/admin/.output/public/ /srv/admin/
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
