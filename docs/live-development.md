@@ -71,6 +71,26 @@ Vue、样式和翻译保存后由 Nuxt 自动更新。Go `.go`、迁移 `.sql`�
 
 ## 试用注册和登录
 
+### 在 Windows PowerShell 中操作 WSL 容器
+
+如果你在本机 WSL 部署了 [NPM 与共享 PostgreSQL](run-production-npm.md)，先在 PowerShell 切到**保存该实例 `.env.production` 的部署目录**。以下命令在 `docker` 发行版中执行，沿用 PowerShell 当前目录。
+
+```powershell
+wsl.exe -d docker -- pwd
+wsl.exe -d docker -- sh deploy/compose-npm.sh ps
+wsl.exe -d docker -- sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap-invite
+```
+
+确认 `ps` 显示的是要测试的实例。首装邀请码一小时有效、单次使用。在该实例的用户站注册并验证邮箱后，替换下面的示例邮箱，再到管理台登录并绑定 TOTP。迁移、构建等其他 `sh deploy/compose-npm.sh …` 命令也可加相同的 WSL 前缀。 [完整首装步骤](run-production-npm.md#注册首个账号并初始化管理员)
+
+```powershell
+wsl.exe -d docker -- sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap --email admin@example.com
+```
+
+### 一键开发环境
+
+用 `pwsh -File scripts/dev-local.ps1` 启动的环境中，依赖容器在 WSL 运行，Go 和 Nuxt 在 Windows 运行。发码和管理员初始化都在项目目录的 PowerShell 执行。
+
 没有预置的固定测试账号或默认管理员；此前自行注册的开发账号可以继续登录。自动化测试账号属于临时数据库，测试结束即清理，不能作为日常账号使用。邀请码与邮箱验证码不同，分别按下面步骤获取。
 
 1. 在另一个 PowerShell 终端进入同一目录，运行 `pnpm dev:invite`。命令创建一个默认 24 小时有效、单次使用的开发邀请码，并只向该终端输出一次原文；数据库仅保存哈希。不要把邀请码贴入 issue、日志或提交。

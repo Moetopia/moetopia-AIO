@@ -46,6 +46,8 @@ NPM 前面若还有 CDN，先在 NPM 配好可信来源，使 `$remote_addr` 代
 
 ## 注册首个账号并初始化管理员
 
+在 Windows PowerShell 操作 WSL 实例时，见 [WSL 命令示例](live-development.md#在-windows-powershell-中操作-wsl-容器)。
+
 1. 确认用户站和管理台均可通过正式 HTTPS 地址打开，TLS SMTP 能向首位管理员的邮箱投递。执行下面的命令获取注册表单所需的首装邀请码。有效期一小时，单次使用。已有有效的邀请码或管理员初始化记录时，命令会拒绝再次签发。
 
 ```sh
