@@ -5,8 +5,14 @@ import { accountMessages } from '@moetopia/locales'
 const { locale } = usePortalPreferences()
 const accountText = computed(() => accountMessages[locale.value])
 const { context, loading, error, text, busy, run, connect, logout } = useAdminContext()
-const menu = computed<MoeMenuItem[]>(() => [{ id: 'settings', label: text.value.settings, icon: 'settings' }, { id: 'logout', label: text.value.logout, icon: 'logout', danger: true, separatorBefore: true }])
-const select = (item: MoeMenuItem) => item.id === 'logout' ? logout() : navigateTo('/settings')
+const menu = computed<MoeMenuItem[]>(() => [
+  { id: 'overview', label: text.value.overview, icon: 'home' },
+  { id: 'applications', label: text.value.applications, icon: 'layers' },
+  { id: 'users', label: text.value.users, icon: 'users' },
+  { id: 'settings', label: text.value.settings, icon: 'settings' },
+  { id: 'logout', label: text.value.logout, icon: 'logout', danger: true, separatorBefore: true, disabled: busy.value },
+])
+const select = (item: MoeMenuItem) => item.id === 'logout' ? logout() : navigateTo(item.id === 'overview' ? '/' : `/${item.id}`)
 onMounted(() => run(connect))
 </script>
 <template><PortalHome kind="admin"><template #account><MoeAccountMenu v-if="context?.authenticated && context.user" :label="accountText.signedIn" :name="context.user.display_name" :email="context.user.email" :src="context.user.avatar_url" :items="menu" @select="select" /></template>

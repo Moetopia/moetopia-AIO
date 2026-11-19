@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { AdminUsers, AdminInvitations, AdminAuditEvents, AdminPrincipals, AdminFailedNotifications, AdminInvitationCreated, AdminUserAvailabilityRequest, AdminPrincipalChangeRequest, AdminNotificationRetryRequest } from '@moetopia/api-client'
-import { MoePageHeading, MoeButton, MoeInput, MoePasswordInput, MoeTextarea, MoeTable, MoeAlert, MoeDialog, MoeSecretDisplay, MoeBadge } from '@moetopia/ui'
+import { MoePageHeading, MoeCard, MoeButton, MoeIcon, MoeInput, MoePasswordInput, MoeTextarea, MoeTable, MoeAlert, MoeDialog, MoeSecretDisplay, MoeBadge } from '@moetopia/ui'
 const props = defineProps<{ section: 'users' | 'invitations' | 'audit' | 'principals' | 'notifications' }>()
+const { locale } = usePortalPreferences()
 const { text, context, headers, run, error, busy, connect } = useAdminContext()
+const formatTime = (value: unknown) => typeof value === 'string' && value ? new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '—'
 type List = AdminUsers | AdminInvitations | AdminAuditEvents | AdminPrincipals | AdminFailedNotifications
 type Row = NonNullable<List['items']>[number]
 const result = shallowRef<List>()
@@ -61,10 +63,18 @@ onMounted(load)
 onBeforeUnmount(() => { issued.value = ''; password.value = '' })
 </script>
 <template><div class="grid gap-6"><MoePageHeading :title="text[section]"><template #actions><MoeButton v-if="section === 'invitations' || section === 'principals'" :disabled="busy" @click="ask()">{{ section === 'invitations' ? text.issue : text.grant }}</MoeButton><MoeButton variant="bordered" :loading="busy" @click="load">{{ text.refresh }}</MoeButton></template></MoePageHeading>
-  <form v-if="section === 'users'" class="flex items-end gap-3" @submit.prevent="search"><MoeInput v-model="query" class="flex-1" :label="text.search" type="search" :minlength="query ? 2 : undefined" /><MoeButton type="submit" :disabled="busy">{{ text.refresh }}</MoeButton></form>
+  <MoeCard v-if="section === 'users'" padding="sm"><form class="flex items-end gap-3" @submit.prevent="search"><MoeInput v-model="query" class="flex-1" :label="text.search" type="search" :minlength="query ? 2 : undefined" /><MoeButton type="submit" :disabled="busy"><MoeIcon name="search" class="size-4" />{{ text.refresh }}</MoeButton></form></MoeCard>
   <MoeAlert v-if="error && !dialog" :title="error" color="danger" announce />
   <MoeTable :caption="text[section]" :columns="columns" :rows="rows" row-key="id" :loading="busy && !result" :loading-label="text.refresh" :empty-title="text.empty" :empty-illustration="result && !error && !busy ? section === 'users' && appliedQuery ? 'no-results' : 'no-records' : undefined">
     <template #cell-enabled="{ value }"><MoeBadge :color="value ? 'success' : 'danger'">{{ value ? text.enabled : text.disabled }}</MoeBadge></template>
+    <template #cell-consumed="{ value }"><MoeBadge :color="value ? 'secondary' : 'success'">{{ value ? text.used : text.active }}</MoeBadge></template>
+    <template #cell-revoked="{ value }"><MoeBadge :color="value ? 'danger' : 'default'">{{ value ? text.revoke : '—' }}</MoeBadge></template>
+    <template #cell-enrolled="{ value }"><MoeBadge :color="value ? 'success' : 'warning'">{{ value ? text.enroll : text.pending }}</MoeBadge></template>
+    <template #cell-emergency_required="{ value }"><MoeBadge :color="value ? 'danger' : 'default'">{{ value ? text.emergency : '—' }}</MoeBadge></template>
+    <template #cell-created_at="{ value }">{{ formatTime(value) }}</template>
+    <template #cell-expires_at="{ value }">{{ formatTime(value) }}</template>
+    <template #cell-available_at="{ value }">{{ formatTime(value) }}</template>
+    <template #cell-deletion_due_at="{ value }">{{ formatTime(value) }}</template>
     <template #cell-actions="{ row }"><MoeButton size="sm" variant="bordered" :disabled="busy || section === 'invitations' && Boolean('consumed' in row && row.consumed || 'revoked' in row && row.revoked)" @click="ask(row)">{{ section === 'notifications' ? text.retry : section === 'invitations' ? text.revoke : 'enabled' in row && row.enabled ? text.disabled : text.enabled }}</MoeButton></template>
   </MoeTable>
   <div class="flex justify-end gap-3"><MoeButton variant="light" :disabled="busy || !previous.length" @click="page(false)">{{ text.previous }}</MoeButton><MoeButton variant="bordered" :disabled="busy || !next" @click="page(true)">{{ text.next }}</MoeButton></div>

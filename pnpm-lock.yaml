@@ -730,7 +730,7 @@ packages:
       react: '>=16'
 
   '@moetopia/ui@file:vendor/moetopia-ui-0.1.4.tgz':
-    resolution: {integrity: sha512-TkaZgM4qYKZj6lJ/zb//bpbtXI6EB36bLjCSW3MUjFxaw4qhwTEwm5YL5xSHaMl2zRUgXYm7hvhdhZWXpsQdmQ==, tarball: file:vendor/moetopia-ui-0.1.4.tgz}
+    resolution: {integrity: sha512-xAW/84YPLiFmdicoCWcOgPhy3sHDAKi5RRKpzR7jfdbZuUItTUjBwNg1FMXcaRPL1e+nV7q/QY2dsKM2CH+sbw==, tarball: file:vendor/moetopia-ui-0.1.4.tgz}
     version: 0.1.4
     peerDependencies:
       vue: ^3.5.44

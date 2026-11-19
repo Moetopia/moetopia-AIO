@@ -12,23 +12,24 @@ const pageText = computed(() => portalMessages[locale.value])
 const adminText = computed(() => adminMessages[locale.value])
 const workspace = computed(() => props.kind === 'developer' && props.workspace)
 const activeSection = computed(() => props.kind === 'account' ? route.path === '/sessions' ? 'sessions' : route.path === '/security' ? 'security' : 'profile' : props.kind === 'developer' ? route.path.startsWith('/developer/applications') ? 'applications' : route.path.startsWith('/developer/usage') ? 'usage' : route.path.startsWith('/developer/docs') ? 'preparation' : 'overview' : route.path.split('/')[1] || 'overview')
+const adminIcons = { overview: 'home', applications: 'layers', users: 'users', invitations: 'key', audit: 'activity', principals: 'lock', notifications: 'mail', settings: 'settings' } as const
 const sectionItems = computed<MoeNavEntry[]>(() => props.kind === 'account' ? [
   { id: 'profile', label: pageText.value.profile, href: '/profile', icon: 'user' },
   { id: 'sessions', label: pageText.value.sessions, href: '/sessions', icon: 'shield' },
   { id: 'security', label: pageText.value.security, href: '/security', icon: 'settings' },
 ] : props.kind === 'developer' ? [
   { id: 'overview', label: pageText.value.overview, href: '/developer', icon: 'home' },
-  { id: 'applications', label: pageText.value.applications, href: '/developer/applications', icon: 'grid' },
+  { id: 'applications', label: pageText.value.applications, href: '/developer/applications', icon: 'layers' },
   { id: 'preparation', label: pageText.value.preparation, href: '/developer/docs', icon: 'code' },
 ] : [
-  ...(['overview', 'applications', 'users', 'invitations', 'audit', 'principals', 'notifications', 'settings'] as const).map(id => ({ id, label: adminText.value[id], href: id === 'overview' ? '/' : `/${id}`, icon: id === 'overview' ? 'home' as const : 'grid' as const })),
+  ...(['overview', 'applications', 'users', 'invitations', 'audit', 'principals', 'notifications', 'settings'] as const).map(id => ({ id, label: adminText.value[id], href: id === 'overview' ? '/' : `/${id}`, icon: adminIcons[id] })),
 ])
 const navigate = (event: MouseEvent, item: MoeNavEntry) => {
   if (event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return
   if (item.href.startsWith('/')) { event.preventDefault(); return navigateTo(item.href) }
 }
-const navigation = computed<MoeNavEntry[]>(() => props.kind === 'admin' ? [] : props.kind === 'account' ? [sectionItems.value[0]!, { id: 'developer', label: text.value.developer, href: '/developer' }] : [sectionItems.value[0]!, sectionItems.value[2]!, { id: 'console', label: pageText.value.console, href: '/developer/applications' }])
-const consoleGroups = computed(() => [{ label: pageText.value.console, items: [sectionItems.value[1]!, { id: 'usage', label: integrationMessages[locale.value].usage, href: '/developer/usage', icon: 'grid' as const }, sectionItems.value[2]!] }])
+const navigation = computed<MoeNavEntry[]>(() => props.kind === 'admin' ? [] : props.kind === 'account' ? [...sectionItems.value, { id: 'developer', label: text.value.developer, href: '/developer', icon: 'code' }] : [sectionItems.value[0]!, sectionItems.value[2]!, { id: 'console', label: pageText.value.console, href: '/developer/applications', icon: 'layers' }])
+const consoleGroups = computed(() => [{ label: pageText.value.console, items: [sectionItems.value[1]!, { id: 'usage', label: integrationMessages[locale.value].usage, href: '/developer/usage', icon: 'chart' as const }, sectionItems.value[2]!] }])
 const documentation = computed(() => props.kind === 'developer' && props.documentation)
 const docsGroups = computed(() => [{ label: documentationMessages[locale.value].labels.guides, items: guideIds.map(id => ({ id, label: documentationMessages[locale.value].guides[id].title, href: id === 'overview' ? '/developer/docs' : `/developer/docs/${id}` })) }, { label: documentationMessages[locale.value].labels.reference, items: [{ id: 'endpoints', label: documentationMessages[locale.value].labels.reference, href: '/developer/docs/endpoints' }] }])
 const mobileItems = computed(() => props.kind === 'admin' ? sectionItems.value : workspace.value ? [navigation.value[0]!, ...consoleGroups.value[0]!.items] : documentation.value ? [...navigation.value, ...docsGroups.value.flatMap(group => group.items)] : navigation.value)
@@ -47,7 +48,7 @@ onMounted(async () => {
 
 <template>
   <MoeAuthShell v-if="auth" :skip-label="pageText.skip" brand-label="Moetopia">
-    <template #header><NuxtLink to="/" class="moe-navbar-brand moe-brand-lockup moe-focus"><MoeBrandMark /><span>Moetopia<span class="moe-navbar-subtitle">{{ text.account }}</span></span></NuxtLink><PortalPreferences /></template>
+    <template #header><NuxtLink to="/" class="moe-navbar-brand moe-brand-lockup moe-focus"><MoeBrandMark /><span class="moe-navbar-wordmark"><span class="moe-navbar-title">Moetopia</span><span class="moe-navbar-subtitle">{{ ` ${text.account}` }}</span></span></NuxtLink><PortalPreferences /></template>
     <slot :locale="locale" />
     <template #footer><span>© 2026 Moetopia</span><MoeStatusIndicator :label="text[status]" :state="status === 'connected' ? 'positive' : status === 'disconnected' ? 'negative' : 'pending'" announce /></template>
     <template #brand><div v-if="showAuthArt" class="moe-auth-brand-art"><MoeIllustration name="auth-welcome" size="hero" desktop-only eager /></div><div><span class="moe-auth-wordmark">Moetopia</span><h2 class="moe-auth-headline">{{ pageText.artTitle }}</h2><p class="moe-auth-brand-detail">{{ pageText.artDescription }}</p></div></template>
@@ -56,7 +57,7 @@ onMounted(async () => {
   <MoePageFrame v-else :skip-label="pageText.skip" :data-portal="kind" :density="kind === 'account' ? 'compact' : kind === 'developer' && route.path === '/developer' ? 'landing' : 'default'">
     <template v-if="kind === 'admin'" #sidebar><MoeSidebar v-bind="sidebar" layout="rail" :title="`Moetopia · ${text.admin}`" :footer-text="undefined" @navigate="navigate"><template #brand-icon><MoeBrandMark /></template></MoeSidebar></template>
     <template #header>
-      <MoeNavbar :brand="kind === 'developer' ? `Moetopia ${text.developer}` : kind === 'admin' ? text.admin : 'Moetopia'" :subtitle="kind === 'account' ? text.account : undefined" :brand-href="kind === 'developer' ? '/developer' : kind === 'account' ? '/profile' : '/'" :label="pageText.navigation" :items="navigation" :mobile-items="mobileItems" :active="workspace ? 'console' : activeSection" :menu-label="pageText.openNavigation" :close-label="pageText.closeNavigation" :breakpoint="kind === 'admin' ? 'tablet' : 'desktop'" @navigate="navigate">
+      <MoeNavbar :brand="kind === 'admin' ? adminText[activeSection as keyof typeof adminText] ?? text.admin : 'Moetopia'" :subtitle="kind === 'admin' ? undefined : text[kind]" :brand-href="kind === 'developer' ? '/developer' : kind === 'account' ? '/profile' : '/'" :label="pageText.navigation" :items="navigation" :mobile-items="mobileItems" :active="workspace ? 'console' : activeSection" :menu-label="pageText.openNavigation" :close-label="pageText.closeNavigation" :breakpoint="kind === 'admin' ? 'tablet' : 'desktop'" @navigate="navigate">
         <template #brand-icon><MoeBrandMark /></template>
         <template #actions><PortalDocSearch v-if="kind === 'developer'" /><PortalPreferences /><slot name="account" /></template>
       </MoeNavbar>

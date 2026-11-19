@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DeveloperApplications, DeveloperApplicationStatistics } from '@moetopia/api-client'
-import { MoePageHeading, MoeSelect, MoeButton, MoeStatGrid, MoeCard, MoeTimeSeriesChart, MoeAlert, MoeEmptyState } from '@moetopia/ui'
+import { MoePageHeading, MoeSelect, MoeButton, MoeButtonGroup, MoeStatGrid, MoeCard, MoeTimeSeriesChart, MoeAlert, MoeEmptyState } from '@moetopia/ui'
 const { text, common } = useIntegrationMessages()
 const { run, error, busy } = useManagementRequest()
 const applications = shallowRef<DeveloperApplications>()
@@ -9,10 +9,11 @@ const days = ref('7')
 const metric = ref<'authorizations' | 'code_exchanges' | 'refreshes' | 'machine_tokens'>('authorizations')
 const statistics = shallowRef<DeveloperApplicationStatistics>()
 const metrics = ['authorizations', 'code_exchanges', 'refreshes', 'machine_tokens'] as const
+const metricIcons = { authorizations: 'shield', code_exchanges: 'code', refreshes: 'activity', machine_tokens: 'key' } as const
 const points = computed(() => statistics.value?.days.slice(-Number(days.value)).map(day => ({ day: day.day, value: day.counts?.[metric.value], partial: day.partial })) ?? [])
 const items = computed(() => {
   const recorded = statistics.value?.days.slice(-Number(days.value)).flatMap(day => day.counts ? [day.counts] : [])
-  return metrics.map(id => ({ id, label: text.value[id], value: recorded?.length ? String(recorded.reduce((sum, counts) => sum + counts[id], 0)) : undefined, icon: 'grid' as const }))
+  return metrics.map(id => ({ id, label: text.value[id], value: recorded?.length ? String(recorded.reduce((sum, counts) => sum + counts[id], 0)) : undefined, icon: metricIcons[id] }))
 })
 const loadApplications = async () => {
   await run(async () => {
@@ -26,4 +27,4 @@ const refresh = () => selected.value ? run(async () => { statistics.value = awai
 watch(selected, () => { statistics.value = undefined; void refresh() })
 onMounted(loadApplications)
 </script>
-<template><div class="grid gap-6"><MoePageHeading :title="text.usage" :description="text.usageHint"><template #actions><MoeButton :loading="busy" variant="bordered" @click="refresh">{{ common.refresh }}</MoeButton></template></MoePageHeading><MoeAlert v-if="error" :title="error" color="danger" announce /><MoeEmptyState v-if="applications && !applications.items?.length" :title="common.empty" /><template v-else><MoeSelect v-model="selected" :label="common.applications" :options="applications?.items?.map(app => ({ value: app.id, label: app.latest.config.name })) ?? []" /><MoeButton v-if="applications?.next_cursor" variant="light" :disabled="busy" @click="loadApplications">{{ common.next }}</MoeButton><div class="grid gap-4 sm:grid-cols-2"><MoeSelect v-model="days" :label="text.usage" :options="['7', '14', '30'].map(value => ({ value, label: `${value} ${text.days}` }))" /><MoeSelect v-model="metric" :label="common.status" :options="metrics.map(value => ({ value, label: text[value] }))" /></div><MoeStatGrid :items="items" /><MoeCard v-if="statistics" padding="lg"><MoeTimeSeriesChart :label="text[metric]" :points="points" :missing-label="common.missing" :partial-label="common.partial" /><p class="mt-3 text-xs text-muted">UTC · {{ statistics.generated_at }}</p></MoeCard></template></div></template>
+<template><div class="grid gap-6"><MoePageHeading :title="text.usage" :description="text.usageHint"><template #actions><MoeButton :loading="busy" variant="bordered" @click="refresh">{{ common.refresh }}</MoeButton></template></MoePageHeading><MoeAlert v-if="error" :title="error" color="danger" announce /><MoeEmptyState v-if="applications && !applications.items?.length" :title="common.empty" /><template v-else><div class="grid gap-4 sm:grid-cols-2"><MoeSelect v-model="selected" :label="common.applications" :options="applications?.items?.map(app => ({ value: app.id, label: app.latest.config.name })) ?? []" /><MoeSelect v-model="metric" :label="common.status" :options="metrics.map(value => ({ value, label: text[value] }))" /></div><MoeButton v-if="applications?.next_cursor" variant="light" :disabled="busy" @click="loadApplications">{{ common.next }}</MoeButton><MoeStatGrid :items="items" /><MoeCard v-if="statistics" padding="lg"><div class="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 class="text-base font-semibold">{{ text.usage }}</h2><MoeButtonGroup :label="text.usage"><MoeButton v-for="value in ['7', '14', '30']" :key="value" size="sm" :variant="days === value ? 'flat' : 'light'" :aria-pressed="days === value" @click="days = value">{{ value }} {{ text.days }}</MoeButton></MoeButtonGroup></div><MoeTimeSeriesChart :label="text[metric]" :points="points" :missing-label="common.missing" :partial-label="common.partial" /><p class="mt-3 text-xs text-muted">UTC · {{ statistics.generated_at }}</p></MoeCard></template></div></template>

@@ -48,8 +48,12 @@ test('profile uses the reference width, grouped panels and avatar account naviga
   await expect(page.getByLabel('昵称', { exact: true })).toBeEditable()
   await expect(page.locator('.moe-card-form-heading').first()).toHaveCSS('border-bottom-width', '0px')
   await page.getByRole('button', { name: '你的账号', exact: true }).click()
+  await expect(page.locator('.moe-account-header')).toContainText(user.display_name)
+  await expect(page.locator('.moe-account-header')).toContainText(user.email)
   await page.getByRole('menuitem', { name: '登录会话', exact: true }).click()
   await expect(page).toHaveURL(`${origin}/sessions`)
+  await expect(page.locator('.moe-profile-summary')).toBeVisible()
+  await expect(page.locator('.moe-navbar-links').getByRole('link', { name: '登录会话', exact: true })).toHaveAttribute('aria-current', 'page')
 })
 
 test('dedicated authorization route rejects missing requests without displaying a fake consent', async ({ page }) => {
