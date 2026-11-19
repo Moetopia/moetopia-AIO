@@ -71,9 +71,11 @@ Vue、样式和翻译保存后由 Nuxt 自动更新。Go `.go`、迁移 `.sql`�
 
 ## 试用注册和登录
 
+若已用 `scripts/dev-local.ps1` 启动本地项目，直接在源码仓库的 PowerShell 执行 `pnpm dev:invite`。然后到 [注册页](http://account.localhost:3000/auth/register) 使用邀请码，在 [Mailpit](http://127.0.0.1:58325/) 查看邮箱验证码。
+
 ### 在 Windows PowerShell 中操作 WSL 容器
 
-如果你在本机 WSL 部署了 [NPM 与共享 PostgreSQL](run-production-npm.md)，先在 PowerShell 切到**保存该实例 `.env.production` 的部署目录**。以下命令在 `docker` 发行版中执行，沿用 PowerShell 当前目录。
+以下命令仅适用于已经部署的 [NPM 与共享 PostgreSQL 实例](run-production-npm.md)。先在 PowerShell 切到**保存该实例 `.env.production` 的部署目录**。如果报 `couldn't find env file: .../.env.production`，先核对当前目录和启动方式。使用 `dev-local.ps1` 时直接执行上面的 `pnpm dev:invite`。
 
 ```powershell
 wsl.exe -d docker -- pwd
