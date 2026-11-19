@@ -56,7 +56,26 @@ test('profile handles revision conflicts, avatar upload and removal', async ({ p
   await page.getByLabel('昵称', { exact: true }).fill('Updated')
   await page.getByRole('button', { name: '保存修改' }).click()
   await expect(page.locator('.moe-profile-identity')).toContainText('Updated')
-  await page.locator('input[type=file]').setInputFiles({ name: 'avatar.png', mimeType: 'image/png', buffer: Buffer.from('synthetic-avatar') })
+  const png = await page.evaluate(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 80
+    canvas.height = 40
+    return canvas.toDataURL().split(',')[1]!
+  })
+  const file = { name: 'avatar.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') }
+  await page.locator('input[type=file]').setInputFiles(file)
+  const crop = page.getByRole('dialog', { name: '裁剪头像' })
+  await expect(crop.getByRole('button', { name: '上传头像' })).toBeEnabled()
+  expect(uploads).toHaveLength(0)
+  await page.keyboard.press('Escape')
+  await expect(crop).toBeHidden()
+  expect(uploads).toHaveLength(0)
+  await page.locator('input[type=file]').setInputFiles(file)
+  await crop.getByRole('slider', { name: '水平位置' }).press('End')
+  await crop.getByRole('button', { name: '上传头像' }).click()
+  await expect.poll(() => uploads.length).toBe(1)
+  const cropped = Buffer.from(uploads[0]!, 'base64')
+  expect([cropped.readUInt32BE(16), cropped.readUInt32BE(20)]).toEqual([256, 256])
   await page.getByRole('button', { name: '移除头像' }).click()
   await expect.poll(() => uploads.length).toBe(2)
   expect(uploads[0]).not.toContain('data:')

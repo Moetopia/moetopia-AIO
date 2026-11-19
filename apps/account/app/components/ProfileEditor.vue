@@ -10,6 +10,7 @@ const { text, busy, error, success, headers, run } = useManagementRequest()
 const name = ref('')
 const bio = ref('')
 const fileInput = ref<HTMLInputElement>()
+const cropFile = shallowRef<File>()
 const revision = ref(0)
 watch(() => context.value?.user, user => { name.value = user?.display_name ?? ''; bio.value = user?.bio ?? ''; revision.value = user?.revision ?? 0 }, { immediate: true })
 const update = (user: ProfileResponse) => { if (context.value) context.value = { ...context.value, user } }
@@ -21,27 +22,30 @@ const avatar = (image_base64: string) => run(async () => {
   const body: AvatarUpdateRequest = { image_base64, revision: revision.value }
   update(await $fetch<ProfileResponse>('/api/v1/portal/avatar', { method: 'PUT', headers: headers.value, body }))
 })
-const upload = async (event: Event) => {
+const selectAvatar = (event: Event) => {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   input.value = ''
   if (!file) return
-  if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 512 * 1024) { error.value = text.value.avatarHint; return }
-  try {
-    const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.onerror = reject; reader.readAsDataURL(file) })
-    await avatar(data)
-  } catch { error.value = text.value.invalid }
+  if (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 20 * 1024 * 1024) { error.value = text.value.avatarHint; return }
+  error.value = ''
+  cropFile.value = file
+}
+const uploadCrop = (data: string) => {
+  cropFile.value = undefined
+  return avatar(data)
 }
 </script>
 <template>
   <MoeCard layout="form" :title="pageText.profileTitle">
     <form class="grid gap-4" @submit.prevent="save">
-      <div class="flex flex-wrap items-center gap-4"><MoeAvatar :name="name" :src="context?.user?.avatar_url" size="lg" /><input ref="fileInput" type="file" accept="image/png,image/jpeg" class="sr-only" :aria-label="pageText.changeAvatar" :disabled="busy" @change="upload" /><MoeButton type="button" variant="bordered" size="sm" :disabled="busy" @click="fileInput?.click()">{{ pageText.changeAvatar }}</MoeButton><MoeButton v-if="context?.user?.avatar_url" type="button" variant="light" color="danger" :disabled="busy" @click="avatar('')">{{ text.removeAvatar }}</MoeButton></div>
+      <div class="flex flex-wrap items-center gap-4"><MoeAvatar :name="name" :src="context?.user?.avatar_url" size="lg" /><input ref="fileInput" type="file" accept="image/png,image/jpeg" class="sr-only" :aria-label="pageText.changeAvatar" :disabled="busy" @change="selectAvatar" /><MoeButton type="button" variant="bordered" size="sm" :disabled="busy" @click="fileInput?.click()">{{ pageText.changeAvatar }}</MoeButton><MoeButton v-if="context?.user?.avatar_url" type="button" variant="light" color="danger" :disabled="busy" @click="avatar('')">{{ text.removeAvatar }}</MoeButton></div>
       <p class="text-sm text-muted">{{ text.avatarHint }}</p>
       <MoeInput v-model="name" :label="accountText.name" required :maxlength="80" :disabled="busy" />
       <MoeTextarea v-model="bio" :label="pageText.biography" :placeholder="pageText.biographyPlaceholder" :rows="3" :maxlength="500" :disabled="busy" />
       <MoeAlert v-if="error" :title="error" color="danger" announce /><MoeAlert v-else-if="success" :title="text.saved" color="success" announce />
       <MoeButton class="w-full" type="submit" :loading="busy">{{ pageText.saveChanges }}</MoeButton>
     </form>
+    <AvatarCropDialog v-if="cropFile" :file="cropFile" @cancel="cropFile = undefined" @confirm="uploadCrop" />
   </MoeCard>
 </template>
