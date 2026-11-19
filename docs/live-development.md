@@ -1,6 +1,6 @@
 # 边开发边查看效果
 
-更新时间：2026-10-18。当前 Windows 运行 Go/Nuxt，依赖由 Ubuntu `192.168.101.41` 提供。无需在 Windows 安装 Docker。本文面向当前已有 `.env`、依赖容器、迁移和签名密钥的工作区；首次设置见 [工程指南](run-foundation.md)。
+Windows 运行 Go 和 Nuxt。依赖可由本机 WSL Docker 或已配置的远程 Ubuntu 提供。
 
 ## 日常启动
 
@@ -46,9 +46,10 @@ Storybook 只在显式选择时启动；`pnpm dev account storybook` 不启动 A
 | 入口 | 用途 |
 | --- | --- |
 | `http://account.localhost:3000` | 无插画登录/注册页；登录后进入账号资料 |
-| `http://admin.localhost:3001` | 管理工作区与功能准备状态，管理操作尚未开放 |
+| `http://admin.localhost:3001` | 管理台，使用已初始化的管理员账号及 TOTP |
 | `http://account.localhost:3000/developer` | 同一用户站中的开发者门户、应用准备与接入说明 |
-| `http://192.168.101.41:58025` | 开发邮件收件箱 |
+| `http://127.0.0.1:58325` | 一键启动的本地 Mailpit |
+| `http://192.168.101.41:58025` | 远程依赖模式的 Mailpit |
 
 账号页请使用表中的 `account.localhost`，不要改用 Nuxt 控制台显示的 `127.0.0.1:3000`：当前 Go 严格检查 `.env` 中的账号 origin，地址不同会拒绝写请求。账号与开发者分区同源共享账号状态；admin 使用独立 host，不能据此继承管理员权限。
 
@@ -58,7 +59,7 @@ Vue、样式和翻译保存后由 Nuxt 自动更新。Go `.go`、迁移 `.sql`�
 
 本轮改为用户站＋管理台，建议在自己的原启动终端退出并重新运行一次 `pnpm dev`，使 TUI 列表与配置更新。仅看前端可运行 `pnpm dev account` 或 `pnpm dev admin`；这不会启动 Go，账号服务不可用时显示连接失败。不要启动旧 developer 命令，也不要让其他对话结束归属不明的进程。
 
-认证页为 `/auth/login`、`/auth/register`，登录后进入 `/profile`。账号中心通过顶栏或手机菜单进入 `/profile`、`/sessions`、`/security`；`/` 兼容原入口与授权请求。开发者分区为 `/developer`、`/developer/applications`、`/developer/docs`，见 [ADR-0017](decisions/0017-user-site-layouts.md)。会话页复用现有查询与撤销接口；安全页展示现有会话入口及尚未开放的密码修改、第三方绑定、授权管理说明，不代表这些后端能力已完成。正面立绘暂不用于页面，保留角色配色。前后端分工和新对话接手说明见 [交接文档](workstreams.md)。
+认证页为 `/auth/login`、`/auth/register`。登录后可从菜单进入个人资料、会话和安全管理。开发者分区提供应用管理和接入文档，入口为 `/developer`。
 
 2026-10-19 新增用户站自身的 Go OAuth RP：可从正常页面登录入口或 [直接发起 OAuth 登录](http://account.localhost:3000/api/v1/portal/login?return_to=/developer/applications) 试用真实启动、授权与回调，身份会话和用户站会话分开。正常入口/守卫已由前端接入并通过真实浏览器回归。迁移 5 和受控客户端初始化已在专属开发库执行，完整契约与其他工作区命令见 [接入说明](run-first-party-oidc.md)。资料/恢复和开发者新增接口见 [账号管理](run-account-management.md) 与 [开发者应用](run-developer-applications.md)，新表单仍需前端接入。
 
@@ -77,7 +78,7 @@ Vue、样式和翻译保存后由 Nuxt 自动更新。Go `.go`、迁移 `.sql`�
 3. 点击“发送验证码”，在 Mailpit 找到该收件人的注册邮件，将 8 位验证码填回页面。当前邮件只进入开发 SMTP，不会投递至真实外部邮箱。
 4. 创建成功后用邮箱和密码登录。刷新应保持登录；可在会话区结束会话，或点击退出登录。
 
-注册默认邀请制。当前开放/邀请模式由后端持久策略控制，管理页面切换尚未完成，不需要为了看页面直接改数据库。GitHub、Google、找回密码、资料编辑和管理 MFA 仍未开放；现有登录不等于完整身份产品或管理台 SSO。
+注册默认邀请制。首个开发账号验证邮箱后，可按 [管理员初始化](run-administration.md#运行与一次性初始化) 获得管理角色，再绑定 TOTP。管理员可在管理台切换注册模式。测试 GitHub 或 Google 登录时需先配置对应供应商。 [第三方登录配置](run-federation.md)
 
 `dev:invite` 仅允许 development 环境，不提供默认管理员或固定账号密码。开发依赖文件和应用加密密钥均不提交。
 

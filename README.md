@@ -8,7 +8,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 
 **首期后端功能及发布工具已有实现，完整产品仍在实施。** 2026-10-22 补齐管理员授予/撤回、最后管理员保护、全因素丢失应急、全局统计/注册趋势、通知重投、应急签名轮换，以及容器部署、加密备份和新库恢复；真实隔离容器演练通过。管理员及新增成品页面、真实外部供应商、正式生产配置与目标机器容量仍待验收，准确范围见实施进度。
 
-2026-10-18 用户已要求开始执行实施计划。运行方法与前置条件见 [工程基座指南](docs/run-foundation.md)，已验证和未验证的范围见 [实施进度](docs/implementation-status.md)。依赖已运行于局域网 Ubuntu 的独立 Compose 网络，数据库/缓存基础集成测试通过；身份业务尚未完成，不可作为生产身份服务使用。
+本地开发可使用 WSL Docker 一键启动。生产支持 NPM 与共享 PostgreSQL，也提供内置入口的独立 Compose。正式域名上的发布验收见 [实施进度](docs/implementation-status.md)。
 
 ## 已确认方向
 
@@ -55,7 +55,8 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [管理台应用控制](docs/run-admin-application-management.md) | 全部应用、配置、审核、暂停及管理员删除契约 |
 | [管理员控制与应急](docs/run-admin-controls.md) | 后续角色授予、最后管理员保护、受控恢复与迁移 15 |
 | [全局统计与通知重投](docs/run-admin-statistics.md) | 真实注册趋势、队列状态、人工重投与迁移 16 |
-| [Linux 容器发布](docs/run-production.md) | 镜像、秘密文件、运行角色、入口与可重复演练 |
+| [NPM 与共享 PostgreSQL 部署](docs/run-production-npm.md) | 配置、迁移、反向代理、首装邀请码、首个账号和管理员 MFA |
+| [内置 Caddy 与 PostgreSQL 部署](docs/run-production.md) | 独立部署、首位管理员、升级和隔离发布演练 |
 | [备份与恢复](docs/run-backup-recovery.md) | 独立加密托管、新库恢复、密钥校验和安全切换 |
 | [运行观测](docs/run-observability.md) | 私有指标、后台任务和匿名探测边界 |
 | [独立客户端验证](docs/oidc-interop.md) | 真实浏览器互操作、代理修复和 test:oidc 的隔离运行 |

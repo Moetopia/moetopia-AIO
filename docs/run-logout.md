@@ -1,6 +1,6 @@
 # 中央确认与 RP 发起退出
 
-状态：后端及契约已有，确认页和新增退出入口待前端接入。现有本地退出保持原行为。不能把后端 HTTP 测试称为完整退出页面或全站即时退出验收。
+中央退出接口与确认页已接入。页面和协议的验证范围见 [前端交接](coordination/frontend.md)。
 
 ## 行为
 
@@ -36,7 +36,7 @@ POST 使用 application/x-www-form-urlencoded，不混用 URL 参数。拒绝重
 | POST `/api/v1/account/logout-requests/{id}` | account Cookie/CSRF/Origin；decision=approve/deny，subject_id 为展示的中央 user.id，无中央会话时为空字符串；返回 redirect_to |
 
 1. 将“仅退出当前应用”和“同时请求退出中央身份”分开说明；新操作成功后清掉本地 RP 上下文并完整导航 redirect_to。后续中央拒绝或出错，不伪造 RP 会话仍在。
-2. 新增公开 `/auth/confirm-logout?logout_request=...`，不走 portal 守卫。先读取 account/context 得到 account CSRF，再读请求详情，展示真实应用、中央账号、回跳地址和实际影响。始终等待用户确认，GET 不直接结束登录。当前该页面尚未实现；前端接入前不要开放新按钮作为可用成品。
+2. 公开确认页 `/auth/confirm-logout?logout_request=...` 不走 portal 守卫。先读取 account/context 得到 account CSRF，再读请求详情，展示真实应用、中央账号、回跳地址和实际影响。始终等待用户确认，GET 不直接结束登录。
 3. 提交展示的 subject_id。409 logout_account_changed 时重读上下文及详情，不自动替新账号重试；404 logout_request_unavailable 时从 RP 重启。其余 401/403/429/503 沿用账号错误，不把失败当成功。
 4. 完整导航返回的 redirect_to，不在 Nuxt 服务端跟随。保留固定 Go 代理和 manual redirect；尤其不能折叠丢失多个 Set-Cookie。认证确认页使用 no-store/no-referrer/防嵌入，不把 state、ID hint 或一次性句柄发到分析服务。
 5. `/auth/logout?central=1` / completed=1 显示中央流程反馈，并重新读真实 context；cancelled=1 明确中央未结束。旧无标记页继续表示仅本地退出。RP 返回的 state 是浏览器关联保护，不是可以代替真实 context 的签名退出证明。

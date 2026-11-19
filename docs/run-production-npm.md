@@ -7,7 +7,7 @@
 ## 数据库和容器
 
 1. 在 `common-postgres` 执行 `SHOW server_version;` 确认版本。创建 Moetopia 专属数据库 `moetopia` 和两个登录角色 `moetopia_migrator`、`moetopia_app`。迁移角色拥有该库；两个角色均无需超管、建库或建角色权限。通过数据库管理工具分别设置密码。
-2. 按 [首次安装](run-production.md#首次安装) 创建 `.env.production` 和秘密文件。将 `migration_database_url` 与 `app_database_url` 分别指向 `common-postgres:5432/moetopia` 上的对应角色，TLS 按共享数据库实际配置填写。设置正式双域名、SMTP 和发布标签。基础 Compose 解析所需的 `MOETOPIA_TLS_EMAIL` 与 `MOETOPIA_PROXY_SUBNET` 可保留模板值。
+2. 在 Linux 部署目录首次执行 `cp deploy/production.env.example .env.production` 和 `sh deploy/init-secrets.sh`。已有部署保留原配置和加密密钥。将 `deploy/secrets/migration_database_url` 与 `deploy/secrets/app_database_url` 分别指向 `common-postgres:5432/moetopia` 上的对应角色，TLS 按共享数据库实际配置填写。设置正式双域名、TLS SMTP 和发布标签。SMTP 密码填入 `deploy/secrets/smtp_password`。基础 Compose 解析所需的 `MOETOPIA_TLS_EMAIL` 与 `MOETOPIA_PROXY_SUBNET` 可保留模板值。
 3. 查询 NPM 容器的代理网地址：`docker inspect --format '{{(index .NetworkSettings.Networks "proxy-network").IPAddress}}' nginx-proxy-manager`。将该 IPv4 地址加 `/32` 填入 `MOETOPIA_NPM_PEER_CIDR`，禁用对整个共享网段的信任。给 NPM 保留固定地址，或在它重建后同步该值并重建 API。
 
 ```sh
@@ -25,7 +25,7 @@ sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api 
 sh deploy/compose-npm.sh up -d --wait
 ```
 
-首位管理员沿用 [首装流程](run-production.md#初始化首位管理员)，将脚本替换为 `deploy/compose-npm.sh`。数据库备份和恢复沿用共享 PostgreSQL 的运维流程，需能单独恢复 Moetopia 库；另行加密保存原始 `encryption_key`。
+数据库备份和恢复沿用共享 PostgreSQL 的运维流程，需能单独恢复 Moetopia 库。另行加密保存原始 `encryption_key`。
 
 ## NPM 路由
 
@@ -42,4 +42,22 @@ location ~ ^/(?:api/|oauth/|\.well-known/(?:openid-configuration|oauth-authoriza
 }
 ```
 
-NPM 前面若还有 CDN，先在 NPM 配好可信来源，使 `$remote_addr` 代表实际客户端。验收时检查两个发现地址、管理台深链接、首位管理员注册和 MFA、独立客户端 OIDC 回跳。 [生产前端交接](coordination/production-frontend.md)
+NPM 前面若还有 CDN，先在 NPM 配好可信来源，使 `$remote_addr` 代表实际客户端。
+
+## 注册首个账号并初始化管理员
+
+1. 确认用户站和管理台均可通过正式 HTTPS 地址打开，TLS SMTP 能向首位管理员的邮箱投递。执行下面的命令获取注册表单所需的首装邀请码。有效期一小时，单次使用。已有有效的邀请码或管理员初始化记录时，命令会拒绝再次签发。
+
+```sh
+sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap-invite
+```
+
+2. 打开用户站 `/auth/register`，填入邀请码、邮箱、昵称和本地登录密码。点击发送验证码，从实际邮箱收取验证码并提交注册。邀请码用于注册准入，邮件验证码用于验证邮箱。已有启用且已验证的账号时，可直接进入下一步。
+3. 将命令中的示例邮箱换成该账号的邮箱，授予首位管理员角色。
+
+```sh
+sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap --email admin@example.com
+```
+
+4. 从管理台域名发起登录。绑定验证器时填当前 Moetopia 本地登录密码，扫码添加 TOTP 后输入六位动态码。将一次性展示的恢复码离线保存，再验证可以访问管理页面。后续在管理台发放邀请码、切换注册模式和管理角色。恢复和应急处理见 [管理员控制](run-admin-controls.md)。
+5. 对外开放前，从客户端网络检查两个发现地址及 issuer，打开管理台深链接，并用独立应用完成 OIDC 登录和回跳。 [OIDC 配置](configure-oidc.md) · [前端验收](coordination/production-frontend.md)

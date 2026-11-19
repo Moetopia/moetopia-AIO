@@ -1,6 +1,6 @@
 # 管理员安全与后台接入
 
-更新时间：2026-10-22。本批实现独立管理员 RP、角色检查、TOTP、恢复码、一次性初始化，以及审核、平台暂停、普通用户停启、注册策略、邀请码和审计接口。实际验证和开发库操作结果由 [实施进度](implementation-status.md) 记录；管理员页面由前端对话接入，不将协议探针当作成品后台。
+本页维护管理员接口和前端接线契约。生产首装从 [NPM 部署与首位管理员](run-production-npm.md#注册首个账号并初始化管理员) 或 [内置入口部署](run-production.md#初始化首位管理员) 开始。管理员页面接入及验证范围见 [前端交接](coordination/frontend.md)。
 
 ## 第一次进入管理台：密码与验证器是什么
 
@@ -25,7 +25,7 @@ pnpm api:admin:init
 pnpm api:admin:bootstrap --email admin@example.test
 ```
 
-示例邮箱必须替换为已经注册、验证邮箱且启用的本地账号；CLI 不注册新账号，不输出密码、seed 或恢复码。用户已在当前会话指定首位管理员，实际操作结果见实施进度，不把真实邮箱写入仓库。
+将示例邮箱替换为当前开发库中已经注册、验证邮箱且启用的本地账号。注册及 Mailpit 操作见 [本地开发指南](live-development.md)。
 
 `admin:init` 显式创建固定 confidential client `moetopia-admin`，回调固定为管理员 origin + `/api/v1/admin/callback`。secret 按独立用途从既有密钥派生，只保存 bcrypt；重复执行仅校验，配置不同或停用时拒绝覆盖。`admin:bootstrap` 通过唯一 bootstrap 记录保证并发下只成功一次；即使角色后来不可用，也不重新开放初始化，不以删除标记或环境变量绕过 MFA。当前只有 administrator 角色，后续角色授予/撤回及最后管理员保护见[管理员控制](run-admin-controls.md)，通用多级 RBAC 后置。
 
