@@ -41,6 +41,8 @@ export default {
   "avatarZoom": "拡大率",
   "avatarHorizontal": "横位置",
   "avatarVertical": "縦位置",
+  "avatarDragHint": "画像をドラッグして位置調整、ホイールやスライダーで拡大",
+  "avatarReset": "リセット",
   "avatarUpload": "アバターをアップロード",
   "removeAvatar": "アバターを削除",
   "securitySignOut": "変更すると既存のセッションはすべて無効になります。再度ログインしてください。",

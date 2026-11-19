@@ -16,8 +16,8 @@ const select = (item: MoeMenuItem) => item.id === 'logout' ? logout() : navigate
 onMounted(() => run(connect))
 </script>
 <template><PortalHome kind="admin"><template #account><MoeAccountMenu v-if="context?.authenticated && context.user" :label="accountText.signedIn" :name="context.user.display_name" :email="context.user.email" :src="context.user.avatar_url" :items="menu" @select="select" /></template>
-  <MoeSpinner v-if="loading" :label="text.refresh" />
-  <div v-else-if="!context" class="grid gap-4"><MoeIllustration name="service-unavailable" size="md" class="justify-self-center" /><MoeAlert :title="error || text.error" color="danger" /><MoeButton @click="run(connect)">{{ text.refresh }}</MoeButton></div>
+  <div v-if="loading" class="moe-access-state"><MoeSpinner :label="text.refresh" /></div>
+  <div v-else-if="!context" class="moe-access-state mx-auto w-full max-w-md"><MoeIllustration name="service-unavailable" size="md" /><MoeAlert class="w-full" :title="error || text.error" color="danger" /><MoeButton @click="run(connect)">{{ text.refresh }}</MoeButton></div>
   <AdminAccess v-else-if="!context.authenticated || !context.mfa?.verified" />
   <slot v-else />
 </PortalHome></template>

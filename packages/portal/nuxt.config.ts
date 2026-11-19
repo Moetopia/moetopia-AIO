@@ -12,6 +12,11 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   app: {
     head: {
+      script: [
+        {
+          innerHTML: "(()=>{try{const m=document.cookie.match(/(?:^|;\\s*)moetopia_theme=([^;]+)/);const c=m?decodeURIComponent(m[1]):'';const d=c==='dark'||(c==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light')}catch{}})()",
+        },
+      ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', sizes: '16x16 32x32 48x48 64x64' },
         { rel: 'icon', type: 'image/png', href: '/brand/favicon-32.png', sizes: '32x32' },

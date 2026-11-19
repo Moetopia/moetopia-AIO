@@ -41,6 +41,8 @@ export default {
   "avatarZoom": "缩放",
   "avatarHorizontal": "水平位置",
   "avatarVertical": "垂直位置",
+  "avatarDragHint": "拖动图片调整位置，滚轮或滑块缩放",
+  "avatarReset": "重置",
   "avatarUpload": "上传头像",
   "removeAvatar": "移除头像",
   "securitySignOut": "修改成功后，所有旧会话将失效，请重新登录。",

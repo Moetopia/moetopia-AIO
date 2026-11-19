@@ -19,6 +19,41 @@ test('system theme follows media changes while an explicit choice remains stable
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 })
 
+test('system dark theme applies before first paint and hydration without flashing light', async ({ page }) => {
+  let releaseContext!: () => void
+  const gate = new Promise<void>(resolve => { releaseContext = resolve })
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.context().addCookies([{ name: 'moetopia_theme', value: 'system', url: origin }])
+  await page.route('**/api/v1/portal/context', async route => {
+    await gate
+    return route.fulfill({ json: { authenticated: true, csrf_token: 'portal-csrf', user: { id: 'preview', display_name: '预览用户', email: 'preview@example.com' } } })
+  })
+  await page.route('**/api/v1/status', route => route.fulfill({ json: { service: 'moetopia' } }))
+  await page.addInitScript(() => {
+    const seen: string[] = []
+    const record = () => {
+      const value = document.documentElement?.getAttribute('data-theme')
+      if (value) seen.push(value)
+    }
+    const attach = () => {
+      if (!document.documentElement) return
+      record()
+      new MutationObserver(record).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    }
+    document.addEventListener('readystatechange', attach)
+    document.addEventListener('DOMContentLoaded', record)
+    ;(window as unknown as { __themes?: string[] }).__themes = seen
+  })
+  try {
+    await page.goto(`${origin}/profile`, { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    const beforeApi = await page.evaluate(() => (window as unknown as { __themes?: string[] }).__themes ?? [])
+    expect(beforeApi.length).toBeGreaterThan(0)
+    expect(beforeApi.every(value => value === 'dark')).toBe(true)
+  } finally { releaseContext() }
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+})
+
 test('logout errors retain the current page and never reuse identity CSRF', async ({ page }) => {
   await mockPortal(page)
   let writes = 0

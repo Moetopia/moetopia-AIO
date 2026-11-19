@@ -41,6 +41,8 @@ export default {
   "avatarZoom": "Zoom",
   "avatarHorizontal": "Horizontal position",
   "avatarVertical": "Vertical position",
+  "avatarDragHint": "Drag image to reposition, scroll or use slider to zoom",
+  "avatarReset": "Reset",
   "avatarUpload": "Upload avatar",
   "removeAvatar": "Remove avatar",
   "securitySignOut": "This change ends all existing sessions. Sign in again afterwards.",
