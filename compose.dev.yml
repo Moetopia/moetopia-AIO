@@ -34,7 +34,7 @@ services:
     image: axllent/mailpit:v1.28.0
     ports:
       - '${MOETOPIA_DEV_BIND_ADDRESS:-127.0.0.1}:51025:1025'
-      - '${MOETOPIA_DEV_BIND_ADDRESS:-127.0.0.1}:58025:8025'
+      - '${MOETOPIA_DEV_BIND_ADDRESS:-127.0.0.1}:${MOETOPIA_DEV_MAILPIT_PORT:-58025}:8025'
     networks: [dependencies]
 networks:
   dependencies:

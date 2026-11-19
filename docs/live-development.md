@@ -4,6 +4,8 @@
 
 ## 日常启动
 
+Windows 本机有名为 `docker` 的 WSL 发行版时，可直接运行 `pwsh -File scripts/dev-local.ps1`。它在缺少配置时创建本地 `.env`，使用独立的 `moetopia-local-dev` Compose 项目启动依赖、执行迁移和初始化，再进入现有开发 TUI。已配置远程依赖的工作区继续使用 `pnpm dev`。一键启动的 Mailpit 地址为 `http://127.0.0.1:58325`。
+
 在自己的 PowerShell 终端运行，并保留该终端：
 
 ```powershell
