@@ -1,10 +1,17 @@
-# 边开发边查看效果
+# Windows 本地开发
 
-Windows 运行 Go 和 Nuxt。依赖可由本机 WSL Docker 或已配置的远程 Ubuntu 提供。
+Windows 原生运行 Go、两个 Nuxt 应用和 mprocs TUI。WSL 的 `docker` 发行版运行 PostgreSQL、Valkey 和 Mailpit。首次使用需准备仓库声明的 Go、Node 和 pnpm 版本。
 
 ## 日常启动
 
-Windows 本机有名为 `docker` 的 WSL 发行版时，可直接运行 `pwsh -File scripts/dev-local.ps1`。它在缺少配置时创建本地 `.env`，使用独立的 `moetopia-local-dev` Compose 项目启动依赖、执行迁移和初始化，再进入现有开发 TUI。已配置远程依赖的工作区继续使用 `pnpm dev`。一键启动的 Mailpit 地址为 `http://127.0.0.1:58325`。
+在 **Windows Terminal 的 PowerShell 7** 中进入仓库根目录。首次安装依赖，之后可直接运行第二条命令：
+
+```powershell
+pnpm install --frozen-lockfile
+pwsh -File scripts/dev-local.ps1
+```
+
+脚本在缺少配置时创建本地 `.env`，启动独立的 `moetopia-local-dev` Compose 项目，应用迁移并初始化签名密钥与两个站点的内置客户端。交互终端进入 mprocs，非交互终端使用纯文本日志。脚本要求 `.env` 指向本机开发依赖，保留已有文件及密钥。已配置远程依赖的工作区继续使用 `pnpm dev`。
 
 在自己的 PowerShell 终端运行，并保留该终端：
 
@@ -73,24 +80,6 @@ Vue、样式和翻译保存后由 Nuxt 自动更新。Go `.go`、迁移 `.sql`�
 
 若已用 `scripts/dev-local.ps1` 启动本地项目，直接在源码仓库的 PowerShell 执行 `pnpm dev:invite`。然后到 [注册页](http://account.localhost:3000/auth/register) 使用邀请码，在 [Mailpit](http://127.0.0.1:58325/) 查看邮箱验证码。
 
-### 在 Windows PowerShell 中操作 WSL 容器
-
-以下命令仅适用于已经部署的 [NPM 与共享 PostgreSQL 实例](run-production-npm.md)。先在 PowerShell 切到**保存该实例 `.env.production` 的部署目录**。如果报 `couldn't find env file: .../.env.production`，先核对当前目录和启动方式。使用 `dev-local.ps1` 时直接执行上面的 `pnpm dev:invite`。
-
-```powershell
-wsl.exe -d docker -- pwd
-wsl.exe -d docker -- sh deploy/compose-npm.sh ps
-wsl.exe -d docker -- sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap-invite
-```
-
-确认 `ps` 显示的是要测试的实例。首装邀请码一小时有效、单次使用。在该实例的用户站注册并验证邮箱后，替换下面的示例邮箱，再到管理台登录并绑定 TOTP。迁移、构建等其他 `sh deploy/compose-npm.sh …` 命令也可加相同的 WSL 前缀。 [完整首装步骤](run-production-npm.md#注册首个账号并初始化管理员)
-
-```powershell
-wsl.exe -d docker -- sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap --email admin@example.com
-```
-
-### 一键开发环境
-
 用 `pwsh -File scripts/dev-local.ps1` 启动的环境中，依赖容器在 WSL 运行，Go 和 Nuxt 在 Windows 运行。发码和管理员初始化都在项目目录的 PowerShell 执行。
 
 没有预置的固定测试账号或默认管理员；此前自行注册的开发账号可以继续登录。自动化测试账号属于临时数据库，测试结束即清理，不能作为日常账号使用。邀请码与邮箱验证码不同，分别按下面步骤获取。
@@ -116,8 +105,14 @@ pnpm storybook
 
 ## 数据变更与故障
 
-专属开发库已按顺序应用迁移 1–9；最近的 8/9 新增管理员安全、平台暂停、审计字段及用户/邀请/注册策略控制，保留原账号、用户站会话和签名密钥。管理员客户端及用户指定首位角色已初始化，尚未绑定该账号 MFA；契约、运行步骤与页面接入边界见 [管理员接入](run-administration.md)。其他工作区有新迁移时，确认目标库再执行 `pnpm api:migrate`；旧授权主体显式回填用 `pnpm api:grants:backfill`。API 因缺迁移退出时，迁移后在 TUI 选 api 按 r。不能用生成 Ent 代码代替迁移。
+开发中新增迁移时，在另一终端确认目标为自己的开发库，再运行 `pnpm api:migrate`。如果 API 因缺迁移退出，在 TUI 选中 api 按 r。旧授权记录需要显式回填时，见 [授权接入](run-authorization.md)。
 
-账号服务不可用时先看启动终端，再运行 `pnpm dev:doctor:remote` 检查远程端口。该检查不验证密码或数据库结构；`/readyz` 和集成测试才会进行进一步检查。Ubuntu 重启后如何启动依赖见工程指南，不在 Windows 执行远程 `sudo` 或混用本机 `dev:up`。
+账号服务不可用时先看 TUI 中的 api 日志，检查 `http://127.0.0.1:8080/readyz`。本地依赖用 `wsl.exe -d docker -- docker compose -p moetopia-local-dev ps` 查看。远程依赖用 `pnpm dev:doctor:remote` 检查端口。
 
 反馈时提供页面地址、操作步骤、主题/语言、期望效果和实际表现即可。截图可包含界面，但应遮挡密码、验证码、邀请码和个人资料。前端修改通常即时可见；服务端迁移和启动脚本变化会明确说明是否需要操作。
+
+## 远程依赖与验证
+
+新建远程开发环境时，在 Windows 运行 `node scripts/setup-dev.mjs --services-host <开发主机地址>`。把生成的 `.env.compose` 和 `compose.dev.yml` 放到远程主机的项目专属目录。在该主机运行 `sudo docker compose --env-file .env.compose -f compose.dev.yml up -d --wait`。Windows 首次连接专属库时依次运行 `pnpm api:migrate`、`pnpm api:keys:init`、`pnpm api:first-party:init`、`pnpm api:admin:init`，然后运行 `pnpm dev`。
+
+日常变更可运行 `pnpm api:test`、`pnpm typecheck` 和 `pnpm docs:check`。修改 API 契约后运行 `pnpm api:generate:client`，再用 `pnpm api:check:client` 检查漂移。数据库集成测试用 `pnpm test:integration`，运行器创建并清理专属临时测试库。浏览器测试和发布验证见 [测试与发布](testing-release.md)。

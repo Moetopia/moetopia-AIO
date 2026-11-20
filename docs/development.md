@@ -1,6 +1,6 @@
 # 开发环境与配置设计
 
-状态：Windows 原生开发、Compose 依赖、Linux 容器生产为已定方向。已建立开发脚本、页面壳、API 与开发 Compose；当前命令和前置条件统一见 [工程运行指南](run-foundation.md)，执行证据见 [实施进度](implementation-status.md)。生产部署配置尚未交付。
+开发运行命令见 [Windows 本地开发](live-development.md)，Linux 容器部署见 [生产部署](run-production.md)，验证记录见 [实施进度](implementation-status.md)。
 
 ## 目标运行方式
 
@@ -14,7 +14,7 @@ PowerShell 启动 Nuxt 与 Go，Docker Compose 提供 PostgreSQL、Valkey 与开
 
 ## 工具与版本
 
-工具版本与启动命令见 [工程运行指南](run-foundation.md)。版本通过 go.mod、工具依赖与 pnpm 锁文件记录；Windows 不安装 Docker，已使用 Ubuntu 的 Docker/Compose 完成依赖启动与真实集成验证。
+版本由 go.mod、工具依赖与 pnpm 锁文件记录。Windows 原生运行应用与 TUI，依赖可使用本机 WSL Docker 或远程 Ubuntu。 [启动命令](live-development.md)
 
 所有目标流程需要在包含空格的 Windows 路径验证，避免 Bash 专属环境变量写法、路径分隔符和依赖 Unix 权限语义。PowerShell 脚本不能把删除路径拼接交给其他 shell；清理前验证绝对路径与所有权。
 

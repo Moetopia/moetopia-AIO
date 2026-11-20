@@ -42,7 +42,7 @@ handler 解析输入、调用用例并映射响应；应用层校验权限、编
 
 建议 expand → migrate/backfill → contract。破坏性操作必须有备份与回退或前向修复方案；不假设 down migration 能恢复已删除数据。迁移独立运行并加锁，运行账号与普通服务账号权限分开。
 
-已建立并在本项目 Ubuntu 开发库执行首个 authorization schema 迁移，真实测试库迁移亦通过；执行命令与目标库说明见 [工程运行指南](run-foundation.md)。后续业务迁移仍需逐项验证，不能由首个迁移通过推断。
+已建立并在本项目 Ubuntu 开发库执行首个 authorization schema 迁移，真实测试库迁移亦通过；执行命令与目标库说明见 [工程运行指南](live-development.md)。后续业务迁移仍需逐项验证，不能由首个迁移通过推断。
 
 ## outbox 与 worker
 

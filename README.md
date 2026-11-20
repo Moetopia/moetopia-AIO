@@ -33,8 +33,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | 文档 | 内容 |
 | --- | --- |
 | [产品定义](docs/product.md) | 已确认需求、建议首期范围、明确排除项 |
-| [工程运行指南](docs/run-foundation.md) | 当前可用命令、Docker 前置条件与迁移说明 |
-| [边开发边查看](docs/live-development.md) | 日常启动、热更新、邀请码、邮件与反馈 |
+| [Windows 本地开发](docs/live-development.md) | WSL Docker 依赖、TUI、热更新、邀请码、邮件与验证 |
 | [实施进度](docs/implementation-status.md) | 实际交付状态与验证限制 |
 | [前后端交接](docs/workstreams.md) | 对话分工、文件边界与后端接手说明 |
 | [对话进度同步](docs/coordination/README.md) | 各对话维护自己的进度与接口接入事项 |

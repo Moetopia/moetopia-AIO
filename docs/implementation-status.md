@@ -39,7 +39,7 @@ Go module 使用本地命名空间 `moetopia.local/aio/api`，不假定尚未提
 - CI workflow 已编写但未在 GitHub 运行，未创建生产部署包。
 - 依赖审计修复了 Go 可达告警及 glob 问题；仍有两项 npm 上游未修复告警，详见 [依赖审计](dependency-audit.md)，不宣称安全检查全通过。
 
-基础阶段的运行顺序与具体命令见 [run-foundation.md](run-foundation.md)。本节原始验证只覆盖 client_credentials；后续授权码/OIDC 后端增量见文末和 [授权接入](run-authorization.md)，仍没有内置默认客户端凭据。
+基础阶段的运行顺序与具体命令见 [live-development.md](live-development.md)。本节原始验证只覆盖 client_credentials；后续授权码/OIDC 后端增量见文末和 [授权接入](run-authorization.md)，仍没有内置默认客户端凭据。
 
 ## 账号与实时预览阶段
 

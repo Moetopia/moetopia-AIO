@@ -30,7 +30,7 @@
 
 > 这个对话负责 Moetopia 后端，另一个现有对话负责前端/UI。先阅读 AGENTS.md、README、docs/implementation-status.md、docs/workstreams.md 和相关 ADR，再检查当前实现。继续既有 Go 模块化单体、Ent、Fosite 与 Go 服务端会话方案，不改前端样式或重复搭建工程。优先推进完整 OAuth/OIDC 与账号缺失能力；业务接口改变时同步 OpenAPI、生成类型和契约文档，并明确哪些已验证、哪些仍未实现。不要把开发者/管理员页面壳当作业务已完成；不要操作同机其他项目资源。
 
-不在交接消息中附密码、私钥、验证码、邀请码或完整数据库连接串。运行环境细节查 [开发环境](development.md) 与 [工程指南](run-foundation.md)。
+不在交接消息中附密码、私钥、验证码、邀请码或完整数据库连接串。运行环境细节查 [开发环境](development.md) 与 [工程指南](live-development.md)。
 
 ## 视觉约束
 

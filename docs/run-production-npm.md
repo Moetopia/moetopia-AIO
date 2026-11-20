@@ -46,7 +46,14 @@ NPM 前面若还有 CDN，先在 NPM 配好可信来源，使 `$remote_addr` 代
 
 ## 注册首个账号并初始化管理员
 
-在 Windows PowerShell 操作 WSL 实例时，见 [WSL 命令示例](live-development.md#在-windows-powershell-中操作-wsl-容器)。
+若生产模式实例部署在本机 WSL，从 Windows PowerShell 切到包含该实例 `.env.production` 的部署目录。给本页的 `sh deploy/compose-npm.sh` 命令加上 WSL 前缀。例如先查看目标实例，再发放首装邀请码：
+
+```powershell
+wsl.exe -d docker -- sh deploy/compose-npm.sh ps
+wsl.exe -d docker -- sh deploy/compose-npm.sh run --rm --no-deps --entrypoint /app/administrator api bootstrap-invite
+```
+
+由 `dev-local.ps1` 启动的实例使用 [本地注册流程](live-development.md#试用注册和登录)。
 
 1. 确认用户站和管理台均可通过正式 HTTPS 地址打开，TLS SMTP 能向首位管理员的邮箱投递。执行下面的命令获取注册表单所需的首装邀请码。有效期一小时，单次使用。已有有效的邀请码或管理员初始化记录时，命令会拒绝再次签发。
 
