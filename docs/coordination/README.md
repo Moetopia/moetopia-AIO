@@ -5,7 +5,11 @@
 | 所有者 | 写入范围 | 进度入口 |
 | --- | --- | --- |
 | 后端对话 | apps/api、迁移、后端测试与专用脚本、生成的 OpenAPI/TypeScript 契约 | [backend.md](backend.md) |
-| 前端对话 | 用户站与管理台、UI/portal/locales、Storybook、页面测试 | 前端可创建 frontend.md，仅由前端维护 |
+| 前端对话 | 用户站与管理台、共享 Nuxt 层和翻译、Storybook、页面测试 | [frontend.md](frontend.md) |
+
+可复用组件由独立 UI 仓维护，版本固定在本仓 `vendor/ui-source.json`。跨仓修改见 [前端规范](../frontend.md#可复用界面的归属)。
+
+交接时从 [实施进度](../implementation-status.md) 核对当前状态。生产任务见 [前端发布验收](production-frontend.md)，按当时提交保留的发现见 [历史发布审查](production-readiness.md)。
 
 两侧开始工作先读本索引和另一侧状态；各自只更新自己的状态文件。状态至少写明日期、正在做的内容、已经完成且验证的接口、兼容影响、需要另一侧接入的事项和验证限制。状态和接口以共享文件事实为准，不假装自动通知已送达。
 

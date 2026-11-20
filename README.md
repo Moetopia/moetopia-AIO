@@ -35,8 +35,7 @@ Moetopia 的统一身份中心与未来多模块平台。第一阶段面向生�
 | [产品定义](docs/product.md) | 已确认需求、建议首期范围、明确排除项 |
 | [Windows 本地开发](docs/live-development.md) | WSL Docker 依赖、TUI、热更新、邀请码、邮件与验证 |
 | [实施进度](docs/implementation-status.md) | 实际交付状态与验证限制 |
-| [前后端交接](docs/workstreams.md) | 对话分工、文件边界与后端接手说明 |
-| [对话进度同步](docs/coordination/README.md) | 各对话维护自己的进度与接口接入事项 |
+| [前后端交接](docs/coordination/README.md) | 分工、接口交接与发布验收 |
 | [配置 OAuth / OIDC](docs/configure-oidc.md) | issuer、客户端设置、回调与协议覆盖 |
 | [OAuth/OIDC 后端接入](docs/run-authorization.md) | 当前协议端点、授权确认 DTO、错误、迁移与验证 |
 | [自有用户站 OAuth 接入](docs/run-first-party-oidc.md) | Go RP 登录/回调、独立会话、前端接线与迁移 5 |
