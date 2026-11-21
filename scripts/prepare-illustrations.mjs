@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
+const portraitSource = 'output/illustrations/2026-11-21-soft-flat-candidates/mascot-face-neutral.png'
 const batches = [
   ['2026-10-23-first-batch', ['mascot-auth-welcome', 'state-not-found', 'state-no-applications', 'state-no-results', 'state-service-unavailable']],
   ['2026-10-23-second-batch', ['mascot-developer-welcome', 'state-access-restricted', 'state-session-expired', 'state-no-records', 'state-complete', 'mascot-guide-helper', 'mascot-face-neutral']],
@@ -15,13 +16,16 @@ const uiPackage = JSON.parse(await readFile(path.join(uiRoot, 'package.json'), '
 if (uiPackage.name !== '@moetopia/ui') throw new Error('MOETOPIA_UI_SOURCE must own @moetopia/ui')
 const target = path.join(uiRoot, 'src/assets/illustrations')
 await mkdir(target, { recursive: true })
-const browser = await chromium.launch()
-const entries = []
+const browser = await chromium.launch({ channel: process.env.MOETOPIA_ILLUSTRATION_BROWSER || undefined })
+const portraitOnly = process.argv.includes('--portrait-only')
+const manifestPath = path.join(target, 'manifest.json')
+const entries = portraitOnly ? JSON.parse(await readFile(manifestPath, 'utf8')).entries : []
 try {
   const page = await browser.newPage()
   for (const [batch, names] of batches) {
     for (const name of names) {
-      const source = `output/illustrations/${batch}/${name}.png`
+      if (portraitOnly && name !== 'mascot-face-neutral') continue
+      const source = name === 'mascot-face-neutral' ? portraitSource : `output/illustrations/${batch}/${name}.png`
       const input = await readFile(path.join(root, source))
       const limit = name === 'mascot-auth-welcome' ? 1100 : name === 'mascot-developer-welcome' ? 900 : name === 'mascot-face-neutral' ? 192 : 480
       const result = await page.evaluate(async ({ base64, limit }) => {
@@ -46,11 +50,14 @@ try {
       if (output.toString('ascii', 8, 12) !== 'WEBP') throw new Error(`WebP encoder unavailable: ${name}`)
       await writeFile(path.join(target, `${name}.webp`), output)
       const key = name.replace(/^(mascot|state)-/, '')
-      entries.push({ key, file: `${name}.webp`, width: result.width, height: result.height, bytes: output.length, source, sourceBytes: input.length, sourceSHA256: createHash('sha256').update(input).digest('hex'), transparentPixels: result.transparent })
+      const entry = { key, file: `${name}.webp`, width: result.width, height: result.height, bytes: output.length, source, sourceBytes: input.length, sourceSHA256: createHash('sha256').update(input).digest('hex'), transparentPixels: result.transparent }
+      const index = entries.findIndex(item => item.key === key)
+      if (index === -1) entries.push(entry)
+      else entries[index] = entry
       console.log(`${name}: ${result.width}x${result.height}, ${Math.round(output.length / 1024)} KiB, alpha verified`)
     }
   }
-  const portrait = await readFile(path.join(root, 'output/illustrations/2026-10-23-second-batch/mascot-face-neutral.png'))
+  const portrait = await readFile(path.join(root, portraitSource))
   const icons = await page.evaluate(async base64 => {
     const image = new Image()
     image.src = `data:image/png;base64,${base64}`
@@ -86,7 +93,7 @@ try {
   }
   console.log('Site icons: 16/32/48/64 ICO, 32/48 PNG and 180px Apple touch icon')
 } finally { await browser.close() }
-await writeFile(path.join(target, 'manifest.json'), JSON.stringify({ encoder: 'Chromium Canvas WebP quality 0.88', entries }, null, 2) + '\n')
+await writeFile(manifestPath, JSON.stringify({ encoder: 'Chromium Canvas WebP quality 0.88', entries }, null, 2) + '\n')
 const imports = entries.map((entry, i) => `import art${i} from './assets/illustrations/${entry.file}'`).join('\n')
 const records = entries.map((entry, i) => `  '${entry.key}': { src: art${i}, width: ${entry.width}, height: ${entry.height} },`).join('\n')
 await writeFile(path.join(uiRoot, 'src/illustrations.ts'), `${imports}\n\nexport const illustrations = {\n${records}\n} as const\n\nexport type MoeIllustrationName = keyof typeof illustrations\n`)
