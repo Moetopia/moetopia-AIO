@@ -5,10 +5,11 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
-const portraitSource = 'output/illustrations/2026-11-21-soft-flat-candidates/mascot-face-neutral.png'
+const currentBatch = '2026-11-21-soft-flat-candidates'
+const portraitSource = `output/illustrations/${currentBatch}/mascot-face-neutral.png`
 const batches = [
-  ['2026-10-23-first-batch', ['mascot-auth-welcome', 'state-not-found', 'state-no-applications', 'state-no-results', 'state-service-unavailable']],
-  ['2026-10-23-second-batch', ['mascot-developer-welcome', 'state-access-restricted', 'state-session-expired', 'state-no-records', 'state-complete', 'mascot-guide-helper', 'mascot-face-neutral']],
+  [currentBatch, ['mascot-auth-welcome', 'state-no-applications', 'state-no-results', 'state-service-unavailable', 'mascot-developer-welcome', 'state-access-restricted', 'state-session-expired', 'state-no-records', 'state-complete', 'mascot-guide-helper', 'mascot-face-neutral']],
+  ['2026-10-23-first-batch', ['state-not-found']],
 ]
 if (!process.env.MOETOPIA_UI_SOURCE) throw new Error('Set MOETOPIA_UI_SOURCE to the independent shared UI source repository')
 const uiRoot = path.resolve(process.env.MOETOPIA_UI_SOURCE)
@@ -25,7 +26,8 @@ try {
   for (const [batch, names] of batches) {
     for (const name of names) {
       if (portraitOnly && name !== 'mascot-face-neutral') continue
-      const source = name === 'mascot-face-neutral' ? portraitSource : `output/illustrations/${batch}/${name}.png`
+      const filename = name === 'mascot-auth-welcome' ? 'mascot-auth-welcome-v2' : name
+      const source = `output/illustrations/${batch}/${filename}.png`
       const input = await readFile(path.join(root, source))
       const limit = name === 'mascot-auth-welcome' ? 1100 : name === 'mascot-developer-welcome' ? 900 : name === 'mascot-face-neutral' ? 192 : 480
       const result = await page.evaluate(async ({ base64, limit }) => {

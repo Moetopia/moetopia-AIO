@@ -243,6 +243,8 @@
 
 ## 8. 本轮素材接入记录
 
+2026-11-21 更新：站点采用 `output/illustrations/2026-11-21-soft-flat-candidates/` 中与本清单对应的 11 张素材。A01 使用 `mascot-auth-welcome-v2.png`，发布文件仍为 `mascot-auth-welcome.webp`。M02 同时用于页面品牌标识和浏览器图标。该批次缺少 S01，因此 404 暂用首批的 `state-not-found.png`。下文的十月批次记录留作素材来源和接入历史。
+
 用户交付的 PNG 母版保留在 `output/illustrations/2026-10-23-first-batch/` 和 `output/illustrations/2026-10-23-second-batch/`，不覆盖、不重绘原图。原图透明背景与可见主体通过解码检查，画面已逐张查看。Q 版实际比例比最初建议稍修长，本轮使用用户交付版本，不自行改变身体比例。
 
 发布衍生图统一维护在 `packages/ui/src/assets/illustrations/`，使用保留 alpha 的 WebP，总体约 590 KiB，单张约 12～82 KiB。认证图最长边 1100px，开发者首页图 900px，状态图与指南助手 480px，头像候选 192px；保持原始画布比例，不拉伸、不镜像、不裁断角色。`manifest.json` 记录原始文件路径、SHA-256、尺寸、字节数及透明像素检查结果；`packages/ui/src/illustrations.ts` 为类型化资源索引。
