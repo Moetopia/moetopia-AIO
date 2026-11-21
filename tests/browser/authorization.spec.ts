@@ -18,7 +18,7 @@ test('authorization displays real details, waits for consent and returns with fu
   await setup(page)
   let decisions = 0
   await page.route(`**/api/v1/account/authorizations/${id}`, async route => {
-    if (route.request().method() === 'GET') return route.fulfill({ json: details })
+    if (route.request().method() === 'GET') return route.fulfill({ json: { ...details, user: { ...user, avatar_url: '/favicon.ico' } } })
     decisions++
     expect(route.request().postDataJSON()).toEqual({ decision: 'approve', subject_id: user.id })
     expect(route.request().headers()['x-moetopia-csrf']).toBe(context.csrf_token)
@@ -30,6 +30,7 @@ test('authorization displays real details, waits for consent and returns with fu
   expect(response?.headers()['referrer-policy']).toBe('no-referrer')
   expect(response?.headers()['content-security-policy']).toContain("frame-ancestors 'none'")
   await expect(page.getByRole('heading', { name: details.client_name })).toBeVisible()
+  await expect(page.locator('.moe-consent-account img')).toHaveAttribute('src', '/favicon.ico')
   await expect(page.getByText(details.redirect_uri, { exact: true })).toBeVisible()
   await expect(page.getByText('library.read', { exact: true })).toBeVisible()
   await expect(page.getByText(user.email, { exact: true })).toBeVisible()

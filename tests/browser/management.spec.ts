@@ -73,6 +73,7 @@ test('profile handles revision conflicts, avatar upload and removal', async ({ p
   await page.locator('input[type=file]').setInputFiles(file)
   await expect(crop.locator('.moe-crop-stage')).toBeVisible()
   await crop.getByRole('slider', { name: '水平位置' }).press('End')
+  await expect(crop.getByRole('slider', { name: '水平位置' })).toHaveAttribute('aria-valuenow', '100')
   await expect(crop.getByRole('button', { name: '重置', exact: true })).toBeEnabled()
   await crop.getByRole('button', { name: '上传头像' }).click()
   await expect.poll(() => uploads.length).toBe(1)

@@ -40,7 +40,7 @@ const claims = computed(() => {
         <section v-if="actionScopes.length" class="moe-consent-permissions"><h2>{{ text.permissions }}</h2><MoeSettingRow v-for="scope in actionScopes" :key="scope" :title="scope" :description="scopeDescription(scope)" icon="check" /></section>
         <p v-else-if="!details.scopes?.length" class="text-sm text-muted">{{ text.noPermissions }}</p>
         <p class="text-xs leading-6 text-muted">{{ text.credentialNotice }}</p>
-        <div class="moe-consent-account"><MoeUserChip :name="details.user.display_name" :description="text.account" /><MoeButton variant="light" size="sm" :disabled="submitting || accountBusy || redirecting" @click="switchAccount">{{ text.switchAccount }}</MoeButton></div>
+        <div class="moe-consent-account"><MoeUserChip :name="details.user.display_name" :description="text.account" :src="details.user.avatar_url" /><MoeButton variant="light" size="sm" :disabled="submitting || accountBusy || redirecting" @click="switchAccount">{{ text.switchAccount }}</MoeButton></div>
         <div class="grid gap-2.5"><MoeButton size="lg" :loading="submitting" :disabled="!ready" @click="decide('approve')">{{ text.approve }}</MoeButton><MoeButton size="lg" variant="light" color="default" :disabled="!ready" @click="decide('deny')">{{ text.deny }}</MoeButton></div>
         <p v-if="submitting || redirecting" role="status" class="text-sm text-muted">{{ redirecting ? text.redirecting : text.submitting }}</p>
         <p class="moe-consent-return">{{ text.returnNotice }} <span>{{ details.redirect_uri }}</span></p>

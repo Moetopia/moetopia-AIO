@@ -1,7 +1,7 @@
 {
-  "file": "moetopia-ui-0.1.4.tgz",
-  "commit": "939df9655b99e8f2675ff0e046fa6a25db2b5b2e",
-  "sha256": "95cd528247f54ac6b964c5c9320926d507be591597f979e8edb3e2a77d478e56",
+  "file": "moetopia-ui-0.1.5.tgz",
+  "commit": "4800ef510a77daf9d34d7a23b078262bff17b227",
+  "sha256": "f68c56e938599a6c60a7d1b9aaa1a27b7428085d6b1720a70010cad1444e2ff2",
   "origin": "moetopia-ui",
   "extractedFrom": "moetopia-AIO@c9b5f7f7eb92149fc382ddd121c1ed52149627e0",
   "transport": "packed-source-until-remote-available"
