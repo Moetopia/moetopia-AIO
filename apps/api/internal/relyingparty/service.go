@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -148,4 +149,29 @@ func (s *Service) Problem(w http.ResponseWriter, status int, code string) {
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(status)
 	_, _ = w.Write([]byte(`{"title":"Sign-in could not be completed","status":` + strconv.Itoa(status) + `,"code":"` + code + `"}`))
+}
+
+func (s *Service) loginProblem(w http.ResponseWriter, r *http.Request, status int, code string) {
+	w.Header().Add("Vary", "Accept")
+	w.Header().Add("Vary", "Sec-Fetch-Dest")
+	if r.Header.Get("Sec-Fetch-Dest") != "document" && !strings.Contains(r.Header.Get("Accept"), "text/html") {
+		s.Problem(w, status, code)
+		return
+	}
+	reason := "failed"
+	switch {
+	case code == "rp_login_invalid":
+		reason = "expired"
+	case code == "rp_authorization_denied":
+		reason = "denied"
+	case status >= 500:
+		reason = "unavailable"
+	}
+	path := "/auth/sign-in-error?reason=" + reason
+	if s.admin {
+		path += "&site=admin"
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Referrer-Policy", "no-referrer")
+	http.Redirect(w, r, s.origin+path, http.StatusSeeOther)
 }

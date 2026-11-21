@@ -4,5 +4,6 @@ import { adminSessionKey } from './composables/useAdminSession'
 const { locale } = usePortalPreferences()
 const session = useAdminSession()
 provide(adminSessionKey, session)
+const route = useRoute()
 </script>
-<template><MoeProvider :locale="locale"><PortalRouteFeedback /><AdminFrame><NuxtPage /></AdminFrame></MoeProvider></template>
+<template><MoeProvider :locale="locale"><PortalRouteFeedback /><NuxtPage v-if="route.path === '/auth/sign-in-error'" /><AdminFrame v-else><NuxtPage /></AdminFrame></MoeProvider></template>

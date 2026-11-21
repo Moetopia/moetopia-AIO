@@ -29,32 +29,32 @@ func (s *Service) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Referrer-Policy", "no-referrer")
 	query, err := parseQuery(r)
 	if err != nil || len(query) > 1 {
-		s.Problem(w, 400, "rp_return_path_invalid")
+		s.loginProblem(w, r, 400, "rp_return_path_invalid")
 		return
 	}
 	for name := range query {
 		if name != "return_to" {
-			s.Problem(w, 400, "rp_return_path_invalid")
+			s.loginProblem(w, r, 400, "rp_return_path_invalid")
 			return
 		}
 	}
 	path, err := s.returnPath(query.Get("return_to"))
 	if err != nil {
-		s.Problem(w, 400, "rp_return_path_invalid")
+		s.loginProblem(w, r, 400, "rp_return_path_invalid")
 		return
 	}
 	if err := s.currentClient(r.Context()); err != nil {
-		s.Problem(w, 503, "rp_client_unavailable")
+		s.loginProblem(w, r, 503, "rp_client_unavailable")
 		return
 	}
 	state, err := sessions.RandomToken()
 	if err != nil {
-		s.Problem(w, 503, "rp_unavailable")
+		s.loginProblem(w, r, 503, "rp_unavailable")
 		return
 	}
 	nonce, err := sessions.RandomToken()
 	if err != nil {
-		s.Problem(w, 503, "rp_unavailable")
+		s.loginProblem(w, r, 503, "rp_unavailable")
 		return
 	}
 	browser := ""
@@ -64,7 +64,7 @@ func (s *Service) Login(w http.ResponseWriter, r *http.Request) {
 	if browser == "" {
 		browser, err = sessions.RandomToken()
 		if err != nil {
-			s.Problem(w, 503, "rp_unavailable")
+			s.loginProblem(w, r, 503, "rp_unavailable")
 			return
 		}
 	}
@@ -73,11 +73,11 @@ func (s *Service) Login(w http.ResponseWriter, r *http.Request) {
 	id := digest("rp-state:" + state)
 	encrypted, err := s.box.Seal(payload, "rp-login:"+id)
 	if err != nil {
-		s.Problem(w, 503, "rp_unavailable")
+		s.loginProblem(w, r, 503, "rp_unavailable")
 		return
 	}
 	if err := s.db.RPLogin.Create().SetID(id).SetBrowserHash(digest("rp-browser:" + browser)).SetPayload(encrypted).SetExpiresAt(time.Now().Add(5 * time.Minute)).Exec(r.Context()); err != nil {
-		s.Problem(w, 503, "rp_unavailable")
+		s.loginProblem(w, r, 503, "rp_unavailable")
 		return
 	}
 	http.SetCookie(w, &http.Cookie{Name: s.browserCookie(), Value: browser, Path: "/", HttpOnly: true, Secure: s.secure, SameSite: http.SameSiteLaxMode, MaxAge: 3600})
@@ -140,30 +140,30 @@ func (s *Service) Callback(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Referrer-Policy", "no-referrer")
 	query, err := parseQuery(r)
 	if err != nil {
-		s.Problem(w, 400, "rp_callback_invalid")
+		s.loginProblem(w, r, 400, "rp_callback_invalid")
 		return
 	}
 	for name := range query {
 		if name != "state" && name != "code" && name != "scope" && name != "error" && name != "error_description" && name != "error_uri" && name != "iss" {
-			s.Problem(w, 400, "rp_callback_invalid")
+			s.loginProblem(w, r, 400, "rp_callback_invalid")
 			return
 		}
 	}
 	if query.Get("iss") != "" && query.Get("iss") != s.issuer || (query.Get("code") == "") == (query.Get("error") == "") {
-		s.Problem(w, 400, "rp_callback_invalid")
+		s.loginProblem(w, r, 400, "rp_callback_invalid")
 		return
 	}
 	payload, err := s.consume(r.Context(), r, query.Get("state"))
 	if err != nil {
 		if errors.Is(err, ErrLogin) {
-			s.Problem(w, 400, "rp_login_invalid")
+			s.loginProblem(w, r, 400, "rp_login_invalid")
 		} else {
-			s.Problem(w, 503, "rp_unavailable")
+			s.loginProblem(w, r, 503, "rp_unavailable")
 		}
 		return
 	}
 	if query.Get("error") != "" {
-		s.Problem(w, 400, "rp_authorization_denied")
+		s.loginProblem(w, r, 400, "rp_authorization_denied")
 		return
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), 8*time.Second)
@@ -173,20 +173,20 @@ func (s *Service) Callback(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var failed *oauth2.RetrieveError
 		if ctx.Err() != nil || errors.As(err, &failed) && failed.Response != nil && failed.Response.StatusCode >= 500 {
-			s.Problem(w, 503, "rp_unavailable")
+			s.loginProblem(w, r, 503, "rp_unavailable")
 			return
 		}
-		s.Problem(w, 400, "rp_exchange_failed")
+		s.loginProblem(w, r, 400, "rp_exchange_failed")
 		return
 	}
 	raw, ok := token.Extra("id_token").(string)
 	if !ok || token.AccessToken == "" {
-		s.Problem(w, 400, "rp_identity_invalid")
+		s.loginProblem(w, r, 400, "rp_identity_invalid")
 		return
 	}
 	idToken, err := s.verifier.Verify(ctx, raw)
 	if err != nil {
-		s.Problem(w, 400, "rp_identity_invalid")
+		s.loginProblem(w, r, 400, "rp_identity_invalid")
 		return
 	}
 	var claims struct {
@@ -195,27 +195,27 @@ func (s *Service) Callback(w http.ResponseWriter, r *http.Request) {
 		SecurityVersion int    `json:"security_version"`
 	}
 	if err := idToken.Claims(&claims); err != nil || len(idToken.Audience) != 1 || claims.AuthorizedParty != "" && claims.AuthorizedParty != s.clientID || idToken.Subject == "" || idToken.Nonce != payload.Nonce || idToken.IssuedAt.IsZero() || idToken.IssuedAt.After(time.Now().Add(time.Minute)) || idToken.IssuedAt.Before(time.Now().Add(-6*time.Minute)) || claims.AuthTime <= 0 || claims.AuthTime > time.Now().Add(time.Minute).Unix() || s.admin && claims.AuthTime < payload.StartedAt-1 || idToken.AccessTokenHash == "" || idToken.VerifyAccessToken(token.AccessToken) != nil {
-		s.Problem(w, 400, "rp_identity_invalid")
+		s.loginProblem(w, r, 400, "rp_identity_invalid")
 		return
 	}
 	if err := s.currentClient(ctx); err != nil {
-		s.Problem(w, 503, "rp_client_unavailable")
+		s.loginProblem(w, r, 503, "rp_client_unavailable")
 		return
 	}
 	if _, err := s.users.User(ctx, idToken.Subject); err != nil {
 		if errors.Is(err, identity.ErrMissing) {
-			s.Problem(w, 401, "rp_identity_unavailable")
+			s.loginProblem(w, r, 401, "rp_identity_unavailable")
 		} else {
-			s.Problem(w, 503, "rp_unavailable")
+			s.loginProblem(w, r, 503, "rp_unavailable")
 		}
 		return
 	}
 	handle, err := s.Sessions.CreateVerified(ctx, idToken.Subject, s.CookieToken(r.Header.Get("Cookie")), claims.SecurityVersion, s.users)
 	if err != nil {
 		if errors.Is(err, identity.ErrMissing) {
-			s.Problem(w, 401, "rp_identity_unavailable")
+			s.loginProblem(w, r, 401, "rp_identity_unavailable")
 		} else {
-			s.Problem(w, 503, "rp_unavailable")
+			s.loginProblem(w, r, 503, "rp_unavailable")
 		}
 		return
 	}
