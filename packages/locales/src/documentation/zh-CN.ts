@@ -7,7 +7,7 @@ export default {
     "clearTest": "清空测试数据",
     "testHint": "请求发送到当前站点。写操作会修改实际数据；请使用测试账号和测试应用。输入与响应只保留在当前页面，离开即清空。",
     "serverOnly": "此接口需要应用后端密钥，请在自己的后端或终端测试，不在文档页面输入 client_secret。",
-    "adminOnly": "此接口使用独立管理员会话，请在管理台执行对应操作。用户站不会借用管理员 Cookie。",
+    "adminOnly": "在管理台执行此操作，需要管理员会话。",
     "requestBody": "JSON 请求体",
     "bearer": "Access token",
     "result": "实际响应",
@@ -22,7 +22,7 @@ export default {
     "testSecret": "仅用于当前测试，切换接口或离开页面会清除。",
     "terminal": "终端测试模板（替换占位值后执行）",
     "title": "开发者文档",
-    "description": "从第一个登录请求，到可以上线的身份接入。",
+    "description": "登记应用、配置回调，并用授权码登录验证接入。",
     "guides": "接入指南",
     "reference": "API 参考",
     "outline": "本页内容",
@@ -33,12 +33,12 @@ export default {
     "all": "全部",
     "empty": "没有找到匹配的接口，请调整筛选条件。",
     "download": "下载 OpenAPI",
-    "source": "接口结构来自本版本生成的 OpenAPI，部署能力以目标 issuer 的 Discovery 为准。",
+    "source": "接口定义来自当前版本的 OpenAPI。使用目标 issuer 的 Discovery 确认端点。",
     "languageNote": "接口标题与字段说明保留后端契约原文；指南和界面支持四种语言。",
     "parameters": "请求参数",
     "body": "请求体",
     "responses": "响应",
-    "authentication": "鉴权与调用边界",
+    "authentication": "鉴权要求",
     "required": "必填",
     "optional": "可选",
     "none": "无字段",
@@ -69,14 +69,14 @@ export default {
   "guides": {
     "overview": {
       "title": "快速开始",
-      "description": "先跑通一个授权码登录，再逐步接入所需能力。",
+      "description": "创建测试应用，验证用户从 Moetopia 登录后能回到你的应用。",
       "sections": [
         {
           "id": "prepare",
           "title": "创建测试应用",
           "paragraphs": [
             "在“我的应用”创建应用，填写名称和回调地址。应用 UUID 用于控制台管理，client_id 才用于 OAuth 请求；不要混用。Public 适合无法保密的浏览器或原生应用，Confidential 适合能在服务端保管密钥的应用。",
-            "测试应用仅供所有者和显式添加的测试成员使用。注册、草稿保存或提交审核不代表已经发布。"
+            "测试期间，只有应用所有者和已添加的测试成员能登录。应用获批后才向其他用户开放。"
           ],
           "code": "discovery",
           "operations": [
@@ -85,9 +85,9 @@ export default {
         },
         {
           "id": "connect",
-          "title": "完成登录闭环",
+          "title": "配置授权码登录",
           "paragraphs": [
-            "从目标服务的 issuer 获取 Discovery，使用返回的 authorization_endpoint、token_endpoint、jwks_uri 等地址，不从本站文档域名猜测生产 issuer。",
+            "从部署方获取 issuer，再读取它的 Discovery。客户端使用其中公布的 authorization_endpoint、token_endpoint 和 jwks_uri。",
             "为每次登录生成新的 state、nonce、PKCE verifier 与 S256 challenge，将事务绑定在应用自己的服务端会话中。浏览器跳转授权；回调后校验 state、兑换授权码并验证 ID Token，再建立应用自己的登录会话。"
           ],
           "code": "authorize",
@@ -102,7 +102,7 @@ export default {
           "title": "测试与正式发布",
           "paragraphs": [
             "验证拒绝授权、回调错误、重放和令牌失效等失败场景。需要其他用户接入时再提交审核；审核前仍按测试范围限制。",
-            "后续敏感修改形成新的审核版本，获批前旧批准版本继续服务。上线检查、刷新轮换和退出规则见后续章节。"
+            "修改受审核的配置后，线上请求继续使用旧批准版本，直到新版本获批。"
           ]
         }
       ]
@@ -235,7 +235,7 @@ export default {
           "title": "请求与批准",
           "paragraphs": [
             "openid 进入 OIDC 流程；profile 允许公开资料；email 允许邮箱资料；offline_access 用于获准的离线刷新。应用只能申请注册/审核允许的 scope，并以实际 token 响应中的 scope 为准。",
-            "不要把其他生态模块的权限照搬到身份服务中。需要业务 API 时，先确认目标资源服务器、audience 及它定义的权限，而不是把 UserInfo 当成通用资料数据库。"
+            "调用业务 API 前，先查资源服务器要求的 audience 和权限。UserInfo 只返回获准读取的身份资料。"
           ]
         },
         {
@@ -331,7 +331,7 @@ export default {
         },
         {
           "id": "limits",
-          "title": "当前能力边界",
+          "title": "支持的功能",
           "paragraphs": [
             "当前不提供动态客户端注册、隐式流、密码授权或通用多租户。不要从协议库支持范围推断本站已经开放的能力。",
             "以目标环境 Discovery、正式审核配置与本版本 API 参考为准；容量、生产令牌时效和实际外部供应商接入需独立验收。"

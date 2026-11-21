@@ -95,6 +95,19 @@ test('API reference stays readable across four languages, themes and viewport si
   expect(errors).toEqual([])
 })
 
+test('guide examples highlight shell tokens with theme colors and preserve their source text', async ({ page }) => {
+  await page.goto(origin + '/developer/docs/tokens')
+  const code = page.locator('main .moe-code-block pre code').first()
+  const keyword = code.locator('[data-token="keyword"]').first()
+  await expect(keyword).toHaveText('curl')
+  const source = await code.textContent()
+  expect(source).toContain('\\\n  --data-urlencode')
+  const light = await keyword.evaluate(node => getComputedStyle(node).color)
+  await page.locator('html').evaluate(node => node.setAttribute('data-theme', 'dark'))
+  await expect.poll(() => keyword.evaluate(node => getComputedStyle(node).color)).not.toBe(light)
+  expect(await code.textContent()).toBe(source)
+})
+
 test('catalog failure offers a real retry instead of an empty successful directory', async ({ page }) => {
   await page.route('**/api/v1/**', route => route.fulfill({ status: 503, json: {} }))
   let unavailable = true

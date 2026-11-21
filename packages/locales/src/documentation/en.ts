@@ -7,7 +7,7 @@ export default {
     "clearTest": "Clear test data",
     "testHint": "Requests go to this site. Write operations change real data; use test accounts and applications. Inputs and responses remain only on this page and are cleared when you leave.",
     "serverOnly": "This endpoint requires a backend client secret. Test from your own backend or terminal; do not enter client_secret into this page.",
-    "adminOnly": "This endpoint needs the independent administrator session. Use its management-console action; the user site does not borrow administrator Cookies.",
+    "adminOnly": "Use the admin console with an administrator session.",
     "requestBody": "JSON request body",
     "bearer": "Access token",
     "result": "Actual response",
@@ -22,7 +22,7 @@ export default {
     "testSecret": "Only for this test. Cleared when you change endpoints or leave the page.",
     "terminal": "Terminal template (replace placeholders before running)",
     "title": "Developer documentation",
-    "description": "From your first sign-in request to a production integration.",
+    "description": "Register an app, configure its callback, and test authorization code sign-in.",
     "guides": "Integration guides",
     "reference": "API reference",
     "outline": "On this page",
@@ -33,7 +33,7 @@ export default {
     "all": "All",
     "empty": "No matching endpoints. Adjust your filters.",
     "download": "Download OpenAPI",
-    "source": "API structures come from the generated OpenAPI for this build. Discover capabilities from your target issuer.",
+    "source": "This reference uses the current OpenAPI definition. Check the target issuer’s discovery document for its endpoints.",
     "languageNote": "Operation titles and field descriptions retain the backend contract language. Guides and navigation are available in four languages.",
     "parameters": "Parameters",
     "body": "Request body",
@@ -85,7 +85,7 @@ export default {
         },
         {
           "id": "connect",
-          "title": "Complete the sign-in flow",
+          "title": "Configure authorization code sign-in",
           "paragraphs": [
             "Read Discovery from your target issuer and use its authorization_endpoint, token_endpoint and jwks_uri. Do not infer your production issuer from this documentation site.",
             "Generate state, nonce and a PKCE verifier/S256 challenge per login, bind them to your application session, navigate to authorization, validate the callback and ID Token, then establish your own application session."

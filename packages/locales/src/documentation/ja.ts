@@ -7,7 +7,7 @@ export default {
     "clearTest": "テストデータを消去",
     "testHint": "現在のサイトへ送信します。書き込みは実データを変更するため、テスト用アカウントとアプリを使ってください。入力と応答はこのページ内だけに保持し、離れると消去します。",
     "serverOnly": "バックエンドの秘密が必要な API です。自分のサーバーや端末でテストし、このページに client_secret を入力しないでください。",
-    "adminOnly": "独立した管理者セッションが必要です。管理画面の該当操作を使ってください。ユーザーサイトは管理者 Cookie を借用しません。",
+    "adminOnly": "管理者セッションで管理画面から操作してください。",
     "requestBody": "JSON リクエストボディ",
     "bearer": "Access token",
     "result": "実際の応答",
@@ -22,7 +22,7 @@ export default {
     "testSecret": "このテスト専用です。API の切替やページ移動で消去します。",
     "terminal": "端末用テンプレート（プレースホルダーを置換して実行）",
     "title": "開発者ドキュメント",
-    "description": "最初のログインリクエストから、本番公開できる認証連携まで。",
+    "description": "アプリを登録し、コールバックを設定して、認可コードでのログインを試します。",
     "guides": "連携ガイド",
     "reference": "API リファレンス",
     "outline": "このページの内容",
@@ -33,7 +33,7 @@ export default {
     "all": "すべて",
     "empty": "一致するエンドポイントがありません。絞り込み条件を変更してください。",
     "download": "OpenAPI をダウンロード",
-    "source": "API 構造はこのビルドの生成済み OpenAPI に基づきます。実際の対応機能は対象 issuer の Discovery で確認してください。",
+    "source": "このリファレンスは現行版の OpenAPI 定義を使います。接続先の issuer の Discovery でエンドポイントを確認してください。",
     "languageNote": "操作名とフィールド説明はバックエンド契約の原文です。ガイドと操作 UI は四言語に対応しています。",
     "parameters": "リクエストパラメーター",
     "body": "リクエストボディ",
@@ -85,7 +85,7 @@ export default {
         },
         {
           "id": "connect",
-          "title": "ログインを完成させる",
+          "title": "認可コードでのログインを設定する",
           "paragraphs": [
             "対象 issuer の Discovery から authorization_endpoint、token_endpoint、jwks_uri を取得します。このドキュメントのドメインを本番 issuer と推測しないでください。",
             "ログインごとに state、nonce、PKCE verifier と S256 challenge を生成して自分のセッションに結び付けます。認可へ遷移し、コールバックと ID Token を検証した後、自分のアプリのセッションを作成します。"

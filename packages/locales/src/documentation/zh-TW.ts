@@ -7,7 +7,7 @@ export default {
     "clearTest": "清除測試資料",
     "testHint": "請求傳送至目前站點。寫入操作會修改實際資料，請使用測試帳號與應用。輸入及回應只留在目前頁面，離開即清除。",
     "serverOnly": "此介面需要應用後端密鑰，請在自己的後端或終端測試，不在文件頁面輸入 client_secret。",
-    "adminOnly": "此介面使用獨立管理員會話，請在管理台執行對應操作。使用者站不會借用管理員 Cookie。",
+    "adminOnly": "請在管理台執行此操作，需要管理員工作階段。",
     "requestBody": "JSON 請求主體",
     "bearer": "Access token",
     "result": "實際回應",
@@ -22,7 +22,7 @@ export default {
     "testSecret": "僅用於本次測試，切換介面或離開頁面即清除。",
     "terminal": "終端測試範本（替換預留值後執行）",
     "title": "開發者文件",
-    "description": "從第一個登入請求，到可以上線的身分串接。",
+    "description": "登記應用程式、設定回呼，並以授權碼登入驗證串接。",
     "guides": "串接指南",
     "reference": "API 參考",
     "outline": "本頁內容",
@@ -33,7 +33,7 @@ export default {
     "all": "全部",
     "empty": "沒有符合的介面，請調整篩選條件。",
     "download": "下載 OpenAPI",
-    "source": "介面結構來自此版本產生的 OpenAPI，部署能力以目標 issuer 的 Discovery 為準。",
+    "source": "介面定義來自目前版本的 OpenAPI。請用目標 issuer 的 Discovery 確認端點。",
     "languageNote": "介面標題與欄位說明保留後端契約原文；指南與介面支援四種語言。",
     "parameters": "請求參數",
     "body": "請求主體",
@@ -85,7 +85,7 @@ export default {
         },
         {
           "id": "connect",
-          "title": "完成登入流程",
+          "title": "設定授權碼登入",
           "paragraphs": [
             "從目標 issuer 取得 Discovery，使用其中的 authorization_endpoint、token_endpoint、jwks_uri，不從文件站域名推測正式 issuer。",
             "每次登入產生新的 state、nonce、PKCE verifier/S256 challenge 並綁定應用會話。瀏覽器跳轉授權，回呼時驗證 state、兌換授權碼與驗證 ID Token，再建立自己的登入會話。"
