@@ -3,7 +3,7 @@ import type { NuxtError } from '#app'
 import { MoeProvider, MoeStatusPage, MoeButton, MoeLink, MoeBrandMark } from '@moetopia/ui'
 import { feedbackMessages } from '@moetopia/locales'
 const props = defineProps<{ error: NuxtError }>()
-const { locale, theme } = usePortalPreferences()
+const { locale, theme } = usePortalPreferences(true)
 const text = computed(() => feedbackMessages[locale.value])
 const kind = computed(() => props.error.statusCode === 404 ? 'notFound' : props.error.statusCode === 403 ? 'restricted' : 'unavailable')
 const illustration = computed(() => kind.value === 'notFound' ? 'not-found' : kind.value === 'restricted' ? 'access-restricted' : 'service-unavailable')

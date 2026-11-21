@@ -28,7 +28,7 @@
 5. 用户站会话撤销后若结束当前会话，重读 portal/context；本地退出只结束 RP 会话，不表示中央身份或所有第三方站点已经退出。重新发起登录时可复用身份会话，但仍需显式同意。
 6. 保留 `/api/**` 和 `/oauth/**` 的固定上游及 `fetchOptions.redirect = manual`。登录启动与回调依赖浏览器收到原始 303、Location、Set-Cookie；服务端跟随会丢失中间 Cookie。SSR 服务端请求如未来参与登录状态读取，需要显式转发该浏览器 Cookie，不缓存或序列化秘密。
 
-允许的 return_to 只有 `/profile`、`/sessions`、`/security`、`/developer`、`/developer/applications`、`/developer/docs`；省略时 `/profile`。拒绝任意 URL、协议相对地址、query、fragment、认证/回调路径和非白名单路径，防止开放重定向及登录循环。
+允许的 return_to 包含 `/profile`、`/sessions`、`/security`、`/developer`、`/developer/applications`、`/developer/usage`、`/developer/docs`，以及带单个标准 UUID 的 `/developer/applications/{id}`。省略时返回 `/profile`。返回目标仅保留路径，服务端拒绝外部地址、查询参数、片段和未登记的路径。
 
 管理员没有复用这个 RP。admin RP、管理员角色和 TOTP/MFA 已独立实现，页面接线见管理员接入；不能用用户站已登录或隐藏菜单放行后台。
 

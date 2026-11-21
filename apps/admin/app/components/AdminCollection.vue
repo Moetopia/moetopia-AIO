@@ -25,15 +25,23 @@ const next = computed(() => result.value && ('next_cursor' in result.value ? res
 const rows = computed<Row[]>(() => result.value?.items ?? [])
 const columns = computed(() => ({ users: [['display_name', text.value.name], ['email', text.value.email], ['enabled', text.value.status], ['deletion_due_at', text.value.deletions], ['actions', text.value.actions]], invitations: [['id', 'ID'], ['expires_at', text.value.expires], ['consumed', text.value.used], ['revoked', text.value.revoke], ['actions', text.value.actions]], audit: [['created_at', text.value.created], ['action', text.value.action], ['actor_id', text.value.actor], ['target_id', text.value.target], ['outcome', text.value.outcome], ['reason', text.value.reason], ['request_id', 'Request ID']], principals: [['id', 'ID'], ['enabled', text.value.status], ['enrolled', text.value.enroll], ['emergency_required', text.value.emergency], ['actions', text.value.actions]], notifications: [['id', 'ID'], ['attempts', text.value.attempts], ['available_at', text.value.created], ['expires_at', text.value.expires], ['actions', text.value.actions]] })[props.section].map(([key, label]) => ({ key: key!, label: label! })))
 const load = () => run(refresh)
-const refresh = async () => {
+const refresh = async (target = cursor.value, history = previous.value, filter = appliedQuery.value) => {
   const query: Record<string, string> = {}
-  if (cursor.value) query[props.section === 'principals' || props.section === 'notifications' ? 'after' : 'cursor'] = cursor.value
-  if (props.section === 'users' && appliedQuery.value) query.query = appliedQuery.value
+  if (target) query[props.section === 'principals' || props.section === 'notifications' ? 'after' : 'cursor'] = target
+  if (props.section === 'users' && filter) query.query = filter
   result.value = await $fetch<List>(endpoint.value, { query, retry: 0 })
+  cursor.value = target
+  previous.value = history
+  appliedQuery.value = filter
   selected.value = undefined; dialog.value = false
 }
-const search = () => { appliedQuery.value = query.value.trim(); cursor.value = ''; previous.value = []; void load() }
-const page = (forward: boolean) => { if (forward) { previous.value.push(cursor.value); cursor.value = next.value ?? '' } else cursor.value = previous.value.pop() ?? ''; void load() }
+const search = () => run(() => refresh('', [], query.value.trim()))
+const page = (forward: boolean) => {
+  const target = forward ? next.value : previous.value.at(-1)
+  if (target === undefined || (forward && !target)) return
+  const history = forward ? [...previous.value, cursor.value] : previous.value.slice(0, -1)
+  return run(() => refresh(target, history))
+}
 const label = computed(() => issuing.value ? props.section === 'invitations' ? text.value.issue : text.value.grant : props.section === 'notifications' ? text.value.retry : props.section === 'invitations' ? text.value.revoke : selected.value && 'enabled' in selected.value && selected.value.enabled ? text.value.disabled : text.value.enabled)
 const ask = (row?: Row) => { selected.value = row; issuing.value = !row; reason.value = ''; password.value = ''; userId.value = ''; error.value = ''; dialog.value = true }
 const mutate = () => run(async () => {

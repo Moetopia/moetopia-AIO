@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"net/http"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -76,11 +77,14 @@ func digest(value string) string {
 	sum := sha256.Sum256([]byte(value))
 	return hex.EncodeToString(sum[:])
 }
+
+var applicationReturnPath = regexp.MustCompile(`^/developer/applications/[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$`)
+
 func ReturnPath(value string) (string, error) {
 	if value == "" {
 		return "/profile", nil
 	}
-	if !slices.Contains([]string{"/profile", "/sessions", "/security", "/developer", "/developer/applications", "/developer/docs"}, value) {
+	if !slices.Contains([]string{"/profile", "/sessions", "/security", "/developer", "/developer/applications", "/developer/usage", "/developer/docs"}, value) && !applicationReturnPath.MatchString(value) {
 		return "", ErrLogin
 	}
 	return value, nil

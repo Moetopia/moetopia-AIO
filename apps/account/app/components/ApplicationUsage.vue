@@ -23,8 +23,24 @@ const loadApplications = async () => {
   })
   if (!selected.value && applications.value?.items?.[0]) selected.value = applications.value.items[0].id
 }
-const refresh = () => selected.value ? run(async () => { statistics.value = await $fetch<DeveloperApplicationStatistics>(`/api/v1/developer/applications/${encodeURIComponent(selected.value)}/statistics`, { retry: 0 }) }) : loadApplications()
-watch(selected, () => { statistics.value = undefined; void refresh() })
+let pendingSelection = false
+const refresh = () => {
+  const id = selected.value
+  if (!id) return loadApplications()
+  return run(async () => {
+    const result = await $fetch<DeveloperApplicationStatistics>(`/api/v1/developer/applications/${encodeURIComponent(id)}/statistics`, { retry: 0 })
+    if (selected.value === id) statistics.value = result
+  })
+}
+watch(selected, () => {
+  statistics.value = undefined
+  pendingSelection = true
+})
+watch([selected, busy], () => {
+  if (busy.value || !pendingSelection) return
+  pendingSelection = false
+  void refresh()
+})
 onMounted(loadApplications)
 </script>
 <template><div class="grid gap-6"><MoePageHeading :title="text.usage" :description="text.usageHint"><template #actions><MoeButton :loading="busy" variant="bordered" @click="refresh">{{ common.refresh }}</MoeButton></template></MoePageHeading><MoeAlert v-if="error" :title="error" color="danger" announce /><MoeEmptyState v-if="applications && !applications.items?.length" :title="common.empty" /><template v-else><div class="grid gap-4 sm:grid-cols-2"><MoeSelect v-model="selected" :label="common.applications" :options="applications?.items?.map(app => ({ value: app.id, label: app.latest.config.name })) ?? []" /><MoeSelect v-model="metric" :label="common.status" :options="metrics.map(value => ({ value, label: text[value] }))" /></div><MoeButton v-if="applications?.next_cursor" variant="light" :disabled="busy" @click="loadApplications">{{ common.next }}</MoeButton><MoeStatGrid :items="items" /><MoeCard v-if="statistics" padding="lg"><div class="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 class="text-base font-semibold">{{ text.usage }}</h2><MoeButtonGroup :label="text.usage"><MoeButton v-for="value in ['7', '14', '30']" :key="value" size="sm" :variant="days === value ? 'flat' : 'light'" :aria-pressed="days === value" @click="days = value">{{ value }} {{ text.days }}</MoeButton></MoeButtonGroup></div><MoeTimeSeriesChart :label="text[metric]" :points="points" :missing-label="common.missing" :partial-label="common.partial" /><p class="mt-3 text-xs text-muted">UTC · {{ statistics.generated_at }}</p></MoeCard></template></div></template>

@@ -42,7 +42,7 @@ func TestReturnPathAndQueryRejectNavigationInjection(t *testing.T) {
 			t.Fatalf("unapproved return path accepted: %q", value)
 		}
 	}
-	for _, value := range []string{"", "/profile", "/sessions", "/security", "/developer", "/developer/applications", "/developer/docs"} {
+	for _, value := range []string{"", "/profile", "/sessions", "/security", "/developer", "/developer/applications", "/developer/usage", "/developer/applications/00000000-0000-4000-8000-000000000001", "/developer/docs"} {
 		if _, err := ReturnPath(value); err != nil {
 			t.Fatalf("approved path rejected: %q", value)
 		}

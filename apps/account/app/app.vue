@@ -2,7 +2,7 @@
 import { MoeProvider } from '@moetopia/ui'
 import { accountExperienceKey } from './composables/useAccountExperience'
 import { portalSessionKey } from './composables/usePortalSession'
-const { locale } = usePortalPreferences()
+const { locale } = usePortalPreferences(true)
 const experience = useAccountExperience(locale)
 provide(accountExperienceKey, experience)
 provide(portalSessionKey, usePortalSession(locale))

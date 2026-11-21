@@ -284,18 +284,26 @@ test('administrator pagination omits empty cursors and retains nonempty cursors'
   await adminSetup(page)
   for (const [section, endpoint, key] of [['audit', 'audit-events', 'cursor'], ['principals', 'principals', 'after']] as const) {
     const queries: string[] = []
+    let failNext = true
     await page.route(`**/api/v1/admin/${endpoint}*`, route => {
       const url = new URL(route.request().url())
       queries.push(url.search)
+      if (url.searchParams.has(key) && failNext) {
+        failNext = false
+        return route.fulfill({ status: 503, json: {} })
+      }
       return route.fulfill({ json: { items: [], [key === 'after' ? 'next_after' : 'next_cursor']: url.searchParams.has(key) ? '' : 'example-next-page' } })
     })
     await page.goto(admin + '/' + section)
     await expect(page.getByRole('button', { name: '下一页', exact: true })).toBeEnabled()
     await page.getByRole('button', { name: '下一页', exact: true }).click()
+    await expect(page.getByRole('alert')).toBeVisible()
+    await expect(page.getByRole('button', { name: '上一页', exact: true })).toBeDisabled()
+    await page.getByRole('button', { name: '下一页', exact: true }).click()
     await expect(page.getByRole('button', { name: '上一页', exact: true })).toBeEnabled()
     await page.getByRole('button', { name: '上一页', exact: true }).click()
     await expect(page.getByRole('button', { name: '下一页', exact: true })).toBeEnabled()
-    expect(queries).toEqual(['', `?${key}=example-next-page`, ''])
+    expect(queries).toEqual(['', `?${key}=example-next-page`, `?${key}=example-next-page`, ''])
   }
 })
 
@@ -317,6 +325,29 @@ test('usage can retry its first application load and automatically loads statist
   await expect(page.getByRole('figure')).toBeVisible()
   await expect(page.getByRole('alert')).toHaveCount(0)
   expect(attempts).toBe(2)
+})
+
+test('usage loads the latest application after a pending request finishes', async ({ page }) => {
+  await mockPortal(page)
+  const other = { ...application, id: '22222222-2222-4222-8222-222222222222', latest: { ...application.latest, config: { ...application.latest.config, name: '第二个应用' } } }
+  let release!: () => void
+  const firstPending = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/api/v1/developer/applications**', async route => {
+    const path = new URL(route.request().url()).pathname
+    if (!path.endsWith('/statistics')) return route.fulfill({ json: { items: [application, other], next_cursor: '' } })
+    const first = path.includes(application.id)
+    if (first) await firstPending
+    return route.fulfill({ json: { generated_at: first ? '2026-10-22T00:00:00Z' : '2026-10-23T00:00:00Z', days: [] } })
+  })
+  const requested = page.waitForRequest(`**/applications/${application.id}/statistics`)
+  await page.goto(account + '/developer/usage')
+  await requested
+  try {
+    await page.getByRole('combobox', { name: '应用管理', exact: true }).click()
+    await page.getByRole('option', { name: '第二个应用' }).click()
+  } finally { release() }
+  await expect(page.getByText('UTC · 2026-10-23T00:00:00Z')).toBeVisible()
+  await expect(page.getByText('UTC · 2026-10-22T00:00:00Z')).toHaveCount(0)
 })
 
 test('central sign-out requires an explicit decision and re-confirms a changed account', async ({ page }) => {

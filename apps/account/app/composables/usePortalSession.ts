@@ -2,8 +2,9 @@ import { inject, type InjectionKey, type Ref } from 'vue'
 import type { PortalContext, PortalSessions } from '@moetopia/api-client'
 import type { Locale, accountMessages } from '@moetopia/locales'
 
-const destinations = new Set(['/profile', '/sessions', '/security', '/developer', '/developer/applications', '/developer/docs'])
-export const portalLoginURL = (destination: string) => `/api/v1/portal/login?return_to=${encodeURIComponent(destinations.has(destination) ? destination : destination.startsWith('/developer/applications/') ? '/developer/applications' : '/profile')}`
+const destinations = new Set(['/profile', '/sessions', '/security', '/developer', '/developer/applications', '/developer/usage', '/developer/docs'])
+const applicationDetail = /^\/developer\/applications\/[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$/
+export const portalLoginURL = (destination: string) => `/api/v1/portal/login?return_to=${encodeURIComponent(destinations.has(destination) || applicationDetail.test(destination) ? destination : '/profile')}`
 
 export const usePortalSession = (locale: Ref<Locale>) => {
   const route = useRoute()

@@ -25,7 +25,7 @@ test('direct application details require RP login even with an unrelated authori
   await mockPortal(page, false)
   await page.route('**/api/v1/portal/login?**', route => route.fulfill({ body: 'OAuth started' }))
   await page.goto(`${origin}/developer/applications/${id}?authorization_request=${'a'.repeat(43)}`)
-  await expect(page).toHaveURL(`${origin}/api/v1/portal/login?return_to=%2Fdeveloper%2Fapplications`)
+  await expect(page).toHaveURL(`${origin}/api/v1/portal/login?return_to=${encodeURIComponent('/developer/applications/' + id)}`)
 })
 
 test('profile handles revision conflicts, avatar upload and removal', async ({ page }) => {
