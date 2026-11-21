@@ -14,7 +14,7 @@ import (
 	"moetopia.local/aio/api/internal/persistence/ent/accountuser"
 )
 
-var userColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldSecurityVersion, accountuser.FieldPasswordHash, accountuser.FieldHasPassword, accountuser.FieldEnabled, accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt}
+var userColumns = []string{accountuser.FieldID, accountuser.FieldEmail, accountuser.FieldDisplayName, accountuser.FieldBio, accountuser.FieldAvatarDigest, accountuser.FieldRevision, accountuser.FieldSecurityVersion, accountuser.FieldPasswordHash, accountuser.FieldHasPassword, accountuser.FieldMuteApplicationReviewEmail, accountuser.FieldEnabled, accountuser.FieldEmailVerifiedAt, accountuser.FieldCreatedAt}
 
 func (s *Service) VerifyVersion(ctx context.Context, id string, version int) error {
 	row, err := persistence.Client(ctx, s.store.db).AccountUser.Query().Where(accountuser.ID(id), accountuser.Enabled(true), accountuser.DeletionDueAtIsNil()).Select(accountuser.FieldSecurityVersion).ForUpdate().Only(ctx)

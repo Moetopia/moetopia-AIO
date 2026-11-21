@@ -74,6 +74,11 @@ func DisplayName(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldDisplayName, v))
 }
 
+// MuteApplicationReviewEmail applies equality check predicate on the "mute_application_review_email" field. It's identical to MuteApplicationReviewEmailEQ.
+func MuteApplicationReviewEmail(v bool) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldMuteApplicationReviewEmail, v))
+}
+
 // Bio applies equality check predicate on the "bio" field. It's identical to BioEQ.
 func Bio(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldEQ(FieldBio, v))
@@ -267,6 +272,16 @@ func DisplayNameEqualFold(v string) predicate.AccountUser {
 // DisplayNameContainsFold applies the ContainsFold predicate on the "display_name" field.
 func DisplayNameContainsFold(v string) predicate.AccountUser {
 	return predicate.AccountUser(sql.FieldContainsFold(FieldDisplayName, v))
+}
+
+// MuteApplicationReviewEmailEQ applies the EQ predicate on the "mute_application_review_email" field.
+func MuteApplicationReviewEmailEQ(v bool) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldEQ(FieldMuteApplicationReviewEmail, v))
+}
+
+// MuteApplicationReviewEmailNEQ applies the NEQ predicate on the "mute_application_review_email" field.
+func MuteApplicationReviewEmailNEQ(v bool) predicate.AccountUser {
+	return predicate.AccountUser(sql.FieldNEQ(FieldMuteApplicationReviewEmail, v))
 }
 
 // BioEQ applies the EQ predicate on the "bio" field.

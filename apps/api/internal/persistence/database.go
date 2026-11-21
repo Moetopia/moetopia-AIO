@@ -38,7 +38,7 @@ func Open(ctx context.Context, dsn string) (*Database, error) {
 
 func (d *Database) Ready(ctx context.Context) error {
 	var registrationStatistics bool
-	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('identity.registration_events') IS NOT NULL AND to_regclass('identity.registration_statistics_state') IS NOT NULL").Scan(&registrationStatistics); err != nil {
+	if err := d.SQL.QueryRowContext(ctx, "SELECT to_regclass('identity.registration_events') IS NOT NULL AND to_regclass('identity.registration_statistics_state') IS NOT NULL AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='identity' AND table_name='users' AND column_name='mute_application_review_email')").Scan(&registrationStatistics); err != nil {
 		return err
 	}
 	if !registrationStatistics {

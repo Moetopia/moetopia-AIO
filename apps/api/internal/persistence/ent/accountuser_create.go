@@ -32,6 +32,20 @@ func (_c *AccountUserCreate) SetDisplayName(v string) *AccountUserCreate {
 	return _c
 }
 
+// SetMuteApplicationReviewEmail sets the "mute_application_review_email" field.
+func (_c *AccountUserCreate) SetMuteApplicationReviewEmail(v bool) *AccountUserCreate {
+	_c.mutation.SetMuteApplicationReviewEmail(v)
+	return _c
+}
+
+// SetNillableMuteApplicationReviewEmail sets the "mute_application_review_email" field if the given value is not nil.
+func (_c *AccountUserCreate) SetNillableMuteApplicationReviewEmail(v *bool) *AccountUserCreate {
+	if v != nil {
+		_c.SetMuteApplicationReviewEmail(*v)
+	}
+	return _c
+}
+
 // SetBio sets the "bio" field.
 func (_c *AccountUserCreate) SetBio(v string) *AccountUserCreate {
 	_c.mutation.SetBio(v)
@@ -231,6 +245,10 @@ func (_c *AccountUserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *AccountUserCreate) defaults() {
+	if _, ok := _c.mutation.MuteApplicationReviewEmail(); !ok {
+		v := accountuser.DefaultMuteApplicationReviewEmail
+		_c.mutation.SetMuteApplicationReviewEmail(v)
+	}
 	if _, ok := _c.mutation.Bio(); !ok {
 		v := accountuser.DefaultBio
 		_c.mutation.SetBio(v)
@@ -277,6 +295,9 @@ func (_c *AccountUserCreate) check() error {
 		if err := accountuser.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`ent: validator failed for field "AccountUser.display_name": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.MuteApplicationReviewEmail(); !ok {
+		return &ValidationError{Name: "mute_application_review_email", err: errors.New(`ent: missing required field "AccountUser.mute_application_review_email"`)}
 	}
 	if _, ok := _c.mutation.Bio(); !ok {
 		return &ValidationError{Name: "bio", err: errors.New(`ent: missing required field "AccountUser.bio"`)}
@@ -356,6 +377,10 @@ func (_c *AccountUserCreate) createSpec() (*AccountUser, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DisplayName(); ok {
 		_spec.SetField(accountuser.FieldDisplayName, field.TypeString, value)
 		_node.DisplayName = value
+	}
+	if value, ok := _c.mutation.MuteApplicationReviewEmail(); ok {
+		_spec.SetField(accountuser.FieldMuteApplicationReviewEmail, field.TypeBool, value)
+		_node.MuteApplicationReviewEmail = value
 	}
 	if value, ok := _c.mutation.Bio(); ok {
 		_spec.SetField(accountuser.FieldBio, field.TypeString, value)

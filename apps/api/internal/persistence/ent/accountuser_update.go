@@ -57,6 +57,20 @@ func (_u *AccountUserUpdate) SetNillableDisplayName(v *string) *AccountUserUpdat
 	return _u
 }
 
+// SetMuteApplicationReviewEmail sets the "mute_application_review_email" field.
+func (_u *AccountUserUpdate) SetMuteApplicationReviewEmail(v bool) *AccountUserUpdate {
+	_u.mutation.SetMuteApplicationReviewEmail(v)
+	return _u
+}
+
+// SetNillableMuteApplicationReviewEmail sets the "mute_application_review_email" field if the given value is not nil.
+func (_u *AccountUserUpdate) SetNillableMuteApplicationReviewEmail(v *bool) *AccountUserUpdate {
+	if v != nil {
+		_u.SetMuteApplicationReviewEmail(*v)
+	}
+	return _u
+}
+
 // SetBio sets the "bio" field.
 func (_u *AccountUserUpdate) SetBio(v string) *AccountUserUpdate {
 	_u.mutation.SetBio(v)
@@ -309,6 +323,9 @@ func (_u *AccountUserUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(accountuser.FieldDisplayName, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.MuteApplicationReviewEmail(); ok {
+		_spec.SetField(accountuser.FieldMuteApplicationReviewEmail, field.TypeBool, value)
+	}
 	if value, ok := _u.mutation.Bio(); ok {
 		_spec.SetField(accountuser.FieldBio, field.TypeString, value)
 	}
@@ -406,6 +423,20 @@ func (_u *AccountUserUpdateOne) SetDisplayName(v string) *AccountUserUpdateOne {
 func (_u *AccountUserUpdateOne) SetNillableDisplayName(v *string) *AccountUserUpdateOne {
 	if v != nil {
 		_u.SetDisplayName(*v)
+	}
+	return _u
+}
+
+// SetMuteApplicationReviewEmail sets the "mute_application_review_email" field.
+func (_u *AccountUserUpdateOne) SetMuteApplicationReviewEmail(v bool) *AccountUserUpdateOne {
+	_u.mutation.SetMuteApplicationReviewEmail(v)
+	return _u
+}
+
+// SetNillableMuteApplicationReviewEmail sets the "mute_application_review_email" field if the given value is not nil.
+func (_u *AccountUserUpdateOne) SetNillableMuteApplicationReviewEmail(v *bool) *AccountUserUpdateOne {
+	if v != nil {
+		_u.SetMuteApplicationReviewEmail(*v)
 	}
 	return _u
 }
@@ -691,6 +722,9 @@ func (_u *AccountUserUpdateOne) sqlSave(ctx context.Context) (_node *AccountUser
 	}
 	if value, ok := _u.mutation.DisplayName(); ok {
 		_spec.SetField(accountuser.FieldDisplayName, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.MuteApplicationReviewEmail(); ok {
+		_spec.SetField(accountuser.FieldMuteApplicationReviewEmail, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Bio(); ok {
 		_spec.SetField(accountuser.FieldBio, field.TypeString, value)

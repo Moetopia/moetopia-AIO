@@ -23,6 +23,13 @@ type ProfileInput struct {
 	}
 }
 type UserOutput struct{ Body identity.User }
+type ReviewEmailPreferenceInput struct {
+	AccountWrite
+	Body struct {
+		Muted    bool `json:"muted"`
+		Revision int  `json:"revision" minimum:"0"`
+	}
+}
 type AvatarInput struct {
 	AccountWrite
 	Body struct {
@@ -106,6 +113,20 @@ func (a PortalEndpoints) actor(ctx context.Context, input AccountWrite, write bo
 	return user, web, nil
 }
 func (a PortalEndpoints) registerManagement(api huma.API, accounts AccountEndpoints) {
+	huma.Put(api, "/api/v1/portal/notification-preferences", func(ctx context.Context, input *ReviewEmailPreferenceInput) (*UserOutput, error) {
+		user, _, err := a.actor(ctx, input.AccountWrite, true)
+		if err != nil {
+			return nil, err
+		}
+		if err := accounts.rate(ctx, user.ID, clientIP(ctx), false); err != nil {
+			return nil, err
+		}
+		updated, err := accounts.Identity.UpdateReviewEmailPreference(ctx, user.ID, input.Body.Muted, input.Body.Revision)
+		if err != nil {
+			return nil, managementError(err)
+		}
+		return &UserOutput{updated}, nil
+	})
 	huma.Patch(api, "/api/v1/portal/profile", func(ctx context.Context, input *ProfileInput) (*UserOutput, error) {
 		user, _, err := a.actor(ctx, input.AccountWrite, true)
 		if err != nil {

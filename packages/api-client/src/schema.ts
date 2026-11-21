@@ -1141,6 +1141,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/portal/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 更新应用审核邮件偏好 */
+        put: operations["put-api-v1-portal-notification-preferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/portal/password": {
         parameters: {
             query?: never;
@@ -2083,6 +2100,7 @@ export interface components {
             enabled: boolean;
             has_password: boolean;
             id: string;
+            mute_application_review_email?: boolean;
             /** Format: int64 */
             revision?: number;
         };
@@ -2272,6 +2290,17 @@ export interface components {
             /** Format: int64 */
             revision: number;
         };
+        ReviewEmailPreferenceInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/ReviewEmailPreferenceInputBody.json
+             */
+            readonly $schema?: string;
+            muted: boolean;
+            /** Format: int64 */
+            revision: number;
+        };
         SecurityEventsOutputBody: {
             /**
              * Format: uri
@@ -2348,6 +2377,7 @@ export interface components {
             email: string;
             has_password: boolean;
             id: string;
+            mute_application_review_email?: boolean;
             /** Format: int64 */
             revision?: number;
         };
@@ -5140,6 +5170,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortalContextBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["AccountProblem"];
+                };
+            };
+        };
+    };
+    "put-api-v1-portal-notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: {
+                Cookie?: string;
+                Origin?: string;
+                "X-Moetopia-CSRF"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewEmailPreferenceInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
                 };
             };
             /** @description Error */

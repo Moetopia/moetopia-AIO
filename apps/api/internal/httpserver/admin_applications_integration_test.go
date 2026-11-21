@@ -9,8 +9,51 @@ import (
 
 	"moetopia.local/aio/api/internal/developer"
 	"moetopia.local/aio/api/internal/persistence/ent/adminelevation"
+	"moetopia.local/aio/api/internal/persistence/ent/emaildelivery"
 	"moetopia.local/aio/api/internal/persistence/ent/securityevent"
 )
+
+func TestApplicationReviewEmailsRespectPreference(t *testing.T) {
+	f := newAdminFixture(t)
+	ctx := t.Context()
+	owner, err := f.identity.User(ctx, f.userID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	count := func() int {
+		t.Helper()
+		n, err := f.db.Ent.EmailDelivery.Query().Where(emaildelivery.UserID(owner.ID)).Count(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return n
+	}
+	for _, muted := range []bool{true, false} {
+		owner, err = f.identity.UpdateReviewEmailPreference(ctx, owner.ID, muted, owner.Revision)
+		if err != nil || owner.MuteApplicationReviewEmail != muted {
+			t.Fatalf("update notification preference: %v", err)
+		}
+		created, err := f.applications.Create(ctx, owner, true, applicationConfig())
+		if err != nil {
+			t.Fatal(err)
+		}
+		before := count()
+		app, err := f.applications.Submit(ctx, owner, created.Application.ID, created.Application.Revision)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := f.applications.Review(ctx, owner.ID, app.ID, app.Revision, !muted, "Reviewed"); err != nil {
+			t.Fatal(err)
+		}
+		want := 2
+		if muted {
+			want = 0
+		}
+		if got := count() - before; got != want {
+			t.Fatalf("muted=%t: queued %d updates, want %d", muted, got, want)
+		}
+	}
+}
 
 func TestAdminReviewSuspensionAndAudit(t *testing.T) {
 	f := newAdminFixture(t)

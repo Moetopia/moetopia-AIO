@@ -22,6 +22,12 @@ import (
 var ErrConflict = errors.New("account revision changed")
 var avatarCapacity = make(chan struct{}, 2)
 
+func (s *Service) UpdateReviewEmailPreference(ctx context.Context, id string, muted bool, revision int) (User, error) {
+	return s.updateProfile(ctx, id, revision, "notification-preferences.updated", func(update *ent.AccountUserUpdate) {
+		update.SetMuteApplicationReviewEmail(muted)
+	})
+}
+
 func (s *Service) UpdateProfile(ctx context.Context, id, name, bio string, revision int) (User, error) {
 	name, bio = strings.TrimSpace(name), strings.TrimSpace(bio)
 	if revision < 0 || !utf8.ValidString(name) || !utf8.ValidString(bio) || utf8.RuneCountInString(name) < 1 || utf8.RuneCountInString(name) > 80 || utf8.RuneCountInString(bio) > 500 {

@@ -968,30 +968,31 @@ func (m *AccountChallengeMutation) ResetEdge(name string) error {
 // AccountUserMutation represents an operation that mutates the AccountUser nodes in the graph.
 type AccountUserMutation struct {
 	config
-	op                    Op
-	typ                   string
-	id                    *string
-	email                 *string
-	display_name          *string
-	bio                   *string
-	avatar                *[]byte
-	avatar_digest         *string
-	revision              *int
-	addrevision           *int
-	security_version      *int
-	addsecurity_version   *int
-	password_hash         *string
-	has_password          *bool
-	enabled               *bool
-	disabled_reason       *string
-	deletion_requested_at *time.Time
-	deletion_due_at       *time.Time
-	email_verified_at     *time.Time
-	created_at            *time.Time
-	clearedFields         map[string]struct{}
-	done                  bool
-	oldValue              func(context.Context) (*AccountUser, error)
-	predicates            []predicate.AccountUser
+	op                            Op
+	typ                           string
+	id                            *string
+	email                         *string
+	display_name                  *string
+	mute_application_review_email *bool
+	bio                           *string
+	avatar                        *[]byte
+	avatar_digest                 *string
+	revision                      *int
+	addrevision                   *int
+	security_version              *int
+	addsecurity_version           *int
+	password_hash                 *string
+	has_password                  *bool
+	enabled                       *bool
+	disabled_reason               *string
+	deletion_requested_at         *time.Time
+	deletion_due_at               *time.Time
+	email_verified_at             *time.Time
+	created_at                    *time.Time
+	clearedFields                 map[string]struct{}
+	done                          bool
+	oldValue                      func(context.Context) (*AccountUser, error)
+	predicates                    []predicate.AccountUser
 }
 
 var _ ent.Mutation = (*AccountUserMutation)(nil)
@@ -1168,6 +1169,42 @@ func (m *AccountUserMutation) OldDisplayName(ctx context.Context) (v string, err
 // ResetDisplayName resets all changes to the "display_name" field.
 func (m *AccountUserMutation) ResetDisplayName() {
 	m.display_name = nil
+}
+
+// SetMuteApplicationReviewEmail sets the "mute_application_review_email" field.
+func (m *AccountUserMutation) SetMuteApplicationReviewEmail(b bool) {
+	m.mute_application_review_email = &b
+}
+
+// MuteApplicationReviewEmail returns the value of the "mute_application_review_email" field in the mutation.
+func (m *AccountUserMutation) MuteApplicationReviewEmail() (r bool, exists bool) {
+	v := m.mute_application_review_email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMuteApplicationReviewEmail returns the old "mute_application_review_email" field's value of the AccountUser entity.
+// If the AccountUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountUserMutation) OldMuteApplicationReviewEmail(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMuteApplicationReviewEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMuteApplicationReviewEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMuteApplicationReviewEmail: %w", err)
+	}
+	return oldValue.MuteApplicationReviewEmail, nil
+}
+
+// ResetMuteApplicationReviewEmail resets all changes to the "mute_application_review_email" field.
+func (m *AccountUserMutation) ResetMuteApplicationReviewEmail() {
+	m.mute_application_review_email = nil
 }
 
 // SetBio sets the "bio" field.
@@ -1751,12 +1788,15 @@ func (m *AccountUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccountUserMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 16)
 	if m.email != nil {
 		fields = append(fields, accountuser.FieldEmail)
 	}
 	if m.display_name != nil {
 		fields = append(fields, accountuser.FieldDisplayName)
+	}
+	if m.mute_application_review_email != nil {
+		fields = append(fields, accountuser.FieldMuteApplicationReviewEmail)
 	}
 	if m.bio != nil {
 		fields = append(fields, accountuser.FieldBio)
@@ -1809,6 +1849,8 @@ func (m *AccountUserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case accountuser.FieldDisplayName:
 		return m.DisplayName()
+	case accountuser.FieldMuteApplicationReviewEmail:
+		return m.MuteApplicationReviewEmail()
 	case accountuser.FieldBio:
 		return m.Bio()
 	case accountuser.FieldAvatar:
@@ -1848,6 +1890,8 @@ func (m *AccountUserMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldEmail(ctx)
 	case accountuser.FieldDisplayName:
 		return m.OldDisplayName(ctx)
+	case accountuser.FieldMuteApplicationReviewEmail:
+		return m.OldMuteApplicationReviewEmail(ctx)
 	case accountuser.FieldBio:
 		return m.OldBio(ctx)
 	case accountuser.FieldAvatar:
@@ -1896,6 +1940,13 @@ func (m *AccountUserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDisplayName(v)
+		return nil
+	case accountuser.FieldMuteApplicationReviewEmail:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMuteApplicationReviewEmail(v)
 		return nil
 	case accountuser.FieldBio:
 		v, ok := value.(string)
@@ -2090,6 +2141,9 @@ func (m *AccountUserMutation) ResetField(name string) error {
 		return nil
 	case accountuser.FieldDisplayName:
 		m.ResetDisplayName()
+		return nil
+	case accountuser.FieldMuteApplicationReviewEmail:
+		m.ResetMuteApplicationReviewEmail()
 		return nil
 	case accountuser.FieldBio:
 		m.ResetBio()

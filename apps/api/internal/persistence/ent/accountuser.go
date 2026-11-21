@@ -21,6 +21,8 @@ type AccountUser struct {
 	Email string `json:"email,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
+	// MuteApplicationReviewEmail holds the value of the "mute_application_review_email" field.
+	MuteApplicationReviewEmail bool `json:"mute_application_review_email,omitempty"`
 	// Bio holds the value of the "bio" field.
 	Bio string `json:"bio,omitempty"`
 	// Avatar holds the value of the "avatar" field.
@@ -57,7 +59,7 @@ func (*AccountUser) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case accountuser.FieldAvatar:
 			values[i] = new([]byte)
-		case accountuser.FieldHasPassword, accountuser.FieldEnabled:
+		case accountuser.FieldMuteApplicationReviewEmail, accountuser.FieldHasPassword, accountuser.FieldEnabled:
 			values[i] = new(sql.NullBool)
 		case accountuser.FieldRevision, accountuser.FieldSecurityVersion:
 			values[i] = new(sql.NullInt64)
@@ -97,6 +99,12 @@ func (_m *AccountUser) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field display_name", values[i])
 			} else if value.Valid {
 				_m.DisplayName = value.String
+			}
+		case accountuser.FieldMuteApplicationReviewEmail:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field mute_application_review_email", values[i])
+			} else if value.Valid {
+				_m.MuteApplicationReviewEmail = value.Bool
 			}
 		case accountuser.FieldBio:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -219,6 +227,9 @@ func (_m *AccountUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("display_name=")
 	builder.WriteString(_m.DisplayName)
+	builder.WriteString(", ")
+	builder.WriteString("mute_application_review_email=")
+	builder.WriteString(fmt.Sprintf("%v", _m.MuteApplicationReviewEmail))
 	builder.WriteString(", ")
 	builder.WriteString("bio=")
 	builder.WriteString(_m.Bio)

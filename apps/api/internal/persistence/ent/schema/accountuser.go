@@ -16,6 +16,7 @@ func (AccountUser) Fields() []ent.Field {
 		field.String("id").NotEmpty().Immutable(),
 		field.String("email").Unique(),
 		field.String("display_name").NotEmpty(),
+		field.Bool("mute_application_review_email").Default(false),
 		field.String("bio").Default(""),
 		field.Bytes("avatar").Optional(),
 		field.String("avatar_digest").Default(""),

@@ -46,6 +46,7 @@ var (
 		{Name: "id", Type: field.TypeString},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "display_name", Type: field.TypeString},
+		{Name: "mute_application_review_email", Type: field.TypeBool, Default: false},
 		{Name: "bio", Type: field.TypeString, Default: ""},
 		{Name: "avatar", Type: field.TypeBytes, Nullable: true},
 		{Name: "avatar_digest", Type: field.TypeString, Default: ""},
@@ -69,7 +70,7 @@ var (
 			{
 				Name:    "accountuser_deletion_due_at",
 				Unique:  false,
-				Columns: []*schema.Column{UsersColumns[13]},
+				Columns: []*schema.Column{UsersColumns[14]},
 			},
 		},
 	}

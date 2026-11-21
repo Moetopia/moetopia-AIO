@@ -149,6 +149,9 @@ func (s *Service) Submit(ctx context.Context, user identity.User, id string, rev
 	if err := audit.RecordTarget(ctx, tx.Client(), user.ID, "application.review.submitted", id, "success"); err != nil {
 		return Application{}, err
 	}
+	if err := s.notifyReview(ctx, user.ID, id, "application.review.submitted", ""); err != nil {
+		return Application{}, err
+	}
 	view, err := s.view(ctx, tx.Client(), row)
 	if err != nil {
 		return Application{}, err

@@ -36,13 +36,17 @@ secret 轮换立即使旧 secret 无法通过后续客户端认证，不提供�
 
 ## 配置版本与应用通知
 
+提交审核、审核通过和审核拒绝会把通知排入邮件队列。用户可在个人资料的「邮件通知」设置中关闭或重新开启「应用审核进度」。默认开启。保存后影响后续产生的审核事件，已经入队的邮件仍按队列规则处理。密钥轮换、平台处置和账号安全通知沿用各自的规则。
+
+偏好由迁移 17 保存到账号。前端通过 `PUT /api/v1/portal/notification-preferences` 更新，提交 `muted` 和当前账号 `revision`，使用用户站会话和 CSRF。升级时先应用迁移，再启动新版 API。
+
 版本路径用应用 UUID，使用 portal Cookie；管理员另用 `/api/v1/admin/applications/{id}/versions`，必须有效管理会话、角色和 MFA。每页最多 20 项，版本号降序；首请求省略 before 或传 0，后续将 next_before 原值传入，next_before=0 表示结束。before 是排他的版本上界，不是页码。空页 items=[]；没有其他所有者或已删除应用的可见入口。
 
 每项是原有 Version（version/config/status/review_reason）加 created_at，即版本创建时间；不返回审核人的用户 ID，也没有 reviewed_at。active_version 标记当前协议使用版本，latest_version 标记最新保存版本；旧批准记录即使不再生效，status 仍为 approved。draft 可以继续修改，pending 会变成 approved/rejected，因此这里只是已保存配置版本列表，不是每次编辑的审计历史。跨页不持有快照，审核或新增版本后从首页重读；没有直接恢复旧版的写入口，仍须提交新草稿并审核。
 
-批准、拒绝、平台暂停/解除以及 confidential secret 轮换将给所有者的已验证邮箱排队通知。当前只发中英邮件到开发 Mailpit，没有站内通知箱、WebSocket 或 Webhook；应用 ID/事件/审核或暂停理由可出现在通知，密码和 secret 不进入邮件。队列写入与业务/协议配置/审计同事务；队列失败返回 503 并回滚，提交后 SMTP 失败由 worker 重试，不回滚已生效配置。通知至少一次投递、24 小时过期，是开发参数，不承诺恰好一次或真实外部邮件送达。账号冻结不阻止管理员暂停其应用或通知该邮箱。
+平台暂停/解除和 confidential secret 轮换也会通知所有者的已验证邮箱。中英邮件在开发环境发往 Mailpit，在生产发往配置的 SMTP；应用 ID/事件/审核或暂停理由可出现在通知，密码和 secret 不进入邮件。队列写入与业务/协议配置/审计同事务；队列失败返回 503 并回滚，提交后 SMTP 失败由 worker 重试，不回滚已生效配置。通知至少一次投递、24 小时过期，是开发参数，不承诺恰好一次或真实外部邮件送达。账号冻结不阻止管理员暂停其应用或通知该邮箱。
 
-这批能力无需新迁移、初始化或依赖，现有版本 9 即可运行。取舍见 [ADR-0023](decisions/0023-introspection-and-application-history.md)，生成包新增 DeveloperApplicationHistory/AdminApplicationHistory 别名。
+应用配置历史和通知事务的设计见 [ADR-0023](decisions/0023-introspection-and-application-history.md)，生成包新增 DeveloperApplicationHistory/AdminApplicationHistory 别名。
 
 ## 校验和错误
 

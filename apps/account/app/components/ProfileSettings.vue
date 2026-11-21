@@ -10,6 +10,7 @@ const { text } = useIntegrationMessages()
 <template>
   <div class="grid gap-6">
     <ProfileEditor v-if="!securityOnly" />
+    <ReviewEmailSettings v-if="!securityOnly" />
     <MoeAlert v-if="user.has_password === false" :title="text.passwordNeeded" color="info"><template #actions><MoeLink as-child><NuxtLink to="/auth/forgot-password">{{ pageText.changePassword }}</NuxtLink></MoeLink></template></MoeAlert>
     <template v-else><AccountCredentials mode="email" /><AccountCredentials mode="password" /></template>
     <AccountSecurityRecords v-if="securityOnly" />

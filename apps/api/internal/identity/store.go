@@ -61,7 +61,7 @@ func public(user *ent.AccountUser) User {
 	if user.AvatarDigest != "" {
 		avatar = "/api/v1/avatars/" + user.ID + "?v=" + fmt.Sprint(user.Revision)
 	}
-	return User{ID: user.ID, Email: user.Email, DisplayName: user.DisplayName, Bio: user.Bio, AvatarURL: avatar, Revision: user.Revision, SecurityVersion: user.SecurityVersion, HasPassword: user.HasPassword}
+	return User{ID: user.ID, Email: user.Email, DisplayName: user.DisplayName, Bio: user.Bio, AvatarURL: avatar, Revision: user.Revision, SecurityVersion: user.SecurityVersion, HasPassword: user.HasPassword, MuteApplicationReviewEmail: user.MuteApplicationReviewEmail}
 }
 func (s *Store) Exists(ctx context.Context, email string) (bool, error) {
 	return s.db.AccountUser.Query().Where(accountuser.EmailEQ(email)).Exist(ctx)

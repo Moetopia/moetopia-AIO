@@ -55,36 +55,40 @@ func init() {
 	accountuserDescDisplayName := accountuserFields[2].Descriptor()
 	// accountuser.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	accountuser.DisplayNameValidator = accountuserDescDisplayName.Validators[0].(func(string) error)
+	// accountuserDescMuteApplicationReviewEmail is the schema descriptor for mute_application_review_email field.
+	accountuserDescMuteApplicationReviewEmail := accountuserFields[3].Descriptor()
+	// accountuser.DefaultMuteApplicationReviewEmail holds the default value on creation for the mute_application_review_email field.
+	accountuser.DefaultMuteApplicationReviewEmail = accountuserDescMuteApplicationReviewEmail.Default.(bool)
 	// accountuserDescBio is the schema descriptor for bio field.
-	accountuserDescBio := accountuserFields[3].Descriptor()
+	accountuserDescBio := accountuserFields[4].Descriptor()
 	// accountuser.DefaultBio holds the default value on creation for the bio field.
 	accountuser.DefaultBio = accountuserDescBio.Default.(string)
 	// accountuserDescAvatarDigest is the schema descriptor for avatar_digest field.
-	accountuserDescAvatarDigest := accountuserFields[5].Descriptor()
+	accountuserDescAvatarDigest := accountuserFields[6].Descriptor()
 	// accountuser.DefaultAvatarDigest holds the default value on creation for the avatar_digest field.
 	accountuser.DefaultAvatarDigest = accountuserDescAvatarDigest.Default.(string)
 	// accountuserDescRevision is the schema descriptor for revision field.
-	accountuserDescRevision := accountuserFields[6].Descriptor()
+	accountuserDescRevision := accountuserFields[7].Descriptor()
 	// accountuser.DefaultRevision holds the default value on creation for the revision field.
 	accountuser.DefaultRevision = accountuserDescRevision.Default.(int)
 	// accountuserDescSecurityVersion is the schema descriptor for security_version field.
-	accountuserDescSecurityVersion := accountuserFields[7].Descriptor()
+	accountuserDescSecurityVersion := accountuserFields[8].Descriptor()
 	// accountuser.DefaultSecurityVersion holds the default value on creation for the security_version field.
 	accountuser.DefaultSecurityVersion = accountuserDescSecurityVersion.Default.(int)
 	// accountuserDescHasPassword is the schema descriptor for has_password field.
-	accountuserDescHasPassword := accountuserFields[9].Descriptor()
+	accountuserDescHasPassword := accountuserFields[10].Descriptor()
 	// accountuser.DefaultHasPassword holds the default value on creation for the has_password field.
 	accountuser.DefaultHasPassword = accountuserDescHasPassword.Default.(bool)
 	// accountuserDescEnabled is the schema descriptor for enabled field.
-	accountuserDescEnabled := accountuserFields[10].Descriptor()
+	accountuserDescEnabled := accountuserFields[11].Descriptor()
 	// accountuser.DefaultEnabled holds the default value on creation for the enabled field.
 	accountuser.DefaultEnabled = accountuserDescEnabled.Default.(bool)
 	// accountuserDescDisabledReason is the schema descriptor for disabled_reason field.
-	accountuserDescDisabledReason := accountuserFields[11].Descriptor()
+	accountuserDescDisabledReason := accountuserFields[12].Descriptor()
 	// accountuser.DefaultDisabledReason holds the default value on creation for the disabled_reason field.
 	accountuser.DefaultDisabledReason = accountuserDescDisabledReason.Default.(string)
 	// accountuserDescCreatedAt is the schema descriptor for created_at field.
-	accountuserDescCreatedAt := accountuserFields[15].Descriptor()
+	accountuserDescCreatedAt := accountuserFields[16].Descriptor()
 	// accountuser.DefaultCreatedAt holds the default value on creation for the created_at field.
 	accountuser.DefaultCreatedAt = accountuserDescCreatedAt.Default.(func() time.Time)
 	// accountuserDescID is the schema descriptor for id field.

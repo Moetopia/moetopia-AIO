@@ -166,7 +166,7 @@ func TestApplicationNoticeAtomicityAndSecretRedaction(t *testing.T) {
 			t.Fatal("application notice recipient or secret redaction incorrect")
 		}
 	}
-	if notices != 2 {
-		t.Fatal("successful review and secret rotation did not each queue one notice")
+	if notices != 3 {
+		t.Fatal("review submission, review decision and secret rotation must each queue one notice")
 	}
 }

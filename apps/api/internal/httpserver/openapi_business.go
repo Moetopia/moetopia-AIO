@@ -33,6 +33,7 @@ var businessSummaries = map[string]string{
 	"GET /api/v1/portal/sessions":                                       "列出用户站会话",
 	"DELETE /api/v1/portal/sessions/{id}":                               "撤销用户站会话",
 	"PATCH /api/v1/portal/profile":                                      "更新个人资料",
+	"PUT /api/v1/portal/notification-preferences":                       "更新应用审核邮件偏好",
 	"PUT /api/v1/portal/avatar":                                         "上传或删除头像",
 	"POST /api/v1/portal/password":                                      "修改本地登录密码",
 	"POST /api/v1/portal/email-changes":                                 "发送新邮箱验证邮件",

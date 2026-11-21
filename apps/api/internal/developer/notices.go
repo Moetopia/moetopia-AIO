@@ -10,6 +10,22 @@ import (
 	"moetopia.local/aio/api/internal/persistence"
 )
 
+func (s *Service) notifyReview(ctx context.Context, owner, id, event, reason string) error {
+	user, err := s.users.User(ctx, owner)
+	if err != nil || user.MuteApplicationReviewEmail {
+		return err
+	}
+	switch event {
+	case "application.review.submitted":
+		event = "submitted for review / 已提交审核"
+	case "application.review.approved":
+		event = "approved / 审核通过"
+	case "application.review.rejected":
+		event = "rejected / 审核未通过"
+	}
+	return s.notify(ctx, owner, id, event, reason)
+}
+
 func (s *Service) notify(ctx context.Context, owner, id, event, reason string) error {
 	if s.outbox == nil {
 		return errors.New("application notifications are not configured")

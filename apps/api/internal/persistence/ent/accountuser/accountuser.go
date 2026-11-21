@@ -17,6 +17,8 @@ const (
 	FieldEmail = "email"
 	// FieldDisplayName holds the string denoting the display_name field in the database.
 	FieldDisplayName = "display_name"
+	// FieldMuteApplicationReviewEmail holds the string denoting the mute_application_review_email field in the database.
+	FieldMuteApplicationReviewEmail = "mute_application_review_email"
 	// FieldBio holds the string denoting the bio field in the database.
 	FieldBio = "bio"
 	// FieldAvatar holds the string denoting the avatar field in the database.
@@ -52,6 +54,7 @@ var Columns = []string{
 	FieldID,
 	FieldEmail,
 	FieldDisplayName,
+	FieldMuteApplicationReviewEmail,
 	FieldBio,
 	FieldAvatar,
 	FieldAvatarDigest,
@@ -80,6 +83,8 @@ func ValidColumn(column string) bool {
 var (
 	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
 	DisplayNameValidator func(string) error
+	// DefaultMuteApplicationReviewEmail holds the default value on creation for the "mute_application_review_email" field.
+	DefaultMuteApplicationReviewEmail bool
 	// DefaultBio holds the default value on creation for the "bio" field.
 	DefaultBio string
 	// DefaultAvatarDigest holds the default value on creation for the "avatar_digest" field.
@@ -116,6 +121,11 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByDisplayName orders the results by the display_name field.
 func ByDisplayName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
+}
+
+// ByMuteApplicationReviewEmail orders the results by the mute_application_review_email field.
+func ByMuteApplicationReviewEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMuteApplicationReviewEmail, opts...).ToFunc()
 }
 
 // ByBio orders the results by the bio field.
